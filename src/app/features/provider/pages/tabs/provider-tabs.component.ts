@@ -1,0 +1,50 @@
+import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink, RouterOutlet, RouterLinkActive, Router } from '@angular/router';
+import { WebSocketService } from '../../../../core/services/websocket.service';
+import { NotificationStateService } from '../../../../core/services/notification-state.service';
+import { ChatService } from '../../../../core/services/chat.service';
+import { Subscription } from 'rxjs';
+
+@Component({
+  selector: 'app-provider-tabs',
+  standalone: true,
+  imports: [CommonModule, RouterLink, RouterOutlet, RouterLinkActive],
+  templateUrl: './provider-tabs.component.html',
+})
+export class ProviderTabsComponent implements OnInit, OnDestroy {
+  private ws     = inject(WebSocketService);
+  private notif  = inject(NotificationStateService);
+  private chat   = inject(ChatService);
+  private router = inject(Router);
+  readonly unread = this.notif.unreadCount;
+  sidebarOpen = signal(false);
+  private subs: Subscription[] = [];
+
+  toggleSidebar(): void { this.sidebarOpen.update(v => !v); }
+  closeSidebar():  void { this.sidebarOpen.set(false); }
+
+  ngOnInit(): void {
+    this.ws.connect();
+    this.notif.loadNotifications();
+    this.subs.push(
+      this.ws.notification$.subscribe(n => {
+        this.notif.addNotification({
+          id: n.notification_id, user_id: 0,
+          notification_type: n.notification_type as any,
+          title: n.title, content: n.content,
+          related_entity_id: n.related_entity_id,
+          related_entity_type: n.related_entity_type,
+          is_read: n.is_read, created_at: n.timestamp,
+        });
+        if ((n.notification_type === 'message' || n.notification_type === 'chat_message') && n.related_entity_id) {
+          this.chat.applyLocalMessageUpdate(n.related_entity_id, n.content);
+        }
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subs.forEach(s => s.unsubscribe());
+  }
+}

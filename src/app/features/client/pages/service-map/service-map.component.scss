@@ -1,0 +1,255 @@
+// ============================================
+// SERVICE-MAP COMPONENT STYLES
+// ============================================
+
+// Mapa container
+#service-map {
+  position: relative;
+  z-index: 1;
+}
+
+// ============================================
+// ICONOS PERSONALIZADOS DEL MAPA
+// ============================================
+
+// Icono de ubicación actual del usuario
+.user-location-icon {
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
+  transition: all 0.3s ease;
+  
+  &:hover {
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+  }
+}
+
+// Icono de proveedor
+.provider-location-icon {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: scale(1.1);
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4));
+  }
+
+  // Proveedores bloqueados (plan premium)
+  &.locked {
+    opacity: 0.4;
+    filter: grayscale(0.8) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+}
+
+// ============================================
+// CLUSTERS DE MARCADORES
+// ============================================
+
+.marker-cluster {
+  background-clip: padding-box;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  
+  div {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #000;
+    text-align: center;
+  }
+
+  span {
+    line-height: 40px;
+    font-size: 13px;
+  }
+}
+
+.marker-cluster-small {
+  background-color: rgba(253, 215, 53, 0.6);
+  
+  div {
+    background-color: rgba(253, 215, 53, 0.8);
+  }
+}
+
+.marker-cluster-medium {
+  background-color: rgba(242, 140, 177, 0.6);
+  
+  div {
+    background-color: rgba(242, 140, 177, 0.8);
+  }
+}
+
+.marker-cluster-large {
+  background-color: rgba(241, 240, 117, 0.6);
+  
+  div {
+    background-color: rgba(241, 240, 117, 0.8);
+  }
+}
+
+.marker-cluster:hover {
+  transform: scale(1.1);
+  cursor: pointer;
+}
+
+// ============================================
+// POPUPS PERSONALIZADOS
+// ============================================
+
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  padding: 0;
+  overflow: hidden;
+  background-color: #2C2C2C;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.50);
+}
+
+.leaflet-popup-content {
+  margin: 0;
+  min-width: 200px;
+}
+
+.provider-popup,
+.user-popup {
+  padding: 12px;
+  font-family: inherit;
+}
+
+.provider-popup {
+  .popup-header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+    strong {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.87);
+      font-weight: 600;
+    }
+
+    .rating {
+      font-size: 12px;
+      color: #FDD735;
+      font-weight: 500;
+    }
+
+    .rating-new {
+      font-size: 11px;
+      color: #34D399;
+      font-weight: 500;
+      background: rgba(16, 185, 129, 0.14);
+      padding: 2px 6px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+  }
+
+  .popup-body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 8px;
+
+    p {
+      margin: 0;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.50);
+    }
+
+    .category {
+      color: rgba(255, 255, 255, 0.65);
+      font-weight: 500;
+    }
+
+    .distance {
+      color: #60A5FA;
+    }
+
+    .rate {
+      color: #34D399;
+      font-weight: 600;
+    }
+  }
+
+  .popup-link {
+    display: inline-block;
+    padding: 6px 12px;
+    background: #FDD735;
+    color: #141414;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    transition: background 0.2s ease;
+
+    &:hover {
+      background: #FFCA28;
+    }
+  }
+
+  .locked-msg {
+    text-align: center;
+    font-size: 11px;
+    color: #FBBF24;
+    font-weight: 500;
+    margin: 0;
+    padding: 4px 8px;
+    background: rgba(245, 158, 11, 0.12);
+    border-radius: 4px;
+  }
+}
+
+.user-popup {
+  strong {
+    display: block;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.87);
+    margin-bottom: 4px;
+  }
+
+  small {
+    display: block;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.45);
+  }
+}
+
+// ============================================
+// RESPONSIVE ADJUSTMENTS
+// ============================================
+
+@media (max-width: 640px) {
+  .marker-cluster {
+    div {
+      span {
+        font-size: 11px;
+      }
+    }
+  }
+
+  .provider-marker {
+    font-size: 26px;
+  }
+
+  .user-marker {
+    font-size: 24px;
+  }
+
+  .provider-popup {
+    .popup-header strong {
+      font-size: 13px;
+    }
+  }
+}

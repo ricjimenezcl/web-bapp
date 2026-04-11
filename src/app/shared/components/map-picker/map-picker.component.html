@@ -1,0 +1,94 @@
+<div class="map-picker-overlay">
+  <div class="map-picker-container">
+    
+    <!-- Header -->
+    <div class="map-picker-header">
+      <div class="flex-1">
+        <h2 class="text-lg font-bold text-slate-900 mb-1">Elegir ubicación</h2>
+        <p class="text-xs text-slate-500">Arrastra el mapa para posicionar el pin</p>
+      </div>
+      <button 
+        type="button"
+        (click)="cancelSelection()"
+        class="w-10 h-10 rounded-xl bg-surface-100 hover:bg-surface-200 flex items-center justify-center transition-colors">
+        <ion-icon name="close-outline" class="text-xl text-slate-700"></ion-icon>
+      </button>
+    </div>
+
+    <!-- Mapa -->
+    <div class="map-picker-body">
+      <div #mapContainer class="map-container"></div>
+      
+      <!-- ✅ Pin fijo en el centro -->
+      <div class="center-pin" [class.bounce]="!loading()">
+        <img 
+          src="https://res.cloudinary.com/dghwotofx/image/upload/f_png,w_64,h_64/v1774631660/ubicacion_nbo2mo" 
+          alt="Pin de ubicación" 
+          class="pin-icon">
+        <div class="pin-shadow"></div>
+      </div>
+      
+      <!-- Loading overlay -->
+      @if (loading()) {
+        <div class="absolute inset-0 bg-white/90 flex items-center justify-center z-10">
+          <div class="flex flex-col items-center gap-2">
+            <div class="animate-spin">
+              <ion-icon name="sync-outline" class="text-3xl text-primary-600"></ion-icon>
+            </div>
+            <span class="text-sm text-slate-600">Cargando mapa...</span>
+          </div>
+        </div>
+      }
+
+      <!-- Error overlay -->
+      @if (locationError()) {
+        <div class="absolute top-4 left-4 right-4 z-20">
+          <div class="bg-red-50 border border-red-200 rounded-lg px-4 py-3 flex items-start gap-3">
+            <ion-icon name="alert-circle" class="text-xl text-red-600 flex-shrink-0 mt-0.5"></ion-icon>
+            <p class="text-sm text-red-700 flex-1">{{ locationError() }}</p>
+          </div>
+        </div>
+      }
+
+      <!-- Address card -->
+      <div class="address-card">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-lg bg-primary-50 flex items-center justify-center flex-shrink-0">
+            <ion-icon name="location" class="text-xl text-primary-600"></ion-icon>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-0.5">Dirección seleccionada</p>
+            <p class="text-sm font-semibold text-slate-900 truncate">{{ selectedAddress() }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hint -->
+      <div class="map-hint">
+        <ion-icon name="hand-left" class="text-base text-primary-600"></ion-icon>
+        <span class="text-xs text-slate-600">Arrastra el mapa para mover el pin</span>
+      </div>
+    </div>
+
+    <!-- Footer con botones -->
+    <div class="map-picker-footer">
+      <button 
+        type="button"
+        (click)="useCurrentLocation()"
+        class="flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-surface-200 rounded-xl text-sm font-medium text-slate-700 hover:bg-surface-50 transition-colors flex-1">
+        <ion-icon name="navigate-outline" class="text-lg"></ion-icon>
+        <span>Mi ubicación</span>
+      </button>
+      
+      <button 
+        type="button"
+        (click)="confirmLocation()"
+        [disabled]="loading()"
+        class="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 disabled:from-surface-300 disabled:to-surface-300 text-white font-semibold rounded-xl shadow-lg transition-all flex-1 disabled:cursor-not-allowed">
+        <ion-icon name="checkmark-circle-outline" class="text-lg"></ion-icon>
+        <span>Confirmar</span>
+      </button>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,134 @@
+// client-bookings.component.scss
+// Estilos basados en frontend-bapp/client/pages/bookings
+
+// ── Tab underline indicator ────────────────────────────────────────────────
+// Reutiliza el patrón border-b de Tailwind pero con colores BAPP
+.bookings-tabs {
+  display: flex;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  margin: 0 -16px;
+  padding: 0 16px;
+}
+
+.booking-tab {
+  flex: 1;
+  padding-bottom: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  position: relative;
+  transition: color 0.15s ease;
+  color: rgba(255,255,255,0.40);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  &.active {
+    color: #FDD735;
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #FDD735;
+      border-radius: 2px 2px 0 0;
+    }
+  }
+
+  &:not(.active):hover {
+    color: rgba(255,255,255,0.70);
+  }
+}
+
+// ── Booking card ───────────────────────────────────────────────────────────
+.booking-card {
+  background-color: #232323;
+  border: 1.5px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    border-color: rgba(255,255,255,0.16);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.30);
+  }
+}
+
+// ── Service icon in booking card ──────────────────────────────────────────
+.booking-service-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: rgba(253,215,53,0.10);
+  border: 1px solid rgba(253,215,53,0.20);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+// ── Detail row ─────────────────────────────────────────────────────────────
+.booking-detail-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.62);
+
+  .detail-icon {
+    font-size: 15px;
+    color: rgba(255,255,255,0.40);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+}
+
+// ── Price value ────────────────────────────────────────────────────────────
+.booking-price {
+  font-size: 13px;
+  font-weight: 600;
+  color: #FDD735;
+}
+
+// ── Cancel modal icon ──────────────────────────────────────────────────────
+.cancel-modal-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(239,68,68,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  color: #F87171;
+  font-size: 22px;
+}
+
+// ── Toast message ──────────────────────────────────────────────────────────
+.toast-msg {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  background: #2C2C2C;
+  border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.92);
+  font-size: 13px;
+  padding: 10px 20px;
+  border-radius: 9999px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.40);
+  white-space: nowrap;
+  animation: toast-in 0.2s ease;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0);   }
+}

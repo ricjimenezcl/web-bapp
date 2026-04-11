@@ -1,0 +1,69 @@
+// my-services.component.scss
+// Estilos para la lista de servicios del proveedor
+
+// ── Add service button (header) ────────────────────────────────────────────
+.add-service-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(253,215,53,0.12);
+  border: 1.5px solid rgba(253,215,53,0.35);
+  border-radius: 9999px;
+  color: #FDD735;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s ease;
+
+  &:hover { background: rgba(253,215,53,0.20); }
+  &:active { transform: scale(0.96); }
+}
+
+// ── Service card actions ───────────────────────────────────────────────────
+.service-action-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(59,130,246,0.10);
+  border: 1px solid rgba(59,130,246,0.30);
+  color: #60A5FA;
+  text-decoration: none;
+  transition: background 0.15s;
+
+  &:hover { background: rgba(59,130,246,0.18); }
+}
+
+.service-action-delete {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.25);
+  color: #F87171;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover { background: rgba(239,68,68,0.16); }
+}
+
+// ── Service info row (address, rate) ──────────────────────────────────────
+.service-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.40);
+}
+
+// ── Availability toggle label ─────────────────────────────────────────────
+.avail-active   { color: #34D399; font-size: 11px; font-weight: 600; }
+.avail-inactive { color: rgba(255,255,255,0.38); font-size: 11px; }

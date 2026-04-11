@@ -1,0 +1,264 @@
+<div class="flex flex-col h-full bg-surface-50">
+
+  <!-- ── Header + Segment tabs ─────────────────────────────────────── -->
+  <header class="bg-white border-b border-surface-200 px-4 pt-4 pb-0 sticky top-0 z-10">
+    <div class="flex items-center justify-between mb-3">
+      <h1 class="text-lg font-bold text-slate-800">Mis Reservas</h1>
+      <button (click)="load()"
+        class="p-1.5 rounded-full text-slate-400 hover:text-primary-600 hover:bg-primary-50 transition-colors"
+        title="Recargar">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex border-b border-surface-200 -mx-4 px-4">
+      <!-- Próximas -->
+      <button (click)="activeTab.set('upcoming')"
+        class="flex-1 pb-3 text-sm font-medium transition-colors relative flex items-center justify-center gap-1"
+        [class]="activeTab() === 'upcoming' ? 'text-primary-600' : 'text-slate-500 hover:text-slate-700'">
+        Próximas
+        @if (upcomingBookings.length > 0) {
+          <span class="badge badge-primary text-[10px] px-1.5">{{ upcomingBookings.length }}</span>
+        }
+        @if (activeTab() === 'upcoming') {
+          <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600 rounded-t-full"></div>
+        }
+      </button>
+
+      <!-- Pendientes -->
+      <button (click)="activeTab.set('pending')"
+        class="flex-1 pb-3 text-sm font-medium transition-colors relative flex items-center justify-center gap-1"
+        [class]="activeTab() === 'pending' ? 'text-primary-600' : 'text-slate-500 hover:text-slate-700'">
+        Pendientes
+        @if (pendingBookings.length > 0) {
+          <span class="badge badge-warning text-[10px] px-1.5">{{ pendingBookings.length }}</span>
+        }
+        @if (activeTab() === 'pending') {
+          <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600 rounded-t-full"></div>
+        }
+      </button>
+
+      <!-- Canceladas -->
+      <button (click)="activeTab.set('cancelled')"
+        class="flex-1 pb-3 text-sm font-medium transition-colors relative flex items-center justify-center gap-1"
+        [class]="activeTab() === 'cancelled' ? 'text-primary-600' : 'text-slate-500 hover:text-slate-700'">
+        Canceladas
+        @if (activeTab() === 'cancelled') {
+          <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600 rounded-t-full"></div>
+        }
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Content ────────────────────────────────────────────────────── -->
+  <div class="flex-1 overflow-y-auto p-4">
+
+    @if (loading()) {
+      <app-loading-skeleton [count]="3" [showAvatar]="false"></app-loading-skeleton>
+
+    } @else if (error()) {
+      <app-empty-state iconName="alert-circle-outline" title="Error" [description]="error()">
+        <button (click)="load()" class="btn btn-primary mt-3">Reintentar</button>
+      </app-empty-state>
+
+    } @else if (displayedBookings.length === 0) {
+      <app-empty-state
+        icon="📅"
+        [title]="activeTab() === 'upcoming' ? 'Sin reservas próximas'
+               : activeTab() === 'pending'  ? 'Sin reservas pendientes'
+               : 'Sin reservas canceladas'"
+        [description]="activeTab() === 'upcoming'
+          ? 'Tus reservas confirmadas aparecerán aquí.'
+          : activeTab() === 'pending'
+          ? 'Aquí verás las reservas pendientes de confirmación y las completadas.'
+          : 'Aquí aparecerán las reservas que hayas cancelado.'">
+      </app-empty-state>
+
+    } @else {
+      <div class="space-y-3">
+        @for (booking of displayedBookings; track booking.id) {
+
+          <div class="bg-white rounded-xl shadow-sm border border-surface-200 overflow-hidden">
+
+            <!-- Card header -->
+            <div class="flex items-start gap-3 p-4 pb-3">
+              <div class="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center shrink-0 mt-0.5">
+                <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="font-semibold text-slate-800 truncate">{{ booking.service_category || 'Servicio' }}</p>
+                <p class="text-xs text-slate-400 mt-0.5">Servicio solicitado</p>
+              </div>
+              <span class="status-pill" [attr.data-status]="booking.status">
+                {{ statusLabels[booking.status] || booking.status }}
+              </span>
+            </div>
+
+            <div class="h-px bg-surface-100 mx-4"></div>
+
+            <!-- Details -->
+            <div class="px-4 py-3 space-y-2">
+
+              @if (booking.scheduled_date) {
+                <div class="flex items-center gap-2 text-sm text-slate-600">
+                  <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  <span>
+                    {{ booking.scheduled_date | date:'dd/MM/yyyy' }}
+                    @if (booking.scheduled_time) {
+                      <span class="text-slate-400"> · {{ booking.scheduled_time!.slice(0, 5) }}</span>
+                    }
+                    @if (booking.duration) {
+                      <span class="text-slate-400"> · {{ booking.duration }} min</span>
+                    }
+                  </span>
+                </div>
+              }
+
+              @if (booking.location_address) {
+                <div class="flex items-start gap-2 text-sm text-slate-600">
+                  <svg class="w-4 h-4 text-slate-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  </svg>
+                  <span class="line-clamp-2">{{ booking.location_address }}</span>
+                </div>
+              }
+
+              @if (booking.total_price) {
+                <div class="flex items-center gap-2 text-sm">
+                  <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                  </svg>
+                  <span class="font-semibold text-primary-700">${{ booking.total_price | number:'1.0-0' }}</span>
+                </div>
+              }
+
+              @if (booking.description) {
+                <div class="flex items-start gap-2 text-sm text-slate-500">
+                  <svg class="w-4 h-4 text-slate-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                  </svg>
+                  <span class="line-clamp-2">{{ booking.description }}</span>
+                </div>
+              }
+
+            </div>
+
+            <!-- Actions (PENDING or CONFIRMED) -->
+            @if (booking.status === 'PENDING' || booking.status === 'CONFIRMED') {
+              <div class="flex gap-2 px-4 pb-4 pt-1">
+                <button (click)="goToChat(booking)"
+                  [disabled]="chatOpeningId() === booking.id"
+                  class="btn-booking-chat">
+                  @if (chatOpeningId() === booking.id) {
+                    <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                    </svg>
+                    <span>Abriendo…</span>
+                  } @else {
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                    </svg>
+                    <span>Chat</span>
+                  }
+                </button>
+
+                @if (booking.status === 'PENDING') {
+                  <button (click)="openCancelModal(booking)"
+                    class="btn-booking-cancel">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    <span>Cancelar</span>
+                  </button>
+                }
+              </div>
+            }
+
+          </div>
+        }
+      </div>
+    }
+
+  </div>
+
+  <!-- ── Cancel modal ─────────────────────────────────────────────── -->
+  @if (cancelTarget()) {
+    <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
+         (click)="closeCancelModal()">
+      <div class="modal-backdrop"></div>
+
+      <div class="modal-content"
+           (click)="$event.stopPropagation()">
+
+        <!-- Icon -->
+        <div class="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 mx-auto mb-4">
+          <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          </svg>
+        </div>
+
+        <h3 class="text-lg font-bold text-slate-800 text-center mb-1">Cancelar reserva</h3>
+        <p class="text-sm text-slate-500 text-center mb-4">
+          ¿Estás seguro de que deseas cancelar esta reserva?<br>
+          <span class="font-medium text-slate-700">{{ cancelTarget()?.service_category }}</span>
+        </p>
+
+        <!-- Optional comment -->
+        <textarea [(ngModel)]="cancelComment"
+          placeholder="Motivo de cancelación (opcional)"
+          rows="2"
+          class="w-full text-sm border border-surface-200 rounded-xl px-3 py-2 resize-none
+                 focus:outline-none focus:ring-2 focus:ring-primary-300 mb-4">
+        </textarea>
+
+        <!-- Buttons -->
+        <div class="flex gap-3">
+          <button (click)="closeCancelModal()"
+            [disabled]="cancelLoading()"
+            class="btn btn-secondary flex-1">
+            No, volver
+          </button>
+          <button (click)="confirmCancel()"
+            [disabled]="cancelLoading()"
+            class="btn btn-danger flex-1">
+            @if (cancelLoading()) {
+              <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+              </svg>
+            }
+            Sí, cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ── Toast ─────────────────────────────────────────────────────── -->
+  @if (toastMsg()) {
+    <div class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50
+                bg-slate-800 text-white text-sm px-4 py-2.5 rounded-full shadow-lg
+                animate-fade-in whitespace-nowrap">
+      {{ toastMsg() }}
+    </div>
+  }
+
+</div>

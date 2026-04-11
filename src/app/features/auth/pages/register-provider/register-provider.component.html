@@ -1,0 +1,115 @@
+<div class="min-h-screen bg-gradient-to-br from-secondary-700 via-secondary-600 to-primary-700 flex items-center justify-center p-4">
+  <div class="w-full max-w-md animate-fade-in">
+    <div class="text-center mb-6">
+      <h1 class="text-2xl font-bold text-white">Registrarse como proveedor</h1>
+      <p class="text-green-100 mt-1">Ofrece tus servicios a miles de clientes</p>
+    </div>
+
+    @if (success()) {
+      <div class="card card-body text-center">
+        <div class="text-5xl mb-4">✅</div>
+        <h3 class="text-lg font-semibold text-slate-800">¡Cuenta creada!</h3>
+        <p class="text-slate-600 mt-1">Redirigiendo al inicio de sesión...</p>
+      </div>
+    } @else {
+      <div class="card card-body shadow-card-lg">
+        @if (error()) {
+          <div class="alert alert-danger mb-4"><span>{{ error() }}</span></div>
+        }
+
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="space-y-4">
+          <div class="form-group">
+            <label for="full_name" class="form-label">Nombre completo</label>
+            <input id="full_name" type="text" formControlName="full_name" class="form-input"
+              [class.error]="f['full_name'].invalid && f['full_name'].touched" placeholder="Juan Pérez">
+            @if (f['full_name'].invalid && f['full_name'].touched) {
+              <span class="form-error">Nombre requerido (mínimo 3 caracteres)</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="email" class="form-label">Correo electrónico</label>
+            <input id="email" type="email" formControlName="email" class="form-input"
+              [class.error]="f['email'].invalid && f['email'].touched" placeholder="proveedor@email.com">
+            @if (f['email'].invalid && f['email'].touched) {
+              <span class="form-error">Correo electrónico inválido</span>
+            }
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div class="form-group">
+              <label for="phone" class="form-label">Teléfono</label>
+              <input id="phone" type="tel" formControlName="phone" class="form-input"
+                [class.error]="f['phone'].invalid && f['phone'].touched"
+                placeholder="+56 9 XXXX XXXX"
+                maxlength="17"
+                (input)="onPhoneInput($event)">
+              @if (f['phone'].invalid && f['phone'].touched) {
+                <span class="form-error">
+                  {{ f['phone'].errors?.['required'] ? 'El teléfono es requerido' : 'Ingresa un teléfono chileno válido. Ej: +56 9 1234 5678' }}
+                </span>
+              }
+            </div>
+            <div class="form-group">
+              <label for="run" class="form-label">RUT <span class="text-slate-400 font-normal">(opcional)</span></label>
+              <input id="run" type="text" formControlName="run" class="form-input"
+                [class.error]="f['run'].invalid && f['run'].touched"
+                placeholder="12.345.678-9"
+                maxlength="12"
+                (input)="onRutInput($event)">
+              @if (f['run'].invalid && f['run'].touched) {
+                <span class="form-error">RUT inválido. Ej: 12.345.678-9</span>
+              }
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password" class="form-label">Contraseña</label>
+            <div class="relative">
+              <input id="password" [type]="showPass() ? 'text' : 'password'" formControlName="password" class="form-input pr-10"
+                [class.error]="f['password'].invalid && f['password'].touched" placeholder="Mínimo 8 caracteres">
+              <button type="button" (click)="showPass.set(!showPass())" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                {{ showPass() ? '🙈' : '👁️' }}
+              </button>
+            </div>
+            @if (f['password'].invalid && f['password'].touched) {
+              <span class="form-error">Contraseña mínima de 8 caracteres</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword" class="form-label">Confirmar contraseña</label>
+            <input id="confirmPassword" [type]="showPass() ? 'text' : 'password'" formControlName="confirmPassword" class="form-input"
+              [class.error]="f['confirmPassword'].touched && form.errors?.['passwordMismatch']">
+            @if (f['confirmPassword'].touched && form.errors?.['passwordMismatch']) {
+              <span class="form-error">Las contraseñas no coinciden</span>
+            }
+          </div>
+
+          <div class="flex items-start gap-2">
+            <input type="checkbox" formControlName="terms_accepted" id="terms" class="mt-0.5 w-4 h-4 accent-primary-600">
+            <label for="terms" class="text-sm text-slate-600">
+              Acepto los <a routerLink="/terms" class="text-primary-600 font-medium">Términos</a> y
+              <a routerLink="/privacy" class="text-primary-600 font-medium">Privacidad</a>
+            </label>
+          </div>
+          @if (f['terms_accepted'].invalid && f['terms_accepted'].touched) {
+            <span class="form-error">Debes aceptar los términos y condiciones</span>
+          }
+
+          <button type="submit" class="btn btn-primary btn-block btn-lg" [disabled]="loading()">
+            @if (loading()) { <span class="spinner"></span> }
+            Crear cuenta de proveedor
+          </button>
+        </form>
+
+        <div class="mt-4 text-center">
+          <p class="text-sm text-slate-600">
+            ¿Ya tienes cuenta?
+            <a routerLink="/auth/login" class="text-primary-600 font-medium">Iniciar sesión</a>
+          </p>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,281 @@
+// service-search.component.scss
+// Estilos inspirados en frontend-bapp/service-search
+
+// ── Provider card hover elevation ──────────────────────────────────────────
+.provider-card-link {
+  display: block;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+}
+
+// ── Category chips scrollable row ──────────────────────────────────────────
+.chip-active {
+  background: rgba(253,215,53,0.15) !important;
+  border: 1.5px solid rgba(253,215,53,0.40) !important;
+  color: #FDD735 !important;
+}
+
+// ── Filter segment override for dark bg-surface-100 fix ────────────────────
+.search-filter-row {
+  .segment-filter {
+    background: rgba(255,255,255,0.06);
+  }
+}
+
+// ── Provider avatar border pulse when online ──────────────────────────────
+.avatar-online {
+  position: relative;
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #4ADE80;
+    border: 2px solid #232323;
+  }
+}
+
+// ── Rating row ──────────────────────────────────────────────────────────────
+.rating-star {
+  color: #FDD735;
+  font-size: 13px;
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// NUEVAS CLASES PARA MIGRACIÓN TAILWIND → CSS
+// ══════════════════════════════════════════════════════════════════════════
+
+// Container
+.service-search-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+// Sticky header
+.search-header {
+  background: var(--bapp-bg-card);
+  border-bottom: 1px solid var(--bapp-border);
+  padding: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+// Search input
+.search-input-wrapper {
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 12px 10px 36px;
+  background: var(--bapp-surface-input);
+  border: 1px solid var(--bapp-border);
+  border-radius: 8px;
+  color: var(--bapp-text-primary);
+  font-size: 14px;
+  
+  &::placeholder {
+    color: var(--bapp-text-tertiary);
+  }
+  
+  &:focus {
+    outline: none;
+    border-color: var(--bapp-color-primary);
+    box-shadow: 0 0 0 2px rgba(253, 215, 53, 0.1);
+  }
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--bapp-text-tertiary);
+  font-size: 16px;
+  pointer-events: none;
+}
+
+// Panels
+.panels-container {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.search-panel-list,
+.search-panel-map {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.search-panel-list {
+  @media (min-width: 768px) {
+    flex: 0 0 50%;
+    border-right: 1px solid var(--bapp-border);
+  }
+}
+
+.search-panel-map {
+  @media (max-width: 767px) {
+    display: none;
+    
+    &:not(.hidden) {
+      display: block;
+      position: absolute;
+      inset: 0;
+      background: var(--bapp-bg-page);
+    }
+  }
+}
+
+.search-panel-list.hidden,
+.search-panel-map.hidden {
+  display: none;
+}
+
+// Results list
+.results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+}
+
+// Provider card 
+.provider-card {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bapp-bg-card);
+  border: 1px solid var(--bapp-border);
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: var(--bapp-color-primary);
+  }
+}
+
+.provider-avatar {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid var(--bapp-color-primary);
+  object-fit: cover;
+  background: var(--bapp-surface-hover);
+}
+
+.provider-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.provider-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.provider-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--bapp-text-primary);
+  word-break: break-word;
+}
+
+.provider-rate {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--bapp-color-primary);
+  flex-shrink: 0;
+}
+
+// Meta info
+.provider-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 12px;
+}
+
+.provider-description {
+  font-size: 12px;
+  color: var(--bapp-text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// ── Distance chip ───────────────────────────────────────────────────────────
+.dist-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.40);
+}
+
+// ── Service name chip (category badge) ─────────────────────────────────────
+.service-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 11px;
+  background: rgba(253,215,53,0.10);
+  border: 1px solid rgba(253,215,53,0.25);
+  color: #C89800;
+}
+
+// ── Empty / initial state ───────────────────────────────────────────────────
+.search-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 48px 24px;
+  text-align: center;
+
+  .search-empty-icon {
+    font-size: 44px;
+    color: rgba(255,255,255,0.24);
+  }
+  .search-empty-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.62);
+    margin: 0;
+  }
+  .search-empty-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,0.38);
+    max-width: 240px;
+    line-height: 1.5;
+    margin: 0;
+  }
+}

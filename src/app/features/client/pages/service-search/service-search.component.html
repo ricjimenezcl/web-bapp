@@ -1,0 +1,213 @@
+<div class="service-search-container">
+
+  <!-- ── STICKY HEADER ─────────────────────────────────────────────────── -->
+  <header class="search-header">
+
+    <!-- Search input -->
+    <div class="search-input-wrapper">
+      <ion-icon name="search-outline" class="search-icon"></ion-icon>
+      <input [formControl]="searchControl" type="search" placeholder="Buscar servicio o proveedor..."
+        class="search-input">
+    </div>
+
+    <!-- Fila: filtros de ordenamiento + toggle lista/mapa (móvil) -->
+    <div style="display: flex; align-items: center; gap: 8px; margin: 12px 0 0 0;">
+
+      <!-- Ordenamiento -->
+      <div class="segment-filter flex-1">
+        <button
+          (click)="changeFilter('distance')"
+          class="segment-btn"
+          [class.active]="selectedFilter() === 'distance'">
+          <ion-icon name="location"></ion-icon>
+          Cercanos
+        </button>
+        <button
+          (click)="changeFilter('rating')"
+          class="segment-btn"
+          [class.active]="selectedFilter() === 'rating'">
+          <ion-icon name="star"></ion-icon>
+          Mejor rating
+        </button>
+      </div>
+
+      <!-- Toggle Lista / Mapa (solo visible en móvil) -->
+      <div class="md:hidden segment-filter" style="flex-shrink: 0;">
+        <button
+          (click)="viewMode.set('list')"
+          class="segment-btn"
+          [class.active]="viewMode() === 'list'">
+          <ion-icon name="list-outline"></ion-icon>
+          Lista
+        </button>
+        <button
+          (click)="viewMode.set('map')"
+          class="segment-btn"
+          [class.active]="viewMode() === 'map'">
+          <ion-icon name="map-outline"></ion-icon>
+          Mapa
+        </button>
+      </div>
+    </div>
+
+    <!-- Chips -->
+    @if (displayedCategories().length > 0) {
+      <div class="chips-container">
+        @if (serviceIds().length === 0) {
+          <button (click)="selectCategory(null)"
+            class="chip"
+            [class.active]="!selectedCat()">
+            Todos
+          </button>
+        }
+        @for (cat of displayedCategories(); track cat.id) {
+          <button
+            (click)="serviceIds().length === 0 ? selectCategory(cat.id) : null"
+            class="chip"
+            [class.active]="selectedCat() === cat.id"
+            [class.disabled]="serviceIds().length > 0">
+            @if (cat.icon) {
+              @if (isImageUrl(cat.icon)) {
+                <img [src]="cat.icon" [alt]="cat.name" style="width: 14px; height: 14px; object-fit: contain;">
+              } @else {
+                <span>{{ getIconEmoji(cat.icon, cat.name) }}</span>
+              }
+            }
+            {{ cat.name }}
+          </button>
+        }
+      </div>
+    }
+
+    <!-- Contador de resultados + contador de contactos -->
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--bapp-border); font-size: 12px;">
+      @if (!loading() && !showInitial() && filteredProviders().length > 0) {
+        <p style="color: var(--bapp-text-tertiary); margin: 0;">
+          {{ filteredProviders().length }} proveedor{{ filteredProviders().length !== 1 ? 'es' : '' }} encontrado{{ filteredProviders().length !== 1 ? 's' : '' }}
+        </p>
+      } @else {
+        <span></span>
+      }
+      <!-- Contador de contactos gratuitos restantes -->
+      @if (contactLimit.remaining() < contactLimit.FREE_LIMIT) {
+        <p style="margin: 0;" [ngClass]="contactLimit.remaining() === 0 ? 'text-red-500 font-medium' : 'text-slate-400'">
+          @if (contactLimit.remaining() === 0) {
+            🔒 Límite de contactos alcanzado
+          } @else {
+            {{ contactLimit.remaining() }} contacto{{ contactLimit.remaining() !== 1 ? 's' : '' }} gratis restante{{ contactLimit.remaining() !== 1 ? 's' : '' }}
+          }
+        </p>
+      }
+    </div>
+  </header>
+
+  <!-- ── PANELES (lista + mapa) ─────────────────────────────────────────── -->
+  <div class="flex flex-1 min-h-0 overflow-hidden">
+
+    <!-- PANEL LISTA: visible siempre en desktop, condicional en móvil -->
+    <div class="search-panel-list overflow-y-auto"
+         [class.hidden]="viewMode() === 'map'">
+
+      @if (loading()) {
+        <div class="p-4">
+          <app-loading-skeleton [count]="4"></app-loading-skeleton>
+        </div>
+      } @else if (error()) {
+        <div class="p-4">
+          <app-empty-state iconName="alert-circle-outline" title="Error" [description]="error()">
+            <button (click)="search()" class="btn btn-primary mt-3">Reintentar</button>
+          </app-empty-state>
+        </div>
+      } @else if (showInitial()) {
+        <div class="p-4">
+          <app-empty-state iconName="search-outline" title="Busca proveedores"
+            description="Escribe el nombre del servicio o proveedor que necesitas.">
+          </app-empty-state>
+        </div>
+      } @else if (filteredProviders().length === 0) {
+        <div class="p-4">
+          <app-empty-state iconName="sad-outline" title="Sin resultados"
+            description="No encontramos proveedores con esos criterios.">
+          </app-empty-state>
+        </div>
+      } @else {
+        <div class="flex flex-col gap-3 p-3">
+          @for (provider of filteredProviders(); track provider.id) {
+            <a [routerLink]="['/client/provider-info', provider.provider_id]"
+              class="card card-body flex gap-3 hover:shadow-card-lg transition-shadow cursor-pointer">
+
+              <!-- Avatar -->
+              <div class="shrink-0 relative">
+                @if (provider.avatar) {
+                  <img [src]="provider.avatar" [alt]="provider.business_name || provider.full_name"
+                       loading="lazy" decoding="async"
+                    (error)="onImageError($event)"
+                    class="w-14 h-14 rounded-full object-cover border-2 border-primary-200">
+                } @else {
+                  <div class="w-14 h-14 bg-primary-100 flex items-center justify-center rounded-full border-2 border-primary-200">
+                    <ion-icon name="person" class="text-3xl text-primary-600"></ion-icon>
+                  </div>
+                }
+                <!-- Indicator de conectado/desconectado -->
+                <div [class]="'absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-white ' + (provider.is_available ? 'bg-green-500' : 'bg-slate-400')"></div>
+              </div>
+
+              <!-- Info -->
+              <div class="flex-1 min-w-0 flex flex-col gap-1">
+                <div class="flex items-start justify-between gap-2">
+                  <h3 class="font-semibold text-slate-800 truncate leading-tight">
+                    {{ provider.business_name || provider.full_name }}
+                  </h3>
+                  @if (provider.hourly_rate) {
+                    <span class="text-sm font-bold text-primary-700 shrink-0">
+                      ${{ provider.hourly_rate | number:'1.0-0' }}/hr
+                    </span>
+                  }
+                </div>
+
+                <!-- Rating -->
+                @if (provider.rating_avg && provider.rating_avg > 0) {
+                  <div class="flex items-center gap-1">
+                    <ion-icon name="star" class="text-amber-400 text-sm"></ion-icon>
+                    <span class="text-xs font-medium text-slate-700">{{ provider.rating_avg | number:'1.1-1' }}</span>
+                    <span class="text-xs text-slate-400">({{ provider.total_reviews || 0 }})</span>
+                  </div>
+                }
+
+                <!-- Categoría + distancia en fila -->
+                <div class="flex items-center gap-2 flex-wrap">
+                  @if (provider.service_category?.name || provider.service_category_name) {
+                    <span class="badge badge-primary text-xs">
+                      {{ provider.service_category?.name || provider.service_category_name }}
+                    </span>
+                  }
+                  @if (provider.distance_km) {
+                    <span class="text-xs text-slate-400 flex items-center gap-0.5">
+                      <ion-icon name="location-outline" class="text-sm"></ion-icon>
+                      {{ provider.distance_km | number:'1.1-1' }} km
+                    </span>
+                  }
+                </div>
+
+                <!-- Descripción corta -->
+                @if (provider.description) {
+                  <p class="text-xs text-slate-500 line-clamp-2">{{ provider.description }}</p>
+                }
+              </div>
+            </a>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- PANEL MAPA: visible siempre en desktop, condicional en móvil -->
+    <div class="search-panel-map"
+         [class.hidden]="viewMode() === 'list'">
+      <app-service-map
+        [embedded]="true"
+        [embeddedProviders]="filteredProviders()">
+      </app-service-map>
+    </div>
+
+  </div>
+</div>

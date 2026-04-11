@@ -1,0 +1,52 @@
+.login-bg {
+  min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height — fixes mobile browser chrome */
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+
+  background-image: url('https://res.cloudinary.com/dghwotofx/image/upload/v1774573466/fondo_rqmj0x.webp');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed; /* Fija el bg al viewport, evita que se corte en scroll */
+
+  /* Fallback color mientras carga la imagen */
+  background-color: #1e40af;
+}
+
+/* ── Tablet (768px+) ── */
+@media (min-width: 768px) {
+  .login-bg {
+    background-attachment: fixed;
+    background-position: center center;
+  }
+}
+
+/* ── Desktop (1024px+) ── */
+@media (min-width: 1024px) {
+  .login-bg {
+    background-size: cover;
+    background-position: center top;
+  }
+}
+
+/* ── Pantallas muy anchas (1440px+) ── */
+@media (min-width: 1440px) {
+  .login-bg {
+    background-size: 100% auto;
+    background-position: center center;
+  }
+}
+
+/* ── Landscape móvil ── */
+@media (max-height: 600px) and (orientation: landscape) {
+  .login-bg {
+    align-items: flex-start;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+    background-attachment: scroll;
+  }
+}

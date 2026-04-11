@@ -1,0 +1,227 @@
+// ============================================
+// MAP PICKER COMPONENT STYLES
+// ============================================
+
+.map-picker-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  animation: fadeIn 0.2s ease-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+
+  @media (max-width: 768px) {
+    padding: 0;
+    align-items: flex-end;
+  }
+}
+
+.map-picker-container {
+  background: white;
+  border-radius: 1.5rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease-out;
+
+  @media (max-width: 768px) {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    max-height: 85vh;
+  }
+}
+
+.map-picker-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.map-picker-body {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+
+  // Leaflet control styles
+  .leaflet-control-zoom {
+    border: none;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+
+    a {
+      width: 36px;
+      height: 36px;
+      line-height: 36px;
+      font-size: 20px;
+      border: none;
+      background: white;
+      color: #475569;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: #f1f5f9;
+        color: #0f172a;
+      }
+    }
+  }
+
+  .leaflet-control-attribution {
+    display: none;
+  }
+}
+
+.map-container {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  cursor: grab;
+  
+  &:active {
+    cursor: grabbing;
+  }
+  
+  @media (max-width: 768px) {
+    min-height: 300px;
+  }
+}
+
+// ✅ Pin fijo centrado (UXPattern)
+.center-pin {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -100%);
+  z-index: 1500;
+  pointer-events: none;
+  transition: transform 0.2s ease-out;
+
+  &.bounce {
+    animation: pinBounce 0.6s ease-out;
+  }
+
+  .pin-icon {
+    width: 50px;
+    height: 50px;
+    display: block;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.25));
+    user-select: none;
+  }
+
+  .pin-shadow {
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 8px;
+    background: radial-gradient(ellipse, rgba(0, 0, 0, 0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    filter: blur(3px);
+  }
+}
+
+.address-card {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  right: 1rem;
+  background: white;
+  border-radius: 1rem;
+  padding: 1rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  z-index: 1000;
+  animation: slideDown 0.3s ease-out 0.2s both;
+}
+
+.map-hint {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: white;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out 0.4s both;
+
+  @media (max-width: 768px) {
+    bottom: 0.75rem;
+    font-size: 0.75rem;
+  }
+}
+
+.map-picker-footer {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.02));
+}
+
+// ============================================
+// ANIMATIONS
+// ============================================
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(2rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pinBounce {
+  0% {
+    transform: translate(-50%, -100%) scale(1);
+  }
+  30% {
+    transform: translate(-50%, -120%) scale(1.1);
+  }
+  50% {
+    transform: translate(-50%, -95%) scale(0.95);
+  }
+  70% {
+    transform: translate(-50%, -105%) scale(1.02);
+  }
+  100% {
+    transform: translate(-50%, -100%) scale(1);
+  }
+}

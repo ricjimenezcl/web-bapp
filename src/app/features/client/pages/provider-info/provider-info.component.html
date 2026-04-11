@@ -1,0 +1,630 @@
+<div class="flex flex-col h-full bg-surface-50">
+
+  @if (loading()) {
+    <div class="p-4"><app-loading-skeleton [count]="3"></app-loading-skeleton></div>
+  } @else if (provider()) {
+
+  <!-- Wrapper 2 columnas: left scrollable + right sticky sidebar (desktop) -->
+  <div class="flex-1 flex min-h-0 overflow-hidden">
+
+    <!-- ── LEFT COLUMN ───────────────────────────────────────────────── -->
+    <div class="flex flex-col flex-1 min-h-0 overflow-y-auto relative">
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         HERO SECTION
+    ══════════════════════════════════════════════════════════════════ -->
+    <div class="provider-hero relative flex-shrink-0">
+
+      <!-- Botón atrás -->
+      <button type="button" (click)="goBack()"
+        class="absolute top-4 left-4 w-10 h-10 rounded-full border border-slate-200 bg-white/70 backdrop-blur-sm flex items-center justify-center text-slate-700 hover:bg-white transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </button>
+
+      <!-- Avatar + nombre + rating -->
+      <div class="flex flex-col items-center text-center">
+        <div class="relative mb-3">
+          @if (provider()!.avatar) {
+            <img [src]="provider()!.avatar" [alt]="providerName"
+                 loading="lazy" decoding="async"
+              class="w-24 h-24 rounded-full object-cover border-4 border-primary-400 shadow-lg avatar-glow" loading="lazy">
+          } @else {
+            <div class="w-24 h-24 rounded-full border-4 border-primary-400 bg-primary-100 flex items-center justify-center avatar-glow">
+              <ion-icon name="person" class="text-5xl text-primary-600"></ion-icon>
+            </div>
+          }
+          <span class="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-green-500 border-2 border-white"></span>
+        </div>
+        <h1 class="text-xl font-bold text-slate-800 leading-tight">{{ providerName }}</h1>
+        <div class="flex items-center gap-1 mt-1 flex-wrap justify-center">
+          <span class="text-amber-400 text-sm">★</span>
+          <span class="text-sm font-semibold text-slate-700">{{ providerRating }}</span>
+          @if (providerReviewCount > 0) {
+            <span class="text-xs text-slate-400">({{ providerReviewCount }})</span>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         STATS BAR
+    ══════════════════════════════════════════════════════════════════ -->
+    <div class="stat-bar">
+      <div class="stat-item">
+        <span class="stat-value">{{ providerReviewCount }}</span>
+        <span class="stat-label">Reseñas</span>
+      </div>
+      <div class="stat-item border-x border-surface-200">
+        <span class="stat-value">{{ providerRating }}</span>
+        <span class="stat-label">Calificación</span>
+      </div>
+      <div class="stat-item">
+        @if (providerHourlyRate) {
+          <span class="stat-value">${{ providerHourlyRate | number:'1.0-0' }}</span>
+        } @else {
+          <span class="text-xl font-bold text-slate-300">—</span>
+        }
+        <span class="stat-label">Por hora</span>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         TAB PILLS
+    ══════════════════════════════════════════════════════════════════ -->
+    <div class="flex gap-2 px-4 py-3 bg-white border-b border-surface-200 flex-shrink-0">
+      <button type="button" class="nav-pill" [class.active]="activeTab() === 'profile'"
+        (click)="activeTab.set('profile')">Perfil</button>
+      <button type="button" class="nav-pill" [class.active]="activeTab() === 'reviews'"
+        (click)="activeTab.set('reviews')">Reseñas</button>
+      <button type="button" class="nav-pill" [class.active]="activeTab() === 'contact'"
+        (click)="activeTab.set('contact')">Contacto</button>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         TAB CONTENT (scrollable, con padding-bottom para la acción bar)
+    ══════════════════════════════════════════════════════════════════ -->
+    <div class="flex-1 pb-24 md:pb-6">
+
+      <!-- ── TAB: PERFIL ───────────────────────────────────────── -->
+      @if (activeTab() === 'profile') {
+        <div class="p-4 space-y-3">
+          <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Sobre el proveedor</p>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            {{ providerDescription || 'Proveedor de servicios profesional. Contacta para más información.' }}
+          </p>
+          @if (services().length > 0) {
+            <div class="pt-2">
+              <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Servicios</p>
+              <div class="space-y-2">
+                @for (svc of services(); track svc.id) {
+                  <div class="bg-white rounded-xl border border-slate-200 p-3 flex items-start justify-between gap-2">
+                    <div class="flex-1 min-w-0">
+                      <p class="font-semibold text-slate-800 text-sm truncate">{{ svc.business_name }}</p>
+                      @if (svc.service_category?.name) {
+                        <p class="text-xs text-amber-600 font-medium mt-0.5">{{ svc.service_category!.name }}</p>
+                      }
+                      @if (svc.description) {
+                        <p class="text-xs text-slate-500 mt-0.5 line-clamp-2">{{ svc.description }}</p>
+                      }
+                    </div>
+                    <div class="text-right shrink-0">
+                      @if (svc.hourly_rate) {
+                        <p class="text-sm font-bold text-amber-600">${{ svc.hourly_rate | number:'1.0-0' }}/hr</p>
+                      }
+                      <button (click)="openBooking(svc)"
+                        class="mt-1 px-3 py-1.5 bg-amber-400 hover:bg-amber-500 text-slate-900 text-xs font-bold rounded-lg transition-colors">
+                        Reservar
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ── TAB: RESEÑAS ──────────────────────────────────────── -->
+      @if (activeTab() === 'reviews') {
+        <div class="p-4 space-y-3">
+          @if (reviews().length === 0) {
+            <p class="text-center text-slate-400 text-sm py-8">Sin reseñas aún</p>
+          }
+          @for (review of reviews(); track review.id) {
+            <div class="bg-white rounded-xl border border-slate-200 p-3">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-sm font-semibold text-slate-800">{{ review.client?.full_name ?? 'Cliente' }}</span>
+                <div class="flex gap-0.5">
+                  @for (s of [1,2,3,4,5]; track s) {
+                    <span class="text-xs" [class]="s <= review.rating ? 'text-amber-400' : 'text-slate-200'">★</span>
+                  }
+                </div>
+              </div>
+              @if (review.comment) {
+                <p class="text-sm text-slate-600 leading-normal">{{ review.comment }}</p>
+              }
+              <p class="text-xs text-slate-400 mt-1.5">{{ review.created_at | date:'mediumDate' }}</p>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ── TAB: CONTACTO ─────────────────────────────────────── -->
+      @if (activeTab() === 'contact') {
+        <div class="p-4 space-y-3">
+          <div class="bg-white rounded-xl border border-slate-200 p-3 flex items-start gap-3">
+            <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Teléfono</p>
+              <p class="text-sm font-medium text-slate-800 mt-0.5">{{ providerPhone }}</p>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl border border-slate-200 p-3 flex items-start gap-3">
+            <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Email</p>
+              <p class="text-sm font-medium text-slate-800 mt-0.5">{{ providerMail }}</p>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl border border-slate-200 p-3 flex items-start gap-3">
+            <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Dirección</p>
+              <p class="text-sm font-medium text-slate-800 mt-0.5">{{ providerAddress }}</p>
+            </div>
+          </div>
+        </div>
+      }
+
+    </div><!-- /tab content -->
+
+    <!-- STICKY ACTION BAR — solo en móvil (md:hidden) -->
+    <div class="md:hidden sticky bottom-0 left-0 right-0 flex gap-3 p-4 bg-white border-t border-slate-200 z-10 safe-bottom-bar">
+      <button type="button"
+        class="flex-1 h-12 rounded-xl border-2 border-amber-400 text-amber-600 font-bold text-sm flex items-center justify-center gap-2 hover:bg-amber-50 transition-colors disabled:opacity-50"
+        [disabled]="isStartingChat()"
+        (click)="startChat()">
+        @if (isStartingChat()) {
+          <span class="w-4 h-4 rounded-full border-2 border-amber-400 border-t-transparent animate-spin"></span>
+        } @else {
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+          </svg>
+        }
+        Mensaje
+      </button>
+      <button type="button"
+        class="flex-1 h-12 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold text-sm flex items-center justify-center gap-2 transition-colors"
+        (click)="openBooking()">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        Reservar
+      </button>
+    </div>
+
+    </div><!-- /left column -->
+
+    <!-- ── RIGHT SIDEBAR (solo desktop) ─────────────────────────────── -->
+    <aside class="hidden md:flex flex-col w-72 xl:w-80 flex-shrink-0 border-l border-slate-200 bg-white overflow-y-auto">
+      <div class="sticky top-0 p-5 space-y-4">
+
+        <!-- Precio por hora -->
+        <div class="bg-amber-50 rounded-xl p-4 text-center border border-amber-200">
+          @if (providerHourlyRate) {
+            <p class="text-2xl font-extrabold text-amber-600">${{ providerHourlyRate | number:'1.0-0' }}<span class="text-sm font-normal text-slate-500">/hora</span></p>
+          } @else {
+            <p class="text-lg font-semibold text-slate-400">Precio a consultar</p>
+          }
+          <p class="text-xs text-slate-500 mt-1">Precio referencial</p>
+        </div>
+
+        <!-- Botón Mensaje -->
+        <button type="button"
+          class="w-full h-12 rounded-xl border-2 border-amber-400 text-amber-600 font-bold text-sm flex items-center justify-center gap-2 hover:bg-amber-50 transition-colors disabled:opacity-50"
+          [disabled]="isStartingChat()"
+          (click)="startChat()">
+          @if (isStartingChat()) {
+            <span class="w-4 h-4 rounded-full border-2 border-amber-400 border-t-transparent animate-spin"></span>
+            Abriendo chat...
+          } @else {
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+            </svg>
+            Enviar mensaje
+          }
+        </button>
+
+        <!-- Botón Reservar -->
+        <button type="button"
+          class="w-full h-12 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold text-sm flex items-center justify-center gap-2 transition-colors"
+          (click)="openBooking()">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          Reservar ahora
+        </button>
+
+        <!-- Status indicators -->
+        <div class="space-y-2 pt-1 border-t border-slate-100">
+          <div class="flex items-center gap-2 text-sm text-slate-600">
+            <span class="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></span>
+            Respuesta rápida
+          </div>
+          @if (providerReviewCount > 0) {
+            <div class="flex items-center gap-2 text-sm text-slate-600">
+              <span class="text-amber-400">★</span>
+              {{ providerReviewCount }} reseña{{ providerReviewCount !== 1 ? 's' : '' }} verificada{{ providerReviewCount !== 1 ? 's' : '' }}
+            </div>
+          }
+        </div>
+
+        <!-- Contador contactos restantes (si aplica) -->
+        @if (contactLimit.remaining() < contactLimit.FREE_LIMIT) {
+          <p class="text-xs text-center pt-1"
+             [class]="contactLimit.remaining() === 0 ? 'text-red-500 font-medium' : 'text-slate-400'">
+            @if (contactLimit.remaining() === 0) {
+              🔒 Límite de contactos alcanzado
+            } @else {
+              {{ contactLimit.remaining() }} contacto{{ contactLimit.remaining() !== 1 ? 's' : '' }} gratis restante{{ contactLimit.remaining() !== 1 ? 's' : '' }}
+            }
+          </p>
+        }
+
+      </div>
+    </aside>
+
+  </div><!-- /wrapper 2 columnas -->
+
+  }<!-- /provider loaded -->
+
+  <!-- ══════════════════════════════════════════════════════════════════
+       LOCATION PROMPT OVERLAY
+  ══════════════════════════════════════════════════════════════════ -->
+  @if (showLocationPrompt()) {
+    <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
+        <h3 class="text-base font-bold text-slate-800 mb-2 text-center">Ubicación del servicio</h3>
+        <p class="text-sm text-slate-500 text-center mb-5">¿Deseas usar tu ubicación actual o ingresar una dirección?</p>
+        <div class="flex flex-col gap-3">
+          <button type="button"
+            class="w-full h-11 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold text-sm flex items-center justify-center gap-2 transition-colors"
+            (click)="chooseCurrentLocation()">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            Usar ubicación actual
+          </button>
+          <button type="button"
+            class="w-full h-11 rounded-xl border border-slate-200 text-slate-700 font-semibold text-sm hover:bg-slate-50 transition-colors"
+            (click)="chooseManualAddress()">
+            Agregar dirección
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ══════════════════════════════════════════════════════════════════
+       BOOKING MODAL OVERLAY
+  ══════════════════════════════════════════════════════════════════ -->
+  @if (bookingOpen()) {
+    <div class="fixed inset-0 bg-black/50 z-40 flex items-end sm:items-center justify-center"
+         (click)="closeBooking()" (keydown.escape)="closeBooking()">
+      <div class="bg-white w-full max-w-lg rounded-t-2xl sm:rounded-2xl max-h-[92vh] flex flex-col"
+           (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+
+        <!-- Modal header -->
+        <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100 flex-shrink-0">
+          <h2 class="text-base font-bold text-slate-800">Reservar Servicio</h2>
+          <button type="button" (click)="closeBooking()"
+            class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-400 text-lg transition-colors">×</button>
+        </div>
+
+        <!-- Modal scroll body -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-4">
+
+          <!-- Resumen proveedor -->
+          <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+            <svg class="w-6 h-6 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+            </svg>
+            <div>
+              <p class="text-sm font-semibold text-slate-800">{{ providerName }}</p>
+              @if (selectedService()?.hourly_rate) {
+                <p class="text-xs text-slate-400 mt-0.5">${{ selectedService()!.hourly_rate | number }}/hora</p>
+              }
+            </div>
+          </div>
+
+          <!-- ── FECHA (calendario strip) ─────────────────────── -->
+          <div>
+            <div class="flex items-center gap-2 mb-2">
+              <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+              <span class="text-sm font-semibold text-slate-800">Fecha</span>
+            </div>
+
+            @if (!hoursLoaded()) {
+              <div class="flex items-center gap-2 py-2 text-sm text-slate-400">
+                <span class="w-4 h-4 rounded-full border-2 border-amber-400 border-t-transparent animate-spin flex-shrink-0"></span>
+                Cargando disponibilidad...
+              </div>
+            } @else if (!hasWorkingHours) {
+              <div class="flex items-center gap-2 p-3 bg-slate-50 rounded-lg text-xs text-slate-500 border border-slate-200">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                El proveedor no tiene horarios configurados
+              </div>
+            } @else {
+              <!-- Calendario horizontal -->
+              <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                @for (day of calendarDays(); track trackByDate($index, day)) {
+                  <button
+                    type="button"
+                    class="flex-shrink-0 flex flex-col items-center gap-0.5 w-14 py-2.5 rounded-xl border-[1.5px] transition-colors"
+                    [class]="day.isSelected
+                      ? 'bg-amber-400 border-amber-400 text-slate-900 shadow-md'
+                      : day.isActive
+                        ? 'bg-white border-amber-200 text-amber-600 cursor-pointer hover:bg-amber-50'
+                        : 'bg-slate-50 border-slate-200 text-slate-300 opacity-40 cursor-not-allowed'"
+                    [disabled]="!day.isActive"
+                    (click)="selectCalendarDay(day)">
+                    <span class="text-[10px] font-semibold uppercase tracking-wide"
+                          [class]="day.isSelected ? 'text-slate-900' : ''">{{ day.dayLabel }}</span>
+                    <span class="text-lg font-bold leading-none"
+                          [class]="day.isSelected ? 'text-slate-900' : ''">{{ day.dayNum }}</span>
+                    <span class="text-[10px] capitalize"
+                          [class]="day.isSelected ? 'text-slate-900' : ''">{{ day.monthLabel }}</span>
+                  </button>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- ── HORA (grid de slots) ──────────────────────────── -->
+          <div>
+            <div class="flex items-center gap-2 mb-2">
+              <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span class="text-sm font-semibold text-slate-800">Hora disponible</span>
+            </div>
+
+            @if (!hoursLoaded()) {
+              <!-- spinner ya mostrado en sección de fecha, no duplicar -->
+            } @else if (!hasWorkingHours) {
+              <!-- el mensaje ya fue mostrado en la sección de fecha -->
+            } @else if (isLoadingTimes()) {
+              <div class="flex items-center gap-2 py-2 text-sm text-slate-400">
+                <span class="w-4 h-4 rounded-full border-2 border-amber-400 border-t-transparent animate-spin flex-shrink-0"></span>
+                Consultando disponibilidad...
+              </div>
+            } @else if (!selectedDate()) {
+              <div class="flex items-center gap-2 p-3 bg-slate-50 rounded-lg text-xs text-slate-500 border border-slate-200">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2v12a2 2 0 002 2z"/>
+                </svg>
+                Selecciona una fecha para ver horarios
+              </div>
+            } @else {
+              @if (allSlots().length === 0) {
+                <div class="flex items-center gap-2 p-3 bg-slate-50 rounded-lg text-xs text-slate-500 border border-slate-200">
+                  <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  El proveedor no tiene horario para este día
+                </div>
+              } @else if (allSlots().length > 0) {
+                <div class="grid grid-cols-4 gap-2">
+                  @for (slot of allSlots(); track slot.time) {
+                    <button
+                      type="button"
+                      class="flex flex-col items-center gap-0.5 py-2.5 rounded-lg border-[1.5px] text-sm font-semibold transition-all"
+                      [class]="selectedSlot() === slot.time
+                        ? 'bg-amber-400 border-amber-400 text-slate-900 font-bold'
+                        : slot.available
+                          ? 'bg-white border-slate-200 text-slate-700 hover:border-amber-400 hover:bg-amber-50'
+                          : 'bg-slate-50 border-dashed border-slate-200 text-slate-300 opacity-40 cursor-not-allowed'"
+                      [disabled]="!slot.available"
+                      (click)="slot.available && selectedSlot.set(slot.time)">
+                      {{ slot.time }}
+                      @if (!slot.available) {
+                        <span class="text-[9px] font-bold text-red-400 uppercase">Ocupado</span>
+                      }
+                    </button>
+                  }
+                </div>
+                @if (bookingAttempted() && !selectedSlot() && allSlots().length > 0) {
+                  <p class="text-xs text-red-600 mt-1.5 flex items-center gap-1">
+                    <span>⚠️</span> Selecciona una hora
+                  </p>
+                }
+              }
+            }
+          </div>
+
+          <!-- ── DIRECCIÓN ─────────────────────────────────────── -->
+          <div class="relative">
+            <div class="flex items-center gap-2 mb-2">
+              <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              <span class="text-sm font-semibold text-slate-800">Ubicación del servicio</span>
+            </div>
+
+            <div class="relative flex items-center">
+              <input
+                type="text"
+                placeholder="Ingresa tu dirección"
+                [value]="addressInput()"
+                (input)="onAddressInput(($any($event.target)).value)"
+                (focus)="onAddressFocus()"
+                (blur)="onAddressBlur()"
+                [class]="'flex-1 h-11 px-3 pr-10 rounded-xl border text-sm text-slate-800 placeholder-slate-400 outline-none transition-colors ' + (bookingAttempted() && !addressInput() ? 'border-red-400 bg-red-50' : 'border-slate-200 bg-white focus:border-amber-400')"
+                autocomplete="off">
+              <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                @if (searchingAddress()) {
+                  <span class="w-4 h-4 rounded-full border-2 border-amber-400 border-t-transparent animate-spin"></span>
+                }
+                @if (addressInput() && !searchingAddress()) {
+                  <button type="button"
+                    class="w-5 h-5 flex items-center justify-center text-slate-400 hover:text-slate-600 rounded-full"
+                    (click)="clearAddress()" (mousedown)="$event.preventDefault()">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                  </button>
+                }
+              </div>
+            </div>
+
+            <!-- Suggestions (flujo normal para evitar clipping por overflow-y-auto del modal) -->
+            @if (showSuggestions() && addressSuggestions().length > 0) {
+              <div class="mt-1 bg-white border border-slate-200 rounded-xl shadow-md max-h-48 overflow-y-auto">
+                @for (suggestion of addressSuggestions(); track suggestion.id) {
+                  <button
+                    type="button"
+                    class="w-full flex items-start gap-3 px-3 py-2.5 text-left hover:bg-amber-50 border-b border-slate-100 last:border-0 transition-colors"
+                    (click)="selectAddressSuggestion(suggestion)"
+                    (mousedown)="$event.preventDefault()">
+                    <span class="text-base mt-0.5 flex-shrink-0">{{ suggestion.icon }}</span>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm text-slate-800 truncate">{{ suggestion.displayText }}</p>
+                      @if (suggestion.context) {
+                        <p class="text-xs text-slate-400 truncate mt-0.5">{{ suggestion.context }}</p>
+                      }
+                    </div>
+                  </button>
+                }
+              </div>
+            }
+
+            @if (bookingAttempted() && !addressInput()) {
+              <p class="text-xs text-red-600 mt-1 flex items-center gap-1">
+                <span>⚠️</span> Ubicación requerida
+              </p>
+            }
+          </div>
+
+          <!-- ── NOTAS ──────────────────────────────────────────── -->
+          <div>
+            <div class="flex items-center gap-2 mb-2">
+              <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              <span class="text-sm font-semibold text-slate-800">Notas (opcional)</span>
+            </div>
+            <textarea
+              class="w-full h-20 px-3 py-2 rounded-xl border border-slate-200 text-sm text-slate-800 placeholder-slate-400 resize-none outline-none focus:border-amber-400 transition-colors"
+              placeholder="Describe brevemente lo que necesitas..."
+              [value]="bookingNotes()"
+              (input)="bookingNotes.set(($any($event.target)).value)"></textarea>
+          </div>
+
+          <!-- ── BOTONES ────────────────────────────────────────── -->
+          <button
+            type="button"
+            class="w-full h-12 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            [disabled]="bookingLoading() || !isBookingValid"
+            (click)="confirmBooking()">
+            @if (bookingLoading()) {
+              <span class="w-4 h-4 rounded-full border-2 border-slate-900 border-t-transparent animate-spin"></span>
+              Confirmando...
+            } @else {
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              Confirmar Reserva
+            }
+          </button>
+          <button
+            type="button"
+            class="w-full h-11 rounded-xl border border-slate-200 text-slate-500 text-sm font-semibold hover:bg-slate-50 transition-colors"
+            (click)="closeBooking()">
+            Cancelar
+          </button>
+
+        </div><!-- /modal scroll body -->
+      </div><!-- /modal card -->
+    </div><!-- /modal overlay -->
+  }
+
+  <!-- ══════════════════════════════════════════════════════════════════
+       CONTACT LIMIT MODAL
+  ══════════════════════════════════════════════════════════════════ -->
+  @if (showContactLimitModal()) {
+    <div class="modal-overlay fixed inset-0 z-[70] flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 flex flex-col items-center gap-4 animate-slide-up">
+        <!-- Icono -->
+        <div class="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center">
+          <svg class="w-8 h-8 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+        </div>
+        <!-- Texto -->
+        <div class="text-center">
+          <h3 class="text-lg font-bold text-slate-800">Límite alcanzado</h3>
+          <p class="text-sm text-slate-500 mt-1 leading-relaxed">
+            Puedes contactar hasta <strong>{{ contactLimit.FREE_LIMIT }} proveedores gratis</strong>.
+            Actualiza tu plan para contactar sin límites.
+          </p>
+        </div>
+        <!-- Acciones -->
+        <div class="flex flex-col gap-2 w-full">
+          <a routerLink="/client/tabs/profile"
+             (click)="showContactLimitModal.set(false)"
+             class="w-full h-11 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold text-sm flex items-center justify-center gap-2 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+            </svg>
+            Ver planes premium
+          </a>
+          <button type="button"
+            class="w-full h-10 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-colors"
+            (click)="showContactLimitModal.set(false)">
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ══════════════════════════════════════════════════════════════════
+       TOAST
+  ══════════════════════════════════════════════════════════════════ -->
+  @if (toastState()) {
+    <div class="fixed bottom-6 left-4 right-4 z-[60] flex justify-center pointer-events-none">
+      <div class="px-4 py-3 rounded-xl shadow-lg text-sm font-semibold flex items-center gap-2 max-w-sm w-full pointer-events-auto"
+           [class]="toastState()!.type === 'success' ? 'bg-green-600 text-white'
+                  : toastState()!.type === 'danger'  ? 'bg-red-600 text-white'
+                  : toastState()!.type === 'warning' ? 'bg-amber-500 text-slate-900'
+                  : 'bg-slate-800 text-white'">
+        @if (toastState()!.type === 'success') { <span>✓</span> }
+        @if (toastState()!.type === 'danger')  { <span>✕</span> }
+        @if (toastState()!.type === 'warning') { <span>⚠</span> }
+        {{ toastState()!.msg }}
+      </div>
+    </div>
+  }
+
+</div>

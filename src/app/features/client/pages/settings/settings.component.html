@@ -1,0 +1,196 @@
+<div class="map-shell">
+
+  <!-- Hero con back -->
+  <div class="profile-hero" style="padding-bottom:20px">
+    <div class="hero-bg-orb"></div>
+    <div class="edit-header-row">
+      <a routerLink="/client/tabs/profile" class="btn-back-hero">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </a>
+      <h2 class="profile-name" style="flex:1">Configuración</h2>
+    </div>
+  </div>
+
+  <!-- Apariencia -->
+  <div class="menu-section">
+    <p class="menu-section-label">Apariencia</p>
+    <div class="menu-list">
+      <div class="menu-item">
+        <div class="menu-icon menu-icon-slate">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003
+                 9.003 0 008.354-5.646z"/>
+          </svg>
+        </div>
+        <span class="menu-label">Modo oscuro</span>
+        <!-- Toggle -->
+        <label class="toggle-wrap">
+          <input type="checkbox" class="toggle-input" [checked]="darkMode()"
+            (change)="toggleDarkMode(($any($event.target)).checked)">
+          <div class="toggle-track">
+            <div class="toggle-thumb"></div>
+          </div>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cambiar contraseña -->
+  <div class="menu-section">
+    <p class="menu-section-label">Seguridad</p>
+    <div class="menu-list">
+
+      @if (pwSuccess()) {
+        <div class="alert-success-bar" style="margin:12px 16px">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Contraseña actualizada. Iniciando sesión de nuevo...
+        </div>
+      }
+      @if (pwError()) {
+        <div class="alert-error-bar" style="margin:12px 16px">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          {{ pwError() }}
+        </div>
+      }
+
+      <form [formGroup]="pwForm" (ngSubmit)="changePassword()">
+
+        <div class="form-field-item">
+          <div class="menu-icon menu-icon-slate">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2
+                   2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+          </div>
+          <div class="form-field-body">
+            <label class="info-label">Contraseña actual</label>
+            <input type="password" formControlName="old_password"
+              class="form-field-input" placeholder="••••••••" />
+          </div>
+        </div>
+
+        <div class="form-field-item">
+          <div class="menu-icon menu-icon-blue">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4
+                   a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+            </svg>
+          </div>
+          <div class="form-field-body">
+            <label class="info-label">Nueva contraseña</label>
+            <input type="password" formControlName="new_password"
+              class="form-field-input" placeholder="Mínimo 8 caracteres" />
+            @if (pwForm.get('new_password')?.touched && pwForm.get('new_password')?.errors?.['minlength']) {
+              <span class="form-error-msg">Mínimo 8 caracteres</span>
+            }
+          </div>
+        </div>
+
+        <div class="form-field-item">
+          <div class="menu-icon menu-icon-green">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955
+                   11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29
+                   9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+          </div>
+          <div class="form-field-body">
+            <label class="info-label">Confirmar contraseña</label>
+            <input type="password" formControlName="confirm_password"
+              class="form-field-input" placeholder="Repite la contraseña" />
+            @if (pwForm.errors?.['mismatch'] && pwForm.get('confirm_password')?.touched) {
+              <span class="form-error-msg">Las contraseñas no coinciden</span>
+            }
+          </div>
+        </div>
+
+        <div class="settings-submit-row">
+          <button type="submit" class="settings-submit-btn" [disabled]="pwLoading()">
+            @if (pwLoading()) {
+              <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10"
+                  stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+              </svg>
+              Actualizando...
+            } @else {
+              Actualizar contraseña
+            }
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- Legal -->
+  <div class="menu-section">
+    <p class="menu-section-label">Legal</p>
+    <div class="menu-list">
+      <a routerLink="/terms" class="menu-item">
+        <div class="menu-icon menu-icon-orange">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0
+                 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+        </div>
+        <span class="menu-label">Términos y condiciones</span>
+        <svg class="menu-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </a>
+      <a routerLink="/privacy" class="menu-item">
+        <div class="menu-icon menu-icon-slate">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955
+                 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29
+                 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+        </div>
+        <span class="menu-label">Política de privacidad</span>
+        <svg class="menu-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- Cerrar sesión -->
+  <div class="logout-wrap">
+    <button class="logout-btn" (click)="logout()" type="button">
+      <svg fill="currentColor" viewBox="0 0 24 24">
+        <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a2 2 0
+          01-2-2V7a2 2 0 012-2h4a3 3 0 013 3v1"/>
+      </svg>
+      <span>Cerrar sesión</span>
+    </button>
+  </div>
+
+  <div class="profile-footer-spacer"></div>
+  <footer class="app-footer">
+    <div class="footer-inner">
+      <span class="footer-brand">BappSearch</span>
+      <nav class="footer-links" aria-label="Enlaces de pie">
+        <a href="/client/tabs/service-search">Buscar</a>
+        <a href="/terms">Términos</a>
+        <a href="/privacy">Privacidad</a>
+      </nav>
+      <span class="footer-copy">© 2026 BappSearch.</span>
+    </div>
+  </footer>
+
+</div>

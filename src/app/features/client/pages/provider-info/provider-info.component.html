@@ -17,7 +17,7 @@
 
       <!-- Botón atrás -->
       <button type="button" (click)="goBack()"
-        class="absolute top-4 left-4 w-10 h-10 rounded-full border border-slate-200 bg-white/70 backdrop-blur-sm flex items-center justify-center text-slate-700 hover:bg-white transition-colors">
+        class="absolute top-4 left-4 w-10 h-10 rounded-full border border-border bg-surface-card/70 backdrop-blur-sm flex items-center justify-center text-text-primary hover:bg-surface-card transition-colors">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
         </svg>
@@ -37,12 +37,12 @@
           }
           <span class="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-green-500 border-2 border-white"></span>
         </div>
-        <h1 class="text-xl font-bold text-slate-800 leading-tight">{{ providerName }}</h1>
+        <h1 class="text-xl font-bold text-text-primary leading-tight">{{ providerName }}</h1>
         <div class="flex items-center gap-1 mt-1 flex-wrap justify-center">
           <span class="text-amber-400 text-sm">★</span>
-          <span class="text-sm font-semibold text-slate-700">{{ providerRating }}</span>
+          <span class="text-sm font-semibold text-text-primary">{{ providerRating }}</span>
           @if (providerReviewCount > 0) {
-            <span class="text-xs text-slate-400">({{ providerReviewCount }})</span>
+            <span class="text-xs text-text-tertiary">({{ providerReviewCount }})</span>
           }
         </div>
       </div>
@@ -90,20 +90,20 @@
       <!-- ── TAB: PERFIL ───────────────────────────────────────── -->
       @if (activeTab() === 'profile') {
         <div class="p-4 space-y-3">
-          <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Sobre el proveedor</p>
-          <p class="text-sm text-slate-600 leading-relaxed">
+          <p class="text-xs font-semibold text-text-tertiary uppercase tracking-widest">Sobre el proveedor</p>
+          <p class="text-sm text-text-secondary leading-relaxed">
             {{ providerDescription || 'Proveedor de servicios profesional. Contacta para más información.' }}
           </p>
           @if (services().length > 0) {
             <div class="pt-2">
-              <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Servicios</p>
+              <p class="text-xs font-semibold text-text-tertiary uppercase tracking-widest mb-2">Servicios</p>
               <div class="space-y-2">
                 @for (svc of services(); track svc.id) {
-                  <div class="bg-white rounded-xl border border-slate-200 p-3 flex items-start justify-between gap-2">
+                  <div class="bg-surface-card rounded-xl border border-border p-3 flex items-start justify-between gap-2">
                     <div class="flex-1 min-w-0">
-                      <p class="font-semibold text-slate-800 text-sm truncate">{{ svc.business_name }}</p>
+                      <p class="font-semibold text-text-primary text-sm truncate">{{ svc.business_name }}</p>
                       @if (svc.service_category?.name) {
-                        <p class="text-xs text-amber-600 font-medium mt-0.5">{{ svc.service_category!.name }}</p>
+                        <p class="text-xs text-primary font-medium mt-0.5">{{ svc.service_category!.name }}</p>
                       }
                       @if (svc.description) {
                         <p class="text-xs text-slate-500 mt-0.5 line-clamp-2">{{ svc.description }}</p>
@@ -111,10 +111,10 @@
                     </div>
                     <div class="text-right shrink-0">
                       @if (svc.hourly_rate) {
-                        <p class="text-sm font-bold text-amber-600">${{ svc.hourly_rate | number:'1.0-0' }}/hr</p>
+                        <p class="text-sm font-bold text-primary">${{ svc.hourly_rate | number:'1.0-0' }}/hr</p>
                       }
                       <button (click)="openBooking(svc)"
-                        class="mt-1 px-3 py-1.5 bg-amber-400 hover:bg-amber-500 text-slate-900 text-xs font-bold rounded-lg transition-colors">
+                        class="mt-1 px-3 py-1.5 bg-primary hover:bg-primary-600 text-text-inverse text-xs font-bold rounded-lg transition-colors">
                         Reservar
                       </button>
                     </div>
@@ -130,22 +130,22 @@
       @if (activeTab() === 'reviews') {
         <div class="p-4 space-y-3">
           @if (reviews().length === 0) {
-            <p class="text-center text-slate-400 text-sm py-8">Sin reseñas aún</p>
+            <p class="text-center text-text-tertiary text-sm py-8">Sin reseñas aún</p>
           }
           @for (review of reviews(); track review.id) {
-            <div class="bg-white rounded-xl border border-slate-200 p-3">
+            <div class="bg-surface-card rounded-xl border border-border p-3">
               <div class="flex items-center justify-between mb-1.5">
                 <span class="text-sm font-semibold text-slate-800">{{ review.client?.full_name ?? 'Cliente' }}</span>
                 <div class="flex gap-0.5">
                   @for (s of [1,2,3,4,5]; track s) {
-                    <span class="text-xs" [class]="s <= review.rating ? 'text-amber-400' : 'text-slate-200'">★</span>
+                    <span class="text-xs" [class]="s <= review.rating ? 'text-primary' : 'text-text-disabled'">★</span>
                   }
                 </div>
               </div>
               @if (review.comment) {
-                <p class="text-sm text-slate-600 leading-normal">{{ review.comment }}</p>
+                <p class="text-sm text-text-secondary leading-normal">{{ review.comment }}</p>
               }
-              <p class="text-xs text-slate-400 mt-1.5">{{ review.created_at | date:'mediumDate' }}</p>
+              <p class="text-xs text-text-tertiary mt-1.5">{{ review.created_at | date:'mediumDate' }}</p>
             </div>
           }
         </div>
@@ -154,38 +154,38 @@
       <!-- ── TAB: CONTACTO ─────────────────────────────────────── -->
       @if (activeTab() === 'contact') {
         <div class="p-4 space-y-3">
-          <div class="bg-white rounded-xl border border-slate-200 p-3 flex items-start gap-3">
-            <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-              <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="bg-surface-card rounded-xl border border-border p-3 flex items-start gap-3">
+            <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
               </svg>
             </div>
             <div>
-              <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Teléfono</p>
-              <p class="text-sm font-medium text-slate-800 mt-0.5">{{ providerPhone }}</p>
+              <p class="text-xs text-text-tertiary uppercase tracking-wider font-semibold">Teléfono</p>
+              <p class="text-sm font-medium text-text-primary mt-0.5">{{ providerPhone }}</p>
             </div>
           </div>
-          <div class="bg-white rounded-xl border border-slate-200 p-3 flex items-start gap-3">
-            <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-              <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="bg-surface-card rounded-xl border border-border p-3 flex items-start gap-3">
+            <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
               </svg>
             </div>
             <div>
-              <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Email</p>
-              <p class="text-sm font-medium text-slate-800 mt-0.5">{{ providerMail }}</p>
+              <p class="text-xs text-text-tertiary uppercase tracking-wider font-semibold">Email</p>
+              <p class="text-sm font-medium text-text-primary mt-0.5">{{ providerMail }}</p>
             </div>
           </div>
-          <div class="bg-white rounded-xl border border-slate-200 p-3 flex items-start gap-3">
-            <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-              <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="bg-surface-card rounded-xl border border-border p-3 flex items-start gap-3">
+            <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
               </svg>
             </div>
             <div>
-              <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Dirección</p>
-              <p class="text-sm font-medium text-slate-800 mt-0.5">{{ providerAddress }}</p>
+              <p class="text-xs text-text-tertiary uppercase tracking-wider font-semibold">Dirección</p>
+              <p class="text-sm font-medium text-text-primary mt-0.5">{{ providerAddress }}</p>
             </div>
           </div>
         </div>
@@ -194,13 +194,13 @@
     </div><!-- /tab content -->
 
     <!-- STICKY ACTION BAR — solo en móvil (md:hidden) -->
-    <div class="md:hidden sticky bottom-0 left-0 right-0 flex gap-3 p-4 bg-white border-t border-slate-200 z-10 safe-bottom-bar">
+    <div class="md:hidden sticky bottom-0 left-0 right-0 flex gap-3 p-4 bg-surface-card border-t border-border z-10 safe-bottom-bar">
       <button type="button"
-        class="flex-1 h-12 rounded-xl border-2 border-amber-400 text-amber-600 font-bold text-sm flex items-center justify-center gap-2 hover:bg-amber-50 transition-colors disabled:opacity-50"
+        class="flex-1 h-12 rounded-xl border-2 border-primary text-primary font-bold text-sm flex items-center justify-center gap-2 hover:bg-primary/10 transition-colors disabled:opacity-50"
         [disabled]="isStartingChat()"
         (click)="startChat()">
         @if (isStartingChat()) {
-          <span class="w-4 h-4 rounded-full border-2 border-amber-400 border-t-transparent animate-spin"></span>
+          <span class="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin"></span>
         } @else {
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
@@ -209,7 +209,7 @@
         Mensaje
       </button>
       <button type="button"
-        class="flex-1 h-12 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold text-sm flex items-center justify-center gap-2 transition-colors"
+        class="flex-1 h-12 rounded-xl bg-primary hover:bg-primary-600 text-text-inverse font-bold text-sm flex items-center justify-center gap-2 transition-colors"
         (click)="openBooking()">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -221,26 +221,26 @@
     </div><!-- /left column -->
 
     <!-- ── RIGHT SIDEBAR (solo desktop) ─────────────────────────────── -->
-    <aside class="hidden md:flex flex-col w-72 xl:w-80 flex-shrink-0 border-l border-slate-200 bg-white overflow-y-auto">
+    <aside class="hidden md:flex flex-col w-72 xl:w-80 flex-shrink-0 border-l border-border bg-surface-card overflow-y-auto">
       <div class="sticky top-0 p-5 space-y-4">
 
         <!-- Precio por hora -->
-        <div class="bg-amber-50 rounded-xl p-4 text-center border border-amber-200">
+        <div class="bg-primary/10 rounded-xl p-4 text-center border border-primary/30">
           @if (providerHourlyRate) {
-            <p class="text-2xl font-extrabold text-amber-600">${{ providerHourlyRate | number:'1.0-0' }}<span class="text-sm font-normal text-slate-500">/hora</span></p>
+            <p class="text-2xl font-extrabold text-primary">${{ providerHourlyRate | number:'1.0-0' }}<span class="text-sm font-normal text-text-secondary">/hora</span></p>
           } @else {
-            <p class="text-lg font-semibold text-slate-400">Precio a consultar</p>
+            <p class="text-lg font-semibold text-text-tertiary">Precio a consultar</p>
           }
-          <p class="text-xs text-slate-500 mt-1">Precio referencial</p>
+          <p class="text-xs text-text-secondary mt-1">Precio referencial</p>
         </div>
 
         <!-- Botón Mensaje -->
         <button type="button"
-          class="w-full h-12 rounded-xl border-2 border-amber-400 text-amber-600 font-bold text-sm flex items-center justify-center gap-2 hover:bg-amber-50 transition-colors disabled:opacity-50"
+          class="w-full h-12 rounded-xl border-2 border-primary text-primary font-bold text-sm flex items-center justify-center gap-2 hover:bg-primary/10 transition-colors disabled:opacity-50"
           [disabled]="isStartingChat()"
           (click)="startChat()">
           @if (isStartingChat()) {
-            <span class="w-4 h-4 rounded-full border-2 border-amber-400 border-t-transparent animate-spin"></span>
+            <span class="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin"></span>
             Abriendo chat...
           } @else {
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -252,7 +252,7 @@
 
         <!-- Botón Reservar -->
         <button type="button"
-          class="w-full h-12 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold text-sm flex items-center justify-center gap-2 transition-colors"
+          class="w-full h-12 rounded-xl bg-primary hover:bg-primary-600 text-text-inverse font-bold text-sm flex items-center justify-center gap-2 transition-colors"
           (click)="openBooking()">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -261,14 +261,14 @@
         </button>
 
         <!-- Status indicators -->
-        <div class="space-y-2 pt-1 border-t border-slate-100">
-          <div class="flex items-center gap-2 text-sm text-slate-600">
+        <div class="space-y-2 pt-1 border-t border-border">
+          <div class="flex items-center gap-2 text-sm text-text-secondary">
             <span class="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></span>
             Respuesta rápida
           </div>
           @if (providerReviewCount > 0) {
-            <div class="flex items-center gap-2 text-sm text-slate-600">
-              <span class="text-amber-400">★</span>
+            <div class="flex items-center gap-2 text-sm text-text-secondary">
+              <span class="text-primary">★</span>
               {{ providerReviewCount }} reseña{{ providerReviewCount !== 1 ? 's' : '' }} verificada{{ providerReviewCount !== 1 ? 's' : '' }}
             </div>
           }
@@ -277,7 +277,7 @@
         <!-- Contador contactos restantes (si aplica) -->
         @if (contactLimit.remaining() < contactLimit.FREE_LIMIT) {
           <p class="text-xs text-center pt-1"
-             [class]="contactLimit.remaining() === 0 ? 'text-red-500 font-medium' : 'text-slate-400'">
+             [class]="contactLimit.remaining() === 0 ? 'text-danger font-medium' : 'text-slate-400'">
             @if (contactLimit.remaining() === 0) {
               🔒 Límite de contactos alcanzado
             } @else {
@@ -303,7 +303,7 @@
         <p class="text-sm text-slate-500 text-center mb-5">¿Deseas usar tu ubicación actual o ingresar una dirección?</p>
         <div class="flex flex-col gap-3">
           <button type="button"
-            class="w-full h-11 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold text-sm flex items-center justify-center gap-2 transition-colors"
+            class="w-full h-11 rounded-xl bg-primary hover:bg-primary-600 text-text-inverse font-bold text-sm flex items-center justify-center gap-2 transition-colors"
             (click)="chooseCurrentLocation()">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
@@ -348,7 +348,7 @@
             <div>
               <p class="text-sm font-semibold text-slate-800">{{ providerName }}</p>
               @if (selectedService()?.hourly_rate) {
-                <p class="text-xs text-slate-400 mt-0.5">${{ selectedService()!.hourly_rate | number }}/hora</p>
+                <p class="text-xs text-text-tertiary mt-0.5">${{ selectedService()!.hourly_rate | number }}/hora</p>
               }
             </div>
           </div>
@@ -364,7 +364,7 @@
 
             @if (!hoursLoaded()) {
               <div class="flex items-center gap-2 py-2 text-sm text-slate-400">
-                <span class="w-4 h-4 rounded-full border-2 border-amber-400 border-t-transparent animate-spin flex-shrink-0"></span>
+                <span class="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin flex-shrink-0"></span>
                 Cargando disponibilidad...
               </div>
             } @else if (!hasWorkingHours) {
@@ -415,7 +415,7 @@
               <!-- el mensaje ya fue mostrado en la sección de fecha -->
             } @else if (isLoadingTimes()) {
               <div class="flex items-center gap-2 py-2 text-sm text-slate-400">
-                <span class="w-4 h-4 rounded-full border-2 border-amber-400 border-t-transparent animate-spin flex-shrink-0"></span>
+                <span class="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin flex-shrink-0"></span>
                 Consultando disponibilidad...
               </div>
             } @else if (!selectedDate()) {
@@ -484,7 +484,7 @@
                 autocomplete="off">
               <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
                 @if (searchingAddress()) {
-                  <span class="w-4 h-4 rounded-full border-2 border-amber-400 border-t-transparent animate-spin"></span>
+                  <span class="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin"></span>
                 }
                 @if (addressInput() && !searchingAddress()) {
                   <button type="button"
@@ -511,7 +511,7 @@
                     <div class="flex-1 min-w-0">
                       <p class="text-sm text-slate-800 truncate">{{ suggestion.displayText }}</p>
                       @if (suggestion.context) {
-                        <p class="text-xs text-slate-400 truncate mt-0.5">{{ suggestion.context }}</p>
+                        <p class="text-xs text-text-tertiary truncate mt-0.5">{{ suggestion.context }}</p>
                       }
                     </div>
                   </button>
@@ -544,7 +544,7 @@
           <!-- ── BOTONES ────────────────────────────────────────── -->
           <button
             type="button"
-            class="w-full h-12 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            class="w-full h-12 rounded-xl bg-primary hover:bg-primary-600 text-text-inverse font-bold text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             [disabled]="bookingLoading() || !isBookingValid"
             (click)="confirmBooking()">
             @if (bookingLoading()) {
@@ -593,7 +593,7 @@
         <div class="flex flex-col gap-2 w-full">
           <a routerLink="/client/tabs/profile"
              (click)="showContactLimitModal.set(false)"
-             class="w-full h-11 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold text-sm flex items-center justify-center gap-2 transition-colors">
+             class="w-full h-11 rounded-xl bg-primary hover:bg-primary-600 text-text-inverse font-bold text-sm flex items-center justify-center gap-2 transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
             </svg>

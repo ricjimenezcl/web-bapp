@@ -1,6 +1,5 @@
 import { Component, signal, OnDestroy, inject, ElementRef, ViewChild, AfterViewInit, Input, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { ProviderService } from '../../../../core/services/provider.service';
 import { ServiceProvider } from '../../../../core/models/provider.model';
 import { SearchStateService } from '../../../../core/services/search-state.service';
@@ -11,7 +10,7 @@ type MapStyle = 'streets' | 'light' | 'dark';
 @Component({
   selector: 'app-service-map',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './service-map.component.html',
   styleUrls: ['./service-map.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -26,7 +25,7 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
   nearbyProviders = signal<ServiceProvider[]>([]);
   loading         = signal(true);
   locationError   = signal('');
-  selectedStyle   = signal<MapStyle>('streets');
+  selectedStyle   = signal<MapStyle>('light');
   freeProviderLimit = 5; // Plan gratuito: 5 proveedores accesibles
 
   /** Cuando se usa embebido dentro de service-search */
@@ -40,6 +39,7 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
       this.nearbyProviders.set(val);
       this.loading.set(false);
       this.markerClusterGroup?.clearLayers();
+      this.providerMarkers.clear();
       if (val.length > 0) {
         this.addProviderMarkers(val);
         // Actualizar marcador de ubicación si hay una selección guardada
@@ -53,12 +53,26 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
   }
   get embeddedProviders(): ServiceProvider[] | null { return this._embeddedProviders; }
 
+  /** Provider id actualmente resaltado (sincronizado con hover de card en service-search) */
+  @Input()
+  set highlightedProviderId(id: number | null | undefined) {
+    const next = id ?? null;
+    if (next === this._highlightedId) return;
+    this.applyHighlight(this._highlightedId, false);
+    this._highlightedId = next;
+    this.applyHighlight(next, true);
+  }
+  get highlightedProviderId(): number | null { return this._highlightedId; }
+
   private _embeddedProviders: ServiceProvider[] | null = null;
+  private _highlightedId: number | null = null;
   private mapReady = false;
   private map: any = null;
   private markerClusterGroup: any = null;
   private userMarker: any = null;
   private L: any = null;
+  /** Markers indexados por provider_id (o id) para sincronizar highlight con la lista */
+  private providerMarkers = new Map<number, any>();
 
   ngAfterViewInit(): void {
     this.initMap();
@@ -80,6 +94,14 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
         iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
         shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
       });
+
+      // Fix responsive: invalidar tamaño del mapa después de renderizar
+      // Esto asegura que el mapa cargue correctamente en mobile
+      setTimeout(() => {
+        if (this.map) {
+          this.map.invalidateSize();
+        }
+      }, 300);
 
       // Crear mapa
       this.map = this.L.map(this.mapContainer.nativeElement, {
@@ -112,19 +134,9 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
       });
       this.map.addLayer(this.markerClusterGroup);
 
-      // Habilitar selección manual de ubicación haciendo clic en el mapa
-      this.map.on('click', (e: any) => {
-        const lat = e.latlng.lat;
-        const lng = e.latlng.lng;
-        this.updateUserMarker(lat, lng);
-        this.locationSvc.setSelectedLocation({
-          text: `${lat.toFixed(4)}, ${lng.toFixed(4)}`,
-          place_name: 'Ubicación personalizada',
-          lat: lat,
-          lon: lng
-        });
-        console.log('📍 Ubicación seleccionada manualmente:', lat, lng);
-      });
+      // FIX: El marcador del usuario NO debe moverse al hacer click
+      // Eliminamos la lógica que actualizaba el marker al hacer click en el mapa
+      // Ahora solo se permite drag si el usuario lo desea, pero no el click
 
       // Mapa listo — verificar si ya hay proveedores inyectados por el padre
       this.mapReady = true;
@@ -214,34 +226,30 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
         <div class="user-popup">
           <strong>Tu ubicación</strong><br>
           <small>Lat: ${lat.toFixed(4)}</small><br>
-          <small>Lng: ${lng.toFixed(4)}</small><br>
-          <small class="text-blue-600 mt-1 block">ℹ️ Haz clic en el mapa para cambiar</small>
+          <small>Lng: ${lng.toFixed(4)}</small>
         </div>
       `);
     } else {
-      // Crear nuevo marcador
-      this.userMarker = this.L.marker([lat, lng], { icon: userIcon, draggable: true })
+      // Crear nuevo marcador - NO draggable, NO interactive
+      this.userMarker = this.L.marker([lat, lng], { 
+        icon: userIcon, 
+        draggable: false,
+        interactive: false,
+        autoPan: true,
+        panOnPopupOpen: true
+      })
         .addTo(this.map)
         .bindPopup(`
           <div class="user-popup">
             <strong>Tu ubicación</strong><br>
             <small>Lat: ${lat.toFixed(4)}</small><br>
-            <small>Lng: ${lng.toFixed(4)}</small><br>
-            <small class="text-blue-600 mt-1 block">ℹ️ Haz clic en el mapa para cambiar</small>
+            <small>Lng: ${lng.toFixed(4)}</small>
           </div>
-        `);
-
-      // Permitir arrastrar el marcador para cambiar ubicación
-      this.userMarker.on('dragend', (e: any) => {
-        const newPos = e.target.getLatLng();
-        this.locationSvc.setSelectedLocation({
-          text: `${newPos.lat.toFixed(4)}, ${newPos.lng.toFixed(4)}`,
-          place_name: 'Ubicación personalizada',
-          lat: newPos.lat,
-          lon: newPos.lng
+        `, {
+          maxWidth: 200,
+          autoPan: true,
+          keepInView: true
         });
-        console.log('📍 Ubicación arrastrada a:', newPos.lat, newPos.lng);
-      });
     }
   }
 
@@ -257,14 +265,15 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
    */
   private addProviderMarkers(providers: ServiceProvider[]): void {
     if (!this.markerClusterGroup || !this.L) return;
-    
+
     // Limpiar marcadores existentes
     this.markerClusterGroup.clearLayers();
+    this.providerMarkers.clear();
 
     providers.forEach((p: ServiceProvider, index: number) => {
       if (p.latitude && p.longitude) {
         const isLocked = index >= this.freeProviderLimit;
-        
+
         // Crear ícono de proveedor con imagen personalizada (PNG para mejor compatibilidad)
         const providerIcon = this.L.icon({
           iconUrl: 'https://res.cloudinary.com/dghwotofx/image/upload/f_png,w_56,h_56/v1774631660/proveedor_y6k7il',
@@ -275,9 +284,25 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
         });
 
         const marker = this.L.marker([p.latitude, p.longitude], { icon: providerIcon })
-          .bindPopup(this.createProviderPopup(p, isLocked));
+          .bindPopup(this.createProviderPopup(p, isLocked), { 
+            maxWidth: 250,
+            autoPan: true,
+            keepInView: true,
+            closeOnClick: false,
+            autoClose: false
+          });
 
-        // Click solo si no está bloqueado
+        // FIX mobile: asegurar que popup sea visible viewport
+        marker.on('popupopen', () => {
+          if (this.map) {
+            const latlng = marker.getPopup().getLatLng();
+            this.map.panTo([latlng.lat, latlng.lng], { animate: true });
+          }
+        });
+
+        // Popup en hover (entrada/salida) — el click queda solo para el aviso de proveedor bloqueado
+        marker.on('mouseover', () => marker.openPopup());
+        marker.on('mouseout',  () => marker.closePopup());
         marker.on('click', () => {
           if (isLocked) {
             alert('⭐ Accede a plan Premium para ver más proveedores');
@@ -285,8 +310,15 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
         });
 
         this.markerClusterGroup.addLayer(marker);
+
+        // Indexar marcador por provider_id (o id) para sincronizar highlight con la lista
+        const key = (p.provider_id ?? p.id) as number;
+        if (key != null) this.providerMarkers.set(key, marker);
       }
     });
+
+    // Re-aplicar highlight si había uno activo antes del refresh
+    if (this._highlightedId != null) this.applyHighlight(this._highlightedId, true);
 
     // Ajustar vista del mapa para mostrar todos los marcadores
     if (providers.some(p => p.latitude && p.longitude)) {
@@ -297,6 +329,20 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
       );
       this.map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
     }
+  }
+
+  /**
+   * Activa/desactiva la clase `marker-highlighted` sobre el ícono del marker
+   * cuyo id coincide con `id`. La animación visual se define en SCSS.
+   */
+  private applyHighlight(id: number | null, on: boolean): void {
+    if (id == null) return;
+    const marker = this.providerMarkers.get(id);
+    if (!marker) return;
+    const el: HTMLElement | null = marker.getElement?.() ?? null;
+    if (!el) return;
+    el.classList.toggle('marker-highlighted', on);
+    if (on) marker.openPopup(); else marker.closePopup();
   }
 
   /**

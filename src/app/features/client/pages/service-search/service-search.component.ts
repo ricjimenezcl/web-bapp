@@ -45,6 +45,8 @@ export class ServiceSearchComponent implements OnInit {
   serviceNames      = signal<{ id: number; name: string }[]>([]);
   /** Toggle móvil: lista o mapa */
   viewMode          = signal<'list' | 'map'>('list');
+  /** Provider con hover en la lista — se sincroniza con el highlight del mapa */
+  hoveredProviderId = signal<number | null>(null);
 
   /**
    * Chips a mostrar en el header:

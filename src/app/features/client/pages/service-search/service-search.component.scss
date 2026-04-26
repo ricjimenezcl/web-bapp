@@ -43,9 +43,12 @@
 }
 
 // ── Rating row ──────────────────────────────────────────────────────────────
+// 3a — color ámbar legible sobre fondo oscuro; !important porque ion-icon
+// puede sobre-escribir vía sus propios CSS variables
 .rating-star {
-  color: #FDD735;
-  font-size: 13px;
+  color: #FFA000 !important;
+  font-size: 0.875rem;
+  flex-shrink: 0;
 }
 
 // ══════════════════════════════════════════════════════════════════════════
@@ -153,7 +156,7 @@
   padding: 12px;
 }
 
-// Provider card 
+// Provider card
 .provider-card {
   display: flex;
   gap: 12px;
@@ -165,21 +168,27 @@
   color: inherit;
   transition: all 0.15s ease;
   cursor: pointer;
-  
-  &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-color: var(--bapp-color-primary);
+
+  &:hover,
+  &.provider-card-active {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+    border-color: #FDD735;
+    background: rgba(253, 215, 53, 0.06);
   }
 }
 
 .provider-avatar {
-  width: 56px;
-  height: 56px;
+  width: 96px !important;          // 3c — doblado vs 56px original
+  height: 96px !important;
+  min-width: 96px;
   flex-shrink: 0;
   border-radius: 50%;
-  border: 2px solid var(--bapp-color-primary);
+  border: 2px solid #333333;       // border-dark-border del spec
   object-fit: cover;
   background: var(--bapp-surface-hover);
+  overflow: hidden;
+
+  img { width: 100%; height: 100%; object-fit: cover; }
 }
 
 .provider-info {
@@ -233,9 +242,15 @@
 .dist-chip {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
   font-size: 11px;
   color: rgba(255,255,255,0.40);
+
+  // 3b — ícono de ubicación en rojo para diferenciar del rating
+  ion-icon {
+    color: #EF4444 !important;
+    font-size: 0.875rem;
+  }
 }
 
 // ── Service name chip (category badge) ─────────────────────────────────────

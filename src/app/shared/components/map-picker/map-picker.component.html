@@ -4,14 +4,14 @@
     <!-- Header -->
     <div class="map-picker-header">
       <div class="flex-1">
-        <h2 class="text-lg font-bold text-slate-900 mb-1">Elegir ubicación</h2>
-        <p class="text-xs text-slate-500">Arrastra el mapa para posicionar el pin</p>
+        <h2 class="text-lg font-bold text-text-primary mb-1">Elegir ubicación</h2>
+        <p class="text-xs text-text-secondary">Arrastra el mapa para posicionar el pin</p>
       </div>
       <button 
         type="button"
         (click)="cancelSelection()"
         class="w-10 h-10 rounded-xl bg-surface-100 hover:bg-surface-200 flex items-center justify-center transition-colors">
-        <ion-icon name="close-outline" class="text-xl text-slate-700"></ion-icon>
+        <ion-icon name="close-outline" class="text-xl text-text-secondary"></ion-icon>
       </button>
     </div>
 
@@ -35,7 +35,7 @@
             <div class="animate-spin">
               <ion-icon name="sync-outline" class="text-3xl text-primary-600"></ion-icon>
             </div>
-            <span class="text-sm text-slate-600">Cargando mapa...</span>
+            <span class="text-sm text-text-secondary">Cargando mapa...</span>
           </div>
         </div>
       }
@@ -57,8 +57,8 @@
             <ion-icon name="location" class="text-xl text-primary-600"></ion-icon>
           </div>
           <div class="flex-1 min-w-0">
-            <p class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-0.5">Dirección seleccionada</p>
-            <p class="text-sm font-semibold text-slate-900 truncate">{{ selectedAddress() }}</p>
+            <p class="text-xs font-medium text-text-tertiary uppercase tracking-wider mb-0.5">Dirección seleccionada</p>
+            <p class="text-sm font-semibold text-text-primary truncate">{{ selectedAddress() }}</p>
           </div>
         </div>
       </div>
@@ -66,7 +66,7 @@
       <!-- Hint -->
       <div class="map-hint">
         <ion-icon name="hand-left" class="text-base text-primary-600"></ion-icon>
-        <span class="text-xs text-slate-600">Arrastra el mapa para mover el pin</span>
+        <span class="text-xs text-text-secondary">Arrastra el mapa para mover el pin</span>
       </div>
     </div>
 
@@ -75,7 +75,7 @@
       <button 
         type="button"
         (click)="useCurrentLocation()"
-        class="flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-surface-200 rounded-xl text-sm font-medium text-slate-700 hover:bg-surface-50 transition-colors flex-1">
+        class="flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-surface-200 rounded-xl text-sm font-medium text-text-primary hover:bg-surface-50 transition-colors flex-1">
         <ion-icon name="navigate-outline" class="text-lg"></ion-icon>
         <span>Mi ubicación</span>
       </button>

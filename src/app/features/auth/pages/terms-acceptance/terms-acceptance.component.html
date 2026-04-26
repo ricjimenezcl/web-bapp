@@ -1,0 +1,58 @@
+<div class="min-h-screen bg-surface-page flex items-center justify-center p-4">
+  <div class="w-full max-w-md card card-body animate-fade-in">
+
+    <div class="text-center mb-6">
+      <div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-primary/10 flex items-center justify-center">
+        <svg class="w-7 h-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+      </div>
+      <h2 class="text-xl font-bold text-text-primary">Términos y condiciones</h2>
+      <p class="text-sm text-text-secondary mt-1">Por favor revisa y acepta los términos para continuar</p>
+    </div>
+
+    <div class="bg-surface-base rounded-xl border border-border p-4 max-h-48 overflow-y-auto text-xs text-text-secondary mb-4 leading-relaxed">
+      <p class="font-semibold text-text-primary mb-2">Términos de uso de BAPP</p>
+      <p>Al usar nuestra plataforma, aceptas que tus datos serán utilizados para conectarte con proveedores de servicios cercanos.
+      Nos comprometemos a proteger tu privacidad y datos personales conforme a la ley aplicable.</p>
+      <br>
+      <p>No está permitido usar la plataforma para actividades ilegales, spam o cualquier comportamiento que viole los derechos de otros usuarios.</p>
+      <br>
+      <p>BAPP actúa como intermediario y no se responsabiliza por la calidad de los servicios prestados por proveedores independientes.</p>
+      <br>
+      <p>Puedes revisar la política de privacidad completa en <a routerLink="/privacy" class="text-primary underline">nuestra página de privacidad</a>.</p>
+    </div>
+
+    @if (error()) {
+      <div class="alert alert-danger mb-4">{{ error() }}</div>
+    }
+
+    <div class="space-y-3 mb-6">
+      <label class="flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" [(ngModel)]="termsAccepted" class="mt-0.5 w-4 h-4 accent-primary">
+        <span class="text-sm text-text-primary">
+          He leído y acepto los
+          <a routerLink="/terms" class="text-primary font-medium underline hover:text-primary-600">Términos y condiciones</a>
+          y la
+          <a routerLink="/privacy" class="text-primary font-medium underline hover:text-primary-600">Política de privacidad</a>
+          *
+        </span>
+      </label>
+      <label class="flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" [(ngModel)]="emailOptIn" class="mt-0.5 w-4 h-4 accent-primary">
+        <span class="text-sm text-text-secondary">Acepto recibir comunicaciones por correo electrónico (opcional)</span>
+      </label>
+    </div>
+
+    <button (click)="onAccept()" class="btn btn-primary btn-block btn-lg"
+      [disabled]="!termsAccepted || loading()">
+      @if (loading()) { <span class="spinner"></span> }
+      Continuar
+    </button>
+
+    <button (click)="onDecline()" class="btn btn-ghost btn-block mt-2 text-sm">
+      Cancelar y salir
+    </button>
+  </div>
+</div>

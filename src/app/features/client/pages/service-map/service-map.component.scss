@@ -2,6 +2,18 @@
 // SERVICE-MAP COMPONENT STYLES
 // ============================================
 
+// El host element debe tener altura explícita para que `h-full` del wrapper
+// y `absolute inset-0` del mapa funcionen, tanto cuando se usa como ruta
+// (dentro de <main flex-1>) como embebido en service-search (dentro de
+// .search-panel-map flex:1 column).
+:host {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+}
+
 // Mapa container
 #service-map {
   position: relative;
@@ -12,31 +24,67 @@
 // ICONOS PERSONALIZADOS DEL MAPA
 // ============================================
 
-// Icono de ubicación actual del usuario
+// Icono de ubicación actual del usuario — siempre visible, anillo amarillo BappSearch
+// Nota: el marker es image-based (L.icon con iconUrl). Para mejorar visibilidad sin
+// tocar el .ts, usamos pseudo-elementos sobre la className del marker.
 .user-location-icon {
-  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
+  position: relative;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.45));
   transition: all 0.3s ease;
-  
+  z-index: 1000 !important;
+  cursor: default !important;
+
+  // Halo amarillo permanente alrededor del marker para distinguirlo de los proveedores
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(253, 215, 53, 0.25);
+    border: 3px solid #FDD735;
+    box-shadow: 0 0 0 2px #202020, 0 0 14px rgba(253, 215, 53, 0.55);
+    pointer-events: none;
+    z-index: -1;
+  }
+
   &:hover {
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+    filter: drop-shadow(0 4px 10px rgba(253, 215, 53, 0.55));
   }
 }
+
+// El marker del usuario va sobre el panel del map pero también sobre los providers
+// (Leaflet asigna z-index dinámicos por marker; este selector eleva el marker pane)
+.leaflet-marker-pane .user-location-icon { z-index: 1000 !important; }
 
 // Icono de proveedor
 .provider-location-icon {
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
   transition: all 0.2s ease;
-  
+
   &:hover {
     transform: scale(1.1);
     filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4));
+  }
+
+  // Marker resaltado al hacer hover en la card del listing
+  &.marker-highlighted {
+    transform: scale(1.3);
+    filter:
+      drop-shadow(0 0 0 #FDD735)
+      drop-shadow(0 0 6px #FDD735)
+      drop-shadow(0 4px 10px rgba(253, 215, 53, 0.55));
+    z-index: 1000 !important;
   }
 
   // Proveedores bloqueados (plan premium)
   &.locked {
     opacity: 0.4;
     filter: grayscale(0.8) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-    
+
     &:hover {
       transform: scale(1.05);
     }
@@ -99,132 +147,8 @@
   cursor: pointer;
 }
 
-// ============================================
-// POPUPS PERSONALIZADOS
-// ============================================
-
-.leaflet-popup-content-wrapper {
-  border-radius: 8px;
-  padding: 0;
-  overflow: hidden;
-  background-color: #2C2C2C;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.50);
-}
-
-.leaflet-popup-content {
-  margin: 0;
-  min-width: 200px;
-}
-
-.provider-popup,
-.user-popup {
-  padding: 12px;
-  font-family: inherit;
-}
-
-.provider-popup {
-  .popup-header {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-bottom: 8px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-
-    strong {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.87);
-      font-weight: 600;
-    }
-
-    .rating {
-      font-size: 12px;
-      color: #FDD735;
-      font-weight: 500;
-    }
-
-    .rating-new {
-      font-size: 11px;
-      color: #34D399;
-      font-weight: 500;
-      background: rgba(16, 185, 129, 0.14);
-      padding: 2px 6px;
-      border-radius: 4px;
-      display: inline-block;
-    }
-  }
-
-  .popup-body {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-bottom: 8px;
-
-    p {
-      margin: 0;
-      font-size: 12px;
-      color: rgba(255, 255, 255, 0.50);
-    }
-
-    .category {
-      color: rgba(255, 255, 255, 0.65);
-      font-weight: 500;
-    }
-
-    .distance {
-      color: #60A5FA;
-    }
-
-    .rate {
-      color: #34D399;
-      font-weight: 600;
-    }
-  }
-
-  .popup-link {
-    display: inline-block;
-    padding: 6px 12px;
-    background: #FDD735;
-    color: #141414;
-    text-decoration: none;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 600;
-    text-align: center;
-    transition: background 0.2s ease;
-
-    &:hover {
-      background: #FFCA28;
-    }
-  }
-
-  .locked-msg {
-    text-align: center;
-    font-size: 11px;
-    color: #FBBF24;
-    font-weight: 500;
-    margin: 0;
-    padding: 4px 8px;
-    background: rgba(245, 158, 11, 0.12);
-    border-radius: 4px;
-  }
-}
-
-.user-popup {
-  strong {
-    display: block;
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.87);
-    margin-bottom: 4px;
-  }
-
-  small {
-    display: block;
-    font-size: 11px;
-    color: rgba(255, 255, 255, 0.45);
-  }
-}
+// Popups: ver styles.scss global (Leaflet renderiza fuera del scope del componente
+// con encapsulation Emulada, por eso los estilos del popup viven en global).
 
 // ============================================
 // RESPONSIVE ADJUSTMENTS

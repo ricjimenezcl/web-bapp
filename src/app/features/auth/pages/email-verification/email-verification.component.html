@@ -1,0 +1,31 @@
+<div class="min-h-screen bg-surface-page flex items-center justify-center p-4">
+  <div class="w-full max-w-md card card-body text-center animate-fade-in">
+
+    @if (loading()) {
+      <div class="spinner mx-auto mb-4 w-8 h-8 text-primary"></div>
+      <p class="text-text-secondary">Verificando tu correo...</p>
+
+    } @else if (success()) {
+      <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-success/10 flex items-center justify-center">
+        <svg class="w-7 h-7 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+        </svg>
+      </div>
+      <h3 class="text-xl font-semibold text-text-primary">¡Correo verificado!</h3>
+      <p class="text-text-secondary mt-2 text-sm">Tu cuenta ha sido verificada exitosamente.</p>
+      <a routerLink="/auth/login" class="btn btn-primary btn-block mt-6">Iniciar sesión</a>
+
+    } @else {
+      <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-danger/10 flex items-center justify-center">
+        <svg class="w-7 h-7 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        </svg>
+      </div>
+      <h3 class="text-xl font-semibold text-text-primary">Error de verificación</h3>
+      <p class="text-text-secondary mt-2 text-sm">{{ error() }}</p>
+      <a routerLink="/auth/login" class="btn btn-secondary btn-block mt-6">Ir al inicio</a>
+    }
+  </div>
+</div>

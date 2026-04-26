@@ -1,9 +1,10 @@
-import { Component, inject, OnInit, OnDestroy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, computed, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterOutlet, RouterLinkActive, Router } from '@angular/router';
 import { WebSocketService } from '../../../../core/services/websocket.service';
 import { NotificationStateService } from '../../../../core/services/notification-state.service';
 import { ChatService } from '../../../../core/services/chat.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -17,9 +18,12 @@ export class ClientTabsComponent implements OnInit, OnDestroy {
   private ws     = inject(WebSocketService);
   private notif  = inject(NotificationStateService);
   private chat   = inject(ChatService);
+  private auth   = inject(AuthService);
   private router = inject(Router);
 
   readonly unreadNotifications = this.notif.unreadCount;
+  readonly currentProfile      = this.auth.currentProfile;
+  readonly firstName           = computed(() => this.currentProfile()?.full_name?.trim().split(/\s+/)[0] ?? '');
   private subs: Subscription[] = [];
   
   // Sidebar state (mobile/tablet)
@@ -41,6 +45,11 @@ export class ClientTabsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.ws.connect();
     this.notif.loadNotifications();
+
+    // Cargar perfil para mostrar avatar + nombre en navbar (si no está cacheado)
+    if (!this.currentProfile()) {
+      this.auth.fetchProfile().subscribe({ error: () => {} });
+    }
 
     this.subs.push(
       this.ws.notification$.subscribe(n => {

@@ -7,26 +7,7 @@ import { AuthService } from '../../../../core/services/auth.service';
   selector: 'app-email-verification',
   standalone: true,
   imports: [CommonModule, RouterLink],
-  template: `
-    <div class="min-h-screen bg-gradient-to-br from-primary-700 to-primary-800 flex items-center justify-center p-4">
-      <div class="w-full max-w-md card card-body text-center animate-fade-in">
-        @if (loading()) {
-          <div class="spinner mx-auto mb-4 w-8 h-8 border-primary-600"></div>
-          <p class="text-slate-600">Verificando tu correo...</p>
-        } @else if (success()) {
-          <div class="text-5xl mb-4">✉️</div>
-          <h3 class="text-xl font-semibold text-slate-800">¡Correo verificado!</h3>
-          <p class="text-slate-600 mt-2">Tu cuenta ha sido verificada exitosamente.</p>
-          <a routerLink="/auth/login" class="btn btn-primary btn-block mt-6">Iniciar sesión</a>
-        } @else {
-          <div class="text-5xl mb-4">❌</div>
-          <h3 class="text-xl font-semibold text-slate-800">Error de verificación</h3>
-          <p class="text-slate-600 mt-2">{{ error() }}</p>
-          <a routerLink="/auth/login" class="btn btn-secondary btn-block mt-6">Ir al inicio</a>
-        }
-      </div>
-    </div>
-  `
+  templateUrl: './email-verification.component.html',
 })
 export class EmailVerificationComponent implements OnInit {
   private auth  = inject(AuthService);

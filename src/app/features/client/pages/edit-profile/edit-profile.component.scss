@@ -1,0 +1,270 @@
+// edit-profile.component.scss — patrones replicados de client-profile
+
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+// ── Hero header ──────────────────────────────────────────────────────────
+.profile-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px 16px 20px;
+  background: var(--bapp-surface-card, #1a1a1a);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  border-radius: 20px;
+
+  .hero-bg-orb {
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(253, 215, 53, 0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+}
+
+.profile-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  margin: 0;
+  text-align: center;
+  z-index: 1;
+}
+.profile-email {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
+  text-align: center;
+  z-index: 1;
+}
+
+.profile-avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #fdd735;
+  display: block;
+}
+.profile-avatar-placeholder {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: rgba(253, 215, 53, 0.1);
+  border: 3px solid rgba(253, 215, 53, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// ── Menu sections ────────────────────────────────────────────────────────
+.menu-section {
+  margin-bottom: 16px;
+  padding: 0 16px;
+}
+.menu-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.38);
+  margin: 0 0 8px 4px;
+}
+.menu-list {
+  background: #232323;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+// ── Menu icons ───────────────────────────────────────────────────────────
+.menu-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  svg { width: 17px; height: 17px; }
+}
+.menu-icon-blue   { background: rgba(14, 165, 233, 0.12);  svg { color: #0ea5e9; } }
+.menu-icon-green  { background: rgba(34, 197, 94, 0.12);   svg { color: #22c55e; } }
+.menu-icon-violet { background: rgba(168, 85, 247, 0.12);  svg { color: #a855f7; } }
+
+.info-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.38);
+}
+
+// ── Footer spacer ────────────────────────────────────────────────────────
+.profile-footer-spacer {
+  flex: 1;
+  min-height: 16px;
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// EDIT-PROFILE-ESPECÍFICO
+// ══════════════════════════════════════════════════════════════════════════
+
+// Header del hero con back + guardar
+.edit-header-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.btn-back-hero {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f5f5f5;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+  text-decoration: none;
+
+  svg { width: 18px; height: 18px; }
+  &:hover { background: rgba(255, 255, 255, 0.18); }
+}
+
+.btn-save-hero {
+  background: #fdd735;
+  color: #202020;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border-radius: 9999px;
+  padding: 6px 16px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  &:hover:not(:disabled) { background: #f5c800; }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+// Avatar editable
+.edit-avatar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.edit-avatar-img {
+  position: relative;
+  width: 88px;
+  height: 88px;
+}
+
+.avatar-camera-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 28px;
+  height: 28px;
+  background: #fdd735;
+  border: 2px solid #202020;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  svg { width: 14px; height: 14px; color: #202020; }
+  input { display: none; }
+  &:hover { background: #f5c800; }
+}
+
+// Form fields integrados en menu-item style
+.form-field-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #333333;
+
+  &:last-child { border-bottom: none; }
+}
+
+.form-field-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.form-field-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #f5f5f5;
+  font-size: 0.9rem;
+  font-family: inherit;
+  width: 100%;
+  padding: 0;
+
+  &::placeholder { color: #424242; }
+
+  &.form-field-error { color: #EF4444; }
+}
+
+.form-field-textarea {
+  resize: none;
+  line-height: 1.5;
+}
+
+.form-error-msg {
+  font-size: 0.72rem;
+  color: #EF4444;
+  margin-top: 2px;
+}
+
+// Alertas
+.alert-success-bar,
+.alert-error-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+.alert-success-bar {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  color: #22c55e;
+}
+.alert-error-bar {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #EF4444;
+}

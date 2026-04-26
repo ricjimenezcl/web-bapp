@@ -1,162 +1,75 @@
-<div class="flex h-screen bg-surface-50 overflow-hidden">
-  
-  <!-- BACKDROP para cerrar sidebar en móvil -->
-  @if (sidebarOpen()) {
-    <div class="fixed inset-0 bg-black/50 z-30 md:hidden animate-fade-in" 
-         (click)="closeSidebar()"
-         aria-hidden="true"></div>
-  }
-  
-  <!-- SIDEBAR DESKTOP + MOBILE -->
-  <aside 
-    [class]="sidebarOpen() 
-      ? 'translate-x-0' 
-      : '-translate-x-full md:translate-x-0'"
-    class="fixed md:relative inset-y-0 left-0 z-40 w-64 
-           bg-white dark:bg-surface-card border-r border-surface-200 dark:border-border
-           flex flex-col transition-transform duration-300 ease-in-out"
-    aria-label="Navegación principal">
-    
-    <!-- Logo/Brand -->
-    <div class="px-6 py-5 border-b border-surface-200 dark:border-border flex items-center justify-between">
-      <div class="flex bg-black items-center gap-3">
-        <div class="w-10 h-10 bg-black rounded-xl flex items-center justify-center text-xl font-bold text-surface-base">
-         <img [src]="'https://res.cloudinary.com/dghwotofx/image/upload/v1774563936/logo_gsgyrf.png'" alt="Logo BappSearch">
-        </div>
-        <div>
-          <h1 class="text-lg font-bold text-slate-800 dark:text-text-primary"> <img [src]="'https://res.cloudinary.com/dghwotofx/image/upload/v1774563936/titulo_bycrju.png'" alt="BappSearch - Marketplace de Servicios"></h1>
-          <p class="text-xs text-slate-500 dark:text-text-tertiary">Cliente</p>
-        </div>
-      </div>
-      <!-- Close button (mobile only) -->
-      <button (click)="closeSidebar()" 
-              class="md:hidden p-2 -mr-2 text-slate-500 hover:text-slate-700 dark:text-text-tertiary dark:hover:text-text-primary"
-              aria-label="Cerrar menú">
-        <ion-icon name="close" class="text-xl"></ion-icon>
-      </button>
-    </div>
+<div class="flex flex-col h-screen bg-surface-page overflow-hidden">
 
-    <!-- Nueva búsqueda (desktop) -->
-    <div class="px-4 py-4 border-b border-surface-200 dark:border-border">
-      <button (click)="goToCategories()"
-        class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary-600 text-surface-base text-sm font-semibold rounded-lg transition-colors">
-        <ion-icon name="search-outline" class="text-lg"></ion-icon>
-        Nueva búsqueda
-      </button>
-    </div>
+  <!-- ════════════════════════════════════════════════════════════════════
+       NAVBAR HORIZONTAL — marketplace style
+  ════════════════════════════════════════════════════════════════════ -->
+  <header class="bg-surface-base border-b border-border flex-shrink-0 z-30 sticky top-0">
+    <div class="max-w-7xl mx-auto px-4 lg:px-6 h-16 flex items-center gap-3 lg:gap-4">
 
-    <!-- Navigation Links -->
-    <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto" aria-label="Navegación de secciones">
-      <a routerLink="service-search" routerLinkActive="active"
-        (click)="closeSidebar()"
-        class="sidebar-link group">
-        <ion-icon name="search-outline" class="text-xl"></ion-icon>
-        <span>Buscar proveedores</span>
-      </a>
-
-      <a routerLink="service-map" routerLinkActive="active"
-        (click)="closeSidebar()"
-        class="sidebar-link group">
-        <ion-icon name="map-outline" class="text-xl"></ion-icon>
-        <span>Mapa</span>
-      </a>
-
-      <a routerLink="bookings" routerLinkActive="active"
-        (click)="closeSidebar()"
-        class="sidebar-link group">
-        <ion-icon name="calendar-outline" class="text-xl"></ion-icon>
-        <span>Mis reservas</span>
-      </a>
-
-      <a routerLink="chats" routerLinkActive="active"
-        (click)="closeSidebar()"
-        class="sidebar-link group relative">
-        <div class="relative">
-          <ion-icon name="chatbubbles-outline" class="text-xl"></ion-icon>
-          @if (unreadNotifications() > 0) {
-            <span class="absolute -top-1 -right-1 w-4 h-4 bg-danger text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-              {{ unreadNotifications() > 9 ? '9+' : unreadNotifications() }}
-            </span>
-          }
-        </div>
-        <span>Mensajes</span>
-        @if (unreadNotifications() > 0) {
-          <span class="ml-auto px-2 py-0.5 bg-danger text-white text-xs font-semibold rounded-full">
-            {{ unreadNotifications() > 9 ? '9+' : unreadNotifications() }}
-          </span>
-        }
-      </a>
-
-      <a routerLink="profile" routerLinkActive="active"
-        (click)="closeSidebar()"
-        class="sidebar-link group">
-        <ion-icon name="person-outline" class="text-xl"></ion-icon>
-        <span>Mi perfil</span>
-      </a>
-    </nav>
-
-    <!-- Footer (opcional) -->
-    <div class="px-4 py-3 border-t border-surface-200 dark:border-border">
-      <p class="text-xs text-slate-500 dark:text-text-tertiary text-center">© 2026 BappSearch</p>
-    </div>
-  </aside>
-
-  <!-- MAIN CONTENT -->
-  <div class="flex-1 flex flex-col min-w-0">
-    
-    <!-- Top bar (móvil) con Hamburger -->
-    <header class="md:hidden bg-primary-700 px-4 py-2 flex items-center justify-between z-20">
-      <!-- Hamburger button -->
-      <button (click)="toggleSidebar()" 
-              class="p-1 -ml-1 text-white hover:bg-white/10 rounded-lg transition-colors"
-              aria-label="Abrir menú"
-              aria-expanded="false">
+      <!-- Hamburger (móvil) -->
+      <button (click)="toggleSidebar()"
+              class="md:hidden p-2 -ml-2 text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-full transition-colors"
+              aria-label="Abrir menú">
         <ion-icon name="menu-outline" class="text-2xl"></ion-icon>
       </button>
 
-      <span class="text-white font-semibold text-sm">BappSearch</span>
+      <!-- Logo -->
+      <a routerLink="service-search" class="flex items-center gap-2 flex-shrink-0">
+        <div class="w-9 h-9 rounded-xl bg-black flex items-center justify-center overflow-hidden">
+          <img src="https://res.cloudinary.com/dghwotofx/image/upload/v1774563936/logo_gsgyrf.png"
+               alt="Logo BappSearch" class="w-full h-full object-contain">
+        </div>
+        <img src="https://res.cloudinary.com/dghwotofx/image/upload/v1774563936/titulo_bycrju.png"
+             alt="BappSearch" class="hidden sm:block h-5 object-contain">
+      </a>
 
+      <!-- Search pill (desktop) -->
       <button (click)="goToCategories()"
-        class="flex items-center gap-1.5 px-3 py-1.5 bg-white/15 hover:bg-white/25 text-white text-xs font-medium rounded-full transition-colors">
-        <ion-icon name="search-outline" class="text-base"></ion-icon>
-        <span class="hidden xs:inline">Nueva</span>
+              class="hidden md:flex flex-1 max-w-md mx-auto items-center gap-2 bg-surface-card hover:bg-surface-raised border border-border hover:border-border-medium rounded-full px-4 h-10 text-sm text-text-secondary transition-colors">
+        <ion-icon name="search-outline" class="text-base text-primary"></ion-icon>
+        <span class="flex-1 text-left">Nueva búsqueda</span>
       </button>
-    </header>
 
-    <!-- Page content con animación -->
-    <main class="flex-1 overflow-y-auto bg-surface-50 dark:bg-surface-page">
-      <router-outlet></router-outlet>
-    </main>
+      <!-- Spacer (móvil) -->
+      <div class="md:hidden flex-1"></div>
 
-    <!-- Bottom Navigation (móvil) -->
-    <nav class="md:hidden bg-white dark:bg-surface-card border-t border-surface-200 dark:border-border safe-bottom shadow-[0_-1px_3px_rgba(0,0,0,0.08)] z-20"
-         aria-label="Navegación inferior">
-      <div class="flex items-stretch max-w-lg mx-auto">
+      <!-- Acciones derecha -->
+      <nav class="flex items-center gap-1 lg:gap-2 flex-shrink-0" aria-label="Acciones rápidas">
 
-        <a routerLink="service-search" routerLinkActive="active"
-          class="nav-tab flex-1 hover:bg-surface-50 dark:hover:bg-surface-hover transition-colors">
+        <!-- Nueva búsqueda (móvil, icon-only) -->
+        <button (click)="goToCategories()"
+                class="md:hidden w-10 h-10 rounded-full bg-primary/10 hover:bg-primary/20 text-primary flex items-center justify-center transition-colors"
+                aria-label="Nueva búsqueda">
           <ion-icon name="search-outline" class="text-xl"></ion-icon>
-          <span>Buscar</span>
-        </a>
+        </button>
 
-        <a routerLink="service-map" routerLinkActive="active"
-          class="nav-tab flex-1 hover:bg-surface-50 dark:hover:bg-surface-hover transition-colors">
-          <ion-icon name="map-outline" class="text-xl"></ion-icon>
+        <!-- Mapa (desktop) -->
+        <a routerLink="service-search" routerLinkActive="text-primary bg-primary/10"
+           class="hidden lg:flex items-center gap-1.5 px-3 h-10 rounded-full text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors">
+          <ion-icon name="rocket-outline" class="text-lg"></ion-icon>
+          <span>Proveedores</span>
+        </a>
+        <!-- Mapa (desktop) -->
+        <a routerLink="service-map" routerLinkActive="text-primary bg-primary/10"
+           class="hidden lg:flex items-center gap-1.5 px-3 h-10 rounded-full text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors">
+          <ion-icon name="map-outline" class="text-lg"></ion-icon>
           <span>Mapa</span>
         </a>
 
-        <a routerLink="bookings" routerLinkActive="active"
-          class="nav-tab flex-1 hover:bg-surface-50 dark:hover:bg-surface-hover transition-colors">
-          <ion-icon name="calendar-outline" class="text-xl"></ion-icon>
+        <!-- Reservas (desktop) -->
+        <a routerLink="bookings" routerLinkActive="text-primary bg-primary/10"
+           class="hidden lg:flex items-center gap-1.5 px-3 h-10 rounded-full text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors">
+          <ion-icon name="calendar-outline" class="text-lg"></ion-icon>
           <span>Reservas</span>
         </a>
 
-        <a routerLink="chats" routerLinkActive="active"
-          class="nav-tab flex-1 hover:bg-surface-50 dark:hover:bg-surface-hover transition-colors relative">
+        <!-- Mensajes (desktop + tablet) -->
+        <a routerLink="chats" routerLinkActive="text-primary bg-primary/10"
+           class="hidden md:flex items-center gap-1.5 px-3 h-10 rounded-full text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors relative">
           <div class="relative">
-            <ion-icon name="chatbubbles-outline" class="text-xl"></ion-icon>
+            <ion-icon name="chatbubbles-outline" class="text-lg"></ion-icon>
             @if (unreadNotifications() > 0) {
-              <span class="absolute -top-1 -right-1 w-4 h-4 bg-danger text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+              <span class="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 bg-danger text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                 {{ unreadNotifications() > 9 ? '9+' : unreadNotifications() }}
               </span>
             }
@@ -164,14 +77,125 @@
           <span>Mensajes</span>
         </a>
 
-        <a routerLink="profile" routerLinkActive="active"
-          class="nav-tab flex-1 hover:bg-surface-50 dark:hover:bg-surface-hover transition-colors">
-          <ion-icon name="person-outline" class="text-xl"></ion-icon>
-          <span>Perfil</span>
+        <!-- Notificaciones -->
+        <a routerLink="/notifications"
+           class="w-10 h-10 rounded-full text-text-secondary hover:text-text-primary hover:bg-surface-hover flex items-center justify-center transition-colors relative"
+           aria-label="Notificaciones">
+          <ion-icon name="notifications-outline" class="text-xl"></ion-icon>
+          @if (unreadNotifications() > 0) {
+            <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full"></span>
+          }
         </a>
 
+        <!-- Avatar + nombre / Perfil -->
+        <a routerLink="profile" routerLinkActive="ring-2 ring-primary"
+           class="flex items-center gap-2 rounded-full hover:opacity-80 transition-opacity pl-1 pr-2"
+           aria-label="Mi perfil">
+          <div class="w-9 h-9 rounded-full overflow-hidden border border-border bg-surface-card flex items-center justify-center flex-shrink-0">
+            @if (currentProfile()?.avatar) {
+              <img [src]="currentProfile()!.avatar"
+                   [alt]="currentProfile()?.full_name || 'Foto de perfil'"
+                   class="w-full h-full object-cover">
+            } @else {
+              <ion-icon name="person-outline" class="text-lg text-text-secondary"></ion-icon>
+            }
+          </div>
+          @if (firstName()) {
+            <span class="text-sm font-medium text-text-primary hidden sm:block max-w-[120px] truncate">
+              {{ firstName() }}
+            </span>
+          }
+        </a>
+
+      </nav>
+    </div>
+  </header>
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       MOBILE DRAWER
+  ════════════════════════════════════════════════════════════════════ -->
+  @if (sidebarOpen()) {
+    <div class="fixed inset-0 bg-black/60 z-40 md:hidden animate-fade-in"
+         (click)="closeSidebar()" aria-hidden="true"></div>
+  }
+
+  <aside [class]="sidebarOpen() ? 'translate-x-0' : '-translate-x-full'"
+         class="fixed md:hidden inset-y-0 left-0 z-50 w-72 bg-surface-card border-r border-border
+                flex flex-col transition-transform duration-300 ease-in-out"
+         aria-label="Menú móvil">
+
+    <!-- Header drawer -->
+    <div class="px-5 py-4 border-b border-border flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-9 h-9 rounded-xl bg-black flex items-center justify-center overflow-hidden">
+          <img src="https://res.cloudinary.com/dghwotofx/image/upload/v1774563936/logo_gsgyrf.png"
+               alt="BappSearch" class="w-full h-full object-contain">
+        </div>
+        <div>
+          <p class="text-sm font-bold text-text-primary">BappSearch</p>
+          <p class="text-xs text-text-tertiary">Cliente</p>
+        </div>
       </div>
+      <button (click)="closeSidebar()"
+              class="p-2 -mr-2 text-text-secondary hover:text-text-primary"
+              aria-label="Cerrar menú">
+        <ion-icon name="close" class="text-xl"></ion-icon>
+      </button>
+    </div>
+
+    <!-- CTA -->
+    <div class="px-4 py-4 border-b border-border">
+      <button (click)="goToCategories()"
+              class="w-full inline-flex items-center justify-center gap-2 h-10 bg-primary hover:bg-primary-600 text-text-inverse text-sm font-semibold rounded-full transition-colors">
+        <ion-icon name="search-outline" class="text-lg"></ion-icon>
+        Nueva búsqueda
+      </button>
+    </div>
+
+    <!-- Links -->
+    <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto" aria-label="Navegación móvil">
+      <a routerLink="service-search" routerLinkActive="active"
+         (click)="closeSidebar()" class="sidebar-link">
+        <ion-icon name="rocket-outline" class="text-xl"></ion-icon>
+        <span>Proveedores</span>
+      </a>
+      <a routerLink="service-map" routerLinkActive="active"
+         (click)="closeSidebar()" class="sidebar-link">
+        <ion-icon name="map-outline" class="text-xl"></ion-icon>
+        <span>Mapa</span>
+      </a>
+      <a routerLink="bookings" routerLinkActive="active"
+         (click)="closeSidebar()" class="sidebar-link">
+        <ion-icon name="calendar-outline" class="text-xl"></ion-icon>
+        <span>Mis reservas</span>
+      </a>
+      <a routerLink="chats" routerLinkActive="active"
+         (click)="closeSidebar()" class="sidebar-link relative">
+        <ion-icon name="chatbubbles-outline" class="text-xl"></ion-icon>
+        <span>Mensajes</span>
+        @if (unreadNotifications() > 0) {
+          <span class="ml-auto px-2 py-0.5 bg-danger text-white text-xs font-semibold rounded-full">
+            {{ unreadNotifications() > 9 ? '9+' : unreadNotifications() }}
+          </span>
+        }
+      </a>
+      <a routerLink="profile" routerLinkActive="active"
+         (click)="closeSidebar()" class="sidebar-link">
+        <ion-icon name="person-outline" class="text-xl"></ion-icon>
+        <span>Mi perfil</span>
+      </a>
     </nav>
-  </div>
+
+    <div class="px-4 py-3 border-t border-border">
+      <p class="text-xs text-text-tertiary text-center">© 2026 BappSearch</p>
+    </div>
+  </aside>
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       MAIN CONTENT
+  ════════════════════════════════════════════════════════════════════ -->
+  <main class="flex-1 overflow-y-auto bg-surface-page">
+    <router-outlet></router-outlet>
+  </main>
 
 </div>

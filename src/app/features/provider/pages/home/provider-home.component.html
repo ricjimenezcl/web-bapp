@@ -1,20 +1,18 @@
-<div class="flex flex-col min-h-full bg-surface-50">
-  <!-- Header gradient -->
-  <div class="bg-gradient-to-r from-primary-700 to-primary-600 px-4 pt-6 pb-10">
-    <div class="flex items-center justify-between mb-1">
-      <div>
-        <p class="text-primary-200 text-sm">{{ greeting() }}</p>
-        <h1 class="text-xl font-bold text-white">Panel de proveedor</h1>
+<div class="flex flex-col min-h-full bg-surface-page">
+
+  <!-- Page hero (gradient amarillo → dark) -->
+  <div class="page-hero">
+    <div class="page-shell !pb-10 !pt-6">
+      <div class="flex items-start justify-between">
+        <div>
+          <p class="text-text-secondary text-sm">{{ greeting() }}</p>
+          <h1 class="text-2xl font-bold text-text-primary mt-0.5">Panel de proveedor</h1>
+        </div>
       </div>
-      <a routerLink="/notifications" class="p-2 bg-white/20 rounded-lg text-white hover:bg-white/30">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-        </svg>
-      </a>
     </div>
   </div>
 
-  <div class="-mt-6 px-4 pb-6 space-y-4">
+  <div class="page-shell -mt-6 space-y-5">
     @if (loading()) {
       <app-loading-skeleton [count]="3" [showAvatar]="false"></app-loading-skeleton>
     } @else {
@@ -22,14 +20,16 @@
       <!-- Pending services alert -->
       @if ((stats()?.pending_services ?? 0) > 0) {
         <a routerLink="/provider/tabs/my-services"
-          class="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 shadow-sm">
-          <svg class="w-5 h-5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-          </svg>
-          <span class="flex-1 text-sm text-amber-800">
-            Servicios pendientes de activación: <strong>{{ stats()?.pending_services }}</strong>
+           class="flex items-center gap-3 bg-primary/10 border border-primary/30 rounded-xl px-4 py-3 hover:bg-primary/15 transition-colors">
+          <div class="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            </svg>
+          </div>
+          <span class="flex-1 text-sm text-text-primary">
+            Servicios pendientes de activación: <strong class="text-primary">{{ stats()?.pending_services }}</strong>
           </span>
-          <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
           </svg>
         </a>
@@ -37,79 +37,96 @@
 
       <!-- Booking stats grid -->
       <div>
-        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Reservas</p>
-        <div class="grid grid-cols-2 gap-3">
-          <div class="card card-body text-center py-4">
-            <div class="text-3xl font-bold text-primary-600">{{ stats()?.pending_bookings ?? 0 }}</div>
-            <div class="text-xs text-slate-500 mt-1">Pendientes</div>
+        <p class="section-label">Reservas</p>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div class="card card-body text-center py-5">
+            <div class="text-3xl font-bold text-primary">{{ stats()?.pending_bookings ?? 0 }}</div>
+            <div class="text-xs text-text-secondary mt-1">Pendientes</div>
           </div>
-          <div class="card card-body text-center py-4">
-            <div class="text-3xl font-bold text-secondary-600">{{ stats()?.completed_bookings ?? 0 }}</div>
-            <div class="text-xs text-slate-500 mt-1">Completadas</div>
+          <div class="card card-body text-center py-5">
+            <div class="text-3xl font-bold text-success">{{ stats()?.completed_bookings ?? 0 }}</div>
+            <div class="text-xs text-text-secondary mt-1">Completadas</div>
           </div>
-          <div class="card card-body text-center py-4">
-            <div class="text-3xl font-bold text-amber-500">{{ stats()?.average_rating ?? 0 | number:'1.1-1' }}</div>
-            <div class="text-xs text-slate-500 mt-1">Rating promedio</div>
+          <div class="card card-body text-center py-5">
+            <div class="text-3xl font-bold text-primary">{{ stats()?.average_rating ?? 0 | number:'1.1-1' }}</div>
+            <div class="text-xs text-text-secondary mt-1">Rating promedio</div>
           </div>
-          <div class="card card-body text-center py-4">
-            <div class="text-2xl font-bold text-slate-700">${{ (stats()?.total_earnings ?? 0) | number:'1.0-0' }}</div>
-            <div class="text-xs text-slate-500 mt-1">Ganancias totales</div>
+          <div class="card card-body text-center py-5">
+            <div class="text-2xl font-bold text-text-primary">${{ (stats()?.total_earnings ?? 0) | number:'1.0-0' }}</div>
+            <div class="text-xs text-text-secondary mt-1">Ganancias totales</div>
           </div>
         </div>
       </div>
 
       <!-- Activity metrics -->
       <div>
-        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Tu actividad</p>
-        <div class="grid grid-cols-2 gap-3">
-          <div class="card card-body flex items-center gap-3 py-3">
-            <div class="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
-              <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <p class="section-label">Tu actividad</p>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+
+          <div class="card card-body flex items-center gap-3 py-4">
+            <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
               </svg>
             </div>
             <div>
-              <div class="text-xl font-bold text-slate-800">{{ stats()?.profile_views ?? 0 }}</div>
-              <div class="text-xs text-slate-500">Visitas al perfil</div>
+              <div class="text-xl font-bold text-text-primary">{{ stats()?.profile_views ?? 0 }}</div>
+              <div class="text-xs text-text-secondary">Visitas al perfil</div>
             </div>
           </div>
-          <div class="card card-body flex items-center gap-3 py-3">
-            <div class="w-9 h-9 rounded-lg bg-purple-100 flex items-center justify-center shrink-0">
-              <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+          <div class="card card-body flex items-center gap-3 py-4">
+            <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
               </svg>
             </div>
             <div>
-              <div class="text-xl font-bold text-slate-800">{{ stats()?.service_views ?? 0 }}</div>
-              <div class="text-xs text-slate-500">Vistas de servicio</div>
+              <div class="text-xl font-bold text-text-primary">{{ stats()?.service_views ?? 0 }}</div>
+              <div class="text-xs text-text-secondary">Vistas de servicio</div>
             </div>
           </div>
-          <div class="card card-body flex items-center gap-3 py-3">
-            <div class="w-9 h-9 rounded-lg bg-green-100 flex items-center justify-center shrink-0">
-              <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+          <div class="card card-body flex items-center gap-3 py-4">
+            <div class="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
               </svg>
             </div>
             <div>
-              <div class="text-xl font-bold text-slate-800">{{ stats()?.zone_searches ?? 0 }}</div>
-              <div class="text-xs text-slate-500">Búsquedas en zona</div>
+              <div class="text-xl font-bold text-text-primary">{{ stats()?.zone_searches ?? 0 }}</div>
+              <div class="text-xs text-text-secondary">Búsquedas en zona</div>
             </div>
           </div>
-          <div class="card card-body flex items-center gap-3 py-3">
-            <div class="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0">
-              <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+          <div class="card card-body flex items-center gap-3 py-4">
+            <div class="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
             </div>
             <div>
-              <div class="text-xl font-bold text-slate-800">{{ stats()?.active_services ?? 0 }}</div>
-              <div class="text-xs text-slate-500">Servicios activos</div>
+              <div class="text-xl font-bold text-text-primary">{{ stats()?.active_services ?? 0 }}</div>
+              <div class="text-xs text-text-secondary">Servicios activos</div>
             </div>
           </div>
+
         </div>
       </div>
 
     }
   </div>
+
+  <footer class="app-footer">
+    <div class="footer-inner">
+      <span class="footer-brand">BappSearch</span>
+      <nav class="footer-links" aria-label="Enlaces de pie">
+        <a routerLink="/provider/tabs/home">Inicio</a>
+        <a routerLink="/terms">Términos</a>
+        <a routerLink="/privacy">Privacidad</a>
+      </nav>
+      <span class="footer-copy">© 2026 BappSearch.</span>
+    </div>
+  </footer>
 </div>

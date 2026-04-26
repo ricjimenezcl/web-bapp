@@ -1,60 +1,62 @@
-<div class="flex flex-col h-full">
-  <header class="bg-white border-b border-surface-200 px-4 pt-4 pb-0 sticky top-0 z-10">
-    <h1 class="text-lg font-bold text-slate-800 mb-3">Mis Reservas</h1>
-    <div class="flex border-b border-surface-200">
-      <button (click)="activeTab.set('pending')"
-        class="flex-1 pb-3 text-sm font-medium transition-colors relative"
-        [class]="activeTab()==='pending' ? 'text-primary-600' : 'text-slate-500'">
-        Pendientes/Activas
-        @if (activeTab()==='pending') { <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600 rounded-t-full"></div> }
-        @if (pending.length > 0) { <span class="ml-1 badge badge-warning text-[10px]">{{ pending.length }}</span> }
-      </button>
-      <button (click)="activeTab.set('history')"
-        class="flex-1 pb-3 text-sm font-medium transition-colors relative"
-        [class]="activeTab()==='history' ? 'text-primary-600' : 'text-slate-500'">
-        Historial
-        @if (activeTab()==='history') { <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600 rounded-t-full"></div> }
-      </button>
+<div class="flex flex-col h-full bg-surface-page">
+  <header class="bg-surface-base border-b border-border px-4 lg:px-6 pt-4 sticky top-0 z-10">
+    <div class="max-w-4xl mx-auto">
+      <h1 class="text-xl font-bold text-text-primary mb-3">Mis Reservas</h1>
+      <div class="flex border-b border-border -mx-4 lg:-mx-6 px-4 lg:px-6">
+        <button (click)="activeTab.set('pending')"
+          class="flex-1 sm:flex-none sm:px-6 pb-3 text-sm font-medium transition-colors relative"
+          [class]="activeTab()==='pending' ? 'text-primary' : 'text-text-secondary hover:text-text-primary'">
+          Pendientes/Activas
+          @if (activeTab()==='pending') { <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full"></div> }
+          @if (pending.length > 0) { <span class="ml-1.5 badge badge-warning text-[10px]">{{ pending.length }}</span> }
+        </button>
+        <button (click)="activeTab.set('history')"
+          class="flex-1 sm:flex-none sm:px-6 pb-3 text-sm font-medium transition-colors relative"
+          [class]="activeTab()==='history' ? 'text-primary' : 'text-text-secondary hover:text-text-primary'">
+          Historial
+          @if (activeTab()==='history') { <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full"></div> }
+        </button>
+      </div>
     </div>
   </header>
 
-  <div class="flex-1 overflow-y-auto p-4">
+  <div class="flex-1 overflow-y-auto page-shell">
     @if (loading()) {
       <app-loading-skeleton [count]="3" [showAvatar]="false"></app-loading-skeleton>
     } @else if (displayed.length === 0) {
       <app-empty-state iconName="calendar-outline" title="Sin reservas" description="Aquí aparecerán las solicitudes de tus clientes."></app-empty-state>
     } @else {
-      <div class="space-y-3">
+      <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         @for (b of displayed; track b.id) {
           <div class="card card-body">
             <div class="flex items-start justify-between gap-2 mb-3">
-              <div>
-                <h3 class="font-semibold text-slate-800">{{ b.service_category }}</h3>
-                <p class="text-xs text-slate-500 mt-0.5">{{ b.scheduled_date }}{{ b.scheduled_time ? ' · ' + b.scheduled_time.slice(0,5) : '' }}</p>
-                @if (b.description) { <p class="text-sm text-slate-600 mt-1">{{ b.description }}</p> }
+              <div class="flex-1 min-w-0">
+                <h3 class="font-semibold text-text-primary truncate">{{ b.service_category }}</h3>
+                <p class="text-xs text-text-secondary mt-0.5">{{ b.scheduled_date }}{{ b.scheduled_time ? ' · ' + b.scheduled_time.slice(0,5) : '' }}</p>
+                @if (b.description) { <p class="text-sm text-text-secondary mt-1 line-clamp-2">{{ b.description }}</p> }
               </div>
-              <span [class]="getStatusColor(b.status)">{{ getStatusLabel(b.status) }}</span>
+              <span [class]="getStatusColor(b.status)" class="flex-shrink-0">{{ getStatusLabel(b.status) }}</span>
             </div>
 
             @if (b.location_address) {
-              <p class="text-xs text-slate-400 mb-2 flex items-center gap-1">
+              <p class="text-xs text-text-tertiary mb-2 flex items-center gap-1">
                 <ion-icon name="location-outline" class="text-sm"></ion-icon>
-                {{ b.location_address }}
+                <span class="truncate">{{ b.location_address }}</span>
               </p>
             }
 
             @if (b.total_price) {
-              <p class="text-sm font-semibold text-primary-700 mb-3">${{ b.total_price | number:'1.0-0' }}</p>
+              <p class="text-sm font-bold text-primary mb-3">${{ b.total_price | number:'1.0-0' }}</p>
             }
 
             @if (b.status === 'PENDING') {
-              <div class="flex gap-2 pt-3 border-t border-surface-100">
-                <button (click)="reject(+b.id)" class="btn btn-sm btn-secondary flex-1 text-danger">Rechazar</button>
-                <button (click)="confirm(+b.id)" class="btn btn-sm btn-primary flex-1">Confirmar</button>
+              <div class="flex gap-2 pt-3 border-t border-border">
+                <button (click)="reject(+b.id)" class="btn-booking-cancel">Rechazar</button>
+                <button (click)="confirm(+b.id)" class="btn-booking-chat">Confirmar</button>
               </div>
             }
             @if (b.status === 'CONFIRMED' || b.status === 'IN_PROGRESS') {
-              <div class="pt-3 border-t border-surface-100">
+              <div class="pt-3 border-t border-border">
                 <button (click)="complete(+b.id)" class="btn btn-sm btn-primary btn-block">Marcar completado</button>
               </div>
             }
@@ -63,4 +65,16 @@
       </div>
     }
   </div>
+
+  <footer class="app-footer">
+    <div class="footer-inner">
+      <span class="footer-brand">BappSearch</span>
+      <nav class="footer-links" aria-label="Enlaces de pie">
+        <a routerLink="/provider/tabs/home">Inicio</a>
+        <a routerLink="/terms">Términos</a>
+        <a routerLink="/privacy">Privacidad</a>
+      </nav>
+      <span class="footer-copy">© 2026 BappSearch.</span>
+    </div>
+  </footer>
 </div>

@@ -1,22 +1,33 @@
 <div class="flex flex-col min-h-screen bg-surface-50">
-
   <!-- Header -->
   <header class="bg-white border-b border-surface-200">
-    <div class="max-w-6xl mx-auto px-4 py-5 md:py-6">
-      
+    <div class="max-w-4xl mx-auto px-4 py-5 md:py-6">
       <!-- Greeting row -->
       <div class="flex items-start justify-between mb-4">
         <div class="flex-1">
-          <p class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">¿Qué necesitas hoy?</p>
-          <h1 class="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Buscar servicio</h1>
+          <p
+            class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-1"
+          >
+            ¿Qué necesitas hoy?
+          </p>
+          <h1
+            class="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight"
+          >
+            Buscar servicio
+          </h1>
         </div>
-        <div class="w-11 h-11 rounded-xl bg-primary-50 border-2 border-primary-200 flex items-center justify-center flex-shrink-0">
-          <ion-icon name="storefront" class="text-2xl text-primary-600"></ion-icon>
+        <div
+          class="w-11 h-11 rounded-xl bg-primary-50 border-2 border-primary-200 flex items-center justify-center flex-shrink-0"
+        >
+          <ion-icon
+            name="storefront"
+            class="text-2xl text-primary-600"
+          ></ion-icon>
         </div>
       </div>
 
       <!-- Location pill -->
-      <button type="button" 
+      <!-- <button type="button" 
               (click)="toggleLocationSearch()" 
               class="w-full flex items-center justify-between bg-surface-50 border-2 border-surface-200 rounded-full px-4 py-2.5 mb-2 hover:border-primary-400 transition-colors">
         <div class="flex items-center gap-2 flex-1 min-w-0">
@@ -29,42 +40,68 @@
           (click)="selectedLocationName !== 'Tu ubicación actual' ? clearLocation($event) : null"
           (keydown.enter)="selectedLocationName !== 'Tu ubicación actual' ? clearLocation($event) : null">
         </ion-icon>
-      </button>
+      </button> -->
 
       <!-- Map picker button -->
-      <button type="button"
-              (click)="openMapPicker()"
-              class="w-full flex items-center justify-center gap-2 bg-white border-2 border-primary-300 rounded-full px-4 py-2 mb-3 hover:bg-primary-50 hover:border-primary-400 transition-colors group">
-        <ion-icon name="map-outline" class="text-base text-primary-600 group-hover:text-primary-700"></ion-icon>
-        <span class="text-xs font-semibold text-primary-700 group-hover:text-primary-800">Elegir ubicación en el mapa</span>
+      <button
+        type="button"
+        (click)="openMapPicker()"
+        class="w-full flex items-center justify-center gap-2 bg-white border-2 border-primary-300 rounded-full px-4 py-2 mb-3 hover:bg-primary-50 hover:border-primary-400 transition-colors group"
+      >
+        <ion-icon
+          name="map-outline"
+          class="text-base text-primary-600 group-hover:text-primary-700"
+        ></ion-icon>
+        <span
+          class="text-xs font-semibold text-primary-700 group-hover:text-primary-800"
+          >Elegir ubicación en el mapa</span
+        >
       </button>
 
       <!-- Location dropdown -->
       @if (showLocationSearch) {
-        <div class="bg-white border border-surface-200 rounded-xl mb-3 shadow-lg overflow-hidden">
+        <div
+          class="bg-white border border-surface-200 rounded-xl mb-3 shadow-lg overflow-hidden"
+        >
           <div class="flex items-center gap-2 p-3 border-b border-surface-100">
-            <ion-icon name="search-outline" class="text-base text-primary-600 flex-shrink-0"></ion-icon>
-            <input 
-              type="text" 
+            <ion-icon
+              name="search-outline"
+              class="text-base text-primary-600 flex-shrink-0"
+            ></ion-icon>
+            <input
+              type="text"
               placeholder="Zona, ciudad o dirección..."
               [(ngModel)]="locationQuery"
               (input)="onLocationInput()"
-              class="flex-1 bg-transparent border-none outline-none text-sm text-slate-900 placeholder-slate-400">
+              class="flex-1 bg-transparent border-none outline-none text-sm text-slate-900 placeholder-slate-400"
+            />
             @if (isLocationSearching) {
-              <div class="animate-spin"><ion-icon name="sync-outline" class="text-base text-primary-600"></ion-icon></div>
+              <div class="animate-spin">
+                <ion-icon
+                  name="sync-outline"
+                  class="text-base text-primary-600"
+                ></ion-icon>
+              </div>
             }
           </div>
           @if (locationSuggestions.length > 0) {
             <div class="max-h-48 overflow-y-auto">
               @for (suggestion of locationSuggestions; track $index) {
-                <button 
+                <button
                   type="button"
                   (click)="selectLocation(suggestion)"
-                  class="w-full flex items-start gap-3 p-3 text-left hover:bg-surface-50 transition-colors border-b border-surface-100 last:border-b-0">
-                  <div class="w-2 h-2 rounded-full bg-primary-600 flex-shrink-0 mt-1.5"></div>
+                  class="w-full flex items-start gap-3 p-3 text-left hover:bg-surface-50 transition-colors border-b border-surface-100 last:border-b-0"
+                >
+                  <div
+                    class="w-2 h-2 rounded-full bg-primary-600 flex-shrink-0 mt-1.5"
+                  ></div>
                   <div class="flex-1 min-w-0">
-                    <p class="text-sm font-semibold text-slate-900 truncate">{{ suggestion.text }}</p>
-                    <p class="text-xs text-slate-500 truncate">{{ suggestion.place_name }}</p>
+                    <p class="text-sm font-semibold text-slate-900 truncate">
+                      {{ suggestion.text }}
+                    </p>
+                    <p class="text-xs text-slate-500 truncate">
+                      {{ suggestion.place_name }}
+                    </p>
                   </div>
                 </button>
               }
@@ -75,44 +112,70 @@
 
       <!-- Search bar -->
       <div class="relative">
-        <ion-icon name="search-outline" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none"></ion-icon>
-        <input 
+        <ion-icon
+          name="search-outline"
+          class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none"
+        ></ion-icon>
+        <input
           type="search"
           placeholder="Buscar servicio o profesional..."
           [value]="searchQuery()"
           (input)="onSearchInput($any($event.target).value)"
-          class="w-full bg-surface-50 border-2 border-surface-200 rounded-full pl-10 pr-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-primary-500 focus:outline-none transition-colors">
+          class="w-full bg-surface-50 border-2 border-surface-200 rounded-full pl-10 pr-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-primary-500 focus:outline-none transition-colors"
+        />
       </div>
-
     </div>
   </header>
 
   <!-- Autocomplete results -->
   @if (filteredCategories().length > 0 && searchQuery().length >= 2) {
-    <div class="max-w-6xl mx-auto px-4 pt-2">
-      <div class="bg-white border border-surface-200 rounded-xl shadow-lg overflow-hidden">
-        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 px-4 pt-3 pb-2">Resultados</p>
+    <div class="max-w-4xl mx-auto px-4 pt-2">
+      <div
+        class="bg-white border border-surface-200 rounded-xl shadow-lg overflow-hidden"
+      >
+        <p
+          class="text-xs font-semibold uppercase tracking-wider text-slate-500 px-4 pt-3 pb-2"
+        >
+          Resultados
+        </p>
         @for (cat of filteredCategories(); track cat.id) {
-          <button 
+          <button
             type="button"
             (click)="selectServiceCategory(cat)"
-            class="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-surface-50 transition-colors border-t border-surface-100">
+            class="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-surface-50 transition-colors border-t border-surface-100"
+          >
             <div class="flex items-center gap-3 flex-1 min-w-0">
-              <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-primary-100 to-primary-50 flex items-center justify-center flex-shrink-0">
+              <div
+                class="w-9 h-9 rounded-lg bg-gradient-to-br from-primary-100 to-primary-50 flex items-center justify-center flex-shrink-0"
+              >
                 @if (isImageUrl(cat.icon)) {
-                  <img [src]="cat.icon" [alt]="cat.name" class="w-5 h-5 object-contain">
+                  <img
+                    [src]="cat.icon"
+                    [alt]="cat.name"
+                    class="w-5 h-5 object-contain"
+                  />
                 } @else {
-                  <ion-icon [name]="cat.icon || 'construct'" class="text-lg text-primary-700"></ion-icon>
+                  <ion-icon
+                    [name]="cat.icon || 'construct'"
+                    class="text-lg text-primary-700"
+                  ></ion-icon>
                 }
               </div>
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold text-slate-900 truncate">{{ cat.name }}</p>
+                <p class="text-sm font-semibold text-slate-900 truncate">
+                  {{ cat.name }}
+                </p>
                 @if (cat.description) {
-                  <p class="text-xs text-slate-500 truncate">{{ cat.description }}</p>
+                  <p class="text-xs text-slate-500 truncate">
+                    {{ cat.description }}
+                  </p>
                 }
               </div>
             </div>
-            <ion-icon name="chevron-forward-outline" class="text-base text-slate-400 flex-shrink-0"></ion-icon>
+            <ion-icon
+              name="chevron-forward-outline"
+              class="text-base text-slate-400 flex-shrink-0"
+            ></ion-icon>
           </button>
         }
       </div>
@@ -121,31 +184,49 @@
 
   <!-- No results -->
   @if (searchQuery().length >= 2 && filteredCategories().length === 0) {
-    <div class="max-w-6xl mx-auto px-4 py-16 flex flex-col items-center justify-center text-center gap-3">
-      <ion-icon name="search-outline" class="text-5xl text-slate-300"></ion-icon>
-      <p class="text-sm text-slate-600">Sin resultados para <strong>"{{ searchQuery() }}"</strong></p>
+    <div
+      class="max-w-4xl mx-auto px-4 py-16 flex flex-col items-center justify-center text-center gap-3"
+    >
+      <ion-icon
+        name="search-outline"
+        class="text-5xl text-slate-300"
+      ></ion-icon>
+      <p class="text-sm text-slate-600">
+        Sin resultados para <strong>"{{ searchQuery() }}"</strong>
+      </p>
       <p class="text-xs text-slate-500">Intenta con otra palabra clave</p>
     </div>
   }
 
   <!-- Main content (when no search) -->
-  @if (searchQuery().length === 0 || (filteredCategories().length === 0 && searchQuery().length < 2)) {
+  @if (
+    searchQuery().length === 0 ||
+    (filteredCategories().length === 0 && searchQuery().length < 2)
+  ) {
     <main class="flex-1">
-      <div class="max-w-6xl mx-auto px-4 py-6 md:py-8">
-
+      <div class="max-w-4xl mx-auto px-4 py-6 md:py-8">
         <!-- Hint card -->
-          @if (categories().length > 0) {
-            <div class="flex items-start gap-3 p-4 bg-gradient-to-br from-primary-50 to-primary-100/40 border border-primary-200 rounded-xl mb-6">
-              <ion-icon name="hand-left-outline" class="text-2xl text-primary-600 flex-shrink-0 hint-wave"></ion-icon>
-              <div>
-                <p class="text-sm font-semibold text-slate-900 mb-0.5">Toca una categoría</p>
-                <p class="text-xs text-slate-600">Para ver los servicios disponibles</p>
-              </div>
+        @if (categories().length > 0) {
+          <div
+            class="flex items-start gap-3 p-4 bg-gradient-to-br from-primary-50 to-primary-100/40 border border-primary-200 rounded-xl mb-6"
+          >
+            <ion-icon
+              name="hand-left-outline"
+              class="text-2xl text-primary-600 flex-shrink-0 hint-wave"
+            ></ion-icon>
+            <div>
+              <p class="text-sm font-semibold text-slate-900 mb-0.5">
+                Toca una categoría
+              </p>
+              <p class="text-xs text-slate-600">
+                Para ver los servicios disponibles
+              </p>
             </div>
-          }
+          </div>
+        }
 
         <!-- Hero banner (only when no category selected) -->
-      <!--  @if (!showSubcategories()) {
+        <!--  @if (!showSubcategories()) {
           <div class="relative mb-6 p-6 md:p-8 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl overflow-hidden">
             <div class="relative z-10">
               <div class="inline-flex items-center gap-1.5 bg-black/10 rounded-full px-3 py-1 mb-3">
@@ -166,24 +247,29 @@
         @if (loading()) {
           <!-- Skeleton -->
           <div class="cat-grid mb-6">
-            @for (i of [1,2,3,4,5,6]; track i) {
+            @for (i of [1, 2, 3, 4, 5, 6]; track i) {
               <div class="cat-skeleton">
                 <div class="skel-icon"></div>
                 <div class="skel-text"></div>
               </div>
             }
           </div>
-
         } @else if (!showSubcategories() && categories().length === 0) {
-          <div class="flex flex-col items-center justify-center py-16 text-center bg-surface-100 border border-dashed border-surface-300 rounded-xl">
-            <ion-icon name="construct-outline" class="text-5xl text-slate-300 mb-3"></ion-icon>
+          <div
+            class="flex flex-col items-center justify-center py-16 text-center bg-surface-100 border border-dashed border-surface-300 rounded-xl"
+          >
+            <ion-icon
+              name="construct-outline"
+              class="text-5xl text-slate-300 mb-3"
+            ></ion-icon>
             <p class="text-sm text-slate-500">No hay categorías disponibles</p>
           </div>
-
         } @else if (!showSubcategories()) {
           <!-- Section header -->
           <div class="flex items-center justify-between mb-4">
-            <h2 class="text-base md:text-lg font-semibold tracking-tight">Categorías principales</h2>
+            <h2 class="text-base md:text-lg font-semibold tracking-tight">
+              Categorías principales
+            </h2>
           </div>
           <!-- Categories grid — 3 cols mobile · 4 cols tablet · 6 cols desktop -->
           <div class="cat-grid mb-6">
@@ -192,78 +278,122 @@
                 type="button"
                 (click)="select(cat)"
                 [attr.data-idx]="idx % 6"
-                class="cat-tile"
-                [title]="cat.name">
-                <div class="cat-tile-icon-wrap">
-                  @if (isImageUrl(cat.icon)) {
-                    <img
-                      [src]="cat.icon"
-                      [alt]="cat.name"
-                      loading="lazy"
-                      decoding="async"
-                      class="cat-tile-img">
-                  } @else {
-                    <ion-icon
-                      [name]="cat.icon || 'construct-outline'"
-                      class="cat-tile-icon">
-                    </ion-icon>
-                  }
-                </div>
+                class="cat-tile group"
+                [title]="cat.name"
+              >
+                @if (isImageUrl(cat.icon)) {
+                  <img
+                    [src]="cat.icon"
+                    [alt]="cat.name"
+                    loading="lazy"
+                    decoding="async"
+                    class="cat-tile-img"
+                  />
+                } @else {
+                  <ion-icon
+                    [name]="cat.icon || 'construct-outline'"
+                    class="cat-tile-icon"
+                  >
+                  </ion-icon>
+                }
                 <span class="cat-tile-label">{{ cat.name }}</span>
               </button>
             }
           </div>
-
-          
-
-
-
         } @else {
           <!-- Subcategory panel -->
           <div class="animate-slide-up">
             <!-- Panel header -->
-            <div class="flex items-start gap-3 pb-4 mb-4 border-b border-surface-200">
-              <button 
+            <div
+              class="flex items-start gap-3 pb-4 mb-4 border-b border-surface-200"
+            >
+              <button
                 type="button"
                 (click)="back()"
-                class="w-10 h-10 rounded-xl bg-white border border-surface-200 flex items-center justify-center hover:bg-surface-50 transition-colors flex-shrink-0">
-                <ion-icon name="arrow-back-outline" class="text-lg text-slate-900"></ion-icon>
+                class="w-10 h-10 rounded-xl bg-white border border-surface-200 flex items-center justify-center hover:bg-surface-50 transition-colors flex-shrink-0"
+              >
+                <ion-icon
+                  name="arrow-back-outline"
+                  class="text-lg text-slate-900"
+                ></ion-icon>
               </button>
               <div class="flex-1">
-                <h2 class="text-xl md:text-2xl font-bold text-slate-900 tracking-tight mb-0.5">{{ selectedMainCategory()?.name }}</h2>
-                <p class="text-xs text-slate-500">Selecciona uno o más servicios</p>
+                <h2
+                  class="text-xl md:text-2xl font-bold text-slate-900 tracking-tight mb-0.5"
+                >
+                  {{ selectedMainCategory()?.name }}
+                </h2>
+                <p class="text-xs text-slate-500">
+                  Selecciona uno o más servicios
+                </p>
               </div>
             </div>
 
             @if (loading()) {
               <div class="flex items-center justify-center gap-3 py-12">
-                <div class="animate-spin"><ion-icon name="sync-outline" class="text-2xl text-primary-600"></ion-icon></div>
-                <span class="text-sm text-slate-500">Cargando servicios...</span>
+                <div class="animate-spin">
+                  <ion-icon
+                    name="sync-outline"
+                    class="text-2xl text-primary-600"
+                  ></ion-icon>
+                </div>
+                <span class="text-sm text-slate-500"
+                  >Cargando servicios...</span
+                >
               </div>
             } @else if (subcategories().length === 0) {
-              <div class="flex flex-col items-center justify-center py-12 bg-surface-100 border border-dashed border-surface-300 rounded-xl text-center">
-                <ion-icon name="file-tray-outline" class="text-5xl text-slate-300 mb-3"></ion-icon>
-                <p class="text-sm text-slate-500">Sin servicios en esta categoría</p>
+              <div
+                class="flex flex-col items-center justify-center py-12 bg-surface-100 border border-dashed border-surface-300 rounded-xl text-center"
+              >
+                <ion-icon
+                  name="file-tray-outline"
+                  class="text-5xl text-slate-300 mb-3"
+                ></ion-icon>
+                <p class="text-sm text-slate-500">
+                  Sin servicios en esta categoría
+                </p>
               </div>
             } @else {
               <!-- Services list -->
               <div class="flex flex-col gap-2 mb-4">
                 @for (service of pagedServices(); track service.id) {
-                  <button 
+                  <button
                     type="button"
                     (click)="toggleService(service)"
-                    [class]="isServiceSelected(service) 
-                      ? 'bg-gradient-to-br from-primary-50 to-primary-100/40 border-primary-400' 
-                      : 'bg-white border-surface-200 hover:border-primary-300'"
-                    class="w-full flex items-center justify-between gap-3 px-4 py-3 border-2 rounded-xl transition-all text-left active:scale-[0.98]">
+                    [class]="
+                      isServiceSelected(service)
+                        ? 'bg-gradient-to-br from-primary-50 to-primary-100/40 border-primary-400'
+                        : 'bg-white border-surface-200 hover:border-primary-300'
+                    "
+                    class="w-full flex items-center justify-between gap-3 px-4 py-3 border-2 rounded-xl transition-all text-left active:scale-[0.98]"
+                  >
                     <div class="flex items-center gap-3 flex-1 min-w-0">
-                      <div [class]="isServiceSelected(service) ? 'text-primary-600' : 'text-slate-300'" class="text-2xl transition-colors flex-shrink-0">
-                        <ion-icon [name]="isServiceSelected(service) ? 'checkmark-circle' : 'radio-button-off-outline'"></ion-icon>
+                      <div
+                        [class]="
+                          isServiceSelected(service)
+                            ? 'text-primary-600'
+                            : 'text-slate-300'
+                        "
+                        class="text-2xl transition-colors flex-shrink-0"
+                      >
+                        <ion-icon
+                          [name]="
+                            isServiceSelected(service)
+                              ? 'checkmark-circle'
+                              : 'radio-button-off-outline'
+                          "
+                        ></ion-icon>
                       </div>
-                      <span class="flex-1 text-sm font-medium text-slate-900 truncate">{{ service.name }}</span>
+                      <span
+                        class="flex-1 text-sm font-medium text-slate-900 truncate"
+                        >{{ service.name }}</span
+                      >
                     </div>
                     @if (!isServiceSelected(service)) {
-                      <ion-icon name="chevron-forward-outline" class="text-base text-slate-400 flex-shrink-0"></ion-icon>
+                      <ion-icon
+                        name="chevron-forward-outline"
+                        class="text-base text-slate-400 flex-shrink-0"
+                      ></ion-icon>
                     }
                   </button>
                 }
@@ -271,14 +401,24 @@
 
               @if (subcategories().length > pageSize) {
                 <div class="flex items-center justify-between gap-2 mb-4">
-                  <p class="text-xs text-slate-500">Página {{ page() }} de {{ totalPages() }}</p>
+                  <p class="text-xs text-slate-500">
+                    Página {{ page() }} de {{ totalPages() }}
+                  </p>
                   <div class="flex items-center gap-2">
-                    <button type="button" (click)="previousPage()" [disabled]="page() === 1"
-                      class="px-3 py-2 rounded-full border border-surface-200 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-50">
+                    <button
+                      type="button"
+                      (click)="previousPage()"
+                      [disabled]="page() === 1"
+                      class="px-3 py-2 rounded-full border border-surface-200 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-50"
+                    >
                       Anterior
                     </button>
-                    <button type="button" (click)="nextPage()" [disabled]="page() === totalPages()"
-                      class="px-3 py-2 rounded-full border border-surface-200 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-50">
+                    <button
+                      type="button"
+                      (click)="nextPage()"
+                      [disabled]="page() === totalPages()"
+                      class="px-3 py-2 rounded-full border border-surface-200 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-50"
+                    >
                       Siguiente
                     </button>
                   </div>
@@ -287,17 +427,24 @@
 
               <!-- Selection summary -->
               @if (selectedServices().length > 0) {
-                <div class="flex items-center justify-center gap-2 p-3 bg-primary-50 border border-primary-200 rounded-xl mb-4 animate-fade-in">
-                  <ion-icon name="checkmark-done-outline" class="text-lg text-primary-600"></ion-icon>
+                <div
+                  class="flex items-center justify-center gap-2 p-3 bg-primary-50 border border-primary-200 rounded-xl mb-4 animate-fade-in"
+                >
+                  <ion-icon
+                    name="checkmark-done-outline"
+                    class="text-lg text-primary-600"
+                  ></ion-icon>
                   <span class="text-sm font-semibold text-slate-900">
-                    {{ selectedServices().length }} servicio{{ selectedServices().length > 1 ? 's' : '' }} seleccionado{{ selectedServices().length > 1 ? 's' : '' }}
+                    {{ selectedServices().length }} servicio{{
+                      selectedServices().length > 1 ? "s" : ""
+                    }}
+                    seleccionado{{ selectedServices().length > 1 ? "s" : "" }}
                   </span>
                 </div>
               }
             }
           </div>
         }
-
       </div>
     </main>
 
@@ -306,26 +453,32 @@
   }
 
   <!-- Footer CTA (always visible) -->
-  <footer class="fixed bottom-0 left-0 right-0 md:relative bg-white border-t border-surface-200 shadow-[0_-4px_24px_rgba(0,0,0,0.1)] md:shadow-none z-50">
-    <div class="max-w-6xl mx-auto px-4 py-3 md:py-4">
+  <footer
+    class="fixed bottom-0 left-0 right-0 md:relative bg-white border-t border-surface-200 shadow-[0_-4px_24px_rgba(0,0,0,0.1)] md:shadow-none z-50"
+  >
+    <div class="max-w-4xl mx-auto px-4 py-3 md:py-4">
       <div class="flex items-center gap-3">
-        <button 
+        <button
           type="button"
           (click)="back()"
-          class="flex items-center justify-center gap-1.5 h-12 px-4 bg-white border-2 border-surface-200 rounded-full text-sm text-slate-600 hover:bg-surface-50 transition-colors flex-shrink-0">
+          class="flex items-center justify-center gap-1.5 h-12 px-4 bg-white border-2 border-surface-200 rounded-full text-sm text-slate-600 hover:bg-surface-50 transition-colors flex-shrink-0"
+        >
           <ion-icon name="close-outline" class="text-lg"></ion-icon>
           <span class="hidden sm:inline">Cancelar</span>
         </button>
-        <button 
+        <button
           type="button"
           (click)="confirmSelection()"
           [disabled]="selectedServices().length === 0"
           class="flex-1 flex items-center justify-center gap-2 h-12 px-6 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-full shadow-lg shadow-primary-500/20 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
           [class.opacity-50]="selectedServices().length === 0"
-          [class.pointer-events-none]="selectedServices().length === 0">
+          [class.pointer-events-none]="selectedServices().length === 0"
+        >
           <ion-icon name="search-outline" class="text-lg"></ion-icon>
           <span class="text-sm">Buscar</span>
-          <span class="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 bg-black/15 rounded-full text-xs font-bold animate-pop">
+          <span
+            class="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 bg-black/15 rounded-full text-xs font-bold animate-pop"
+          >
             {{ selectedServices().length }}
           </span>
         </button>
@@ -337,8 +490,20 @@
   @if (showMapPicker()) {
     <app-map-picker
       (locationSelected)="onLocationSelected($event)"
-      (closed)="onMapPickerClose()">
+      (closed)="onMapPickerClose()"
+    >
     </app-map-picker>
   }
 
+  <footer class="app-footer hidden md:block">
+    <div class="footer-inner">
+      <span class="footer-brand">BappSearch</span>
+      <nav class="footer-links" aria-label="Enlaces de pie">
+        <a href="/client/tabs/service-search">Buscar</a>
+        <a href="/terms">Términos</a>
+        <a href="/privacy">Privacidad</a>
+      </nav>
+      <span class="footer-copy">© 2026 BappSearch.</span>
+    </div>
+  </footer>
 </div>

@@ -122,7 +122,10 @@ export class ProviderService {
   }
 
   getMyStats(): Observable<ProviderStats> {
-    return this.http.get<ProviderStats>(`${this.api}/providers/me/stats`).pipe(
+    return this.http.get<ProviderProfile>(`${this.api}/providers/me`).pipe(
+      switchMap(profile => 
+        this.http.get<ProviderStats>(`${this.api}/providers/${profile.id}/stats`)
+      ),
       tap(s => this._stats.set(s))
     );
   }

@@ -1,0 +1,112 @@
+<div class="map-shell">
+
+  <!-- Hero simplificado igual que profile -->
+  <div class="profile-hero">
+    <div class="hero-bg-orb"></div>
+    <h2 class="profile-name">Mensajes</h2>
+    <p class="profile-email">Tus conversaciones con proveedores</p>
+  </div>
+
+  <!-- Estado de carga -->
+  @if (loading()) {
+    <div class="menu-section">
+      <div class="menu-list">
+        @for (i of [1,2,3,4]; track i) {
+          <div class="menu-item">
+            <div class="chat-avatar-skeleton animate-pulse"></div>
+            <div class="chat-skeleton-lines">
+              <div class="skeleton-line w-32 h-3 animate-pulse"></div>
+              <div class="skeleton-line w-48 h-2 animate-pulse mt-1"></div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Estado vacío -->
+  @if (!loading() && conversations().length === 0) {
+    <div class="menu-section">
+      <div class="menu-list">
+        <div class="empty-state-inner">
+          <div class="menu-icon menu-icon-slate" style="width:48px;height:48px;margin:0 auto 12px">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0
+                   01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418
+                   4.03-8 9-8s9 3.582 9 8z"/>
+            </svg>
+          </div>
+          <p class="menu-label" style="text-align:center">Sin conversaciones</p>
+          <p class="info-label" style="text-align:center;margin-top:4px">
+            Cuando contactes un proveedor, aparecerá aquí.
+          </p>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Lista de conversaciones -->
+  @if (!loading() && conversations().length > 0) {
+    <div class="menu-section">
+      <p class="menu-section-label">Conversaciones</p>
+      <div class="menu-list">
+        @for (conv of conversations(); track conv.id) {
+          <a [routerLink]="['/client/chat', conv.id]" class="menu-item chat-item">
+
+            <!-- Avatar -->
+            <div class="chat-avatar-wrap">
+              @if (conv.other_user_avatar) {
+                <img
+                  class="chat-avatar-img"
+                  [src]="conv.other_user_avatar"
+                  [alt]="conv.display_name ?? 'Proveedor'"
+                  (error)="$any($event.target).src=''; $any($event.target).nextElementSibling?.classList.remove('hidden')" />
+              }
+              <div class="menu-icon menu-icon-slate chat-avatar-icon" [class.hidden]="conv.other_user_avatar">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+              </div>
+              @if ((conv.unread_count ?? 0) > 0) {
+                <span class="unread-badge">{{ conv.unread_count }}</span>
+              }
+            </div>
+
+            <!-- Info -->
+            <div class="chat-info">
+              <div class="chat-row-top">
+                <span class="menu-label">{{ conv.display_name ?? 'Proveedor' }}</span>
+                <span class="chat-time">{{ conv.updated_at | date:'HH:mm' }}</span>
+              </div>
+              @if (conv.last_message_preview) {
+                <p class="chat-preview">{{ conv.last_message_preview }}</p>
+              }
+            </div>
+
+            <!-- Chevron -->
+            <svg class="menu-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+
+          </a>
+        }
+      </div>
+    </div>
+  }
+
+  <div class="profile-footer-spacer"></div>
+  <footer class="app-footer">
+    <div class="footer-inner">
+      <span class="footer-brand">BappSearch</span>
+      <nav class="footer-links" aria-label="Enlaces de pie">
+        <a href="/client/tabs/service-search">Buscar</a>
+        <a href="/terms">Términos</a>
+        <a href="/privacy">Privacidad</a>
+      </nav>
+      <span class="footer-copy">© 2026 BappSearch.</span>
+    </div>
+  </footer>
+
+</div>

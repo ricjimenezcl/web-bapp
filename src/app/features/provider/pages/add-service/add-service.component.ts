@@ -50,10 +50,26 @@ const DAY_NAMES = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábad
       } @else {
         <form [formGroup]="form" (ngSubmit)="submit()" class="p-4 space-y-4">
           @if (success()) {
-            <div class="alert alert-success">Servicio creado exitosamente</div>
+            <div class="alert alert-success rounded-2xl border border-success-200 bg-success-50 text-success-900 shadow-sm" role="status">
+              <div class="flex items-center gap-3">
+                <span class="text-lg">✅</span>
+                <div>
+                  <p class="font-semibold">Servicio creado exitosamente</p>
+                  <p class="text-sm text-success-700">Tu servicio se registró correctamente y será visible en tu perfil.</p>
+                </div>
+              </div>
+            </div>
           }
           @if (error()) {
-            <div class="alert alert-danger">{{ error() }}</div>
+            <div class="alert alert-danger rounded-2xl border border-danger-200 bg-danger-50 text-danger-900 shadow-sm" role="alert">
+              <div class="flex items-center gap-3">
+                <span class="text-lg">⚠️</span>
+                <div>
+                  <p class="font-semibold">Error al crear el servicio</p>
+                  <p class="text-sm text-danger-700">{{ error() }}</p>
+                </div>
+              </div>
+            </div>
           }
 
           <!-- Basic info -->
@@ -218,10 +234,15 @@ const DAY_NAMES = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábad
             </div>
           </div>
 
-          <button type="submit" class="btn btn-primary btn-block btn-lg" [disabled]="loading()">
-            @if (loading()) { <span class="spinner"></span> }
-            Crear servicio
-          </button>
+          <div class="grid grid-cols-2 gap-3">
+            <button type="button" class="btn btn-secondary btn-block btn-lg" (click)="cancel()" [disabled]="loading()">
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary btn-block btn-lg" [disabled]="loading()">
+              @if (loading()) { <span class="spinner"></span> }
+              Crear servicio
+            </button>
+          </div>
         </form>
       }
     </div>
@@ -395,6 +416,11 @@ export class AddServiceComponent implements OnInit, OnDestroy {
       id_contacto:      this.auth.currentUser()?.id ?? 0,
     };
 
+    if (!confirm('¿Deseas confirmar el alta de este servicio?')) {
+      this.loading.set(false);
+      return;
+    }
+
     this.providerSvc.createService(payload).pipe(takeUntil(this.destroy$)).subscribe({
       next: (createdService) => {
         // Guardar horarios como service-specific schedules (tabla service_availability)
@@ -408,8 +434,10 @@ export class AddServiceComponent implements OnInit, OnDestroy {
 
         const finish = () => {
           this.loading.set(false);
+          this.error.set('');
           this.success.set(true);
-          setTimeout(() => this.router.navigate(['/provider/tabs/profile']), 1500);
+          setTimeout(() => this.success.set(false), 2500);
+          setTimeout(() => this.router.navigate(['/provider/tabs/profile']), 2200);
         };
 
         if (activeHours.length === 0 || !providerId || !serviceProviderId) {
@@ -448,5 +476,12 @@ export class AddServiceComponent implements OnInit, OnDestroy {
       start_time:  ['09:00'],
       end_time:    ['18:00'],
     }));
+  }
+
+  cancel(): void {
+    if (!confirm('¿Deseas cancelar y volver atrás? Los cambios no guardados se perderán.')) {
+      return;
+    }
+    this.router.navigate(['/provider/tabs/profile']);
   }
 }

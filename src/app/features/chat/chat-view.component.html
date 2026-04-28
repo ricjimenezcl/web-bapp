@@ -1,0 +1,72 @@
+<div class="chat-container">
+  <!-- Header -->
+  <header class="chat-header-bar">
+    <button (click)="goBack()" class="back-btn">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+    </button>
+    <div class="avatar-wrap">
+      <div class="w-9 h-9 rounded-full bg-primary-100 flex items-center justify-center">
+        <ion-icon name="person" class="text-xl text-primary-600"></ion-icon>
+      </div>
+    </div>
+    <div class="header-info">
+      <p class="font-semibold text-text-primary text-sm">
+        {{ otherParticipant()?.name ?? 'Conversación' }}
+      </p>
+      @if (typing()) {
+        <p class="text-xs text-primary-500 animate-pulse">Escribiendo...</p>
+      }
+    </div>
+  </header>
+
+  <!-- Messages -->
+  <div class="messages-area">
+    @if (loading()) {
+      <div class="flex justify-center py-8"><span class="spinner w-6 h-6 border-primary-600"></span></div>
+    } @else if (messages().length === 0) {
+      <div class="empty-messages">
+        <div class="text-5xl mb-3">💬</div>
+        <p class="text-sm text-text-secondary">Inicia la conversación enviando un mensaje.</p>
+      </div>
+    } @else {
+      @for (msg of messages(); track msg.id) {
+        <div class="message-row" [class.mine]="isMyMessage(msg)">
+          <div [class]="isMyMessage(msg) ? 'bubble-mine' : 'bubble-other'">
+            <p class="whitespace-pre-wrap break-words">{{ msg.message_content }}</p>
+            <p class="bubble-time">
+              {{ msg.created_at | date:'HH:mm' }}
+              @if (isMyMessage(msg) && msg.is_read) { ✓✓ }
+            </p>
+          </div>
+        </div>
+      }
+      <div #messagesEnd></div>
+    }
+  </div>
+
+  <!-- Input area -->
+  <div class="input-area">
+    <div class="input-wrapper">
+      <textarea
+        [formControl]="messageControl"
+        (keydown)="onKeydown($event)"
+        (input)="onInput()"
+        placeholder="Escribe un mensaje..."
+        rows="1"
+        class="message-input"
+      ></textarea>
+      <button (click)="send()" [disabled]="!messageControl.value?.trim() || sending()"
+        class="send-btn">
+        @if (sending()) {
+          <span class="spinner w-4 h-4"></span>
+        } @else {
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+          </svg>
+        }
+      </button>
+    </div>
+  </div>
+</div>

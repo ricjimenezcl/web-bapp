@@ -1,112 +1,120 @@
-<div class="map-shell">
+<div class="whatsapp-layout">
+  <!-- Panel Izquierdo: Lista de Chats -->
+  <div class="chat-list-panel">
+    <div class="glow"></div>
+    
+    <div class="panel-content">
+      <!-- Header -->
+      <header class="chats-header">
+        <h1>Mensajes</h1>
+        <div class="header-icons">
+          <div class="icon-btn"><i class="fa-solid fa-plus"></i></div>
+          <div class="icon-btn"><i class="fa-solid fa-magnifying-glass"></i></div>
+        </div>
+      </header>
 
-  <!-- Hero simplificado igual que profile -->
-  <div class="profile-hero">
-    <div class="hero-bg-orb"></div>
-    <h2 class="profile-name">Mensajes</h2>
-    <p class="profile-email">Tus conversaciones con proveedores</p>
+      <!-- Search Area -->
+      <div class="search-area">
+        <div class="search-pill">
+          <i class="fa-solid fa-message"></i>
+          <input type="text" placeholder="Buscar conversación..." [(ngModel)]="searchText" />
+        </div>
+        <div class="filter-btn"><i class="fa-solid fa-sliders"></i></div>
+      </div>
+
+      <!-- Chat List -->
+      <div class="chat-list">
+        @if (loading()) {
+          @for (i of [1,2,3,4]; track i) {
+            <div class="chat-item">
+              <div class="chat-avatar-wrap">
+                <div class="chat-avatar-skeleton animate-pulse"></div>
+              </div>
+              <div class="chat-content">
+                <div class="chat-header">
+                  <div class="skeleton-line w-32 h-3 animate-pulse"></div>
+                  <div class="skeleton-line w-10 h-2 animate-pulse"></div>
+                </div>
+                <div class="chat-preview" style="margin-top:8px">
+                  <div class="skeleton-line w-48 h-2 animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+          }
+        } @else if (filteredConversations.length === 0) {
+          <div class="empty-state-inner">
+            <div class="empty-icon">
+              <svg fill="none" stroke="currentColor" style="width:48px;height:48px" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+              </svg>
+            </div>
+            <p class="empty-title">Sin conversaciones</p>
+            <p class="empty-subtitle">Cuando contactes un proveedor, aparecerá aquí.</p>
+          </div>
+        } @else {
+          @for (conv of filteredConversations; track conv.id) {
+            <div class="chat-item" 
+                 [class.unread]="(conv.unread_count ?? 0) > 0"
+                 [class.selected]="conv.id === selectedConvId()"
+                 (click)="selectChat(conv.id)">
+              
+              <div class="avatar-wrap">
+                @if (conv.other_user_avatar) {
+                  <img
+                    class="avatar"
+                    [src]="conv.other_user_avatar"
+                    [alt]="conv.display_name ?? 'Proveedor'"
+                    (error)="$any($event.target).src=''; $any($event.target).nextElementSibling?.classList.remove('hidden')" />
+                }
+                <div class="avatar-fallback" [class.hidden]="conv.other_user_avatar">
+                  <svg fill="none" stroke="currentColor" style="width:28px;height:28px" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                  </svg>
+                </div>
+              </div>
+
+              <div class="chat-content">
+                <div class="chat-header">
+                  <h3>{{ conv.display_name ?? 'Proveedor' }}</h3>
+                  <span [class.now]="isNow(conv.updated_at)">
+                    {{ isNow(conv.updated_at) ? 'Ahora' : (conv.updated_at ? (conv.updated_at | date:'HH:mm') : '') }}
+                  </span>
+                </div>
+                <div class="chat-preview">
+                  @if (conv.last_message_preview) {
+                    <p [class.unread-text]="(conv.unread_count ?? 0) > 0">{{ conv.last_message_preview }}</p>
+                  }
+                  @if ((conv.unread_count ?? 0) > 0) {
+                    <div class="unread-badge">{{ conv.unread_count }}</div>
+                  } @else {
+                    <i class="fa-solid fa-check-double read-receipt"></i>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        }
+      </div>
+
+      <!-- Bappie Scout -->
+      <div class="scout-footer-box">
+        <div class="scout-label">Bappie está atento a tus mensajes...</div>
+      </div>
+    </div>
   </div>
 
-  <!-- Estado de carga -->
-  @if (loading()) {
-    <div class="menu-section">
-      <div class="menu-list">
-        @for (i of [1,2,3,4]; track i) {
-          <div class="menu-item">
-            <div class="chat-avatar-skeleton animate-pulse"></div>
-            <div class="chat-skeleton-lines">
-              <div class="skeleton-line w-32 h-3 animate-pulse"></div>
-              <div class="skeleton-line w-48 h-2 animate-pulse mt-1"></div>
-            </div>
-          </div>
-        }
-      </div>
-    </div>
-  }
-
-  <!-- Estado vacío -->
-  @if (!loading() && conversations().length === 0) {
-    <div class="menu-section">
-      <div class="menu-list">
-        <div class="empty-state-inner">
-          <div class="menu-icon menu-icon-slate" style="width:48px;height:48px;margin:0 auto 12px">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0
-                   01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418
-                   4.03-8 9-8s9 3.582 9 8z"/>
-            </svg>
-          </div>
-          <p class="menu-label" style="text-align:center">Sin conversaciones</p>
-          <p class="info-label" style="text-align:center;margin-top:4px">
-            Cuando contactes un proveedor, aparecerá aquí.
-          </p>
+  <!-- Panel Derecho: Conversación -->
+  <div class="chat-conversation-panel">
+    @if (selectedConvId()) {
+      <app-chat-view [conversationId]="selectedConvId()!" (close)="closeChat()"></app-chat-view>
+    } @else {
+      <div class="empty-conversation">
+        <div class="empty-conversation-icon">
+          <i class="fa-regular fa-comments"></i>
         </div>
+        <h2>BAPPSEARCH</h2>
+        <p>Selecciona una conversación para comenzar</p>
       </div>
-    </div>
-  }
-
-  <!-- Lista de conversaciones -->
-  @if (!loading() && conversations().length > 0) {
-    <div class="menu-section">
-      <p class="menu-section-label">Conversaciones</p>
-      <div class="menu-list">
-        @for (conv of conversations(); track conv.id) {
-          <a [routerLink]="['/client/chat', conv.id]" class="menu-item chat-item">
-
-            <!-- Avatar -->
-            <div class="chat-avatar-wrap">
-              @if (conv.other_user_avatar) {
-                <img
-                  class="chat-avatar-img"
-                  [src]="conv.other_user_avatar"
-                  [alt]="conv.display_name ?? 'Proveedor'"
-                  (error)="$any($event.target).src=''; $any($event.target).nextElementSibling?.classList.remove('hidden')" />
-              }
-              <div class="menu-icon menu-icon-slate chat-avatar-icon" [class.hidden]="conv.other_user_avatar">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                </svg>
-              </div>
-              @if ((conv.unread_count ?? 0) > 0) {
-                <span class="unread-badge">{{ conv.unread_count }}</span>
-              }
-            </div>
-
-            <!-- Info -->
-            <div class="chat-info">
-              <div class="chat-row-top">
-                <span class="menu-label">{{ conv.display_name ?? 'Proveedor' }}</span>
-                <span class="chat-time">{{ conv.updated_at | date:'HH:mm' }}</span>
-              </div>
-              @if (conv.last_message_preview) {
-                <p class="chat-preview">{{ conv.last_message_preview }}</p>
-              }
-            </div>
-
-            <!-- Chevron -->
-            <svg class="menu-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-            </svg>
-
-          </a>
-        }
-      </div>
-    </div>
-  }
-
-  <div class="profile-footer-spacer"></div>
-  <footer class="app-footer">
-    <div class="footer-inner">
-      <span class="footer-brand">BappSearch</span>
-      <nav class="footer-links" aria-label="Enlaces de pie">
-        <a href="/client/tabs/service-search">Buscar</a>
-        <a href="/terms">Términos</a>
-        <a href="/privacy">Privacidad</a>
-      </nav>
-      <span class="footer-copy">© 2026 BappSearch.</span>
-    </div>
-  </footer>
-
+    }
+  </div>
 </div>

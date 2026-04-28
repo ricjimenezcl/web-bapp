@@ -98,10 +98,6 @@ export const routes: Routes = [
         path: 'provider-info/:id',
         loadComponent: () => import('./features/client/pages/provider-info/provider-info.component').then(m => m.ProviderInfoComponent)
       },
-      {
-        path: 'chat/:id',
-        loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent)
-      },
       { path: '', redirectTo: 'tabs', pathMatch: 'full' },
     ]
   },

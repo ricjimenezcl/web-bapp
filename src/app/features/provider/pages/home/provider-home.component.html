@@ -1,12 +1,40 @@
 <div class="flex flex-col min-h-full bg-surface-page">
 
+  <!-- Verification alert toast -->
+  @if (showVerificationAlert()) {
+    <div class="fixed top-20 left-4 right-4 z-50 max-w-sm mx-auto">
+      <div class="bg-warning/95 backdrop-blur-sm border border-warning/30 rounded-xl p-4 shadow-lg animate-slide-down">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-full bg-warning/20 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <p class="text-sm font-semibold text-text-primary">{{ verificationMessage() }}</p>
+            <div class="flex gap-2 mt-3">
+              <button (click)="goToVerifyIdentity()"
+                      class="flex-1 h-9 bg-warning hover:bg-warning/80 text-text-inverse text-sm font-semibold rounded-lg transition-colors">
+                Verificar ahora
+              </button>
+              <button (click)="dismissVerificationAlert()"
+                      class="h-9 px-3 text-text-secondary text-sm font-medium rounded-lg hover:bg-surface-hover transition-colors">
+                Más tarde
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
   <!-- Page hero (gradient amarillo → dark) -->
   <div class="page-hero">
     <div class="page-shell !pb-10 !pt-6">
       <div class="flex items-start justify-between">
         <div>
           <p class="text-text-secondary text-sm">{{ greeting() }}</p>
-          <h1 class="text-2xl font-bold text-text-primary mt-0.5">Panel de proveedor</h1>
+          <h1 class="text-2xl font-bold text-text-primary mt-0.5">{{ getFirstName() }}</h1>
         </div>
       </div>
     </div>

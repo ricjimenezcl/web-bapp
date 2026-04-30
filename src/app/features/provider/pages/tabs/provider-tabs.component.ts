@@ -4,6 +4,8 @@ import { RouterLink, RouterOutlet, RouterLinkActive, Router } from '@angular/rou
 import { WebSocketService } from '../../../../core/services/websocket.service';
 import { NotificationStateService } from '../../../../core/services/notification-state.service';
 import { ChatService } from '../../../../core/services/chat.service';
+import { ProviderService } from '../../../../core/services/provider.service';
+import { ProviderProfile } from '../../../../core/models/provider.model';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -16,8 +18,11 @@ export class ProviderTabsComponent implements OnInit, OnDestroy {
   private ws     = inject(WebSocketService);
   private notif  = inject(NotificationStateService);
   private chat   = inject(ChatService);
+  private providerSvc = inject(ProviderService);
   private router = inject(Router);
+  
   readonly unread = this.notif.unreadCount;
+  readonly profile = signal<ProviderProfile | null>(null);
   sidebarOpen = signal(false);
   private subs: Subscription[] = [];
 
@@ -27,6 +32,10 @@ export class ProviderTabsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.ws.connect();
     this.notif.loadNotifications();
+    this.providerSvc.getMyProfile().subscribe({
+      next: (p) => this.profile.set(p),
+      error: () => {}
+    });
     this.subs.push(
       this.ws.notification$.subscribe(n => {
         this.notif.addNotification({

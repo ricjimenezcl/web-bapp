@@ -25,6 +25,8 @@ export class ProviderHomeComponent implements OnInit, OnDestroy {
   profile = signal<ProviderProfile | null>(null);
   validationStatus = signal<string>('not_submitted');
   loading = signal(true);
+  showVerificationAlert = signal(false);
+  verificationMessage = signal('');
 
   ngOnInit(): void {
     this.loadProfileAndStats();
@@ -76,9 +78,17 @@ export class ProviderHomeComponent implements OnInit, OnDestroy {
       message = 'Para poder agregar servicios, debes completar la verificación de identidad.';
     }
 
-    if (confirm(message)) {
-      this.router.navigate(['/auth/verify-identity']);
-    }
+    this.verificationMessage.set(message);
+    this.showVerificationAlert.set(true);
+  }
+
+  goToVerifyIdentity(): void {
+    this.showVerificationAlert.set(false);
+    this.router.navigate(['/auth/verify-identity']);
+  }
+
+  dismissVerificationAlert(): void {
+    this.showVerificationAlert.set(false);
   }
 
   greeting(): string {
@@ -86,5 +96,10 @@ export class ProviderHomeComponent implements OnInit, OnDestroy {
     if (h < 12) return 'Buenos días';
     if (h < 18) return 'Buenas tardes';
     return 'Buenas noches';
+  }
+
+  getFirstName(): string {
+    const name = this.profile()?.full_name || '';
+    return name.split(' ')[0];
   }
 }

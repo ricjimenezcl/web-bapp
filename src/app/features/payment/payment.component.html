@@ -1,0 +1,209 @@
+<div class="payment-page">
+
+  <!-- Back -->
+  <button class="back-btn" type="button" (click)="goBack()">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+    </svg>
+    Volver al perfil
+  </button>
+
+  <div class="payment-layout">
+
+    <!-- ── Plan info ─────────────────────────────────────────────── -->
+    <div class="plan-panel">
+
+      <div class="plan-header">
+        <svg class="plan-icon" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 14.59L5.41 12 6.83 10.58 10 13.75l7.17-7.17 1.42 1.42L10 16.59z"/>
+        </svg>
+        <div>
+          <h2 class="plan-title">BappSearch Premium</h2>
+          <p class="plan-sub">Desbloquea todo el potencial de la plataforma</p>
+        </div>
+      </div>
+
+      <div class="plan-price">
+        <span class="price-amount">$9.990</span>
+        <span class="price-period">CLP / mes</span>
+      </div>
+
+      <ul class="plan-features">
+        <li>
+          <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.59L5.41 12 6.83 10.58 10 13.75l7.17-7.17 1.42 1.42L10 16.59z"/></svg>
+          Búsquedas ilimitadas sin restricciones
+        </li>
+        <li>
+          <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.59L5.41 12 6.83 10.58 10 13.75l7.17-7.17 1.42 1.42L10 16.59z"/></svg>
+          Contacto directo con proveedores verificados
+        </li>
+        <li>
+          <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.59L5.41 12 6.83 10.58 10 13.75l7.17-7.17 1.42 1.42L10 16.59z"/></svg>
+          Prioridad en reservas y disponibilidad
+        </li>
+        <li>
+          <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.59L5.41 12 6.83 10.58 10 13.75l7.17-7.17 1.42 1.42L10 16.59z"/></svg>
+          Soporte prioritario 24/7
+        </li>
+        <li>
+          <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.59L5.41 12 6.83 10.58 10 13.75l7.17-7.17 1.42 1.42L10 16.59z"/></svg>
+          Perfil destacado en resultados de búsqueda
+        </li>
+        <li>
+          <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.59L5.41 12 6.83 10.58 10 13.75l7.17-7.17 1.42 1.42L10 16.59z"/></svg>
+          Sin límites de servicios guardados
+        </li>
+      </ul>
+
+      <div class="plan-badge">
+        <svg fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+        </svg>
+        Pago 100% seguro · SSL cifrado
+      </div>
+    </div>
+
+    <!-- ── Payment form ───────────────────────────────────────────── -->
+    <div class="checkout-panel">
+
+      @if (success()) {
+        <div class="success-state">
+          <div class="success-icon">
+            <svg fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.59L5.41 12 6.83 10.58 10 13.75l7.17-7.17 1.42 1.42L10 16.59z"/>
+            </svg>
+          </div>
+          <h3>¡Pago procesado!</h3>
+          <p>Tu cuenta ha sido actualizada a <strong>Premium</strong>. Ahora tienes acceso a todas las funcionalidades.</p>
+          <button class="pay-btn" type="button" (click)="goBack()">Volver al perfil</button>
+        </div>
+      } @else {
+
+        <h3 class="checkout-title">Método de pago</h3>
+
+        <!-- Method selector -->
+        <div class="method-list">
+
+          <button class="method-item" [class.method-item--active]="selectedMethod() === 'card'"
+                  type="button" (click)="selectMethod('card')">
+            <div class="method-radio" [class.method-radio--active]="selectedMethod() === 'card'"></div>
+            <svg class="method-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+            </svg>
+            <div class="method-info">
+              <span class="method-name">Tarjeta de crédito</span>
+              <span class="method-desc">Visa, Mastercard, Amex</span>
+            </div>
+          </button>
+
+          <button class="method-item" [class.method-item--active]="selectedMethod() === 'debit'"
+                  type="button" (click)="selectMethod('debit')">
+            <div class="method-radio" [class.method-radio--active]="selectedMethod() === 'debit'"></div>
+            <svg class="method-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z"/>
+            </svg>
+            <div class="method-info">
+              <span class="method-name">Tarjeta de débito</span>
+              <span class="method-desc">Débito bancario directo</span>
+            </div>
+          </button>
+
+          <button class="method-item" [class.method-item--active]="selectedMethod() === 'mercadopago'"
+                  type="button" (click)="selectMethod('mercadopago')">
+            <div class="method-radio" [class.method-radio--active]="selectedMethod() === 'mercadopago'"></div>
+            <svg class="method-icon" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14H11v-2h2v2zm0-4H11V7h2v5z"/>
+            </svg>
+            <div class="method-info">
+              <span class="method-name">MercadoPago</span>
+              <span class="method-desc">Paga con tu cuenta MP</span>
+            </div>
+          </button>
+
+        </div>
+
+        <!-- Card form -->
+        @if (selectedMethod() === 'card' || selectedMethod() === 'debit') {
+          <div class="card-form">
+            <div class="card-form-field card-form-field--full">
+              <label>Número de tarjeta</label>
+              <input type="text" placeholder="1234 5678 9012 3456" maxlength="19">
+            </div>
+            <div class="card-form-field">
+              <label>Nombre en la tarjeta</label>
+              <input type="text" placeholder="JUAN PÉREZ">
+            </div>
+            <div class="card-form-row">
+              <div class="card-form-field">
+                <label>Vencimiento</label>
+                <input type="text" placeholder="MM/AA" maxlength="5">
+              </div>
+              <div class="card-form-field">
+                <label>CVV</label>
+                <input type="text" placeholder="•••" maxlength="4">
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- MercadoPago info -->
+        @if (selectedMethod() === 'mercadopago') {
+          <div class="mp-info">
+            <svg fill="currentColor" viewBox="0 0 24 24">
+              <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Al hacer clic en "Pagar" serás redirigido al portal seguro de MercadoPago para completar tu compra.
+          </div>
+        }
+
+        @if (error()) {
+          <div class="pay-error">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            {{ error() }}
+          </div>
+        }
+
+        <!-- Summary -->
+        <div class="order-summary">
+          <div class="summary-row">
+            <span>Plan Premium</span>
+            <span>$9.990 CLP</span>
+          </div>
+          <div class="summary-row summary-row--total">
+            <span>Total mensual</span>
+            <span>$9.990 CLP</span>
+          </div>
+        </div>
+
+        <button class="pay-btn" type="button" [disabled]="processing()" (click)="pay()">
+          @if (processing()) {
+            <svg class="spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+            </svg>
+            Procesando...
+          } @else {
+            <svg fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+            </svg>
+            Pagar $9.990 CLP
+          }
+        </button>
+
+        <p class="pay-terms">
+          Al pagar aceptas nuestros
+          <a routerLink="/terms">Términos y condiciones</a>
+          y la
+          <a routerLink="/privacy">Política de privacidad</a>.
+          Puedes cancelar en cualquier momento.
+        </p>
+
+      }
+    </div>
+  </div>
+</div>

@@ -1,278 +1,302 @@
-<div class="map-shell">
+<div class="bookings-shell">
+  <div class="app-frame">
 
-  <!-- ── Header + Segment tabs ─────────────────────────────────────── -->
-  <header class="bg-white border-b border-surface-200 px-4 pt-4 pb-0 sticky top-0 z-10">
-   <div class="profile-hero">
-    <div class="flex items-center justify-between mb-3">
-      <h1 class="text-lg font-bold text-text-primary">Mis Reservas</h1>
-      <button (click)="load()"
-        class="p-1.5 rounded-full text-text-tertiary hover:text-primary hover:bg-primary/10 transition-colors"
-        title="Recargar">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-        </svg>
-      </button>
-    </div>
+    <!-- ── Header + Tabs ─────────────────────────────────────────── -->
+    <header class="bookings-header">
+      <div class="bookings-header-top">
+        <div>
+          <h1 class="bookings-title">Mis Reservas</h1>
+          <p class="bookings-subtitle">Gestiona tus citas y servicios</p>
+        </div>
+        <button (click)="load()" class="bookings-reload-btn" title="Recargar">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+        </button>
+      </div>
 
-    <!-- Tabs -->
-    <div class="flex border-b border-surface-200 -mx-4 px-4">
-      <!-- Próximas -->
-      <button (click)="activeTab.set('upcoming')"
-        class="flex-1 pb-3 text-sm font-medium transition-colors relative flex items-center justify-center gap-1"
-        [class]="activeTab() === 'upcoming' ? 'text-primary' : 'text-text-secondary hover:text-text-primary'">
-        Próximas
-        @if (upcomingBookings.length > 0) {
-          <span class="badge badge-primary text-[10px] px-1.5">{{ upcomingBookings.length }}</span>
-        }
-        @if (activeTab() === 'upcoming') {
-          <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full"></div>
-        }
-      </button>
+      <!-- Tabs — control segmentado -->
+      <div class="ref-segmented-control bookings-tabs-override">
+        <button (click)="activeTab.set('upcoming')"
+          class="ref-segment-btn"
+          [class.ref-segment-btn--active]="activeTab() === 'upcoming'"
+          type="button">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2
+                 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          Próximas
+          @if (upcomingBookings.length > 0) {
+            <span class="ref-tab-badge">{{ upcomingBookings.length }}</span>
+          }
+        </button>
 
-      <!-- Pendientes -->
-      <button (click)="activeTab.set('pending')"
-        class="flex-1 pb-3 text-sm font-medium transition-colors relative flex items-center justify-center gap-1"
-        [class]="activeTab() === 'pending' ? 'text-primary' : 'text-text-secondary hover:text-text-primary'">
-        Pendientes
-        @if (pendingBookings.length > 0) {
-          <span class="badge badge-warning text-[10px] px-1.5">{{ pendingBookings.length }}</span>
-        }
-        @if (activeTab() === 'pending') {
-          <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full"></div>
-        }
-      </button>
+        <button (click)="activeTab.set('pending')"
+          class="ref-segment-btn"
+          [class.ref-segment-btn--active]="activeTab() === 'pending'"
+          type="button">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Pendientes
+          @if (pendingBookings.length > 0) {
+            <span class="ref-tab-badge ref-tab-badge--warning">{{ pendingBookings.length }}</span>
+          }
+        </button>
 
-      <!-- Canceladas -->
-      <button (click)="activeTab.set('cancelled')"
-        class="flex-1 pb-3 text-sm font-medium transition-colors relative flex items-center justify-center gap-1"
-        [class]="activeTab() === 'cancelled' ? 'text-primary' : 'text-text-secondary hover:text-text-primary'">
-        Canceladas
-        @if (activeTab() === 'cancelled') {
-          <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full"></div>
-        }
-      </button>
-    </div>
-   </div><!-- /max-w-4xl header -->
-  </header>
+        <button (click)="activeTab.set('cancelled')"
+          class="ref-segment-btn"
+          [class.ref-segment-btn--active]="activeTab() === 'cancelled'"
+          type="button">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0
+                 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Canceladas
+          @if (cancelledBookings.length > 0) {
+            <span class="ref-tab-badge">{{ cancelledBookings.length }}</span>
+          }
+        </button>
+      </div>
+    </header>
 
-  <!-- ── Content ────────────────────────────────────────────────────── -->
-  <div class="flex-1 overflow-y-auto page-shell">
+    <!-- ── Content ───────────────────────────────────────────────── -->
+    <div class="bookings-content">
 
-    @if (loading()) {
-      <app-loading-skeleton [count]="3" [showAvatar]="false"></app-loading-skeleton>
-
-    } @else if (error()) {
-      <app-empty-state iconName="alert-circle-outline" title="Error" [description]="error()">
-        <button (click)="load()" class="btn btn-primary mt-3">Reintentar</button>
-      </app-empty-state>
-
-    } @else if (displayedBookings.length === 0) {
-      <app-empty-state
-        iconName="calendar-outline"
-        [title]="activeTab() === 'upcoming' ? 'Sin reservas próximas'
-               : activeTab() === 'pending'  ? 'Sin reservas pendientes'
-               : 'Sin reservas canceladas'"
-        [description]="activeTab() === 'upcoming'
-          ? 'Tus reservas confirmadas aparecerán aquí.'
-          : activeTab() === 'pending'
-          ? 'Aquí verás las reservas pendientes de confirmación y las completadas.'
-          : 'Aquí aparecerán las reservas que hayas cancelado.'">
-      </app-empty-state>
-
-    } @else {
-      <div class="space-y-3">
-        @for (booking of displayedBookings; track booking.id) {
-
-          <div class="bg-white rounded-xl shadow-sm border border-surface-200 overflow-hidden">
-
-            <!-- Card header -->
-            <div class="flex items-start gap-3 p-4 pb-3">
-              <div class="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center shrink-0 mt-0.5">
-                <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
+      @if (loading()) {
+        <!-- Skeleton loaders -->
+        @for (i of [1,2,3]; track i) {
+          <div class="booking-card booking-card--skeleton">
+            <div class="booking-card-main">
+              <div class="sk-icon"></div>
+              <div class="sk-body">
+                <div class="sk-line sk-line--lg"></div>
+                <div class="sk-line sk-line--sm"></div>
               </div>
-              <div class="flex-1 min-w-0">
-                <p class="font-semibold text-text-primary truncate">{{ booking.service_category || 'Servicio' }}</p>
-                <p class="text-xs text-text-tertiary mt-0.5">Servicio solicitado</p>
-              </div>
-              <span class="status-pill" [attr.data-status]="booking.status">
-                {{ statusLabels[booking.status] || booking.status }}
-              </span>
             </div>
+          </div>
+        }
+      } @else if (error()) {
+        <div class="booking-empty">
+          <div class="booking-empty-icon booking-empty-icon--danger">
+            <svg class="icon-24" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            </svg>
+          </div>
+          <p class="booking-empty-title">Error</p>
+          <p class="booking-empty-sub">{{ error() }}</p>
+          <button (click)="load()" class="booking-empty-btn">
+            <svg class="icon-16" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            <span>Reintentar</span>
+          </button>
+        </div>
+      } @else if (displayedBookings.length === 0) {
+        <div class="booking-empty">
+          <div class="booking-empty-icon">
+            <svg class="icon-24" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <p class="booking-empty-title">
+            @if (activeTab() === 'upcoming') {
+              Sin reservas próximas
+            } @else if (activeTab() === 'pending') {
+              Sin reservas pendientes
+            } @else {
+              Sin reservas canceladas
+            }
+          </p>
+          <p class="booking-empty-sub">
+            @if (activeTab() === 'upcoming') {
+              Tus reservas confirmadas aparecerán aquí.
+            } @else if (activeTab() === 'pending') {
+              Aquí verás las reservas pendientes de confirmación y las completadas.
+            } @else {
+              Aquí aparecerán las reservas que hayas cancelado.
+            }
+          </p>
+        </div>
+      } @else {
+        <div class="bookings-list">
+          @for (booking of displayedBookings; track booking.id; let i = $index) {
 
-            <div class="h-px bg-surface-100 mx-4"></div>
+            <div class="booking-card" [style.animation-delay]="(i * 0.06) + 's'">
 
-            <!-- Details -->
-            <div class="px-4 py-3 space-y-2">
+              <!-- Card header -->
+              <div class="booking-card-main">
+                <div class="booking-icon-wrap"
+                  [class.booking-icon-wrap--confirmed]="booking.status === 'CONFIRMED' || booking.status === 'IN_PROGRESS'"
+                  [class.booking-icon-wrap--pending]="booking.status === 'PENDING'"
+                  [class.booking-icon-wrap--completed]="booking.status === 'COMPLETED'"
+                  [class.booking-icon-wrap--cancelled]="booking.status === 'CANCELLED' || booking.status === 'NOSHOW'">
+                  <svg class="icon-20" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c-.94 1.543.826 3.31 2.37 2.37a1.724 1.724 0 002.572 1.065c.426 1.756 2.924 1.756 3.35 0a1.724 1.724 0 012.573-1.066c1.543.94 3.31-.826 2.37-2.37a1.724 1.724 0 011.065-2.572c1.756-.426 1.756-2.924 0-3.35a1.724 1.724 0 00-1.066-2.573c.94-1.543-.826-3.31-2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  </svg>
+                </div>
+                <div class="booking-card-info">
+                  <p class="booking-service-name">{{ booking.service_category || 'Servicio' }}</p>
+                  <p class="booking-price" *ngIf="booking.total_price">
+                    ${{ booking.total_price | number:'1.0-0' }}
+                  </p>
+                </div>
+                <span class="status-pill" [attr.data-status]="booking.status">
+                  {{ statusLabels[booking.status] || booking.status }}
+                </span>
+              </div>
 
-              @if (booking.scheduled_date) {
-                <div class="flex items-center gap-2 text-sm text-text-secondary">
-                  <svg class="w-4 h-4 text-text-tertiary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="booking-divider"></div>
+
+              <!-- Details -->
+              <div class="booking-details">
+
+                @if (booking.scheduled_date) {
+                  <div class="booking-detail-row">
+                  <svg class="detail-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                   </svg>
                   <span>
-                    {{ booking.scheduled_date | date:'dd/MM/yyyy' }}
-                    @if (booking.scheduled_time) {
-                      <span class="text-text-tertiary"> · {{ booking.scheduled_time!.slice(0, 5) }}</span>
-                    }
-                    @if (booking.duration) {
-                      <span class="text-text-tertiary"> · {{ booking.duration }} min</span>
-                    }
-                  </span>
-                </div>
-              }
+                    <span class="detail-accent">{{ booking.scheduled_date | date:'dd/MM/yyyy' }}</span>
+                      @if (booking.scheduled_time) {
+                        <span class="detail-muted"> · {{ booking.scheduled_time!.slice(0, 5) }}</span>
+                      }
+                      @if (booking.duration) {
+                        <span class="detail-muted"> · {{ booking.duration }} min</span>
+                      }
+                    </span>
+                  </div>
+                }
 
-              @if (booking.location_address) {
-                <div class="flex items-start gap-2 text-sm text-text-secondary">
-                  <svg class="w-4 h-4 text-text-tertiary shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                @if (booking.location_address) {
+                  <div class="booking-detail-row">
+                  <svg class="detail-icon detail-icon--location" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                   </svg>
-                  <span class="line-clamp-2">{{ booking.location_address }}</span>
-                </div>
-              }
+                    <span class="detail-clamp">{{ booking.location_address }}</span>
+                  </div>
+                }
 
-              @if (booking.total_price) {
-                <div class="flex items-center gap-2 text-sm">
-                  <svg class="w-4 h-4 text-text-tertiary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
-                  </svg>
-                  <span class="font-semibold text-primary-700">${{ booking.total_price | number:'1.0-0' }}</span>
-                </div>
-              }
-
-              @if (booking.description) {
-                <div class="flex items-start gap-2 text-sm text-text-secondary">
-                  <svg class="w-4 h-4 text-text-tertiary shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                @if (booking.description) {
+                  <div class="booking-detail-row">
+                  <svg class="detail-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                   </svg>
-                  <span class="line-clamp-2">{{ booking.description }}</span>
+                    <span class="detail-clamp">{{ booking.description }}</span>
+                  </div>
+                }
+
+              </div>
+
+              <!-- Actions (PENDING or CONFIRMED) -->
+              @if (booking.status === 'PENDING' || booking.status === 'CONFIRMED') {
+                <div class="booking-actions">
+                  <button (click)="goToChat(booking)"
+                    [disabled]="chatOpeningId() === booking.id"
+                    class="btn-booking-chat">
+                    @if (chatOpeningId() === booking.id) {
+                      <svg class="spin icon-16" fill="none" viewBox="0 0 24 24" width="16" height="16">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                      </svg>
+                      <span>Abriendo…</span>
+                    } @else {
+                      <svg class="icon-16" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                      </svg>
+                      <span>Chat</span>
+                    }
+                  </button>
+
+                  @if (booking.status === 'PENDING') {
+                    <button (click)="openCancelModal(booking)"
+                      class="btn-booking-cancel">
+                      <svg class="icon-16" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                      </svg>
+                      <span>Cancelar</span>
+                    </button>
+                  }
                 </div>
               }
 
             </div>
+          }
+        </div>
+      }
+    </div>
 
-            <!-- Actions (PENDING or CONFIRMED) -->
-            @if (booking.status === 'PENDING' || booking.status === 'CONFIRMED') {
-              <div class="flex gap-2 px-4 pb-4 pt-1">
-                <button (click)="goToChat(booking)"
-                  [disabled]="chatOpeningId() === booking.id"
-                  class="btn-booking-chat">
-                  @if (chatOpeningId() === booking.id) {
-                    <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                    </svg>
-                    <span>Abriendo…</span>
-                  } @else {
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                    </svg>
-                    <span>Chat</span>
-                  }
-                </button>
+    <!-- ── Cancel modal ─────────────────────────────────────────── -->
+    @if (cancelTarget()) {
+      <div class="cancel-backdrop" (click)="closeCancelModal()">
+        <div class="cancel-modal" (click)="$event.stopPropagation()">
 
-                @if (booking.status === 'PENDING') {
-                  <button (click)="openCancelModal(booking)"
-                    class="btn-booking-cancel">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                    <span>Cancelar</span>
-                  </button>
-                }
-              </div>
-            }
-
+          <!-- Icon -->
+          <div class="cancel-modal-icon-wrap">
+            <svg class="icon-24" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            </svg>
           </div>
-        }
+
+          <h3 class="cancel-modal-title">Cancelar reserva</h3>
+          <p class="cancel-modal-desc">
+            ¿Estás seguro de que deseas cancelar esta reserva?<br>
+            <strong>{{ cancelTarget()?.service_category }}</strong>
+          </p>
+
+          <!-- Optional comment -->
+          <textarea [(ngModel)]="cancelComment"
+            placeholder="Motivo de cancelación (opcional)"
+            rows="2"
+            class="cancel-modal-textarea">
+          </textarea>
+
+          <!-- Buttons -->
+          <div class="cancel-modal-actions">
+            <button (click)="closeCancelModal()"
+              [disabled]="cancelLoading()"
+              class="cancel-modal-btn cancel-modal-btn--secondary">
+              No, volver
+            </button>
+            <button (click)="confirmCancel()"
+              [disabled]="cancelLoading()"
+              class="cancel-modal-btn cancel-modal-btn--danger">
+              @if (cancelLoading()) {
+                 <svg class="spin icon-16" fill="none" viewBox="0 0 24 24" width="16" height="16">
+                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                 </svg>
+               }
+               Sí, cancelar
+            </button>
+          </div>
+        </div>
       </div>
     }
 
-  </div>
-
-  <!-- ── Cancel modal ─────────────────────────────────────────────── -->
-  @if (cancelTarget()) {
-    <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
-         (click)="closeCancelModal()">
-      <div class="modal-backdrop"></div>
-
-      <div class="modal-content"
-           (click)="$event.stopPropagation()">
-
-        <!-- Icon -->
-        <div class="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 mx-auto mb-4">
-          <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-          </svg>
-        </div>
-
-        <h3 class="text-lg font-bold text-text-primary text-center mb-1">Cancelar reserva</h3>
-        <p class="text-sm text-text-secondary text-center mb-4">
-          ¿Estás seguro de que deseas cancelar esta reserva?<br>
-          <span class="font-medium text-text-primary">{{ cancelTarget()?.service_category }}</span>
-        </p>
-
-        <!-- Optional comment -->
-        <textarea [(ngModel)]="cancelComment"
-          placeholder="Motivo de cancelación (opcional)"
-          rows="2"
-          class="w-full text-sm border border-surface-200 rounded-xl px-3 py-2 resize-none
-                 focus:outline-none focus:ring-2 focus:ring-primary-300 mb-4">
-        </textarea>
-
-        <!-- Buttons -->
-        <div class="flex gap-3">
-          <button (click)="closeCancelModal()"
-            [disabled]="cancelLoading()"
-            class="btn btn-secondary flex-1">
-            No, volver
-          </button>
-          <button (click)="confirmCancel()"
-            [disabled]="cancelLoading()"
-            class="btn btn-danger flex-1">
-            @if (cancelLoading()) {
-              <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-              </svg>
-            }
-            Sí, cancelar
-          </button>
-        </div>
+    <!-- ── Toast ───────────────────────────────────────────────── -->
+    @if (toastMsg()) {
+      <div class="toast-msg">
+        {{ toastMsg() }}
       </div>
-    </div>
-  }
+    }
 
-  <!-- ── Toast ─────────────────────────────────────────────────────── -->
-  @if (toastMsg()) {
-    <div class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50
-                bg-slate-800 text-white text-sm px-4 py-2.5 rounded-full shadow-lg
-                animate-fade-in whitespace-nowrap">
-      {{ toastMsg() }}
-    </div>
-  }
+  </div><!-- /app-frame -->
 
-  
+
 </div>
-<footer class="app-footer">
-    <div class="footer-inner">
-      <span class="footer-brand">BappSearch</span>
-      <nav class="footer-links" aria-label="Enlaces de pie">
-        <a href="/client/categories">Buscar</a>
-        <a href="/terms">Términos</a>
-        <a href="/privacy">Privacidad</a>
-      </nav>
-      <span class="footer-copy">© 2026 BappSearch.</span>
-    </div>
-  </footer>

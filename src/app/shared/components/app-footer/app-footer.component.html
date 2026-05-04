@@ -1,0 +1,52 @@
+<footer class="app-footer">
+  <div class="footer-inner">
+
+    <!-- Brand -->
+    <div class="footer-brand">
+      <a class="footer-logo" routerLink="/">
+        <svg class="footer-logo-icon" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 14.59L5.41 12 6.83 10.58 10 13.75l7.17-7.17 1.42 1.42L10 16.59z"/>
+        </svg>
+        <span>BappSearch</span>
+      </a>
+      <p class="footer-tagline">Conectando clientes con proveedores de confianza.</p>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="footer-nav" aria-label="Navegación del pie">
+
+      <div class="footer-nav-group">
+        <span class="footer-nav-title">Plataforma</span>
+        <a routerLink="/client/tabs/service-search">Buscar servicios</a>
+        <a routerLink="/client/tabs/service-map">Mapa de servicios</a>
+        <a routerLink="/notifications">Notificaciones</a>
+      </div>
+
+      <div class="footer-nav-group">
+        <span class="footer-nav-title">Legal</span>
+        <a routerLink="/terms">Términos y condiciones</a>
+        <a routerLink="/privacy">Política de privacidad</a>
+      </div>
+
+      <div class="footer-nav-group">
+        <span class="footer-nav-title">Cuenta</span>
+        <a routerLink="/client/tabs/profile">Mi perfil</a>
+        <a routerLink="/client/settings">Configuración</a>
+        <a routerLink="/auth/login">Iniciar sesión</a>
+      </div>
+
+    </nav>
+
+  </div>
+
+  <!-- Bottom bar -->
+  <div class="footer-bottom">
+    <span class="footer-copy">© {{ year }} BappSearch. Todos los derechos reservados.</span>
+    <div class="footer-bottom-links">
+      <a routerLink="/terms">Términos</a>
+      <span class="footer-sep" aria-hidden="true">·</span>
+      <a routerLink="/privacy">Privacidad</a>
+    </div>
+  </div>
+
+</footer>

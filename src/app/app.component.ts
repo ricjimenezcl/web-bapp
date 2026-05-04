@@ -1,20 +1,25 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { StorageService } from './core/services/storage.service';
 import { SessionService } from './core/services/session.service';
-import { filter, take } from 'rxjs';
+import { filter } from 'rxjs';
 import { fadeAnimation } from './core/animations/route-animations';
+import { AppFooterComponent } from './shared/components/app-footer/app-footer.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule],
+  imports: [RouterOutlet, CommonModule, AppFooterComponent],
   animations: [fadeAnimation],
   template: `
     <div [@fadeAnimation]="getRouteAnimationData()">
       <router-outlet #outlet="outlet"></router-outlet>
     </div>
+
+    @if (showFooter()) {
+      <app-footer />
+    }
 
     <!-- Modal sesión expirada -->
     @if (session.isExpired()) {
@@ -105,13 +110,16 @@ export class AppComponent implements OnInit {
   private readonly storage = inject(StorageService);
   readonly session         = inject(SessionService);
 
+  readonly showFooter = signal(false);
   private hasNavigatedOnInit = false;
 
   ngOnInit(): void {
     this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd),
-      take(1)
-    ).subscribe(() => {
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      const url = event.urlAfterRedirects;
+      this.showFooter.set(!url.startsWith('/auth') && !url.includes('/chat/'));
+
       if (!this.hasNavigatedOnInit) {
         this.handleInitialNavigation();
         this.hasNavigatedOnInit = true;

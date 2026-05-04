@@ -124,11 +124,13 @@ export class ClientBookingsComponent implements OnInit, OnDestroy {
   openCancelModal(booking: BookingResponse): void {
     this.cancelComment = '';
     this.cancelTarget.set(booking);
+    document.body.style.overflow = 'hidden';
   }
 
   closeCancelModal(): void {
     this.cancelTarget.set(null);
     this.cancelComment = '';
+    document.body.style.overflow = '';
   }
 
   confirmCancel(): void {

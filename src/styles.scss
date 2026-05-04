@@ -580,6 +580,37 @@
 /* Map container */
 .map-container { width: 100%; height: 100%; min-height: 300px; }
 
+/* ── Leaflet marker highlight — global porque Leaflet crea elementos ──────────
+   dinámicamente fuera del scope de Angular view encapsulation.
+   ⚠️ SIN transform: scale() — sobreescribiría el translate3d de posicionamiento. */
+.provider-location-icon {
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+  transition: filter 0.25s ease;
+}
+.provider-location-icon.marker-highlighted {
+  filter:
+    drop-shadow(0 0 6px #FDE68A)
+    drop-shadow(0 0 14px rgba(253, 230, 138, 0.7))
+    brightness(1.3) !important;
+  z-index: 10000 !important;
+  animation: markerGlow 0.9s ease-in-out infinite alternate !important;
+}
+.provider-location-icon.locked {
+  opacity: 0.45;
+  filter: grayscale(0.85) !important;
+}
+@keyframes markerGlow {
+  from {
+    filter: drop-shadow(0 0 4px rgba(253, 230, 138, 0.6)) brightness(1.15);
+  }
+  to {
+    filter:
+      drop-shadow(0 0 10px #FDE68A)
+      drop-shadow(0 0 20px rgba(253, 230, 138, 0.5))
+      brightness(1.45);
+  }
+}
+
 /* ── Search + Map fused layout ────────────────────────────────────────────── */
 /* Panel lista: columna izquierda fija en desktop, ocupa todo en móvil        */
 .search-panel-list {
@@ -615,129 +646,153 @@
    ══════════════════════════════════════════════════════════════════════════ */
 
 .leaflet-popup-content-wrapper {
-  border-radius: 14px;
-  padding: 0;
+  border-radius: 16px !important;
+  padding: 0 !important;
   overflow: hidden;
-  background-color: #2A2A2A;
-  border: 1px solid #333333;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  background: rgba(10, 10, 12, 0.94) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(253, 230, 138, 0.28) !important;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(253,230,138,0.06) !important;
 }
 
 .leaflet-popup-content {
-  margin: 0;
-  min-width: 200px;
-  max-width: 280px;
+  margin: 0 !important;
+  min-width: 210px;
+  max-width: 290px;
 
-  // En móviles muy estrechos (<360px) reducir el min-width para no desbordar
   @media (max-width: 359px) {
     min-width: 180px;
     max-width: calc(100vw - 48px);
   }
 }
 
-// Quitar el triángulo/flecha por defecto
-.leaflet-popup-tip-container,
-.leaflet-popup-tip { display: none !important; }
+// Flecha con borde amarillo suave
+.leaflet-popup-tip-container { display: block !important; }
+.leaflet-popup-tip {
+  background: rgba(10, 10, 12, 0.94) !important;
+  box-shadow: none !important;
+}
 
 .leaflet-popup-close-button {
-  color: rgba(255, 255, 255, 0.55) !important;
+  color: rgba(255, 255, 255, 0.45) !important;
   font-size: 18px !important;
-  padding: 6px 8px !important;
+  top: 8px !important;
+  right: 8px !important;
+  padding: 4px 6px !important;
+  transition: color 0.2s !important;
 }
-.leaflet-popup-close-button:hover { color: #FDD735 !important; }
+.leaflet-popup-close-button:hover { color: #FDE68A !important; }
 
 .provider-popup,
 .user-popup {
-  padding: 14px;
-  font-family: inherit;
+  padding: 16px;
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
 }
 
+// Header: nombre + rating
 .provider-popup .popup-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 8px;
-  margin-bottom: 8px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #333333;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 .provider-popup .popup-header strong {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #F5F5F5;
+  font-size: 15px;
+  font-weight: 800;
+  color: #FFFFFF;
   line-height: 1.3;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 .provider-popup .popup-header .rating {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 0.78rem;
+  font-size: 12px;
   color: #FFA000;
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 .provider-popup .popup-header .rating-new {
-  font-size: 0.72rem;
-  background: rgba(253, 215, 53, 0.12);
-  color: #FDD735;
-  border: 1px solid rgba(253, 215, 53, 0.3);
+  font-size: 10px;
+  background: rgba(253, 230, 138, 0.1);
+  color: #FDE68A;
+  border: 1px solid rgba(253, 230, 138, 0.25);
   border-radius: 9999px;
   padding: 2px 8px;
-  font-weight: 600;
+  font-weight: 700;
+  flex-shrink: 0;
 }
 
+// Body: categoría, distancia, tarifa
 .provider-popup .popup-body {
   display: flex;
   flex-direction: column;
   gap: 5px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 .provider-popup .popup-body p {
   margin: 0;
-  font-size: 0.78rem;
-  color: #9E9E9E;
+  font-size: 12px;
+  color: #A1A1AA;
   display: flex;
   align-items: center;
   gap: 6px;
+  line-height: 1.4;
 }
-.provider-popup .popup-body .category { color: #BDBDBD; font-weight: 500; }
-.provider-popup .popup-body .distance { color: #9E9E9E; }
-.provider-popup .popup-body .rate     { color: #FDD735; font-weight: 700; font-size: 0.85rem; }
+.provider-popup .popup-body .category { color: #D4D4D8; font-weight: 500; }
+.provider-popup .popup-body .distance { color: #A1A1AA; }
+.provider-popup .popup-body .rate     { color: #FDE68A; font-weight: 800; font-size: 13px; }
 
+// Botón "Ver perfil"
 .provider-popup .popup-link {
   display: block;
   text-align: center;
-  background: #FDD735;
-  color: #202020;
-  font-weight: 700;
-  font-size: 0.8rem;
+  background: #FDE68A;
+  color: #000000;
+  font-weight: 800;
+  font-size: 12px;
   border-radius: 9999px;
-  padding: 8px 14px;
+  padding: 9px 16px;
   text-decoration: none;
-  transition: background 0.2s;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+  letter-spacing: 0.02em;
 }
-.provider-popup .popup-link:hover { background: #F5C800; }
+.provider-popup .popup-link:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
 
+// Proveedor bloqueado
 .provider-popup .locked-msg {
-  font-size: 0.75rem;
-  color: #FDD735;
-  background: rgba(253, 215, 53, 0.08);
-  border: 1px solid rgba(253, 215, 53, 0.2);
+  font-size: 11px;
+  color: #FDE68A;
+  background: rgba(253, 230, 138, 0.07);
+  border: 1px solid rgba(253, 230, 138, 0.18);
   border-radius: 9999px;
-  padding: 6px 10px;
+  padding: 7px 12px;
   text-align: center;
   margin: 0;
-  font-weight: 600;
+  font-weight: 700;
 }
 
+// Popup "Tu ubicación"
 .user-popup strong {
   display: block;
-  font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.87);
+  font-size: 14px;
+  font-weight: 800;
+  color: #FFFFFF;
   margin-bottom: 4px;
 }
 .user-popup small {
   display: block;
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.45);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+  line-height: 1.5;
 }

@@ -1,120 +1,219 @@
-<div class="whatsapp-layout">
-  <!-- Panel Izquierdo: Lista de Chats -->
-  <div class="chat-list-panel">
-    <div class="glow"></div>
-    
-    <div class="panel-content">
-      <!-- Header -->
-      <header class="chats-header">
-        <h1>Mensajes</h1>
-        <div class="header-icons">
-          <div class="icon-btn"><i class="fa-solid fa-plus"></i></div>
-          <div class="icon-btn"><i class="fa-solid fa-magnifying-glass"></i></div>
-        </div>
-      </header>
+<div class="chat-app-container">
 
-      <!-- Search Area -->
-      <div class="search-area">
-        <div class="search-pill">
-          <i class="fa-solid fa-message"></i>
-          <input type="text" placeholder="Buscar conversación..." [(ngModel)]="searchText" />
+  <!-- ══════════════════════════════════════════════════════════════════
+       SIDEBAR — Lista de conversaciones
+  ══════════════════════════════════════════════════════════════════ -->
+  <aside class="chat-sidebar">
+
+    <!-- Header -->
+    <div class="sidebar-header">
+      <div class="sidebar-title">
+        <h2>Mensajes</h2>
+        <div class="header-actions">
+          <button class="action-btn" type="button" aria-label="Filtrar">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 4h18M7 8h10M10 12h4"/>
+            </svg>
+          </button>
+          <button class="action-btn action-btn--accent" type="button" aria-label="Nueva conversación">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                d="M12 4v16m8-8H4"/>
+            </svg>
+          </button>
         </div>
-        <div class="filter-btn"><i class="fa-solid fa-sliders"></i></div>
       </div>
 
-      <!-- Chat List -->
-      <div class="chat-list">
-        @if (loading()) {
-          @for (i of [1,2,3,4]; track i) {
-            <div class="chat-item">
-              <div class="chat-avatar-wrap">
-                <div class="chat-avatar-skeleton animate-pulse"></div>
-              </div>
-              <div class="chat-content">
-                <div class="chat-header">
-                  <div class="skeleton-line w-32 h-3 animate-pulse"></div>
-                  <div class="skeleton-line w-10 h-2 animate-pulse"></div>
-                </div>
-                <div class="chat-preview" style="margin-top:8px">
-                  <div class="skeleton-line w-48 h-2 animate-pulse"></div>
-                </div>
-              </div>
-            </div>
-          }
-        } @else if (filteredConversations.length === 0) {
-          <div class="empty-state-inner">
-            <div class="empty-icon">
-              <svg fill="none" stroke="currentColor" style="width:48px;height:48px" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-              </svg>
-            </div>
-            <p class="empty-title">Sin conversaciones</p>
-            <p class="empty-subtitle">Cuando contactes un proveedor, aparecerá aquí.</p>
-          </div>
-        } @else {
-          @for (conv of filteredConversations; track conv.id) {
-            <div class="chat-item" 
-                 [class.unread]="(conv.unread_count ?? 0) > 0"
-                 [class.selected]="conv.id === selectedConvId()"
-                 (click)="selectChat(conv.id)">
-              
-              <div class="avatar-wrap">
-                @if (conv.other_user_avatar) {
-                  <img
-                    class="avatar"
-                    [src]="conv.other_user_avatar"
-                    [alt]="conv.display_name ?? 'Proveedor'"
-                    (error)="$any($event.target).src=''; $any($event.target).nextElementSibling?.classList.remove('hidden')" />
-                }
-                <div class="avatar-fallback" [class.hidden]="conv.other_user_avatar">
-                  <svg fill="none" stroke="currentColor" style="width:28px;height:28px" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                  </svg>
-                </div>
-              </div>
-
-              <div class="chat-content">
-                <div class="chat-header">
-                  <h3>{{ conv.display_name ?? 'Proveedor' }}</h3>
-                  <span [class.now]="isNow(conv.updated_at)">
-                    {{ isNow(conv.updated_at) ? 'Ahora' : (conv.updated_at ? (conv.updated_at | date:'HH:mm') : '') }}
-                  </span>
-                </div>
-                <div class="chat-preview">
-                  @if (conv.last_message_preview) {
-                    <p [class.unread-text]="(conv.unread_count ?? 0) > 0">{{ conv.last_message_preview }}</p>
-                  }
-                  @if ((conv.unread_count ?? 0) > 0) {
-                    <div class="unread-badge">{{ conv.unread_count }}</div>
-                  } @else {
-                    <i class="fa-solid fa-check-double read-receipt"></i>
-                  }
-                </div>
-              </div>
-            </div>
-          }
-        }
-      </div>
-
-      <!-- Bappie Scout -->
-      <div class="scout-footer-box">
-        <div class="scout-label">Bappie está atento a tus mensajes...</div>
+      <div class="search-chats">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
+        </svg>
+        <input type="text" placeholder="Buscar conversación..." [(ngModel)]="searchText" />
       </div>
     </div>
-  </div>
 
-  <!-- Panel Derecho: Conversación -->
-  <div class="chat-conversation-panel">
+    <!-- Lista -->
+    <div class="chat-list">
+
+      @if (loading()) {
+        @for (i of [1,2,3,4,5]; track i) {
+          <div class="chat-item chat-item--skeleton">
+            <div class="sk-avatar"></div>
+            <div class="sk-body">
+              <div class="sk-line sk-line--name"></div>
+              <div class="sk-line sk-line--preview"></div>
+            </div>
+          </div>
+        }
+      } @else if (filteredConversations.length === 0) {
+        <div class="empty-list">
+          <div class="empty-list-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+            </svg>
+          </div>
+          <p class="empty-list-title">Sin conversaciones</p>
+          <p class="empty-list-sub">Cuando contactes un proveedor, aparecerá aquí.</p>
+        </div>
+      } @else {
+        @for (conv of filteredConversations; track conv.id) {
+          <div class="chat-item"
+               [class.active]="conv.id === selectedConvId()"
+               [class.unread]="(conv.unread_count ?? 0) > 0"
+               (click)="selectChat(conv.id)">
+
+            <!-- Avatar -->
+            <div class="chat-avatar">
+              @if (conv.other_user_avatar) {
+                <img [src]="conv.other_user_avatar"
+                     [alt]="conv.display_name ?? 'Proveedor'"
+                     (error)="$any($event.target).style.display='none'" />
+              } @else {
+                <div class="avatar-fallback">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                  </svg>
+                </div>
+              }
+              <div class="status-dot"></div>
+            </div>
+
+            <!-- Info -->
+            <div class="chat-info">
+              <div class="chat-top">
+                <span class="chat-name">{{ conv.display_name ?? 'Proveedor' }}</span>
+                <span class="chat-time" [class.chat-time--now]="isNow(conv.updated_at)">
+                  {{ isNow(conv.updated_at) ? 'Ahora' : (conv.updated_at ? (conv.updated_at | date:'HH:mm') : '') }}
+                </span>
+              </div>
+              <div class="chat-bottom">
+                <span class="chat-preview">{{ conv.last_message_preview || 'Sin mensajes' }}</span>
+                @if ((conv.unread_count ?? 0) > 0) {
+                  <span class="unread-badge">{{ conv.unread_count }}</span>
+                } @else {
+                  <svg class="read-receipt" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M5 13l4 4L19 7M9 17l-4-4"/>
+                  </svg>
+                }
+              </div>
+            </div>
+
+          </div>
+        }
+      }
+
+    </div>
+
+    <!-- Bappie footer -->
+    <div class="sidebar-bappie">
+      <div class="bappie-canvas">
+        <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg"
+             style="width:100%;height:100%;overflow:visible">
+          <defs>
+            <linearGradient id="bodyGradBap" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%"   stop-color="#2A2A2E"/>
+              <stop offset="100%" stop-color="#0A0A0C"/>
+            </linearGradient>
+            <filter id="shadowHeavyBap">
+              <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#000" flood-opacity="0.8"/>
+            </filter>
+          </defs>
+
+          <!-- Banco -->
+          <g transform="translate(50,260)">
+            <rect x="20"  y="40" width="8"   height="40" rx="2" fill="#111"/>
+            <rect x="270" y="40" width="8"   height="40" rx="2" fill="#111"/>
+            <rect x="10"  y="0"  width="280" height="12" rx="4" fill="#1A1A1D"/>
+            <rect x="10"  y="18" width="280" height="12" rx="4" fill="#1A1A1D"/>
+            <rect x="0"   y="40" width="300" height="10" rx="4" fill="#222"/>
+            <ellipse cx="150" cy="40" rx="40" ry="4" fill="#000" opacity="0.6"/>
+          </g>
+
+          <!-- Bappie body -->
+          <g transform="translate(150,60)" class="bappie-hover">
+            <!-- Holograma -->
+            <g transform="translate(150,20)" class="bappie-hologram">
+              <path d="M-10,-10 L10,-10 L-10,10 L10,10 Z"
+                    fill="none" stroke="#FDE68A" stroke-width="2" stroke-linejoin="round"/>
+              <circle cx="0" cy="0" r="2" fill="#FDE68A"/>
+            </g>
+
+            <!-- Cuerpo -->
+            <rect x="145" y="140" width="10" height="20" fill="#333"/>
+            <path d="M 115 160 Q 150 180 185 160 C 190 210 170 240 150 240 C 130 240 110 210 115 160 Z"
+                  fill="url(#bodyGradBap)" stroke="#333" stroke-width="2" filter="url(#shadowHeavyBap)"/>
+
+            <!-- Brazo izquierdo (animado) -->
+            <g class="bappie-arm">
+              <path d="M 105 170 Q 70 200 85 240"
+                    fill="none" stroke="url(#bodyGradBap)" stroke-width="11" stroke-linecap="round"/>
+              <circle cx="85" cy="240" r="5" fill="#111" stroke="#93C5FD" stroke-width="2"/>
+            </g>
+
+            <!-- Brazo derecho -->
+            <path d="M 195 170 Q 220 200 210 230"
+                  fill="none" stroke="url(#bodyGradBap)" stroke-width="11" stroke-linecap="round" opacity="0.8"/>
+            <circle cx="210" cy="230" r="5" fill="#111" stroke="#93C5FD" stroke-width="2" opacity="0.8"/>
+
+            <!-- Cabeza (lupa BAPP) -->
+            <g class="bappie-head">
+              <g transform="translate(150,105) scale(1.1) translate(-45,-45)" filter="url(#shadowHeavyBap)">
+                <path d="M45,10 C25.67,10 10,25.67 10,45 C10,65 45,95 45,95 C45,95 80,65 80,45 C80,25.67 64.33,10 45,10 Z"
+                      transform="rotate(-45 45 45)" fill="#BE202E"/>
+                <circle cx="45" cy="45" r="22" fill="#000"/>
+                <circle cx="45" cy="45" r="6"  fill="#93C5FD">
+                  <animate attributeName="opacity" values="0.5;1;0.5" dur="4s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="45" cy="45" r="17" fill="none" stroke="#fff" stroke-width="8"/>
+                <line   x1="33" y1="57" x2="14" y2="76" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+              </g>
+            </g>
+          </g>
+        </svg>
+      </div>
+      <div class="bappie-status-text">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="bappie-robot-icon">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 3H7a2 2 0 00-2 2v4m4-6h6m-6 0V1m6 2h2a2 2 0 012 2v4m-4-6V1M3 9h18M3 9a9 9 0 000 9h18a9 9 0 000-9M9 9v6m6-6v6"/>
+        </svg>
+        Bappie IA atento a tus mensajes...
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ══════════════════════════════════════════════════════════════════
+       CHAT WINDOW — Conversación activa
+  ══════════════════════════════════════════════════════════════════ -->
+  <section class="chat-window">
     @if (selectedConvId()) {
-      <app-chat-view [conversationId]="selectedConvId()!" (close)="closeChat()"></app-chat-view>
+      <app-chat-view [conversationId]="selectedConvId()!" (close)="closeChat()"/>
     } @else {
-      <div class="empty-conversation">
-        <div class="empty-conversation-icon">
-          <i class="fa-regular fa-comments"></i>
+      <div class="empty-chat-state">
+        <div class="empty-chat-icon">
+          <svg viewBox="0 0 200 180" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <mask id="cutout-empty">
+                <rect width="100%" height="100%" fill="white"/>
+                <circle cx="120" cy="80" r="45" fill="black"/>
+                <line x1="20" y1="180" x2="100" y2="100" stroke="black" stroke-width="24" stroke-linecap="round"/>
+              </mask>
+            </defs>
+            <path d="M 60,80 A 60,60 0 0,1 180,80 L 180,150 L 90,150 A 60,60 0 0,1 50,110 Z"
+                  fill="#BE202E" mask="url(#cutout-empty)"/>
+            <circle cx="120" cy="80" r="35" stroke="#ffffff" stroke-width="14" fill="none"/>
+            <line x1="30" y1="170" x2="95" y2="105" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
+          </svg>
         </div>
         <h2>BAPPSEARCH</h2>
         <p>Selecciona una conversación para comenzar</p>
       </div>
     }
-  </div>
+  </section>
+
 </div>

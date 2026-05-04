@@ -28,6 +28,7 @@ interface CalendarDay {
   standalone: true,
   imports: [CommonModule, RouterLink, LoadingSkeletonComponent],
   templateUrl: './provider-info.component.html',
+  styleUrl: './provider-info.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ProviderInfoComponent implements OnInit, OnDestroy {

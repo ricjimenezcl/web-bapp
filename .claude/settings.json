@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "additionalDirectories": [
+      "d:\\bapp\\ionic_v8\\bappsearch\\pre-produccion\\backend\\app\\api\\v1\\endpoints"
+    ]
+  }
+}

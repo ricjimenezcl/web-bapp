@@ -165,6 +165,11 @@ export const routes: Routes = [
 
   // SHARED ROUTES
   {
+    path: 'payment',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/payment/payment.component').then(m => m.PaymentComponent)
+  },
+  {
     path: 'notifications',
     canActivate: [authGuard],
     loadComponent: () => import('./features/notifications/notifications.component').then(m => m.NotificationsComponent)

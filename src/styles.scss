@@ -5,6 +5,11 @@
 // Activa todas las variables --bapp-* y --ion-* en :root para uso en templates
 @import 'themes/variables';
 
+// ── BAPP Web — Design system oscuro (chats · service-search · profile) ───────
+// Centraliza tokens, patrones y animaciones compartidos entre componentes web.
+// Importar después de variables para que los tokens --bw-* sean los últimos.
+@import 'styles/bapp-web';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -796,3 +801,206 @@
   color: rgba(255, 255, 255, 0.4);
   line-height: 1.5;
 }
+
+// ════════════════════════════════════════════════════════════════════
+// BAPPIE PANEL — nuevo diseño (categories.component)
+// Reemplaza .cat-bg-gradient y .cat-bappie-*
+// ════════════════════════════════════════════════════════════════════
+
+.bap-panel {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;  /* centra el SVG + tooltip + footer verticalmente */
+  padding: 32px;
+  position: sticky;
+  top: 0;
+  /* align-self: stretch viene del host → el panel llena la altura completa */
+  z-index: 10;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  width: 700px;
+  flex-shrink: 0;
+  background: #030303;
+  border-radius: 24px 0 0 24px;
+  overflow: hidden;
+
+  @media (min-width: 768px) {
+    display: flex;
+  }
+
+  @media (min-width: 1024px) {
+    width: 780px;
+  }
+}
+
+.bap-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 288px;
+  height: 288px;
+  background: #A7F3D0;
+  opacity: 0.03;
+  filter: blur(80px);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.bap-canvas {
+  position: relative;
+  width: 320px;
+  height: 380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.bap-tooltip {
+  position: absolute;
+  top: -24px;
+  right: -40px;
+  background: #121214;
+  border: 1px solid rgba(167, 243, 208, 0.3);
+  color: #A7F3D0;
+  padding: 16px 20px;
+  border-radius: 20px;
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 15px 40px rgba(167, 243, 208, 0.15);
+  z-index: 20;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  white-space: nowrap;
+
+  @media (max-width: 900px) {
+    right: -20px;
+    top: -16px;
+    font-size: 11px;
+    padding: 12px 14px;
+  }
+}
+
+.bap-tooltip--float {
+  animation: bapFloat 4s ease-in-out infinite;
+}
+
+.bap-tooltip-sub {
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.bap-svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+// ── Animaciones SVG ──────────────────────────────────────────────
+
+.bap-float {
+  animation: bapFloat 4s ease-in-out infinite;
+}
+
+@keyframes bapFloat {
+  0%, 100% { transform: translateY(0px) rotate(-1deg); }
+  50%       { transform: translateY(-10px) rotate(1deg); }
+}
+
+.bap-knock {
+  transform-origin: 195px 170px;
+  animation: bapKnock 3s ease-in-out infinite;
+}
+
+@keyframes bapKnock {
+  0%, 70%, 100% { transform: translate(0, 0) rotate(5deg); }
+  75%, 85%, 95% { transform: translate(-10px, -5px) rotate(15deg); }
+  80%, 90%      { transform: translate(-5px, -2px) rotate(10deg); }
+}
+
+.bap-ring {
+  transform-origin: center;
+}
+
+.bap-ring--1 {
+  animation: bapPing 2s ease-out infinite;
+}
+
+.bap-ring--2 {
+  animation: bapPing 2s ease-out 1s infinite;
+}
+
+@keyframes bapPing {
+  0%   { transform: scale(0.5); opacity: 0.8; }
+  80%  { transform: scale(2.0); opacity: 0; }
+  100% { transform: scale(2.0); opacity: 0; }
+}
+
+.bap-window {
+  animation: bapWindowPulse 4s ease-in-out infinite;
+}
+
+@keyframes bapWindowPulse {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 0.9; }
+}
+
+.bap-pupil {
+  animation: bapPupilPulse 2s ease-in-out infinite;
+}
+
+@keyframes bapPupilPulse {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1; }
+}
+
+// ── Footer marca + status ────────────────────────────────────────
+
+.bap-footer {
+  text-align: center;
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.bap-brand {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: #ffffff;
+  margin: 0;
+}
+
+.bap-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(167, 243, 208, 0.1);
+  border: 1px solid rgba(167, 243, 208, 0.2);
+  color: #A7F3D0;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  padding: 8px 16px;
+  border-radius: 9999px;
+}
+
+.bap-status-dot {
+  width: 8px;
+  height: 8px;
+  background: #A7F3D0;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #A7F3D0;
+  animation: bapPupilPulse 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// FIN BAPPIE PANEL
+// ════════════════════════════════════════════════════════════════════

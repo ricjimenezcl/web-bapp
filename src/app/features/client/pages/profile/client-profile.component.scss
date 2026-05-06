@@ -1,12 +1,10 @@
-// ── Host / Base ──────────────────────────────────────────────────────
+// Tokens: viven en :root vía _bapp-web.scss (styles.scss)
 :host {
   display: flex;
   justify-content: center;
-  background: #000000;
+  background: var(--bw-bg);
   min-height: 100%;
-  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  color: #F9FAFB;
+  color: var(--bw-text-p);
 }
 
 .dashboard-container {
@@ -188,14 +186,9 @@
   min-width: 0;
 }
 
-// View animation
+// View animation — usa bw-fade-in de _bapp-web.scss
 .view-anim {
-  animation: fadeIn 0.35s ease-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  animation: bw-fade-in 0.35s ease-out;
 }
 
 // View header
@@ -214,10 +207,10 @@
 }
 
 // ══════════════════════════════════════════════════════════════════════
-// SHARED ELEMENTS
+// SHARED ELEMENTS — usan tokens de _bapp-web.scss
 // ══════════════════════════════════════════════════════════════════════
 .btn-primary {
-  background: #FDE68A;
+  background: var(--bw-accent);
   color: #000000;
   border: none;
   padding: 14px 28px;
@@ -226,7 +219,7 @@
   font-size: 13px;
   font-family: inherit;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(253, 230, 138, 0.15);
+  box-shadow: 0 4px 15px var(--bw-accent-dim);
   white-space: nowrap;
   transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.15s ease;
 
@@ -240,8 +233,8 @@
 
 .btn-secondary {
   background: transparent;
-  color: #F9FAFB;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--bw-text-p);
+  border: 1px solid var(--bw-border);
   padding: 12px 24px;
   border-radius: 14px;
   font-weight: 700;
@@ -253,7 +246,7 @@
   text-decoration: none;
   transition: background 0.2s ease;
 
-  &:hover { background: #1E1E1E; }
+  &:hover { background: var(--bw-surface-hover); }
 }
 
 // Alerts
@@ -291,26 +284,26 @@
   label {
     font-size: 12px;
     font-weight: 700;
-    color: #94A3B8;
+    color: var(--bw-text-s);
     text-transform: uppercase;
     letter-spacing: 0.06em;
   }
 
   input, textarea {
     width: 100%;
-    background: #000000;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--bw-bg);
+    border: 1px solid var(--bw-border);
     border-radius: 12px;
     padding: 16px;
-    color: #F9FAFB;
+    color: var(--bw-text-p);
     font-size: 14px;
     font-family: inherit;
     outline: none;
     resize: none;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 
-    &::placeholder { color: #334155; }
-    &:focus { border-color: #FDE68A; box-shadow: 0 0 0 3px rgba(253, 230, 138, 0.1); }
+    &::placeholder { color: var(--bw-text-muted); }
+    &:focus { border-color: var(--bw-accent); box-shadow: 0 0 0 3px var(--bw-accent-dim); }
     &.is-error { border-color: #FCA5A5; }
     &:disabled { opacity: 0.5; cursor: not-allowed; }
   }

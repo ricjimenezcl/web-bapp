@@ -1,0 +1,604 @@
+// ════════════════════════════════════════════════════════════════════
+// _bapp-web.scss — Design System oscuro del Web App
+//
+// Centraliza tokens, patrones y animaciones compartidos entre:
+//   chats · service-search · profile · provider-info · bookings · categories
+//
+// INSTRUCCIONES PARA COMPONENTES:
+//   1. Eliminar el bloque de variables CSS de :host
+//   2. Eliminar @keyframes pulse / spin / fadeIn locales
+//   3. Reemplazar clases de patrón por las .bw-* correspondientes
+// ════════════════════════════════════════════════════════════════════
+
+// ── Tokens del design system oscuro (web-app) ─────────────────────
+// Se definen en :root para que sean heredados por todos los componentes
+// Angular sin necesidad de ::ng-deep ni re-declaración en :host.
+:root {
+  // Surfaces — consolidadas desde chats (#121214) y service-search/profile (#0E0E0E)
+  // Se elige #0E0E0E como valor canónico (más cálido, mejor contraste)
+  --bw-bg:            #000000;
+  --bw-surface-dark:  #0A0A0C;
+  --bw-surface-card:  #0E0E0E;
+  --bw-surface-hover: #1A1A1D;
+  --bw-input-bg:      #0A0A0C;
+
+  // Accent — #FDE68A es el cream/amber del dark design system (≠ #FDD735 Ionic)
+  --bw-accent:        #FDE68A;
+  --bw-accent-dim:    rgba(253, 230, 138, 0.15);
+  --bw-accent-mint:   #A7F3D0;
+  --bw-red:           #BE202E;
+  --bw-verified-blue: #3B82F6;
+
+  // Text — valores canónicos (unifica #FFFFFF vs #F9FAFB → #F9FAFB)
+  --bw-text-p:        #F9FAFB;
+  --bw-text-s:        #94A3B8;
+  --bw-text-muted:    #334155;
+
+  // Borders
+  --bw-border:        rgba(255, 255, 255, 0.08);
+  --bw-border-light:  rgba(255, 255, 255, 0.15);
+
+  // ── Aliases de retrocompatibilidad ───────────────────────────────
+  // Permiten que los componentes existentes sigan usando sus nombres locales
+  // sin necesidad de refactorizar cada referencia. Se resuelven desde :root.
+  --accent:        var(--bw-accent);
+  --accent-dim:    var(--bw-accent-dim);
+  --accent-mint:   var(--bw-accent-mint);
+  --bapp-red:      var(--bw-red);
+  --verified-blue: var(--bw-verified-blue);
+  --text-p:        var(--bw-text-p);
+  --text-s:        var(--bw-text-s);
+  --text-muted:    var(--bw-text-muted);
+  --border:        var(--bw-border);
+  --border-light:  var(--bw-border-light);
+  --surface-card:  var(--bw-surface-card);
+  --surface-dark:  var(--bw-surface-dark);
+  --surface-hover: var(--bw-surface-hover);
+  --surface-active:#161616;
+  --bg-deep:       var(--bw-bg);
+  --input-bg:      var(--bw-input-bg);
+  --success:       var(--bw-accent-mint);
+  --danger:        #FCA5A5;
+
+  // ── Aliases de categories (nombres propios del componente) ────────
+  --cream:         var(--bw-accent);
+  --cream-dim:     var(--bw-accent-dim);
+  --mint:          var(--bw-accent-mint);
+  --surface-pro:   var(--bw-surface-card);
+}
+
+// ── Font override global ──────────────────────────────────────────
+// Plus Jakarta Sans para todas las páginas del design system oscuro.
+// Override necesario porque styles.scss base usa Noto Sans (Ionic app).
+.bw-font-scope,
+.bw-frame,
+[class*="app-frame"],
+[class*="chat-app"],
+[class*="dashboard"] {
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// LAYOUT
+// ════════════════════════════════════════════════════════════════════
+
+// Frame contenedor — equivale a chat-app-container, .app-frame, .pi-frame
+// Uso: <div class="bw-frame"> en componentes nuevos o refactorizados.
+.bw-frame {
+  width: 100%;
+  max-width: 1400px;
+  background: var(--bw-surface-card);
+  border: 1px solid var(--bw-border);
+  border-radius: 24px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  @media (max-width: 767px) {
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// SUPERFICIES
+// ════════════════════════════════════════════════════════════════════
+
+// Tarjeta oscura estándar — base para user-mini, booking-card, pro-card, etc.
+.bw-surface {
+  background: var(--bw-surface-card);
+  border: 1px solid var(--bw-border);
+  border-radius: 16px;
+
+  &--sm  { border-radius: 10px; }
+  &--lg  { border-radius: 24px; }
+
+  &--hover {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+
+    &:hover {
+      border-color: var(--bw-border-light);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  &--lift:hover {
+    transform: translateY(-2px);
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// CONTROLES DE FORMULARIO
+// ════════════════════════════════════════════════════════════════════
+
+// Barra de búsqueda — unifica search-chats, ref-search-bar, cat-search-wrapper
+.bw-search-bar {
+  background: var(--bw-input-bg);
+  border: 1px solid var(--bw-border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
+  &:focus-within {
+    border-color: rgba(253, 230, 138, 0.5);
+    box-shadow: 0 0 0 3px rgba(253, 230, 138, 0.08);
+  }
+
+  // Ícono de lupa
+  &__icon {
+    width: 15px;
+    height: 15px;
+    color: var(--bw-text-muted);
+    flex-shrink: 0;
+    pointer-events: none;
+  }
+
+  input {
+    background: transparent;
+    border: none;
+    color: var(--bw-text-p);
+    width: 100%;
+    outline: none;
+    font-family: inherit;
+    font-size: 14px;
+
+    &::placeholder { color: var(--bw-text-muted); }
+  }
+}
+
+// Input oscuro standalone — unifica form-group inputs en profile, provider-info
+.bw-input {
+  width: 100%;
+  background: var(--bw-input-bg);
+  border: 1px solid var(--bw-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  color: var(--bw-text-p);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  resize: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
+  &::placeholder { color: var(--bw-text-muted); }
+
+  &:focus {
+    border-color: rgba(253, 230, 138, 0.5);
+    box-shadow: 0 0 0 3px rgba(253, 230, 138, 0.08);
+  }
+
+  &.is-error { border-color: #FCA5A5; }
+  &:disabled  { opacity: 0.5; cursor: not-allowed; }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// CONTROL SEGMENTADO (tabs de filtro)
+// .bw-segmented       → nombre canónico del design system
+// .ref-segmented-control → alias usado por service-search y provider-info
+// Ambos comparten la misma implementación.
+// ════════════════════════════════════════════════════════════════════
+
+// Unifica ref-segmented-control (service-search), pi-tabs (provider-info),
+// bookings-tabs-override, ref-segmented-control (bookings)
+.bw-segmented,
+.ref-segmented-control {
+  display: flex;
+  background: var(--bw-input-bg);
+  border: 1px solid var(--bw-border);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.bw-segmented__btn,
+.ref-segment-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--bw-text-s);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+
+  svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+  &:hover:not(.active):not(.ref-segment-btn--active) {
+    color: var(--bw-text-p);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  // Estado activo sutil (filtros de lista: service-search, bookings)
+  &.active {
+    background: rgba(253, 230, 138, 0.10);
+    color: var(--bw-accent);
+    border: 1px solid rgba(253, 230, 138, 0.3);
+  }
+
+  // Estado activo sólido (tabs de navegación: provider-info)
+  &.active-solid {
+    background: var(--bw-accent);
+    color: #000000;
+    box-shadow: 0 4px 15px rgba(253, 230, 138, 0.2);
+
+    svg { color: #000000; }
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// CHIPS / TAGS
+// ════════════════════════════════════════════════════════════════════
+
+// Unifica chip-pill, ref-chip, cat-chip, service-badge
+.bw-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid var(--bw-border);
+  color: var(--bw-text-s);
+  padding: 5px 12px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+
+  &:hover:not(.active) {
+    border-color: var(--bw-text-s);
+    color: var(--bw-text-p);
+  }
+
+  &.active {
+    border-color: var(--bw-accent);
+    background: rgba(253, 230, 138, 0.08);
+    color: var(--bw-accent);
+  }
+
+  // Variante: badge de servicio activo (rojo)
+  &--service {
+    background: rgba(190, 32, 46, 0.10);
+    border-color: rgba(190, 32, 46, 0.30);
+    color: var(--bw-text-p);
+    cursor: default;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// BOTONES
+// ════════════════════════════════════════════════════════════════════
+
+// Ícono botón — unifica action-btn, cat-map-btn, pi-btn-back, bookings-reload-btn
+.bw-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--bw-border);
+  color: var(--bw-text-p);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  flex-shrink: 0;
+
+  svg { width: 15px; height: 15px; }
+
+  &:hover {
+    background: var(--bw-accent);
+    color: #000;
+    border-color: var(--bw-accent);
+  }
+
+  &--lg     { width: 40px; height: 40px; border-radius: 12px; }
+  &--circle { border-radius: 50%; }
+
+  // Variante siempre amarillo (botón "nuevo chat")
+  &--accent {
+    background: var(--bw-accent);
+    color: #000;
+    border-color: var(--bw-accent);
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(253, 230, 138, 0.3);
+      transform: scale(1.05);
+    }
+  }
+}
+
+// Botón primario — unifica btn-primary de profile, pi-btn-primary, cat-btn-search
+// (distinto de styles.scss .btn-primary que usa #FDD735 para Ionic)
+.bw-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--bw-accent);
+  color: #000000;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 28px;
+  font-size: 13px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 4px 15px rgba(253, 230, 138, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.15s ease;
+
+  svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(253, 230, 138, 0.25);
+  }
+
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  &--sm    { padding: 10px 18px; font-size: 12px; border-radius: 10px; }
+  &--lg    { padding: 16px 32px; font-size: 15px; border-radius: 16px; }
+  &--block { width: 100%; }
+}
+
+// Botón secundario — unifica btn-secondary, pi-btn-secondary
+.bw-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: transparent;
+  color: var(--bw-text-p);
+  border: 1px solid var(--bw-border);
+  border-radius: 14px;
+  padding: 12px 24px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease;
+
+  svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  &:hover:not(:disabled) {
+    background: var(--bw-surface-hover);
+    border-color: var(--bw-border-light);
+  }
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &--block   { width: 100%; }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// AVATAR
+// ════════════════════════════════════════════════════════════════════
+
+// Unifica chat-avatar, card-img, pi-avatar-container img, user-mini-avatar
+.bw-avatar {
+  object-fit: cover;
+  display: block;
+  flex-shrink: 0;
+  background: rgba(253, 230, 138, 0.06);
+
+  &--circle  { border-radius: 50%; }
+  &--rounded { border-radius: 12px; }
+  &--sm  { width: 36px; height: 36px; }
+  &--md  { width: 48px; height: 48px; }
+  &--lg  { width: 56px; height: 56px; }
+  &--xl  { width: 80px; height: 80px; }
+
+  // Div fallback (cuando no hay imagen)
+  &--fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--bw-border);
+    color: rgba(253, 230, 138, 0.3);
+
+    svg { width: 40%; height: 40%; }
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// BADGE / CONTADOR
+// ════════════════════════════════════════════════════════════════════
+
+// Unifica unread-badge (chats), tab-badge (bookings), search-badge (categories)
+.bw-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  background: var(--bw-accent);
+  color: #000000;
+  font-size: 10px;
+  font-weight: 800;
+  border-radius: 9999px;
+  padding: 0 5px;
+  line-height: 1;
+
+  &--warning {
+    background: rgba(253, 230, 138, 0.20);
+    color: var(--bw-accent);
+    border: 1px solid rgba(253, 230, 138, 0.30);
+  }
+
+  &--danger {
+    background: rgba(252, 165, 165, 0.15);
+    color: #FCA5A5;
+    border: 1px solid rgba(252, 165, 165, 0.30);
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// ESTADO VACÍO (Empty State)
+// ════════════════════════════════════════════════════════════════════
+
+// Unifica list-empty (service-search), pi-empty (provider-info),
+// booking-empty (bookings), cat-empty (categories)
+.bw-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 52px 20px;
+  text-align: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.bw-empty__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  background: rgba(253, 230, 138, 0.05);
+  border: 1px dashed var(--bw-border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+  color: rgba(253, 230, 138, 0.35);
+
+  svg { width: 26px; height: 26px; }
+
+  &--danger {
+    background: rgba(252, 165, 165, 0.06);
+    border-color: rgba(252, 165, 165, 0.15);
+    color: rgba(252, 165, 165, 0.5);
+  }
+}
+
+.bw-empty__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--bw-text-p);
+  margin: 0;
+}
+
+.bw-empty__sub {
+  font-size: 13px;
+  color: var(--bw-text-s);
+  margin: 0;
+  line-height: 1.55;
+  max-width: 260px;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// ANIMACIONES COMPARTIDAS — reemplaza @keyframes duplicados
+// ════════════════════════════════════════════════════════════════════
+
+@keyframes bw-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+@keyframes bw-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes bw-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bw-slide-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bw-slide-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bw-pin-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+// Clases utilitarias de animación
+.bw-pulse      { animation: bw-pulse      1.8s ease-in-out infinite; }
+.bw-spin       { animation: bw-spin       0.7s linear infinite; }
+.bw-fade-in    { animation: bw-fade-in    0.35s ease-out; }
+.bw-slide-up   { animation: bw-slide-up   0.25s ease-out; }
+.bw-slide-down { animation: bw-slide-down 0.20s ease-out; }
+
+// Skeleton base — reemplaza los bloques .sk-* locales de cada componente
+.bw-skeleton {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  animation: bw-pulse 1.8s ease-in-out infinite;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// UTILIDADES OSCURAS — lo que Tailwind no cubre con el tema actual
+// ════════════════════════════════════════════════════════════════════
+
+// Scroll sin barra — usado en chats, service-search, categories
+.bw-scroll-hide {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+// Texto truncado — patrón frecuente en list items
+.bw-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Label de sección — pi-section-title, nav-label, stat-label
+.bw-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--bw-text-s);
+}
+
+// Divisor oscuro
+.bw-divider {
+  height: 1px;
+  background: var(--bw-border);
+  border: none;
+  margin: 0;
+}

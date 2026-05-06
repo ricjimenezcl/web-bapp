@@ -7,6 +7,8 @@
       [embeddedProviders]="filteredProviders()"
       [highlightedProviderId]="hoveredProviderId()">
     </app-service-map>
+
+ 
   </div>
 
   <!-- ═══════════════════════════════════════════════════════════
@@ -83,35 +85,6 @@
         </div>
       }
 
-      <!-- Chips de categoría (texto libre) -->
-      @if (displayedCategories().length > 0) {
-        <div class="ref-tags-row">
-          @if (serviceIds().length === 0) {
-            <button (click)="selectCategory(null)" class="ref-chip"
-              [class.active]="!selectedCat()" type="button">
-              Todos
-            </button>
-          }
-          @for (cat of displayedCategories(); track cat.id) {
-            <button
-              (click)="serviceIds().length === 0 ? selectCategory(cat.id) : null"
-              class="ref-chip"
-              [class.active]="selectedCat() === cat.id"
-              [class.opacity-60]="serviceIds().length > 0"
-              [class.pointer-events-none]="serviceIds().length > 0"
-              type="button">
-              @if (cat.icon) {
-                @if (isImageUrl(cat.icon)) {
-                  <img [src]="cat.icon" [alt]="cat.name" class="w-3.5 h-3.5 object-contain">
-                } @else {
-                  <span>{{ getIconEmoji(cat.icon, cat.name) }}</span>
-                }
-              }
-              {{ cat.name }}
-            </button>
-          }
-        </div>
-      }
 
       <!-- Contador + límite de contactos -->
       <div class="ref-results-meta">

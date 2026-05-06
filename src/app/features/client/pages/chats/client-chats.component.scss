@@ -2,31 +2,17 @@
 // CLIENT-CHATS — basado en referencia visual BAPPSEARCH Chat
 // ════════════════════════════════════════════════════════════════════
 
-// ── Variables ────────────────────────────────────────────────────────
+// Tokens: viven en :root vía _bapp-web.scss (styles.scss)
 :host {
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100%;
   padding: 20px;
-  background: #030303;
+  background: var(--bw-bg);
   background-image: radial-gradient(circle at 50% 0%, rgba(253, 230, 138, 0.03), transparent 60%);
   box-sizing: border-box;
-  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-
-  --bg-deep:      #030303;
-  --surface-dark: #0A0A0C;
-  --surface-card: #121214;
-  --surface-hover:#1A1A1D;
-  --accent:       #FDE68A;
-  --accent-mint:  #A7F3D0;
-  --bapp-red:     #BE202E;
-  --text-p:       #FFFFFF;
-  --text-s:       #A1A1AA;
-  --text-muted:   #52525B;
-  --border:       rgba(255, 255, 255, 0.08);
-  --border-light: rgba(255, 255, 255, 0.15);
+  color: var(--bw-text-p);
 }
 
 // ── Contenedor principal ──────────────────────────────────────────────
@@ -316,13 +302,14 @@
 }
 
 // ── Skeleton ──────────────────────────────────────────────────────────
+// Skeleton — usa bw-pulse de _bapp-web.scss
 .sk-avatar {
   width: 48px;
   height: 48px;
   border-radius: 16px;
-  background: #1e1e1e;
+  background: rgba(255, 255, 255, 0.06);
   flex-shrink: 0;
-  animation: pulse 1.8s ease-in-out infinite;
+  animation: bw-pulse 1.8s ease-in-out infinite;
 }
 
 .sk-body {
@@ -334,17 +321,12 @@
 
 .sk-line {
   border-radius: 6px;
-  background: #1e1e1e;
-  animation: pulse 1.8s ease-in-out infinite;
+  background: rgba(255, 255, 255, 0.06);
+  animation: bw-pulse 1.8s ease-in-out infinite;
 }
 
 .sk-line--name    { width: 55%; height: 12px; }
 .sk-line--preview { width: 75%; height: 10px; }
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.35; }
-}
 
 // ── Empty state de la lista ───────────────────────────────────────────
 .empty-list {

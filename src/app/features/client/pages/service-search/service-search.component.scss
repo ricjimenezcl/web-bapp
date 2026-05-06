@@ -2,35 +2,16 @@
 // SERVICE-SEARCH — mapa fullscreen + sidebar glassmorphism overlay
 // ════════════════════════════════════════════════════════════════════
 
+// Tokens: viven en :root vía _bapp-web.scss (styles.scss)
 :host {
   display: flex;
   justify-content: center;
   height: 100%;
   padding: 30px 40px;
-  background: #000000;
+  background: var(--bw-bg);
   background-image: radial-gradient(circle at 50% 0%, rgba(253, 230, 138, 0.03), transparent 60%);
   box-sizing: border-box;
-  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  color: #F9FAFB;
-
-  // ── Colores extraídos de client-profile ───────────────────────────
-  --bg-deep:      #000000;
-  --surface-dark: #0E0E0E;
-  --surface-card: #0E0E0E;
-  --surface-hover:#1E1E1E;
-  --surface-active:#161616;
-  --accent:       #FDE68A;
-  --accent-mint:  #A7F3D0;
-  --success:      #A7F3D0;
-  --danger:       #FCA5A5;
-  --bapp-red:     #BE202E;
-  --verified-blue:#3B82F6;
-  --text-p:       #F9FAFB;
-  --text-s:       #94A3B8;
-  --text-muted:   #334155;
-  --border:       rgba(255, 255, 255, 0.08);
-  --border-light: rgba(255, 255, 255, 0.15);
+  color: var(--bw-text-p);
 
   @media (max-width: 767px) {
     padding: 10px;
@@ -803,4 +784,28 @@
   font-size: 11px;
   color: var(--text-s);
   font-weight: 600;
+}
+
+// Badge resultados mapa (derecha)
+.map-results-badge {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  z-index: 400;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface-card);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  padding: 6px 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+  .badge-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--text-tertiary);
+  }
 }

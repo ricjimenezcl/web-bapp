@@ -1,10 +1,9 @@
+// Tokens: viven en :root vía _bapp-web.scss (styles.scss)
 :host {
   display: block;
-  background: #000000;
+  background: var(--bw-bg);
   min-height: 100%;
-  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  color: #F9FAFB;
+  color: var(--bw-text-p);
 }
 
 .payment-page {
@@ -244,7 +243,7 @@
   grid-template-columns: 1fr 1fr;
   gap: 16px;
   margin-bottom: 24px;
-  animation: slideDown 0.2s ease;
+  animation: bw-slide-down 0.2s ease;
 }
 
 .card-form-field {
@@ -300,7 +299,7 @@
   font-size: 13px;
   color: #94A3B8;
   margin-bottom: 24px;
-  animation: slideDown 0.2s ease;
+  animation: bw-slide-down 0.2s ease;
 
   svg { width: 18px; height: 18px; flex-shrink: 0; color: #FDE68A; }
 }
@@ -391,21 +390,18 @@
   }
 }
 
+// bw-spin de _bapp-web.scss
 .spin {
-  animation: spin 0.8s linear infinite;
+  animation: bw-spin 0.8s linear infinite;
   width: 18px;
   height: 18px;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }
 
 // ── Success state ────────────────────────────────────────────────────
 .success-state {
   text-align: center;
   padding: 24px 0;
-  animation: fadeIn 0.4s ease;
+  animation: bw-fade-in 0.4s ease;
 
   h3 {
     font-size: 22px;
@@ -440,15 +436,7 @@
   svg { width: 36px; height: 36px; color: #A7F3D0; }
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideDown {
-  from { opacity: 0; transform: translateY(-8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+// bw-fade-in y bw-slide-down de _bapp-web.scss
 
 // ── Responsive ───────────────────────────────────────────────────────
 @media (max-width: 800px) {

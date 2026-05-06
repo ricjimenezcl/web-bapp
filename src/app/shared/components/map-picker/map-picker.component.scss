@@ -40,12 +40,17 @@
 
 .map-picker-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 1rem;
   padding: 1.25rem 1.5rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  justify-content: space-between;
 }
 
+.header-content {
+  flex: 1;
+  min-width: 0; // evita overflow en mobile
+}
 .map-picker-body {
   flex: 1;
   position: relative;
@@ -57,6 +62,9 @@
     border-radius: 0.75rem;
     overflow: hidden;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    right: 1rem !important;
+  left: auto !important;
+  top: 4.5rem; // para no chocar con header
 
     a {
       width: 36px;

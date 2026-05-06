@@ -2,38 +2,22 @@
 // CATEGORIES — consistente con chats, service-search y profile
 // ════════════════════════════════════════════════════════════════════
 
+// Tokens: viven en :root vía _bapp-web.scss (styles.scss)
 :host {
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  flex-direction: row;    /* bap-panel izquierda · app-frame derecha */
+  align-items: stretch;   /* ambos hijos llenan la altura completa del host */
+  justify-content: flex-start;
   min-height: 100%;
-  padding: 30px 40px;
-  background: #000000;
-  background-image: radial-gradient(
-    ellipse at top,
-    rgba(253, 230, 138, 0.04),
-    transparent 60%
-  );
+  background: var(--bw-bg);
   box-sizing: border-box;
-  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  color: #F4F4F5;
-
-  --bg-deep:       #050505;
-  --surface-pro:   #121214;
-  --surface-hover: #1A1A1D;
-  --input-bg:      #0A0A0C;
-  --border:        rgba(255, 255, 255, 0.08);
-  --border-light:  rgba(255, 255, 255, 0.15);
-  --cream:         #FDE68A;
-  --cream-dim:     rgba(253, 230, 138, 0.15);
-  --mint:          #A7F3D0;
-  --text-p:        #F4F4F5;
-  --text-s:        #A1A1AA;
-  --text-muted:    #52525B;
+  color: var(--bw-text-p);
+  gap: 40px;
+  padding: 30px 40px 30px 0;
 
   @media (max-width: 767px) {
     padding: 10px;
+    gap: 0;
   }
 }
 
@@ -42,8 +26,8 @@
 .app-frame {
   position: relative;
   width: 100%;
-  max-width: 900px;
-  min-height: calc(100vh - 60px);
+  max-width: 1100px;
+
   background: var(--bg-deep);
   border: 1px solid var(--border);
   border-radius: 24px;
@@ -958,3 +942,229 @@
 .animate-slide-up  { animation: slide-up 0.22s ease-out; }
 .animate-fade-in   { animation: fade-in 0.2s ease; }
 .animate-pop       { animation: pop 0.18s ease; }
+
+
+.ambient-glow {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 80vw; height: 80vw; max-width: 600px;
+            background: radial-gradient(circle at center, rgba(167, 243, 208, 0.04) 0%, transparent 60%);
+            pointer-events: none; z-index: 1;
+        }
+
+        .canvas {
+            position: relative; z-index: 2;
+            width: 450px; height: 500px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        /* --- ANIMACIONES DE LLEGADA --- */
+        
+        /* Flote de espera */
+        @keyframes waitingHover {
+            0%, 100% { transform: translateY(0px) rotate(-1deg); }
+            50% { transform: translateY(-8px) rotate(1deg); }
+        }
+
+        /* Acción de tocar la puerta (Knocking) */
+        @keyframes knockingMotion {
+            0%, 70%, 100% { transform: translate(0,0) rotate(5deg); }
+            75%, 85%, 95% { transform: translate(-10px, -5px) rotate(15deg); }
+            80%, 90% { transform: translate(-5px, -2px) rotate(10deg); }
+        }
+
+        /* Ondas de timbre (Ringing) */
+        @keyframes soundWave {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+
+        /* Luz de la ventana */
+        @keyframes windowGlow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        svg { width: 100%; height: auto; overflow: visible; }
+
+        .ui-notification {
+            text-align: center; margin-top: 30px; z-index: 10;
+        }
+        .ui-notification h1 { font-size: 18px; font-weight: 800; letter-spacing: 2px; margin: 0 0 5px 0; }
+        .ui-notification p {
+            font-size: 10px; font-weight: 800; color: var(--home-mint);
+            text-transform: uppercase; letter-spacing: 3px; margin: 0;
+            background: rgba(167, 243, 208, 0.1); padding: 6px 14px; border-radius: 20px;
+            display: inline-block; border: 1px solid rgba(167, 243, 208, 0.2);
+        }
+
+  // ════════════════════════════════════════════════════════════════════
+// BAPPIE ANIMADO — cat-bg-gradient
+// Extraído del HTML de referencia "Doorstep Protocol"
+// ════════════════════════════════════════════════════════════════════
+
+// Contenedor del gradient/fondo
+.cat-bg-gradient {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: #030303;
+  padding: 40px 0;
+
+  // Glow ambiental de fondo (igual que referencia)
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    background: radial-gradient(
+      circle at center,
+      rgba(167, 243, 208, 0.04) 0%,
+      transparent 60%
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+}
+
+// Glow adicional (div explícito igual que referencia)
+.cat-bappie-ambient {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  max-width: 600px;
+  aspect-ratio: 1;
+  background:#000;
+  pointer-events: none;
+  z-index: 1;
+}
+
+// Canvas de la figura
+.cat-bappie-canvas {
+  position: relative;
+  z-index: 2;
+  width: 450px;
+  max-width: 90vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+// SVG principal
+.cat-bappie-svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+// ── ANIMACIONES ──────────────────────────────────────────────────
+
+// 1. Flote de espera — todo el cuerpo de Bappie
+.cat-bappie-float {
+  animation: catWaitingHover 4s ease-in-out infinite;
+}
+
+@keyframes catWaitingHover {
+  0%, 100% { transform: translateY(0px) rotate(-1deg); }
+  50%       { transform: translateY(-8px) rotate(1deg); }
+}
+
+// 2. Brazo golpeando la puerta
+.cat-arm-knock {
+  animation: catKnockingMotion 3s ease-in-out infinite;
+  transform-origin: 195px 170px;
+}
+
+@keyframes catKnockingMotion {
+  0%, 70%, 100% { transform: translate(0, 0) rotate(5deg); }
+  75%, 85%, 95% { transform: translate(-10px, -5px) rotate(15deg); }
+  80%, 90%      { transform: translate(-5px, -2px) rotate(10deg); }
+}
+
+// 3. Ondas de timbre
+.cat-sound-wave {
+  transform-origin: center;
+
+  &--1 {
+    animation: catSoundWave 2s ease-out infinite;
+  }
+  &--2 {
+    animation: catSoundWave 2s ease-out 1s infinite;
+  }
+}
+
+@keyframes catSoundWave {
+  0%   { transform: scale(0.5); opacity: 0; }
+  50%  { opacity: 0.5; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+// 4. Luz de la ventana parpadeando
+.cat-window-glow {
+  animation: catWindowGlow 4s ease-in-out infinite;
+}
+
+@keyframes catWindowGlow {
+  0%, 100% { opacity: 0.3; }
+  50%       { opacity: 0.6; }
+}
+
+// 5. Pupila de Bappie pulsando
+.cat-pupil-pulse {
+  animation: catPupilPulse 2s ease-in-out infinite;
+}
+
+@keyframes catPupilPulse {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1; }
+}
+
+// ── Texto debajo de la figura ─────────────────────────────────────
+
+.cat-bappie-label {
+  text-align: center;
+  margin-top: 20px;
+
+  h1 {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: #ffffff;
+    margin: 0 0 6px;
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  }
+
+  p {
+    font-size: 10px;
+    font-weight: 800;
+    color: #A7F3D0;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin: 0;
+    background: rgba(167, 243, 208, 0.1);
+    padding: 6px 14px;
+    border-radius: 20px;
+    display: inline-block;
+    border: 1px solid rgba(167, 243, 208, 0.2);
+  }
+}
+
+// ── Responsive ────────────────────────────────────────────────────
+
+@media (max-width: 480px) {
+  .cat-bappie-canvas {
+    width: 320px;
+  }
+
+  .cat-bappie-label h1 {
+    font-size: 14px;
+  }
+}

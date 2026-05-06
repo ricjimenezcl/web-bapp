@@ -1,3 +1,119 @@
+<!-- ══ BAPPIE PANEL — nuevo diseño de referencia ══════════════════ -->
+<div class="bap-panel">
+
+  <!-- Glow ambiental -->
+  <div class="bap-glow"></div>
+
+  <!-- Canvas principal -->
+  <div class="bap-canvas">
+
+    <!-- Tooltip flotante -->
+    <div class="bap-tooltip bap-tooltip--float">
+      ¡Hola!<br>
+      <span class="bap-tooltip-sub">
+        Selecciona un servicio y te conectaré con la red élite.
+      </span>
+    </div>
+
+    <!-- SVG Bappie con animaciones CSS puras -->
+    <svg viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg"
+         class="bap-svg">
+      <defs>
+        <linearGradient id="bapBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"   stop-color="#2A2A2E"/>
+          <stop offset="100%" stop-color="#0A0A0C"/>
+        </linearGradient>
+        <filter id="bapShadow">
+          <feDropShadow dx="0" dy="8" stdDeviation="6"
+                        flood-color="#000" flood-opacity="0.8"/>
+        </filter>
+      </defs>
+
+      <!-- CASA -->
+      <g transform="translate(250, 50)">
+        <rect x="0" y="50" width="220" height="300" rx="10"
+              fill="#121214" stroke="#222" stroke-width="2"/>
+        <path d="M-20,60 L110,-20 L240,60 Z"
+              fill="#0A0A0C" stroke="#222" stroke-width="2"/>
+        <rect x="130" y="100" width="50" height="70" rx="4"
+              fill="#050505" stroke="#333" stroke-width="2"/>
+        <!-- Ventana pulsante -->
+        <rect x="135" y="105" width="40" height="60" rx="2"
+              fill="#FDE68A" class="bap-window"/>
+        <line x1="155" y1="105" x2="155" y2="165"
+              stroke="#111" stroke-width="2"/>
+        <line x1="135" y1="135" x2="175" y2="135"
+              stroke="#111" stroke-width="2"/>
+        <rect x="30" y="160" width="80" height="190" rx="4"
+              fill="#0A0A0C" stroke="#333" stroke-width="2"/>
+        <circle cx="95" cy="255" r="4" fill="#FDE68A" opacity="0.8"/>
+        <!-- Ondas timbre -->
+        <g transform="translate(100, 255)">
+          <circle cx="0" cy="0" r="10" fill="none"
+                  stroke="#A7F3D0" stroke-width="2"
+                  class="bap-ring bap-ring--1"/>
+          <circle cx="0" cy="0" r="10" fill="none"
+                  stroke="#A7F3D0" stroke-width="2"
+                  class="bap-ring bap-ring--2"/>
+        </g>
+      </g>
+
+      <!-- BAPPIE flotando -->
+      <g transform="translate(130, 80)" class="bap-float">
+        <ellipse cx="140" cy="200" rx="20" ry="40"
+                 fill="#000" opacity="0.3"/>
+        <rect x="145" y="140" width="10" height="20" fill="#333"/>
+        <path d="M 115 160 Q 150 180 185 160 C 190 210 170 240 150 240
+                 C 130 240 110 210 115 160 Z"
+              fill="url(#bapBodyGrad)" stroke="#333" stroke-width="2"
+              filter="url(#bapShadow)"/>
+        <!-- Brazo derecho golpeando -->
+        <g class="bap-knock">
+          <path d="M 195 170 Q 240 180 220 220"
+                fill="none" stroke="url(#bapBodyGrad)"
+                stroke-width="11" stroke-linecap="round"/>
+          <circle cx="220" cy="220" r="6"
+                  fill="#111" stroke="#A7F3D0" stroke-width="2"/>
+        </g>
+        <!-- Brazo izquierdo -->
+        <path d="M 105 170 Q 70 190 85 220"
+              fill="none" stroke="url(#bapBodyGrad)"
+              stroke-width="11" stroke-linecap="round"/>
+        <circle cx="85" cy="220" r="5"
+                fill="#111" stroke="#A7F3D0" stroke-width="2"/>
+        <!-- Cabeza lupa -->
+        <g transform="translate(150, 105) scale(1.1) translate(-45,-45)"
+           filter="url(#bapShadow)">
+          <path d="M45,10 C25.67,10 10,25.67 10,45 C10,65 45,95 45,95
+                   C45,95 80,65 80,45 C80,25.67 64.33,10 45,10 Z"
+                transform="rotate(-45 45 45)" fill="#BE202E"/>
+          <circle cx="45" cy="45" r="22" fill="#000"/>
+          <circle cx="45" cy="45" r="6" fill="#A7F3D0"
+                  class="bap-pupil"/>
+          <circle cx="45" cy="45" r="17" fill="none"
+                  stroke="#ffffff" stroke-width="8"/>
+          <line x1="33" y1="57" x2="14" y2="76"
+                stroke="#ffffff" stroke-width="8" stroke-linecap="round"/>
+        </g>
+      </g>
+
+      <ellipse cx="280" cy="350" rx="35" ry="7"
+               fill="#000" opacity="0.4"/>
+    </svg>
+
+  </div>
+
+  <!-- Texto inferior -->
+  <div class="bap-footer">
+    <h1 class="bap-brand">BAPPSEARCH</h1>
+    <div class="bap-status">
+      <span class="bap-status-dot"></span>
+      Radar de Servicios Activo
+    </div>
+  </div>
+
+</div>
+<!-- ══ FIN BAPPIE PANEL ════════════════════════════════════════════ -->
 <div class="app-frame">
 
   <!-- ── Ambient glow ──────────────────────────────────────────────── -->

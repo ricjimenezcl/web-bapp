@@ -2,37 +2,21 @@
 // PROVIDER-INFO — consistente con service-search, profile y chats
 // ════════════════════════════════════════════════════════════════════
 
+// Tokens: viven en :root vía _bapp-web.scss (styles.scss)
 :host {
   display: flex;
   justify-content: center;
   align-items: flex-start;
   min-height: 100%;
   padding: 30px 40px;
-  background: #000000;
+  background: var(--bw-bg);
   background-image: radial-gradient(
     circle at 50% 0%,
     rgba(253, 230, 138, 0.03),
     transparent 60%
   );
   box-sizing: border-box;
-  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  color: #F9FAFB;
-
-  --bg-deep:       #000000;
-  --surface-dark:  #0A0A0C;
-  --surface-card:  #121214;
-  --surface-hover: #1A1A1D;
-  --accent:        #FDE68A;
-  --accent-dim:    rgba(253, 230, 138, 0.15);
-  --accent-mint:   #A7F3D0;
-  --bapp-red:      #BE202E;
-  --verified-blue: #0095F6;
-  --text-p:        #F9FAFB;
-  --text-s:        #94A3B8;
-  --text-muted:    #334155;
-  --border:        rgba(255, 255, 255, 0.08);
-  --border-light:  rgba(255, 255, 255, 0.15);
+  color: var(--bw-text-p);
 
   @media (max-width: 767px) {
     padding: 10px;
@@ -288,17 +272,12 @@
 
 .pi-tab-content {
   padding: 40px;
-  animation: piFadeIn 0.35s ease forwards;
+  animation: bw-fade-in 0.35s ease forwards;
   display: flex;
   flex-direction: column;
   gap: 24px;
 
   @media (max-width: 767px) { padding: 24px 20px; }
-}
-
-@keyframes piFadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
 }
 
 .pi-section-title {
@@ -821,16 +800,11 @@
 .pi-dot-green {
   width: 8px;
   height: 8px;
-  background: var(--accent-mint);
+  background: var(--bw-accent-mint);
   border-radius: 50%;
-  box-shadow: 0 0 10px var(--accent-mint);
+  box-shadow: 0 0 10px var(--bw-accent-mint);
   flex-shrink: 0;
-  animation: piPulse 2s ease-in-out infinite;
-}
-
-@keyframes piPulse {
-  0%, 100% { opacity: 0.5; }
-  50%       { opacity: 1; }
+  animation: bw-pin-pulse 2s ease-in-out infinite;
 }
 
 .pi-review-count-inline {
@@ -892,12 +866,8 @@
   border-radius: 50%;
   border: 2px solid currentColor;
   border-top-color: transparent;
-  animation: piSpin 0.7s linear infinite;
+  animation: bw-spin 0.7s linear infinite;
   flex-shrink: 0;
-}
-
-@keyframes piSpin {
-  to { transform: rotate(360deg); }
 }
 
 // ── Loading state ─────────────────────────────────────────────────
@@ -938,52 +908,16 @@
 .sk-line--name   { width: 60%; height: 13px; }
 .sk-line--rating { width: 80%; height: 10px; }
 
-@keyframes piSkPulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.3; }
-}
+.animate-pulse { animation: bw-pulse 1.8s ease-in-out infinite; }
 
-.animate-pulse { animation: piSkPulse 1.8s ease-in-out infinite; }
+// .ref-segmented-control y .ref-segment-btn se resuelven desde _bapp-web.scss
+// vía los aliases --border, --text-s, --text-p, --accent, --surface-card en :root.
+// Override específico de tabs: el activo usa fondo amarillo sólido.
+.pi-tabs-nav .ref-segment-btn.active {
+  background: var(--bw-accent) !important;
+  color: #000000 !important;
+  box-shadow: 0 4px 15px rgba(253, 230, 138, 0.2) !important;
+  border: none !important;
 
-// ── Control segmentado (copiado del design system) ────────────────
-
-.ref-segmented-control {
-  display: flex;
-  background: rgba(10, 10, 12, 1);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 4px;
-  gap: 4px;
-}
-
-.ref-segment-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px 8px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
-  font-family: inherit;
-  color: var(--text-s);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.3s ease;
-
-  svg { width: 12px; height: 12px; flex-shrink: 0; }
-
-  &:hover:not(.active) {
-    color: var(--text-p);
-    background: rgba(255, 255, 255, 0.03);
-  }
-
-  &.active {
-    background: var(--surface-card);
-    color: var(--accent);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  }
+  svg { color: #000000 !important; }
 }

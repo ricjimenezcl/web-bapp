@@ -818,18 +818,15 @@
   /* align-self: stretch viene del host → el panel llena la altura completa */
   z-index: 10;
   border-right: 1px solid rgba(255, 255, 255, 0.05);
-  width: 700px;
   flex-shrink: 0;
   background: #030303;
   border-radius: 24px 0 0 24px;
   overflow: hidden;
 
+  /* 29vw proporcional: igual ratio en cualquier resolución (1440px→418px, 1920px→557px) */
   @media (min-width: 768px) {
     display: flex;
-  }
-
-  @media (min-width: 1024px) {
-    width: 780px;
+    width: clamp(260px, 29vw, 640px);
   }
 }
 

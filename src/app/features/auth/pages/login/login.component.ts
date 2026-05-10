@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -11,9 +11,10 @@ import { AuthService } from '../../../../core/services/auth.service';
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit, OnDestroy {
   private readonly fb   = inject(FormBuilder);
   private readonly auth = inject(AuthService);
+  private carouselInterval: ReturnType<typeof setInterval> | null = null;
 
   // ── Signals originales ───────────────────────────────────────────
   loading   = signal(false);
@@ -27,6 +28,11 @@ export class LoginComponent {
   contactLoading = signal(false);
   contactSuccess = signal(false);
   showModalPass  = signal(false);
+  
+  // ── Hero Carousel ────────────────────────────────────────────────
+  currentSlide   = signal(0);
+  totalSlides    = 3;
+  carouselPaused = signal(false);
 
   // ── FormGroup original ───────────────────────────────────────────
   form = this.fb.group({
@@ -48,6 +54,30 @@ export class LoginComponent {
     subject: [''],
     message: ['', Validators.required],
   });
+
+  // ── Lifecycle Hooks ──────────────────────────────────────────────
+  ngOnInit(): void {
+    this.startCarouselAutoPlay();
+  }
+
+  ngOnDestroy(): void {
+    this.stopCarouselAutoPlay();
+  }
+
+  private startCarouselAutoPlay(): void {
+    this.carouselInterval = setInterval(() => {
+      if (!this.carouselPaused()) {
+        this.currentSlide.update(current => (current + 1) % this.totalSlides);
+      }
+    }, 5000);
+  }
+
+  private stopCarouselAutoPlay(): void {
+    if (this.carouselInterval) {
+      clearInterval(this.carouselInterval);
+      this.carouselInterval = null;
+    }
+  }
 
   // ── Data estática sliders ────────────────────────────────────────
   featuredProviders = [
@@ -144,6 +174,30 @@ export class LoginComponent {
   slideRight(sliderId: string): void {
     const el = document.getElementById(sliderId);
     if (el) el.scrollBy({ left: 300, behavior: 'smooth' });
+  }
+
+  // ── Hero Carousel Controls ───────────────────────────────────────
+  prevSlide(): void {
+    this.pauseAndResumeCarousel();
+    const current = this.currentSlide();
+    this.currentSlide.set(current === 0 ? this.totalSlides - 1 : current - 1);
+  }
+
+  nextSlide(): void {
+    this.pauseAndResumeCarousel();
+    const current = this.currentSlide();
+    this.currentSlide.set((current + 1) % this.totalSlides);
+  }
+
+  goToSlide(index: number): void {
+    this.pauseAndResumeCarousel();
+    this.currentSlide.set(index);
+  }
+
+  private pauseAndResumeCarousel(): void {
+    this.carouselPaused.set(true);
+    // Reiniciar autoplay después de 8 segundos de inactividad
+    setTimeout(() => this.carouselPaused.set(false), 8000);
   }
 
   scrollTo(id: string): void {

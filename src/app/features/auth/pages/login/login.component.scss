@@ -50,8 +50,14 @@
     --border:       rgba(0,0,0,0.10);
     --border-light: rgba(0,0,0,0.22);
 
-    .lp-section-title { color: #111111; }
-    .lp-section-sub   { color: #555555; }
+    .lp-section-title { 
+      color: #111111;
+      border-bottom-color: rgba(0,0,0,0.35);
+    }
+    .lp-section-sub { 
+      color: #555555;
+      &::before, &::after { border-bottom-color: rgba(0,0,0,0.18); }
+    }
 
     .lp-input-box {
       background: rgba(0,0,0,0.04);
@@ -67,28 +73,82 @@
 }
 
 .lp-section-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
   margin-bottom: 48px;
+  overflow: hidden; // Necesario para las líneas decorativas del sub-label
+  
+  // Animación fadeInUp estilo Poseify/WOW.js
+  .lp-section-sub,
+  .lp-section-title {
+    opacity: 0;
+    animation: fadeInUp 0.8s ease-out both;
+  }
+  
+  // Sub primero (aparece antes), título con delay mayor
+  .lp-section-sub   { animation-delay: 0.05s; }
+  .lp-section-title { animation-delay: 0.2s; }
 }
 
 .lp-section-title {
   font-size: clamp(1.8rem, 4vw, 2.4rem);
   font-weight: 800;
   color: var(--text-p);
-  margin-bottom: 12px;
+  margin-bottom: 0;
+  padding-bottom: 14px;
   line-height: 1.2;
+  text-transform: uppercase;
+  position: relative;
+  display: inline-block;
+  
+  // Línea decorativa inferior estilo Poseify (border-bottom en el propio elemento)
+  border-bottom: 1px solid rgba(255,255,255,0.55);
 
-  &--left { text-align: left; }
+  &--left { 
+    text-align: left;
+  }
 }
 
 .lp-section-sub {
-  font-size: 1rem;
+  position: relative;
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   color: var(--text-s);
-  max-width: 560px;
-  margin: 0 auto;
-  line-height: 1.6;
+  margin-bottom: 14px;
 
-  &--left { text-align: left; margin: 0; }
+  // Línea decorativa derecha (estilo Poseify .title-center h5::after)
+  &::after {
+    position: absolute;
+    content: '';
+    width: 500%;
+    height: 0;
+    top: 50%;
+    left: calc(100% + 15px);
+    border-bottom: 1px solid rgba(255,255,255,0.25);
+  }
+
+  // Línea decorativa izquierda (estilo Poseify .title-center h5::before)
+  &::before {
+    position: absolute;
+    content: '';
+    width: 500%;
+    height: 0;
+    top: 50%;
+    right: calc(100% + 15px);
+    border-bottom: 1px solid rgba(255,255,255,0.25);
+  }
+
+  &--left {
+    text-align: left;
+    margin: 0;
+    // Solo línea derecha para alineación izquierda
+    &::before { display: none; }
+  }
 }
 
 .lp-badge {
@@ -280,369 +340,267 @@
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
-// ── HERO ─────────────────────────────────────────────────────
+// ── HERO (Poseify full-screen carousel) ──────────────────────
 .lp-hero {
   position: relative;
-  min-height: 100dvh;
-  padding-top: calc(var(--navbar-h) + 40px);
-  padding-bottom: 60px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background: var(--bg-deep);
-}
-
-.lp-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(100px);
-  pointer-events: none;
-
-  &--red {
-    width: 500px;
-    height: 500px;
-    background: rgba(190,32,46,0.15);
-    top: -100px;
-    right: -100px;
-    animation: pulse-red 6s ease-in-out infinite alternate;
-  }
-
-  &--cream {
-    width: 320px;
-    height: 320px;
-    background: rgba(253,230,138,0.06);
-    bottom: 100px;
-    left: -60px;
-    animation: pulse-cream 8s ease-in-out infinite alternate;
-  }
-}
-
-.lp-hero-grid {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-  background-size: 60px 60px;
-  pointer-events: none;
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 20%, black 30%, transparent 80%);
-}
-
-.lp-hero-content {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 48px;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px;
   width: 100%;
+  min-height: 100dvh;
+  overflow: hidden;
+  background-image: url('https://res.cloudinary.com/dghwotofx/image/upload/v1774573466/fondo_rqmj0x.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
-.lp-hero-text {
-  flex: 1;
-  max-width: 560px;
+// ── Carousel items ────────────────────────────────────────────
+.lp-carousel-inner {
   position: relative;
-  z-index: 2;
+  width: 100%;
+  min-height: 100dvh;
 }
 
-// ── Hero Carousel (CSS auto-play, 3 slides × 5s) ────────────
-.lp-hero-carousel {
-  position: relative;
-  flex: 1;
-  max-width: 560px;
-  height: 340px;
-  z-index: 2;
-
-  @media (max-width: 767px) { height: 360px; }
-  @media (max-width: 480px) { height: 400px; }
-}
-
-.lp-hero-slide {
+.lp-carousel-item {
   position: absolute;
   inset: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  opacity: 0;
-  animation: hero-slide-in 15s ease-in-out infinite;
-
-  &:nth-child(2) { animation-delay: 5s; }
-  &:nth-child(3) { animation-delay: 10s; }
+  min-height: 100dvh;
+  display: none;
+  
+  &--active {
+    display: block;
+  }
 }
 
-.lp-hero-dots {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin: 16px auto 0;
-  position: relative;
-  z-index: 3;
-  max-width: 1200px;
-  padding: 0 24px;
-}
-
-.lp-hero-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.25);
-  transition: transform .3s;
-  animation: hero-dot-active 15s linear infinite;
-
-  &:nth-child(2) { animation-delay: 5s; }
-  &:nth-child(3) { animation-delay: 10s; }
-}
-
-.lp-hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border: 1px solid rgba(253,230,138,0.3);
-  border-radius: 100px;
-  color: var(--accent-cream);
-  font-size: 0.8rem;
-  font-weight: 600;
-  margin-bottom: 24px;
-
-  svg { width: 14px; height: 14px; }
-}
-
-.lp-hero-title {
-  font-size: clamp(2.4rem, 5.5vw, 4rem);
-  font-weight: 900;
-  line-height: 1.05;
-  color: var(--text-p);
-  margin-bottom: 20px;
-  letter-spacing: -.01em;
-}
-
-.lp-hero-accent {
-  color: var(--bapp-red);
-  display: block;
-  -webkit-text-stroke: 1px var(--bapp-red);
-}
-
-.lp-hero-subtitle {
-  font-size: 1.05rem;
-  color: var(--text-s);
-  line-height: 1.7;
-  margin-bottom: 32px;
-  max-width: 460px;
-}
-
-.lp-hero-actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.lp-hero-features {
-  max-width: 1200px;
-  margin: 48px auto 0;
-  padding: 0 24px;
-  display: flex;
-  align-items: center;
-  gap: 0;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  overflow: hidden;
-}
-
-.lp-feature-item {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 20px 24px;
-
-  p { font-size: 0.85rem; color: var(--text-s); line-height: 1.5; }
-}
-
-.lp-feature-divider {
-  width: 1px;
-  height: 48px;
-  background: var(--border);
-  flex-shrink: 0;
-}
-
-.lp-feature-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-
-  svg { width: 20px; height: 20px; }
-
-  &--red { background: rgba(190,32,46,0.15); color: var(--bapp-red); }
-  &--cream { background: rgba(253,230,138,0.1); color: var(--accent-cream); }
-  &--mint { background: rgba(167,243,208,0.1); color: var(--accent-mint); }
-}
-
-// ── PHONE MOCKUP (Hero) ───────────────────────────────────────
-.lp-phone-wrapper {
-  position: relative;
-  flex-shrink: 0;
-  animation: float-card 4s ease-in-out infinite;
-}
-
-.lp-phone {
-  width: 220px;
-  height: 440px;
-  border-radius: 32px;
-  background: var(--surface-card);
-  border: 2px solid var(--border-light);
-  box-shadow:
-    0 0 0 1px rgba(255,255,255,0.05),
-    0 32px 80px rgba(0,0,0,0.6),
-    0 0 60px rgba(190,32,46,0.1);
-  position: relative;
-  overflow: hidden;
-
-  &::before {
+// Fondo de cada slide sobre imagen del hero
+.lp-carousel-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  
+  &::after {
     content: '';
     position: absolute;
-    top: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 4px;
-    background: var(--border-light);
-    border-radius: 2px;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.58);
   }
-}
-
-.lp-map-screen {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 60% 40%, rgba(190,32,46,0.12) 0%, transparent 60%),
-    repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255,255,255,0.025) 29px),
-    repeating-linear-gradient(90deg, transparent, transparent 28px, rgba(255,255,255,0.025) 29px);
-  background-color: #0a0a0f;
-}
-
-.lp-connection-lines {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.lp-conn-line {
-  fill: none;
-  stroke: rgba(190,32,46,0.4);
-  stroke-width: 1.5;
-  stroke-dasharray: 6 4;
-  stroke-dashoffset: 0;
-  animation: draw-lines 3s linear infinite;
-}
-
-.lp-center-glow {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 40px;
-  height: 40px;
-  background: var(--bapp-red);
-  border-radius: 50%;
-  box-shadow: 0 0 20px 8px rgba(190,32,46,0.35);
-  animation: pulse-yellow 2s ease-in-out infinite;
-}
-
-.lp-profile-card {
-  position: absolute;
-  bottom: 32px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 24px);
-  background: rgba(18,18,20,0.95);
-  border: 1px solid var(--border-light);
-  border-radius: 14px;
-  padding: 12px 14px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  backdrop-filter: blur(8px);
-}
-
-.lp-profile-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(190,32,46,0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--bapp-red);
-  flex-shrink: 0;
-  svg { width: 20px; height: 20px; }
-}
-
-.lp-profile-info {
-  flex: 1;
-  strong { font-size: 0.8rem; color: var(--text-p); display: block; }
-}
-
-.lp-stars { color: var(--accent-cream); font-size: 0.65rem; }
-
-.lp-verified {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 0.65rem;
-  color: var(--accent-mint);
-  svg { width: 10px; height: 10px; }
-}
-
-.lp-profile-home {
-  color: var(--text-s);
-  svg { width: 16px; height: 16px; }
-}
-
-.lp-pin {
-  position: absolute;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  svg { width: 14px; height: 14px; }
 
   &--1 {
-    background: var(--bapp-red);
-    top: 120px;
-    left: 30px;
-    animation: bounce-pin 2s ease-in-out infinite;
+    background-image:
+      radial-gradient(ellipse 80% 60% at 70% 30%, rgba(190,32,46,0.28) 0%, transparent 65%),
+      radial-gradient(ellipse 50% 40% at 20% 80%, rgba(80,0,12,0.35) 0%, transparent 60%);
   }
 
   &--2 {
-    background: var(--accent-cream);
-    top: 80px;
-    right: 25px;
-    animation: bounce-pin 2.4s ease-in-out infinite .4s;
-    svg { color: #000; }
+    background-image:
+      radial-gradient(ellipse 70% 55% at 60% 25%, rgba(30,80,50,0.25) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 15% 70%, rgba(190,32,46,0.18) 0%, transparent 55%);
   }
 
   &--3 {
-    background: var(--accent-mint);
-    top: 200px;
-    right: 18px;
-    animation: bounce-pin 2.8s ease-in-out infinite .8s;
-    svg { color: #000; }
+    background-image:
+      radial-gradient(ellipse 75% 60% at 75% 35%, rgba(40,40,160,0.22) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 10% 75%, rgba(190,32,46,0.20) 0%, transparent 55%);
+  }
+}
+
+// ── Caption (Poseify: top/left/right/bottom 0, padding-top 100px, flex centrado) ──
+.lp-carousel-caption {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding-top: 100px;
+  background: transparent; // overlay ya está en .lp-carousel-bg::after
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding-left: 80px;
+  padding-right: 80px;
+  
+  @media (max-width: 768px) {
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-top: var(--navbar-h, 72px);
+  }
+}
+
+// ── Title block (Poseify .title .title-center) ────────────────
+.lp-caption-title {
+  margin-bottom: 1.5rem;
+  animation: slideInDown 0.8s ease-out 0.1s both;
+}
+
+.lp-title-block {
+  display: inline-block;
+  text-transform: uppercase;
+  overflow: visible;
+  text-align: center;
+  
+  // h5 con líneas decorativas horizontales (Poseify .title-center h5)
+  h5 {
+    position: relative;
+    display: inline-block;
+    font-size: 1rem;
+    font-weight: 300;
+    color: var(--accent-cream);
+    letter-spacing: 0.15em;
+    margin-bottom: 0.5rem;
+    
+    // Línea que sale a la derecha
+    &::after {
+      position: absolute;
+      content: '';
+      width: 500%;
+      height: 0;
+      top: 50%;
+      left: calc(100% + 15px);
+      border-bottom: 1px solid rgba(255,255,255,0.45);
+    }
+    // Línea que sale a la izquierda
+    &::before {
+      position: absolute;
+      content: '';
+      width: 500%;
+      height: 0;
+      top: 50%;
+      right: calc(100% + 15px);
+      border-bottom: 1px solid rgba(255,255,255,0.45);
+    }
+  }
+  
+  // h1 con borde inferior (Poseify .title h1)
+  h1 {
+    font-size: clamp(2.2rem, 6vw, 4.2rem);
+    font-weight: 900;
+    line-height: 1.1;
+    color: var(--text-p);
+    letter-spacing: 0.04em;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.55);
+    margin-bottom: 0;
+    
+    span {
+      color: var(--accent-cream);
+      display: block;
+    }
+  }
+}
+
+// ── Caption desc & actions ────────────────────────────────────
+.lp-caption-desc {
+  font-size: 1.1rem;
+  color: rgba(255,255,255,0.82);
+  line-height: 1.7;
+  margin-bottom: 2rem;
+  max-width: 620px;
+  animation: slideInDown 0.8s ease-out 0.28s both;
+  
+  @media (max-width: 768px) { font-size: 0.95rem; }
+}
+
+.lp-caption-actions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+  animation: slideInDown 0.8s ease-out 0.44s both;
+}
+
+.lp-btn-outline-hero {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 36px;
+  border: 2px solid var(--bapp-red);
+  border-radius: 50px;
+  background: transparent;
+  color: var(--text-p);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  letter-spacing: 0.04em;
+  
+  &:hover {
+    background: var(--bapp-red);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(190,32,46,0.4);
+  }
+}
+
+// ── Prev / Next (Poseify: width 10%) ─────────────────────────
+.lp-carousel-prev,
+.lp-carousel-next {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 10;
+  width: 10%;
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.2s;
+  
+  svg {
+    width: 3rem;
+    height: 3rem;
+  }
+  
+  &:hover { color: #fff; }
+}
+
+.lp-carousel-prev { left: 0; }
+.lp-carousel-next { right: 0; }
+
+// ── Indicators ────────────────────────────────────────────────
+.lp-carousel-indicators {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  z-index: 15;
+}
+
+.lp-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.6);
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.3s;
+  
+  &:hover { border-color: #fff; }
+  
+  &--active {
+    background: var(--bapp-red);
+    border-color: var(--bapp-red);
+    transform: scale(1.2);
   }
 }
 
 // ── SLIDER ───────────────────────────────────────────────────
-.lp-slider-wrapper { position: relative; }
+.lp-slider-wrapper { 
+  position: relative;
+  
+  // Animación fadeInUp para el wrapper
+  opacity: 0;
+  animation: fadeInUp 0.8s ease-out forwards;
+  animation-delay: 0.3s;
+}
 
 .lp-slider {
   display: flex;
@@ -665,6 +623,11 @@
   justify-content: flex-end;
   gap: 10px;
   margin-top: 20px;
+  
+  // Animación fadeInUp escalonada
+  opacity: 0;
+  animation: fadeInUp 0.6s ease-out forwards;
+  animation-delay: 0.4s;
 }
 
 .lp-slider-btn {
@@ -695,6 +658,17 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+  
+  // Animación fadeInUp escalonada para las cards
+  opacity: 0;
+  animation: fadeInUp 0.7s ease-out forwards;
+  
+  // Delays escalonados para cada card
+  @for $i from 1 through 10 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{0.1 + ($i * 0.08)}s;
+    }
+  }
   transition: border-color .2s, transform .2s;
 
   &:hover { border-color: var(--border-light); transform: translateY(-2px); }
@@ -836,38 +810,117 @@
   svg { width: 22px; height: 22px; }
 }
 
-// ── FEATURES GRID ────────────────────────────────────────────
-.lp-features-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+// ── CÓMO FUNCIONA (Detailed) ─────────────────────────────────
+.lp-how-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 60px;
+  max-width: 1100px;
+  margin: 0 auto;
+
+  @media (max-width: 991px) {
+    flex-direction: column;
+    gap: 40px;
+  }
+}
+
+.lp-how-visual {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  min-height: 400px;
+  
+  // Animación suave de entrada
+  opacity: 0;
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+
+  &::before {
+    content: '';
+    position: absolute;
+    width: 340px;
+    height: 340px;
+    background: radial-gradient(circle, rgba(190,32,46,0.15) 0%, transparent 65%);
+    z-index: 0;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    animation: pulse-red 4s infinite alternate ease-in-out;
+  }
+}
+
+.lp-how-img-animated {
+  max-width: 100%;
+  height: auto;
+  max-height: 550px;
+  position: relative;
+  z-index: 2;
+  // Animación de flotación constante arriba/abajo
+  animation: float-card 6s ease-in-out infinite;
+}
+
+.lp-how-steps {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   gap: 20px;
 }
 
-.lp-f-card {
+.lp-step-item {
+  display: flex;
+  gap: 16px;
   background: var(--surface-card);
-  border: 1px solid var(--border);
+  padding: 24px;
   border-radius: 16px;
-  padding: 28px 24px;
-  transition: border-color .2s, transform .2s;
+  border: 1px solid var(--border);
+  transition: transform 0.3s, border-color 0.3s;
 
-  h3 { font-size: 1rem; font-weight: 700; color: var(--text-p); margin: 14px 0 8px; }
-  p  { font-size: 0.85rem; color: var(--text-s); line-height: 1.6; }
+  opacity: 0;
+  animation: fadeInUp 0.7s ease-out forwards;
+  @for $i from 1 through 4 {
+    &:nth-child(#{$i}) { animation-delay: #{0.2 + ($i * 0.15)}s; }
+  }
 
-  &:hover { border-color: var(--border-light); transform: translateY(-2px); }
+  &:hover {
+    transform: translateX(6px);
+    border-color: var(--bapp-red);
+    .lp-step-icon {
+      background: var(--bapp-red);
+      color: #fff;
+    }
+  }
 }
 
-.lp-icon-wrap {
-  width: 48px;
-  height: 48px;
+.lp-step-icon {
+  width: 50px;
+  height: 50px;
   border-radius: 12px;
+  background: rgba(190,32,46,0.1);
+  color: var(--bapp-red);
   display: flex;
   align-items: center;
   justify-content: center;
-  svg { width: 22px; height: 22px; }
+  flex-shrink: 0;
+  transition: all 0.3s;
 
-  &--cream { background: rgba(253,230,138,0.1); color: var(--accent-cream); }
-  &--mint  { background: rgba(167,243,208,0.1); color: var(--accent-mint); }
-  &--red   { background: rgba(190,32,46,0.1);  color: var(--bapp-red); }
+  svg { width: 24px; height: 24px; }
+}
+
+.lp-step-text {
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-p);
+    margin: 0 0 8px;
+  }
+  p {
+    font-size: 0.9rem;
+    color: var(--text-s);
+    line-height: 1.5;
+    margin: 0;
+  }
 }
 
 // ── MÉTRICAS ─────────────────────────────────────────────────
@@ -888,6 +941,16 @@
 }
 
 .lp-metric {
+  // Animación fadeInUp escalonada
+  opacity: 0;
+  animation: fadeInUp 0.6s ease-out forwards;
+  
+  @for $i from 1 through 4 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{0.1 + ($i * 0.15)}s;
+    }
+  }
+  
   h4 {
     font-size: 2rem;
     font-weight: 900;
@@ -1491,6 +1554,61 @@
   33%  { background: rgba(255,255,255,0.25); transform: scaleX(1); border-radius: 50%; }
   100% { background: rgba(255,255,255,0.25); transform: scaleX(1); border-radius: 50%; }
 }
+
+// ── ANIMACIONES POSEIFY (slideInDown, fadeInUp) ────────────────
+@keyframes slideInDown {
+  0% {
+    transform: translate3d(0, -100%, 0);
+    visibility: visible;
+    opacity: 0;
+  }
+  100% {
+    transform: translateZ(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 40px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+// Clases utilitarias de animación
+.animated {
+  animation-duration: 1s;
+  animation-fill-mode: both;
+}
+
+.slideInDown {
+  animation-name: slideInDown;
+}
+
+.fadeInUp {
+  animation-name: fadeInUp;
+}
+
+.fadeIn {
+  animation-name: fadeIn;
+}
+
+// Delays escalonados para efectos tipo WOW.js
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+.delay-600 { animation-delay: 0.6s; }
 
 // ── RESPONSIVE ───────────────────────────────────────────────
 @media (max-width: 1024px) {

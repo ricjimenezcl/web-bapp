@@ -304,5 +304,18 @@ export class ServiceSearchComponent implements OnInit {
     }
   }
 
+  /**
+   * En touch (móvil): primer tap destaca el pin en el mapa (visible detrás del sidebar).
+   * Segundo tap sobre la card ya activa navega al perfil (routerLink actúa normal).
+   * En desktop con hover real no interceptamos nada.
+   */
+  onCardClick(event: Event, providerId: number): void {
+    if (globalThis.matchMedia?.('(hover: hover) and (pointer: fine)').matches) return;
+    if (this.hoveredProviderId() === providerId) return;
+    event.preventDefault();
+    this.hoveredProviderId.set(providerId);
+    // No cambiamos viewMode: el mapa siempre es visible en mobile
+  }
+
   trackById(_: number, item: ServiceProvider) { return item.id; }
 }

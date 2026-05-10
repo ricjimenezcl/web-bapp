@@ -13,9 +13,9 @@
   box-sizing: border-box;
   color: var(--bw-text-p);
 
-  @media (max-width: 767px) {
-    padding: 10px;
-  }
+  @media (max-width: 1280px) { padding: 20px 28px; }
+  @media (max-width: 1024px) { padding: 14px 16px; }
+  @media (max-width: 767px)  { padding: 10px; }
 }
 
 // ── Frame contenedor — igual que .app-frame de la referencia ─────────
@@ -30,7 +30,8 @@
   position: relative;
   overflow: hidden;
 
-  @media (max-width: 767px) {
+  @media (max-width: 1024px) { border-radius: 20px; }
+  @media (max-width: 767px)  {
     border-radius: 0;
     border: none;
     box-shadow: none;
@@ -78,22 +79,26 @@
   overflow: hidden;
   transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
 
+  @media (max-width: 1280px) { width: 360px; }
+  @media (max-width: 1024px) { width: 320px; left: 14px; top: 14px; bottom: 14px; }
+
   &.floating-sidebar--collapsed {
     @media (max-width: 767px) {
       transform: translateY(100%);
       opacity: 0;
       pointer-events: none;
-     
     }
   }
 
+  // En mobile el sidebar siempre es visible (no hay toggle lista/mapa)
   @media (max-width: 767px) {
     top: auto;
     left: 10px;
     right: 10px;
     bottom: 10px;
     width: auto;
-    height: 45%;
+    height: 58%;
+    min-height: 200px;
     border-radius: 20px;
   }
 }
@@ -577,24 +582,7 @@
 // TOGGLE MÓVIL FLOTANTE
 // ══════════════════════════════════════════════════════════════════════
 .mobile-toggle-float {
-  display: none;
-  position: absolute;
-  bottom: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(18, 18, 20, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border-light);
-  border-radius: 9999px;
-  padding: 4px;
-  gap: 4px;
-  z-index: 1100;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-
-  @media (max-width: 767px) {
-    display: flex;
-  }
+  display: none; // eliminado en mobile — sidebar siempre visible sobre el mapa
 
   button {
     display: inline-flex;

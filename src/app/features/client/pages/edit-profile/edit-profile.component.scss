@@ -16,6 +16,9 @@
   margin: 40px 20px;
   gap: 40px;
   align-items: start;
+
+  @media (max-width: 1280px) { margin: 28px 16px; gap: 28px; }
+  @media (max-width: 1024px) { margin: 20px 12px; gap: 20px; }
 }
 
 // ── Sidebar ──────────────────────────────────────────────────────────
@@ -154,7 +157,8 @@
   min-height: 600px;
   min-width: 0;
   animation: fadeIn 0.4s ease-out;
-}
+  @media (max-width: 1280px) { padding: 28px; }
+  @media (max-width: 1024px) { padding: 24px; }}
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }

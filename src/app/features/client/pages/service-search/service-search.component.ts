@@ -310,11 +310,14 @@ export class ServiceSearchComponent implements OnInit {
    * En desktop con hover real no interceptamos nada.
    */
   onCardClick(event: Event, providerId: number): void {
+    // En desktop con hover real permitimos la navegación directa
     if (globalThis.matchMedia?.('(hover: hover) and (pointer: fine)').matches) return;
-    if (this.hoveredProviderId() === providerId) return;
+    // En móvil/touch: bloquear siempre la navegación hacia provider-info
+    // Solo se puede ir al perfil desde el popup del mapa
     event.preventDefault();
-    this.hoveredProviderId.set(providerId);
-    // No cambiamos viewMode: el mapa siempre es visible en mobile
+    this.hoveredProviderId.set(
+      this.hoveredProviderId() === providerId ? null : providerId
+    );
   }
 
   trackById(_: number, item: ServiceProvider) { return item.id; }

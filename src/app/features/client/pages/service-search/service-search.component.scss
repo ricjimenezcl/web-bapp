@@ -628,9 +628,22 @@
     margin-bottom: 0;
   }
 
-  // Ocultar la lista de resultados en móvil (solo mapa + filtro visible)
+  // Lista de resultados en móvil: scroll horizontal, cards compactas
   .results-list {
-    display: none;
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 10px 14px;
+    gap: 12px;
+  }
+
+  .pro-card-floating {
+    min-width: 240px;
+    flex-shrink: 0;
+    // Sin efecto hover en touch
+    &:hover {
+      transform: none;
+    }
   }
 }
 

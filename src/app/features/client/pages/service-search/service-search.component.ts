@@ -47,6 +47,8 @@ export class ServiceSearchComponent implements OnInit {
   viewMode          = signal<'list' | 'map'>('list');
   /** Provider con hover en la lista — se sincroniza con el highlight del mapa */
   hoveredProviderId = signal<number | null>(null);
+  /** true en dispositivos táctiles/móvil (sin hover fino) */
+  readonly isMobile = signal(!globalThis.matchMedia?.('(hover: hover) and (pointer: fine)').matches);
 
   /**
    * Chips a mostrar en el header:
@@ -310,14 +312,13 @@ export class ServiceSearchComponent implements OnInit {
    * En desktop con hover real no interceptamos nada.
    */
   onCardClick(event: Event, providerId: number): void {
-    // En desktop con hover real permitimos la navegación directa
-    if (globalThis.matchMedia?.('(hover: hover) and (pointer: fine)').matches) return;
-    // En móvil/touch: bloquear siempre la navegación hacia provider-info
-    // Solo se puede ir al perfil desde el popup del mapa
-    event.preventDefault();
-    this.hoveredProviderId.set(
-      this.hoveredProviderId() === providerId ? null : providerId
-    );
+    if (this.isMobile()) {
+      // En móvil: toggle highlight del pin en el mapa
+      // La navegación está deshabilitada vía [routerLink]=null
+      this.hoveredProviderId.set(
+        this.hoveredProviderId() === providerId ? null : providerId
+      );
+    }
   }
 
   trackById(_: number, item: ServiceProvider) { return item.id; }

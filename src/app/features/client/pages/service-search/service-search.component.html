@@ -180,7 +180,7 @@
           <!-- Cada card es un link completo — igual que la referencia -->
           <a class="pro-card-floating"
              [class.pro-card-floating--active]="hoveredProviderId() === provider.provider_id"
-             [routerLink]="['/client/provider-info', provider.provider_id]"
+             [routerLink]="isMobile() ? null : ['/client/provider-info', provider.provider_id]"
              (mouseenter)="hoveredProviderId.set(provider.provider_id)"
              (mouseleave)="hoveredProviderId.set(null)"
              (click)="onCardClick($event, provider.provider_id)">

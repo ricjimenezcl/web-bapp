@@ -90,15 +90,14 @@
     }
   }
 
-  // En mobile el sidebar siempre es visible (no hay toggle lista/mapa)
+  // En mobile: barra compacta flotante con solo el filtro visible
   @media (max-width: 767px) {
     top: auto;
     left: 10px;
     right: 10px;
     bottom: 10px;
     width: auto;
-    height: 58%;
-    min-height: 200px;
+    height: auto;
     border-radius: 20px;
   }
 }
@@ -610,22 +609,28 @@
 
 // ── Responsive adjustments ───────────────────────────────────────────
 @media (max-width: 767px) {
+  // Sin borde inferior cuando solo hay el filtro
   .sidebar-header {
-    padding: 15px;
+    padding: 12px 14px;
+    border-bottom: none;
   }
 
-  // En móvil la lista se scrollea horizontalmente (igual que la referencia)
+  // Ocultar en móvil todo excepto el control de filtros
+  .location-context,
+  .ref-search-bar,
+  .active-services,
+  .ref-results-meta {
+    display: none;
+  }
+
+  // El control segmentado no tiene margin-bottom en móvil
+  .ref-segmented-control {
+    margin-bottom: 0;
+  }
+
+  // Ocultar la lista de resultados en móvil (solo mapa + filtro visible)
   .results-list {
-    flex-direction: row;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding: 10px 15px;
-    gap: 15px;
-  }
-
-  .pro-card-floating {
-    min-width: 260px;
-    flex-shrink: 0;
+    display: none;
   }
 }
 

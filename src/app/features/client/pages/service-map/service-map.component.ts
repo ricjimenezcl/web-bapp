@@ -42,11 +42,17 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
       this.providerMarkers.clear();
       if (val.length > 0) {
         this.addProviderMarkers(val);
-        // Actualizar marcador de ubicación si hay una selección guardada
+        // Mostrar marcador de ubicación del usuario en el mapa embebido
         const selectedLocation = this.locationSvc.getSelectedLocation();
         if (selectedLocation) {
           this.updateUserMarker(selectedLocation.lat, selectedLocation.lon);
           this.map?.setView([selectedLocation.lat, selectedLocation.lon], 13);
+        } else {
+          // Fallback: ubicación guardada en estado (ej: geolocalización del navegador)
+          const stateLocation = this.searchState.userLocation();
+          if (stateLocation) {
+            this.updateUserMarker(stateLocation.lat, stateLocation.lng);
+          }
         }
       }
     }
@@ -145,12 +151,37 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
         // Input ya llegó antes de que el mapa estuviera listo → aplicar ahora
         this.nearbyProviders.set(this._embeddedProviders);
         this.loading.set(false);
-        if (this._embeddedProviders.length > 0) this.addProviderMarkers(this._embeddedProviders);
+        if (this._embeddedProviders.length > 0) {
+          this.addProviderMarkers(this._embeddedProviders);
+          // Colocar marcador de usuario
+          const selectedLocation = this.locationSvc.getSelectedLocation();
+          if (selectedLocation) {
+            this.updateUserMarker(selectedLocation.lat, selectedLocation.lon);
+            this.map?.setView([selectedLocation.lat, selectedLocation.lon], 13);
+          } else {
+            const stateLocation = this.searchState.userLocation();
+            if (stateLocation) {
+              this.updateUserMarker(stateLocation.lat, stateLocation.lng);
+            }
+          }
+        }
         return;
       }
 
       if (this.embedded) {
         // Modo embebido pero sin datos todavía → esperar input
+        // Precargar marcador de usuario si ya hay ubicación disponible
+        const selectedLocation = this.locationSvc.getSelectedLocation();
+        if (selectedLocation) {
+          this.map.setView([selectedLocation.lat, selectedLocation.lon], 13);
+          this.createUserMarker(selectedLocation.lat, selectedLocation.lon);
+        } else {
+          const stateLocation = this.searchState.userLocation();
+          if (stateLocation) {
+            this.map.setView([stateLocation.lat, stateLocation.lng], 13);
+            this.createUserMarker(stateLocation.lat, stateLocation.lng);
+          }
+        }
         this.loading.set(false);
         return;
       }

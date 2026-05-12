@@ -7,11 +7,12 @@ import { ProviderProfile, ProviderStats } from '../../../../core/models/provider
 import { LoadingSkeletonComponent } from '../../../../shared/components/loading-skeleton/loading-skeleton.component';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../environments/environment';
+import { ServiceViewersComponent } from '../../components/service-viewers/service-viewers.component';
 
 @Component({
   selector: 'app-provider-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, LoadingSkeletonComponent],
+  imports: [CommonModule, RouterLink, LoadingSkeletonComponent, ServiceViewersComponent],
   templateUrl: './provider-home.component.html',
   styleUrl: './provider-home.component.scss',
 })
@@ -27,6 +28,7 @@ export class ProviderHomeComponent implements OnInit, OnDestroy {
   loading = signal(true);
   showVerificationAlert = signal(false);
   verificationMessage = signal('');
+  showViewers = signal(false);
 
   ngOnInit(): void {
     this.loadProfileAndStats();
@@ -89,6 +91,10 @@ export class ProviderHomeComponent implements OnInit, OnDestroy {
 
   dismissVerificationAlert(): void {
     this.showVerificationAlert.set(false);
+  }
+
+  openServiceViewers(): void {
+    this.showViewers.set(true);
   }
 
   greeting(): string {

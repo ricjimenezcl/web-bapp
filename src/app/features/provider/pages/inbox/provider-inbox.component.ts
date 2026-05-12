@@ -1,22 +1,40 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { CommonModule, DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ChatService } from '../../../../core/services/chat.service';
 import { ConversationUI } from '../../../../core/models/chat.model';
-import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
-import { LoadingSkeletonComponent } from '../../../../shared/components/loading-skeleton/loading-skeleton.component';
+import { ChatViewComponent } from '../../../../features/chat/chat-view.component';
 
 @Component({
   selector: 'app-provider-inbox',
   standalone: true,
-  imports: [CommonModule, RouterLink, EmptyStateComponent, LoadingSkeletonComponent],
+  imports: [CommonModule, FormsModule, DatePipe, ChatViewComponent],
   templateUrl: './provider-inbox.component.html',
   styleUrl: './provider-inbox.component.scss',
 })
 export class ProviderInboxComponent implements OnInit {
-  private chatSvc = inject(ChatService);
+  private readonly chatSvc = inject(ChatService);
   conversations = signal<ConversationUI[]>([]);
   loading = signal(true);
+  selectedConvId = signal<number | null>(null);
+  searchText = '';
+
+  get filteredConversations(): ConversationUI[] {
+    const q = this.searchText.trim().toLowerCase();
+    if (!q) return this.conversations();
+    return this.conversations().filter(c =>
+      (c.display_name ?? '').toLowerCase().includes(q) ||
+      (c.last_message_preview ?? '').toLowerCase().includes(q)
+    );
+  }
+
+  selectChat(id: number): void { this.selectedConvId.set(id); }
+  closeChat(): void { this.selectedConvId.set(null); }
+
+  isNow(date?: string): boolean {
+    if (!date) return false;
+    return Date.now() - new Date(date).getTime() < 60_000;
+  }
 
   ngOnInit(): void {
     this.chatSvc.loadConversations().subscribe({

@@ -20,6 +20,7 @@ export class ChatViewComponent implements OnInit, OnDestroy, AfterViewChecked, O
   @Output() close = new EventEmitter<void>();
 
   @ViewChild('messagesEnd') messagesEnd!: ElementRef;
+  @ViewChild('messagesArea') messagesArea!: ElementRef;
 
   private chatSvc  = inject(ChatService);
   private ws       = inject(WebSocketService);
@@ -150,7 +151,8 @@ export class ChatViewComponent implements OnInit, OnDestroy, AfterViewChecked, O
 
   private scrollToBottom(): void {
     try {
-      this.messagesEnd?.nativeElement?.scrollIntoView({ behavior: 'smooth' });
+      const el = this.messagesArea?.nativeElement as HTMLElement;
+      if (el) { el.scrollTop = el.scrollHeight; }
     } catch { /* ignore */ }
   }
 

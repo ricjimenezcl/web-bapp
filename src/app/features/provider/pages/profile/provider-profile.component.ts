@@ -35,17 +35,17 @@ interface ServiceTransaction {
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ProviderProfileComponent implements OnInit, OnDestroy {
-  private providerSvc = inject(ProviderService);
-  private auth        = inject(AuthService);
-  private profileSvc  = inject(ProfileService);
-  private http        = inject(HttpClient);
-  private router      = inject(Router);
-  private fb          = inject(FormBuilder);
+  private readonly providerSvc = inject(ProviderService);
+  private readonly auth        = inject(AuthService);
+  private readonly profileSvc  = inject(ProfileService);
+  private readonly http        = inject(HttpClient);
+  private readonly router      = inject(Router);
+  private readonly fb          = inject(FormBuilder);
   private sub?: Subscription;
 
   provider    = signal<ProviderProfile | null>(null);
   loading     = signal(true);
-  editMode    = signal(false);
+  activeView  = signal<string>('overview');
   saveLoading = signal(false);
   error       = signal('');
   success     = signal(false);
@@ -54,6 +54,16 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
   transactions        = signal<ServiceTransaction[]>([]);
   transactionsLoading = signal(true);
 
+  pwLoading = signal(false);
+  pwError   = signal('');
+  pwSuccess = signal(false);
+
+  pwForm = this.fb.group({
+    old_password:     ['', Validators.required],
+    new_password:     ['', [Validators.required, Validators.minLength(8)]],
+    confirm_password: ['', Validators.required],
+  }, { validators: (g) => g.get('new_password')?.value === g.get('confirm_password')?.value ? null : { passwordsMismatch: true } });
+
   private avatarFile: File | null = null;
 
   form = this.fb.group({
@@ -61,6 +71,24 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
     phone:     [''],
     bio:       [''],
   });
+
+  showView(v: string): void {
+    this.activeView.set(v);
+    this.error.set('');
+    this.success.set(false);
+    this.pwError.set('');
+    this.pwSuccess.set(false);
+  }
+
+  changePassword(): void {
+    if (this.pwForm.invalid) { this.pwForm.markAllAsTouched(); return; }
+    this.pwLoading.set(true);
+    const { old_password, new_password } = this.pwForm.value;
+    this.profileSvc.changePassword(old_password!, new_password!).subscribe({
+      next: () => { this.pwLoading.set(false); this.pwSuccess.set(true); this.pwForm.reset(); },
+      error: (err: any) => { this.pwLoading.set(false); this.pwError.set(err?.error?.detail ?? 'Error al cambiar contraseña.'); }
+    });
+  }
 
   ngOnInit(): void {
     this.loadProfile();
@@ -143,7 +171,7 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
     this.saveLoading.set(true);
     const save = () => {
       this.providerSvc.updateProfile(this.form.value as any).subscribe({
-        next: (p) => { this.provider.set(p); this.saveLoading.set(false); this.success.set(true); this.editMode.set(false); setTimeout(() => this.success.set(false), 3000); },
+        next: (p) => { this.provider.set(p); this.saveLoading.set(false); this.success.set(true); this.activeView.set('overview'); setTimeout(() => this.success.set(false), 3000); },
         error: (err) => { this.saveLoading.set(false); this.error.set(err?.error?.detail ?? 'Error al guardar.'); }
       });
     };

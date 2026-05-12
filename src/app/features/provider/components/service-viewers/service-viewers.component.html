@@ -1,0 +1,198 @@
+@if (isOpen) {
+  <!-- Backdrop -->
+  <div class="sv-backdrop" (click)="close()"></div>
+
+  <!-- Panel -->
+  <div class="sv-panel" role="dialog" aria-modal="true" aria-label="Vistas de servicio">
+
+    <!-- Header -->
+    <div class="sv-header">
+      <div class="sv-header-left">
+        <span class="sv-header-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+        </span>
+        <div>
+          <h2 class="sv-title">Clientes interesados</h2>
+          <p class="sv-subtitle">Personas que vieron tus servicios</p>
+        </div>
+      </div>
+      <button class="sv-close-btn" (click)="close()" aria-label="Cerrar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="sv-body">
+
+      <!-- LOADING / CONFIRMING -->
+      @if (state() === 'loading' || state() === 'confirming') {
+        <div class="sv-center-state">
+          <div class="sv-spinner"></div>
+          <p class="sv-state-text">
+            @if (state() === 'confirming') { Activando acceso... } @else { Cargando... }
+          </p>
+        </div>
+      }
+
+      <!-- ERROR -->
+      @if (state() === 'error') {
+        <div class="sv-center-state">
+          <div class="sv-error-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#FCA5A5" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
+          <p class="sv-state-text sv-state-text--error">{{ errorMsg() }}</p>
+          <button class="sv-btn sv-btn--secondary" (click)="retry()">Reintentar</button>
+        </div>
+      }
+
+      <!-- LOCKED — vista previa borrosa + CTA premium -->
+      @if (state() === 'locked') {
+        <div class="sv-price-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+          </svg>
+          Desbloquea por solo $1.990 CLP · 7 días
+        </div>
+
+        <!-- Lista enmascarada -->
+        <div class="sv-clients-list sv-clients-list--masked">
+          @for (c of clients(); track c.id) {
+            <div class="sv-client-card sv-client-card--masked">
+              <div class="sv-avatar sv-avatar--masked">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="1.5">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+              </div>
+              <div class="sv-client-info">
+                <span class="sv-client-name sv-blurred">{{ c.display_name }}</span>
+                <span class="sv-client-service">{{ c.service_viewed }}</span>
+                <span class="sv-client-time">{{ timeAgo(c.viewed_at) }}</span>
+              </div>
+              <span class="sv-client-phone sv-blurred">*** *** ****</span>
+            </div>
+          }
+        </div>
+
+        <!-- CTA overlay -->
+        <div class="sv-cta-overlay">
+          <div class="sv-cta-card">
+            <div class="sv-cta-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FDE68A" stroke-width="1.5">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </div>
+            <h3 class="sv-cta-title">{{ total() }} personas miraron tus servicios</h3>
+            <p class="sv-cta-desc">
+              Desbloquea sus datos de contacto por <strong>$1.990 CLP</strong> y tenlos disponibles durante 7 días.
+            </p>
+            <ul class="sv-cta-benefits">
+              <li>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A7F3D0" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                Nombre completo y teléfono
+              </li>
+              <li>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A7F3D0" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                Envía mensajes directamente
+              </li>
+              <li>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A7F3D0" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                Acceso completo por 7 días
+              </li>
+            </ul>
+            <button class="sv-btn sv-btn--primary" (click)="startUnlock()" [disabled]="unlockLoading()">
+              @if (unlockLoading()) {
+                <span class="sv-btn-spinner"></span> Procesando...
+              } @else {
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                </svg>
+                Desbloquear por $1.990
+              }
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- PAYING — esperando confirmación de pago -->
+      @if (state() === 'paying') {
+        <div class="sv-center-state">
+          <div class="sv-paying-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#FDE68A" stroke-width="1.2">
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+              <line x1="1" y1="10" x2="23" y2="10"/>
+            </svg>
+          </div>
+          <h3 class="sv-state-heading">Pago en proceso</h3>
+          <p class="sv-state-text">
+            Completa el pago en la ventana que se abrió. Cuando termines, haz clic en "Confirmar pago".
+          </p>
+          @if (paymentRef()) {
+            <div class="sv-paying-ref">
+              <span class="sv-ref-label">Ref:</span>
+              <span class="sv-ref-value">{{ paymentRef() }}</span>
+            </div>
+          }
+          <button class="sv-btn sv-btn--primary" (click)="confirmPayment()" [disabled]="unlockLoading()">
+            @if (unlockLoading()) {
+              <span class="sv-btn-spinner"></span> Verificando...
+            } @else {
+              Confirmar pago
+            }
+          </button>
+          <button class="sv-btn sv-btn--ghost" (click)="retry()">Cancelar</button>
+        </div>
+      }
+
+      <!-- UNLOCKED — datos reales -->
+      @if (state() === 'unlocked') {
+        <div class="sv-active-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M20 6L9 17l-5-5"/>
+          </svg>
+          Acceso activo · {{ countdownLabel() }}
+        </div>
+
+        <div class="sv-clients-list">
+          @for (c of clients(); track c.id) {
+            <div class="sv-client-card">
+              <div class="sv-avatar">
+                @if (c.avatar_url) {
+                  <img [src]="c.avatar_url" [alt]="c.display_name" loading="lazy"/>
+                } @else {
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                }
+              </div>
+              <div class="sv-client-info">
+                <span class="sv-client-name">{{ c.display_name }}</span>
+                <span class="sv-client-service">{{ c.service_viewed }}</span>
+                <span class="sv-client-time">{{ timeAgo(c.viewed_at) }}</span>
+              </div>
+              <div class="sv-client-actions">
+                <span class="sv-client-phone-label">{{ formatPhone(c.phone) }}</span>
+                <button class="sv-chat-btn" (click)="goToChat(c.id)" title="Enviar mensaje">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+    </div><!-- /sv-body -->
+  </div><!-- /sv-panel -->
+}

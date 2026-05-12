@@ -1,80 +1,209 @@
-<div class="flex flex-col h-full bg-surface-page">
-  <header class="bg-surface-base border-b border-border px-4 lg:px-6 pt-4 sticky top-0 z-10">
-    <div class="max-w-4xl mx-auto">
-      <h1 class="text-xl font-bold text-text-primary mb-3">Mis Reservas</h1>
-      <div class="flex border-b border-border -mx-4 lg:-mx-6 px-4 lg:px-6">
-        <button (click)="activeTab.set('pending')"
-          class="flex-1 sm:flex-none sm:px-6 pb-3 text-sm font-medium transition-colors relative"
-          [class]="activeTab()==='pending' ? 'text-primary' : 'text-text-secondary hover:text-text-primary'">
-          Pendientes/Activas
-          @if (activeTab()==='pending') { <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full"></div> }
-          @if (pending.length > 0) { <span class="ml-1.5 badge badge-warning text-[10px]">{{ pending.length }}</span> }
-        </button>
-        <button (click)="activeTab.set('history')"
-          class="flex-1 sm:flex-none sm:px-6 pb-3 text-sm font-medium transition-colors relative"
-          [class]="activeTab()==='history' ? 'text-primary' : 'text-text-secondary hover:text-text-primary'">
-          Historial
-          @if (activeTab()==='history') { <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full"></div> }
+<div class="pb-shell">
+  <div class="pb-frame">
+
+    <!-- ══ HEADER + TABS ══════════════════════════════════════════ -->
+    <header class="pb-header">
+      <div class="pb-header-top">
+        <div>
+          <h1 class="pb-title">Reservas de clientes</h1>
+          <p class="pb-subtitle">Gestiona solicitudes y citas</p>
+        </div>
+        <button class="pb-reload-btn" type="button" (click)="load()" title="Recargar">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
         </button>
       </div>
-    </div>
-  </header>
 
-  <div class="flex-1 overflow-y-auto page-shell">
-    @if (loading()) {
-      <app-loading-skeleton [count]="3" [showAvatar]="false"></app-loading-skeleton>
-    } @else if (displayed.length === 0) {
-      <app-empty-state iconName="calendar-outline" title="Sin reservas" description="Aquí aparecerán las solicitudes de tus clientes."></app-empty-state>
-    } @else {
-      <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        @for (b of displayed; track b.id) {
-          <div class="card card-body">
-            <div class="flex items-start justify-between gap-2 mb-3">
-              <div class="flex-1 min-w-0">
-                <h3 class="font-semibold text-text-primary truncate">{{ b.service_category }}</h3>
-                <p class="text-xs text-text-secondary mt-0.5">{{ b.scheduled_date }}{{ b.scheduled_time ? ' · ' + b.scheduled_time.slice(0,5) : '' }}</p>
-                @if (b.description) { <p class="text-sm text-text-secondary mt-1 line-clamp-2">{{ b.description }}</p> }
+      <!-- Tabs — control segmentado idéntico a client-bookings -->
+      <div class="ref-segmented-control pb-tabs-override">
+        <button (click)="activeTab.set('pending')"
+          class="ref-segment-btn"
+          [class.ref-segment-btn--active]="activeTab() === 'pending'"
+          type="button">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Pendientes / Activas
+          @if (pending.length + activeList.length > 0) {
+            <span class="ref-tab-badge ref-tab-badge--warning">{{ pending.length + activeList.length }}</span>
+          }
+        </button>
+
+        <button (click)="activeTab.set('history')"
+          class="ref-segment-btn"
+          [class.ref-segment-btn--active]="activeTab() === 'history'"
+          type="button">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          Historial
+          @if (historyList.length > 0) {
+            <span class="ref-tab-badge">{{ historyList.length }}</span>
+          }
+        </button>
+      </div>
+    </header>
+
+    <!-- ══ CONTENT ════════════════════════════════════════════════ -->
+    <div class="pb-content">
+
+      <!-- ── LOADING ─────────────────────────────────────────── -->
+      @if (loading()) {
+        @for (i of [1,2,3]; track i) {
+          <div class="pb-card pb-card--skeleton">
+            <div class="pb-card-main">
+              <div class="pb-sk-icon"></div>
+              <div class="pb-sk-body">
+                <div class="pb-sk-line pb-sk-line--lg"></div>
+                <div class="pb-sk-line pb-sk-line--sm"></div>
               </div>
-              <span [class]="getStatusColor(b.status)" class="flex-shrink-0">{{ getStatusLabel(b.status) }}</span>
             </div>
-
-            @if (b.location_address) {
-              <p class="text-xs text-text-tertiary mb-2 flex items-center gap-1">
-                <ion-icon name="location-outline" class="text-sm"></ion-icon>
-                <span class="truncate">{{ b.location_address }}</span>
-              </p>
-            }
-
-            @if (b.total_price) {
-              <p class="text-sm font-bold text-primary mb-3">${{ b.total_price | number:'1.0-0' }}</p>
-            }
-
-            @if (b.status === 'PENDING') {
-              <div class="flex gap-2 pt-3 border-t border-border">
-                <button (click)="reject(+b.id)" class="btn-booking-cancel">Rechazar</button>
-                <button (click)="confirm(+b.id)" class="btn-booking-chat">Confirmar</button>
-              </div>
-            }
-            @if (b.status === 'CONFIRMED' || b.status === 'IN_PROGRESS') {
-              <div class="pt-3 border-t border-border">
-                <button (click)="complete(+b.id)" class="btn btn-sm btn-primary btn-block">Marcar completado</button>
-              </div>
-            }
           </div>
         }
-      </div>
-    }
-  </div>
+      }
 
-  <footer class="app-footer">
-    <div class="footer-inner">
-      <span class="footer-brand">BappSearch</span>
-      <nav class="footer-links" aria-label="Enlaces de pie">
+      <!-- ── EMPTY ─────────────────────────────────────────────── -->
+      @else if (displayed.length === 0) {
+        <div class="pb-empty">
+          <div class="pb-empty-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="28" height="28">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <p class="pb-empty-title">
+            @if (activeTab() === 'pending') { Sin reservas pendientes }
+            @else { Sin historial aún }
+          </p>
+          <p class="pb-empty-sub">
+            @if (activeTab() === 'pending') { Las solicitudes de tus clientes aparecerán aquí. }
+            @else { Las reservas completadas y canceladas se mostrarán aquí. }
+          </p>
+        </div>
+      }
+
+      <!-- ── BOOKING LIST ──────────────────────────────────────── -->
+      @else {
+        <div class="pb-list">
+          @for (b of displayed; track b.id; let i = $index) {
+
+            <div class="pb-card" [style.animation-delay]="(i * 0.06) + 's'">
+
+              <!-- Card header: ícono + info + status pill -->
+              <div class="pb-card-main">
+                <div class="pb-icon-wrap"
+                  [class.pb-icon-wrap--pending]="b.status === 'PENDING'"
+                  [class.pb-icon-wrap--confirmed]="b.status === 'CONFIRMED' || b.status === 'IN_PROGRESS'"
+                  [class.pb-icon-wrap--completed]="b.status === 'COMPLETED'"
+                  [class.pb-icon-wrap--cancelled]="b.status === 'CANCELLED' || b.status === 'NOSHOW'">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                  </svg>
+                </div>
+                <div class="pb-card-info">
+                  <p class="pb-service-name">{{ b.service_category || 'Servicio' }}</p>
+                  @if (b.total_price) {
+                    <p class="pb-price">${{ b.total_price | number:'1.0-0' }}</p>
+                  }
+                </div>
+                <span class="pb-status-pill" [attr.data-status]="b.status">
+                  {{ getStatusLabel(b.status) }}
+                </span>
+              </div>
+
+              <div class="pb-divider"></div>
+
+              <!-- Details: fecha, dirección, descripción -->
+              <div class="pb-details">
+                @if (b.scheduled_date) {
+                  <div class="pb-detail-row">
+                    <svg class="pb-detail-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <span>
+                      <span class="pb-detail-accent">{{ b.scheduled_date | date:'dd/MM/yyyy' }}</span>
+                      @if (b.scheduled_time) {
+                        <span class="pb-detail-muted"> · {{ b.scheduled_time.slice(0, 5) }}</span>
+                      }
+                      @if (b.duration) {
+                        <span class="pb-detail-muted"> · {{ b.duration }} min</span>
+                      }
+                    </span>
+                  </div>
+                }
+                @if (b.location_address) {
+                  <div class="pb-detail-row">
+                    <svg class="pb-detail-icon pb-detail-icon--location" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span class="pb-detail-clamp">{{ b.location_address }}</span>
+                  </div>
+                }
+                @if (b.description) {
+                  <div class="pb-detail-row">
+                    <svg class="pb-detail-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span class="pb-detail-clamp">{{ b.description }}</span>
+                  </div>
+                }
+              </div>
+
+              <!-- Actions: PENDING → confirmar/rechazar | CONFIRMED/IN_PROGRESS → completar -->
+              @if (b.status === 'PENDING') {
+                <div class="pb-actions">
+                  <button class="pb-btn pb-btn--reject" type="button" (click)="reject(+b.id)">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    Rechazar
+                  </button>
+                  <button class="pb-btn pb-btn--confirm" type="button" (click)="confirm(+b.id)">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Confirmar
+                  </button>
+                </div>
+              }
+              @if (b.status === 'CONFIRMED' || b.status === 'IN_PROGRESS') {
+                <div class="pb-actions">
+                  <button class="pb-btn pb-btn--complete" type="button" (click)="complete(+b.id)">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Marcar como completado
+                  </button>
+                </div>
+              }
+
+            </div>
+          }
+        </div>
+      }
+
+    </div><!-- /pb-content -->
+
+    <!-- ══ FOOTER ════════════════════════════════════════════════ -->
+    <footer class="pb-footer">
+      <span class="pb-footer-brand">BappSearch</span>
+      <nav class="pb-footer-links" aria-label="Pie de página">
         <a routerLink="/provider/tabs/home">Inicio</a>
         <a routerLink="/terms">Términos</a>
         <a routerLink="/privacy">Privacidad</a>
       </nav>
-      <span class="footer-copy">© 2026 BappSearch.</span>
-    </div>
-  </footer>
+      <span class="pb-footer-copy">© 2026 BappSearch.</span>
+    </footer>
+
+  </div><!-- /pb-frame -->
 </div>

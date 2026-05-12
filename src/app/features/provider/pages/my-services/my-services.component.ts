@@ -3,19 +3,17 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ProviderService } from '../../../../core/services/provider.service';
 import { ServiceProvider } from '../../../../core/models/provider.model';
-import { LoadingSkeletonComponent } from '../../../../shared/components/loading-skeleton/loading-skeleton.component';
-import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 
 @Component({
   selector: 'app-my-services',
   standalone: true,
-  imports: [CommonModule, RouterLink, LoadingSkeletonComponent, EmptyStateComponent],
+  imports: [CommonModule, RouterLink],
   templateUrl: './my-services.component.html',
   styleUrl: './my-services.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class MyServicesComponent implements OnInit {
-  private providerSvc = inject(ProviderService);
+  private readonly providerSvc = inject(ProviderService);
 
   services = signal<ServiceProvider[]>([]);
   loading  = signal(true);
@@ -57,5 +55,9 @@ export class MyServicesComponent implements OnInit {
       rejected: 'badge-danger',
     };
     return map[status] ?? 'badge-gray';
+  }
+
+  countByStatus(status: string): number {
+    return this.services().filter(s => s.validation_status === status).length;
   }
 }

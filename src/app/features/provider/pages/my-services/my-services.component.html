@@ -1,105 +1,214 @@
-<div class="flex flex-col h-full bg-surface-page">
-  <!-- Header -->
-  <header class="bg-surface-base border-b border-border px-4 lg:px-6 py-4 sticky top-0 z-10">
-    <div class="max-w-4xl mx-auto flex items-center justify-between">
-      <h1 class="text-xl font-bold text-text-primary">Mis Servicios</h1>
-      <a routerLink="/provider/add-service" class="btn-primary inline-flex items-center gap-2">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
-        Agregar
-      </a>
+<div class="ms-host">
+<div class="ms-frame">
+
+  <!-- ══ TOPBAR ════════════════════════════════════════════════════ -->
+  <header class="ms-topbar">
+    <div class="ms-topbar-left">
+      <span class="ms-topbar-eyebrow">Panel de proveedor</span>
+      <h1 class="ms-topbar-title">Mis Servicios</h1>
     </div>
+    <a class="ms-btn-add" routerLink="/provider/add-service">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+      </svg>
+      Nuevo servicio
+    </a>
   </header>
 
-  <!-- Content -->
-  <div class="flex-1 overflow-y-auto page-shell">
+  <!-- ══ BODY ══════════════════════════════════════════════════════ -->
+  <div class="ms-body">
+
+    <!-- ── LOADING ─────────────────────────────────────────────── -->
     @if (loading()) {
-      <app-loading-skeleton [count]="3"></app-loading-skeleton>
-    } @else if (error()) {
-      <app-empty-state iconName="alert-circle-outline" title="Error" [description]="error()">
-        <button (click)="load()" class="btn btn-primary mt-3">Reintentar</button>
-      </app-empty-state>
-    } @else if (services().length === 0) {
-      <app-empty-state iconName="construct-outline" title="Sin servicios"
-        description="Aún no tienes servicios publicados. ¡Agrega tu primer servicio!">
-        <a routerLink="/provider/add-service" class="btn btn-primary mt-3">Agregar servicio</a>
-      </app-empty-state>
-    } @else {
-      <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        @for (svc of services(); track svc.id) {
-          <div class="card card-body">
-            <div class="flex items-start justify-between gap-3">
-              <div class="flex-1 min-w-0">
-                <!-- Nombre y estado -->
-                <div class="flex items-center gap-2 flex-wrap">
-                  <h3 class="font-semibold text-text-primary truncate">{{ svc.business_name }}</h3>
-                  <span class="badge {{ statusClass(svc.validation_status) }}">
-                    {{ statusLabel(svc.validation_status) }}
-                  </span>
-                  @if (!svc.is_available) {
-                    <span class="badge badge-gray">Inactivo</span>
-                  }
-                </div>
-
-                <!-- Categoría -->
-                @if (svc.service_category?.name) {
-                  <p class="text-xs text-primary font-medium mt-1">{{ svc.service_category!.name }}</p>
-                }
-
-                <!-- Descripción -->
-                @if (svc.description) {
-                  <p class="text-sm text-text-secondary mt-1 line-clamp-2">{{ svc.description }}</p>
-                }
-
-                <!-- Dirección y tarifa -->
-                <div class="flex items-center gap-3 mt-2 flex-wrap">
-                  @if (svc.hourly_rate) {
-                    <span class="text-sm font-bold text-primary">${{ svc.hourly_rate | number:'1.0-0' }}/hr</span>
-                  }
-                  @if (svc.address) {
-                    <span class="text-xs text-text-tertiary truncate flex items-center gap-1">
-                      <ion-icon name="location-outline" class="text-sm"></ion-icon>
-                      {{ svc.address }}
-                    </span>
-                  }
-                </div>
+      <div class="ms-sk-grid">
+        @for (i of [1,2,3,4,5,6]; track i) {
+          <div class="ms-sk-card">
+            <div class="ms-sk-card-header">
+              <div class="ms-sk ms-sk--icon"></div>
+              <div class="ms-sk-lines">
+                <div class="ms-sk ms-sk--title"></div>
+                <div class="ms-sk ms-sk--sub"></div>
               </div>
-
-              <!-- Acciones -->
-              <div class="flex flex-col gap-2 shrink-0">
-                <a [routerLink]="['/provider/edit-service', svc.id]"
-                   class="btn btn-sm btn-secondary">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                  </svg>
-                  Editar
-                </a>
-                <button (click)="delete(svc.id)" class="btn btn-sm btn-danger">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                  </svg>
-                  Eliminar
-                </button>
-              </div>
+            </div>
+            <div class="ms-sk ms-sk--desc"></div>
+            <div class="ms-sk ms-sk--desc ms-sk--desc-short"></div>
+            <div class="ms-sk-footer">
+              <div class="ms-sk ms-sk--chip"></div>
+              <div class="ms-sk ms-sk--chip"></div>
             </div>
           </div>
         }
       </div>
     }
+
+    <!-- ── ERROR ────────────────────────────────────────────────── -->
+    @else if (error()) {
+      <div class="ms-empty-state">
+        <div class="ms-empty-icon ms-empty-icon--error">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          </svg>
+        </div>
+        <h3 class="ms-empty-title">Algo salió mal</h3>
+        <p class="ms-empty-desc">{{ error() }}</p>
+        <button class="ms-btn-retry" type="button" (click)="load()">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          Reintentar
+        </button>
+      </div>
+    }
+
+    <!-- ── EMPTY ─────────────────────────────────────────────────── -->
+    @else if (services().length === 0) {
+      <div class="ms-empty-state">
+        <div class="ms-empty-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+          </svg>
+        </div>
+        <h3 class="ms-empty-title">Sin servicios publicados</h3>
+        <p class="ms-empty-desc">Crea tu primer servicio y empieza a recibir reservas de clientes en tu zona.</p>
+        <a class="ms-btn-add ms-btn-add--cta" routerLink="/provider/add-service">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+          </svg>
+          Agregar mi primer servicio
+        </a>
+      </div>
+    }
+
+    <!-- ── SERVICE GRID ──────────────────────────────────────────── -->
+    @else {
+
+      <!-- Contador + summary chips -->
+      <div class="ms-summary-bar">
+        <span class="ms-summary-count">
+          {{ services().length }} servicio{{ services().length !== 1 ? 's' : '' }}
+        </span>
+        <div class="ms-summary-chips">
+          @if (countByStatus('approved') > 0) {
+            <span class="ms-chip ms-chip--approved">
+              <span class="ms-chip-dot"></span>
+              {{ countByStatus('approved') }} aprobado{{ countByStatus('approved') !== 1 ? 's' : '' }}
+            </span>
+          }
+          @if (countByStatus('pending') > 0) {
+            <span class="ms-chip ms-chip--pending">
+              <span class="ms-chip-dot"></span>
+              {{ countByStatus('pending') }} pendiente{{ countByStatus('pending') !== 1 ? 's' : '' }}
+            </span>
+          }
+          @if (countByStatus('rejected') > 0) {
+            <span class="ms-chip ms-chip--rejected">
+              <span class="ms-chip-dot"></span>
+              {{ countByStatus('rejected') }} rechazado{{ countByStatus('rejected') !== 1 ? 's' : '' }}
+            </span>
+          }
+        </div>
+      </div>
+
+      <div class="ms-grid">
+        @for (svc of services(); track svc.id) {
+          <article class="ms-service-card" [class.ms-service-card--inactive]="!svc.is_available">
+
+            <!-- Card header: ícono categoría + nombre + badge status -->
+            <div class="ms-card-header">
+              <div class="ms-card-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                </svg>
+              </div>
+              <div class="ms-card-name-wrap">
+                <h3 class="ms-card-name">{{ svc.business_name }}</h3>
+                @if (svc.service_category?.name) {
+                  <span class="ms-card-category">{{ svc.service_category!.name }}</span>
+                }
+              </div>
+              <div class="ms-card-badges">
+                <span class="ms-status-badge ms-status-badge--{{ svc.validation_status }}">
+                  {{ statusLabel(svc.validation_status) }}
+                </span>
+                @if (!svc.is_available) {
+                  <span class="ms-status-badge ms-status-badge--inactive">Inactivo</span>
+                }
+              </div>
+            </div>
+
+            <!-- Descripción -->
+            @if (svc.description) {
+              <p class="ms-card-desc">{{ svc.description }}</p>
+            }
+
+            <!-- Metadata: tarifa + dirección -->
+            <div class="ms-card-meta">
+              @if (svc.hourly_rate) {
+                <span class="ms-meta-rate">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  ${{ svc.hourly_rate | number:'1.0-0' }}/hr
+                </span>
+              }
+              @if (svc.address) {
+                <span class="ms-meta-address">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  </svg>
+                  {{ svc.address }}
+                </span>
+              }
+            </div>
+
+            <!-- Divider -->
+            <div class="ms-card-divider"></div>
+
+            <!-- Acciones -->
+            <div class="ms-card-actions">
+              <a class="ms-action-btn ms-action-btn--edit"
+                 [routerLink]="['/provider/edit-service', svc.id]">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+                Editar
+              </a>
+              <button class="ms-action-btn ms-action-btn--delete"
+                      type="button" (click)="delete(svc.id)">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+                Eliminar
+              </button>
+            </div>
+
+          </article>
+        }
+      </div>
+    }
+
   </div>
 
-  <footer class="app-footer">
-    <div class="footer-inner">
-      <span class="footer-brand">BappSearch</span>
-      <nav class="footer-links" aria-label="Enlaces de pie">
-        <a routerLink="/provider/tabs/home">Inicio</a>
-        <a routerLink="/terms">Términos</a>
-        <a routerLink="/privacy">Privacidad</a>
-      </nav>
-      <span class="footer-copy">© 2026 BappSearch.</span>
-    </div>
+  <!-- ══ FOOTER ════════════════════════════════════════════════════ -->
+  <footer class="ms-footer">
+    <span class="ms-footer-brand">BappSearch</span>
+    <nav class="ms-footer-links" aria-label="Pie de página">
+      <a routerLink="/provider/tabs/home">Inicio</a>
+      <a routerLink="/terms">Términos</a>
+      <a routerLink="/privacy">Privacidad</a>
+    </nav>
+    <span class="ms-footer-copy">© 2026 BappSearch.</span>
   </footer>
+
+</div>
 </div>

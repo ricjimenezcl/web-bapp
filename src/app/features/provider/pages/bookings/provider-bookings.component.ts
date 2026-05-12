@@ -1,23 +1,20 @@
-import { Component, inject, signal, OnInit, OnDestroy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router, NavigationEnd } from '@angular/router';
 import { Subscription, filter } from 'rxjs';
 import { BookingService } from '../../../../core/services/booking.service';
 import { BookingResponse, BOOKING_STATUS_LABELS, BOOKING_STATUS_COLORS } from '../../../../core/models/booking.model';
-import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
-import { LoadingSkeletonComponent } from '../../../../shared/components/loading-skeleton/loading-skeleton.component';
 
 @Component({
   selector: 'app-provider-bookings',
   standalone: true,
-  imports: [CommonModule, RouterLink, EmptyStateComponent, LoadingSkeletonComponent],
+  imports: [CommonModule, RouterLink],
   templateUrl: './provider-bookings.component.html',
-  styleUrl: './provider-bookings.component.scss',
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  styleUrl: './provider-bookings.component.scss'
 })
 export class ProviderBookingsComponent implements OnInit, OnDestroy {
-  private bookingSvc = inject(BookingService);
-  private router     = inject(Router);
+  private readonly bookingSvc = inject(BookingService);
+  private readonly router     = inject(Router);
   private sub?: Subscription;
 
   bookings  = signal<BookingResponse[]>([]);

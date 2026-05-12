@@ -22,7 +22,7 @@
   </header>
 
   <!-- Messages -->
-  <div class="messages-area">
+  <div class="messages-area" #messagesArea>
     @if (loading()) {
       <div class="flex justify-center py-8"><span class="spinner w-6 h-6 border-primary-600"></span></div>
     } @else if (messages().length === 0) {

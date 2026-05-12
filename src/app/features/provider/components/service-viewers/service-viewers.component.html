@@ -3,7 +3,7 @@
   <div class="sv-backdrop" (click)="close()"></div>
 
   <!-- Panel -->
-  <div class="sv-panel" role="dialog" aria-modal="true" aria-label="Vistas de servicio">
+  <div class="sv-panel" role="dialog" aria-modal="true" aria-label="Vistas de servicio" (click)="$event.stopPropagation()">
 
     <!-- Header -->
     <div class="sv-header">
@@ -182,7 +182,7 @@
               </div>
               <div class="sv-client-actions">
                 <span class="sv-client-phone-label">{{ formatPhone(c.phone) }}</span>
-                <button class="sv-chat-btn" (click)="goToChat(c.id)" title="Enviar mensaje">
+                <button class="sv-chat-btn" (click)="$event.stopPropagation(); goToChat(c.id)" title="Enviar mensaje">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                   </svg>

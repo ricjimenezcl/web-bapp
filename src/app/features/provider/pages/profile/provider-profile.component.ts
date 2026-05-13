@@ -26,6 +26,8 @@ interface ServiceTransaction {
   } | null;
 }
 
+type ProviderProductType = 'PROVIDER_PREMIUM_MONTHLY' | 'PROVIDER_SERVICE_30' | 'PROVIDER_SERVICE_YEAR';
+
 @Component({
   selector: 'app-provider-profile',
   standalone: true,
@@ -194,4 +196,13 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
   }
 
   logout(): void { this.auth.logout(); }
+
+  goToPayment(productType: ProviderProductType = 'PROVIDER_PREMIUM_MONTHLY'): void {
+    this.router.navigate(['/payment'], {
+      queryParams: {
+        product_type: productType,
+        returnTo: '/provider/tabs/profile'
+      }
+    });
+  }
 }

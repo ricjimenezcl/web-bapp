@@ -486,6 +486,9 @@
             </svg>
             <h3>Sin servicios contratados</h3>
             <p>Aún no has contratado ningún plan en BAPP.</p>
+            <button type="button" class="pp-btn-primary" (click)="goToPayment('PROVIDER_PREMIUM_MONTHLY')">
+              Activar Premium mensual
+            </button>
           </div>
         } @else {
           @if (activePlan) {
@@ -500,6 +503,11 @@
               <p class="pp-plan-expires">Vence el {{ activePlan.expires_at! | date:'d MMM yyyy':'':'es' }}</p>
               <div class="pp-plan-progress">
                 <div class="pp-plan-progress-bar" [style.width.%]="usedPercent(activePlan)"></div>
+              </div>
+              <div class="pp-form-actions" style="margin-top: 12px;">
+                <button type="button" class="pp-btn-primary" (click)="goToPayment('PROVIDER_PREMIUM_MONTHLY')">
+                  Renovar / mejorar plan
+                </button>
               </div>
             </div>
           }

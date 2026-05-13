@@ -21,6 +21,7 @@ export interface UserProfile {
   id: number;
   user_id: number;
   full_name: string;
+  has_premium?: boolean;
   phone?: string;
   avatar?: string | null;
   bio?: string;

@@ -1,0 +1,12 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^find \\. -maxdepth 3 -type d \\| grep -E 'migrations\\|alembic' \\|\\| true$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^git add app/services/transbank_service\\.py && git commit -m \"Chore: align Webpay create call with official Transbank SDK example\" && git push origin pre-produccion && git log --oneline -2$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

@@ -1,19 +1,20 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ProfileService } from '../../../../core/services/profile.service';
 import { UserProfile } from '../../../../core/models/user.model';
 import { CustomValidators } from '../../../../shared/validators/custom-validators';
 import { formatChileanPhone } from '../../../../shared/utils/form-formatters';
+import { ProductType } from '../../../../core/services/payment.service';
 
 export type DashView = 'overview' | 'edit' | 'purchases' | 'config' | 'help';
 
 @Component({
   selector: 'app-client-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './client-profile.component.html',
   styleUrl: './client-profile.component.scss',
 })
@@ -48,6 +49,7 @@ export class ClientProfileComponent implements OnInit {
   pwLoading = signal(false);
   pwError   = signal('');
   pwSuccess = signal(false);
+  showPremiumModal = signal(false);
 
   pwForm = this.fb.group({
     old_password:     ['', Validators.required],
@@ -155,7 +157,21 @@ export class ClientProfileComponent implements OnInit {
   }
 
   // ── External ───────────────────────────────────────────────────────
-  goToPayment(): void { this.router.navigate(['/payment']); }
+  goToPayment(productType: ProductType = 'CLIENT_UNLOCK_30'): void {
+    this.router.navigate(['/payment'], {
+      queryParams: {
+        product_type: productType,
+        returnTo: '/client/tabs/profile'
+      }
+    });
+  }
+
+  openPremiumModal(): void { this.showPremiumModal.set(true); }
+  closePremiumModal(): void { this.showPremiumModal.set(false); }
+  choosePremiumPlan(productType: ProductType): void {
+    this.closePremiumModal();
+    this.goToPayment(productType);
+  }
   goToPrivacy(): void { this.router.navigate(['/privacy']); }
   goToTerms():   void { this.router.navigate(['/terms']); }
 

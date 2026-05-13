@@ -376,6 +376,67 @@
     cursor: default;
     animation: none;
   }
+
+  &.pro-card-floating--locked {
+    position: relative;
+    overflow: hidden;
+
+    .card-main,
+    .card-footer,
+    .card-tag {
+      filter: blur(2px);
+      opacity: 0.45;
+      pointer-events: none;
+    }
+  }
+}
+
+.provider-locked-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 14px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.82));
+
+  h4 {
+    margin: 0;
+    color: #F9FAFB;
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  p {
+    margin: 0;
+    color: #CBD5E1;
+    font-size: 12px;
+    line-height: 1.35;
+  }
+}
+
+.provider-locked-badge {
+  background: rgba(253, 230, 138, 0.16);
+  border: 1px solid rgba(253, 230, 138, 0.32);
+  color: #FDE68A;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.provider-locked-btn {
+  margin-top: 2px;
+  border: none;
+  border-radius: 10px;
+  background: #FDE68A;
+  color: #000;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 8px 10px;
+  cursor: pointer;
 }
 
 @keyframes cardIn {

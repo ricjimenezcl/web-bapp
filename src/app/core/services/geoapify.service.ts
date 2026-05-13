@@ -146,9 +146,9 @@ export class GeoapifyService {
 
   private getIconForPlaceType(placeType: string[]): string {
     const type = (placeType?.[0] ?? '').toLowerCase();
-    if (type === 'house' || type === 'address') return '🏠';
-    if (type === 'park' || type === 'leisure')  return '🌳';
-    if (type === 'city' || type === 'town')     return '🏙️';
-    return '📍';
+    if (type === 'house' || type === 'address') return 'home-outline';
+    if (type === 'park' || type === 'leisure')  return 'leaf-outline';
+    if (type === 'city' || type === 'town')     return 'business-outline';
+    return 'location-outline';
   }
 }

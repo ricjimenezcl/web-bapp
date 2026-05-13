@@ -1,6 +1,7 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { ChatService } from '../../../../core/services/chat.service';
 import { ConversationUI } from '../../../../core/models/chat.model';
 import { ChatViewComponent } from '../../../../features/chat/chat-view.component';
@@ -14,6 +15,7 @@ import { ChatViewComponent } from '../../../../features/chat/chat-view.component
 })
 export class ProviderInboxComponent implements OnInit {
   private readonly chatSvc = inject(ChatService);
+  private readonly route   = inject(ActivatedRoute);
   conversations = signal<ConversationUI[]>([]);
   loading = signal(true);
   selectedConvId = signal<number | null>(null);
@@ -37,8 +39,16 @@ export class ProviderInboxComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const clientId = this.route.snapshot.queryParamMap.get('clientId');
     this.chatSvc.loadConversations().subscribe({
-      next: (list) => { this.conversations.set(list); this.loading.set(false); },
+      next: (list) => {
+        this.conversations.set(list);
+        this.loading.set(false);
+        if (clientId) {
+          const conv = list.find(c => c.client_id === +clientId);
+          if (conv) this.selectedConvId.set(conv.id);
+        }
+      },
       error: () => this.loading.set(false)
     });
     this.chatSvc.conversations$.subscribe(c => this.conversations.set(c));

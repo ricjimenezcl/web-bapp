@@ -61,7 +61,7 @@
         Mis Compras
       </button>
 
-      <button class="nav-item" type="button" (click)="goToPayment()">
+      <button class="nav-item" type="button" (click)="openPremiumModal()">
         <svg class="nav-icon" fill="currentColor" viewBox="0 0 24 24">
           <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 14.59L5.41 12 6.83 10.58 10 13.75l7.17-7.17 1.42 1.42L10 16.59z"/>
         </svg>
@@ -147,7 +147,7 @@
               </div>
             </div>
           </div>
-          <button class="btn-primary" type="button" (click)="goToPayment()">Actualizar a Premium</button>
+          <button class="btn-primary" type="button" (click)="openPremiumModal()">Actualizar a Premium</button>
         </div>
 
         <div class="stats-grid">
@@ -316,7 +316,7 @@
           </svg>
           <h3>No hay transacciones recientes</h3>
           <p>Aún no has realizado ninguna compra o contratación en BAPP.</p>
-          <button class="btn-secondary" type="button" (click)="goToPayment()">Explorar Servicios</button>
+          <button class="btn-secondary" type="button" (click)="openPremiumModal()">Explorar Servicios</button>
         </div>
       </div>
     }
@@ -526,3 +526,30 @@
   </main>
 
 </div>
+
+@if (showPremiumModal()) {
+  <div class="premium-modal-backdrop" (click)="closePremiumModal()"></div>
+  <div class="premium-modal" role="dialog" aria-modal="true" aria-label="Planes premium">
+    <div class="premium-modal-header">
+      <h3>Desbloquea más proveedores</h3>
+      <button type="button" class="premium-modal-close" (click)="closePremiumModal()">✕</button>
+    </div>
+    <p class="premium-modal-sub">Elige un plan para desbloquear acceso completo y contactar sin límites.</p>
+
+    <div class="premium-plan-grid">
+      <button type="button" class="premium-plan-card" (click)="choosePremiumPlan('CLIENT_UNLOCK_7')">
+        <span class="premium-plan-badge">Popular</span>
+        <h4>Acceso 7 días</h4>
+        <p>Ideal para resolver una necesidad puntual.</p>
+        <strong>$1.490 CLP</strong>
+      </button>
+
+      <button type="button" class="premium-plan-card premium-plan-card--featured" (click)="choosePremiumPlan('CLIENT_UNLOCK_30')">
+        <span class="premium-plan-badge premium-plan-badge--accent">Mejor valor</span>
+        <h4>Acceso 30 días</h4>
+        <p>Más tiempo para comparar, reservar y conversar.</p>
+        <strong>$4.990 CLP</strong>
+      </button>
+    </div>
+  </div>
+}

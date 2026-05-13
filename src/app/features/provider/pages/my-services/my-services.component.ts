@@ -1,6 +1,6 @@
-import { Component, inject, signal, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, inject, signal, OnInit, CUSTOM_ELEMENTS_SCHEMA, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ProviderService } from '../../../../core/services/provider.service';
 import { ServiceProvider } from '../../../../core/models/provider.model';
 
@@ -14,10 +14,12 @@ import { ServiceProvider } from '../../../../core/models/provider.model';
 })
 export class MyServicesComponent implements OnInit {
   private readonly providerSvc = inject(ProviderService);
+  private readonly router = inject(Router);
 
   services = signal<ServiceProvider[]>([]);
   loading  = signal(true);
   error    = signal('');
+  readonly needsExtraServicePlan = computed(() => this.services().length >= 2);
 
   ngOnInit(): void {
     this.load();
@@ -59,5 +61,14 @@ export class MyServicesComponent implements OnInit {
 
   countByStatus(status: string): number {
     return this.services().filter(s => s.validation_status === status).length;
+  }
+
+  goToExtraServicePlan(): void {
+    this.router.navigate(['/payment'], {
+      queryParams: {
+        product_type: 'PROVIDER_SERVICE_30',
+        returnTo: '/provider/tabs/my-services'
+      }
+    });
   }
 }

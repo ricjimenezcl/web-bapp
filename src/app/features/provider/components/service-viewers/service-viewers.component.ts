@@ -93,23 +93,10 @@ export class ServiceViewersComponent implements OnInit {
   }
 
   startUnlock(): void {
-    this.unlockLoading.set(true);
-    this.state.set('paying');
-    this.http.post<{ payment_reference: string; checkout_url: string | null }>(
-      `${this.api}/providers/service-viewers/unlock`, {}
-    ).subscribe({
-      next: (r) => {
-        this.paymentRef.set(r.payment_reference);
-        this.unlockLoading.set(false);
-        if (r.checkout_url) {
-          globalThis.location.href = r.checkout_url;
-        }
-      },
-      error: (err) => {
-        const detail = err?.error?.detail ?? 'Error al iniciar el pago. Intenta más tarde.';
-        this.errorMsg.set(detail);
-        this.state.set('error');
-        this.unlockLoading.set(false);
+    this.router.navigate(['/payment'], {
+      queryParams: {
+        product_type: 'PROVIDER_LEADS_7',
+        returnTo: '/provider/tabs/home'
       }
     });
   }
@@ -137,8 +124,8 @@ export class ServiceViewersComponent implements OnInit {
   }
 
   goToChat(clientId: number): void {
-    this.router.navigate(['/provider/inbox'], { queryParams: { clientId } });
     this.close();
+    this.router.navigate(['/provider/tabs/inbox'], { queryParams: { clientId } });
   }
 
   close(): void {

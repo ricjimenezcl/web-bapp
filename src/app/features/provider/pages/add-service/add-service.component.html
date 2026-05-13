@@ -1,0 +1,304 @@
+<div class="as-host">
+<div class="as-frame">
+
+  <!-- ══ TOPBAR ════════════════════════════════════════════════════ -->
+  <header class="as-topbar">
+    <a routerLink="/provider/tabs/my-services" class="as-back-btn" aria-label="Volver">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+    </a>
+    <div class="as-topbar-meta">
+      <span class="as-topbar-eyebrow">Panel de proveedor</span>
+      <h1 class="as-topbar-title">Agregar servicio</h1>
+    </div>
+  </header>
+
+  <!-- ══ BODY ══════════════════════════════════════════════════════ -->
+  <div class="as-body">
+
+    <!-- ── PAYMENT GATE ─────────────────────────────────────────── -->
+    @if (showPaymentGate()) {
+      <div class="as-gate">
+        <div class="as-gate-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+          </svg>
+        </div>
+        <h2 class="as-gate-title">Actualiza tu plan</h2>
+        <p class="as-gate-desc">
+          Ya tienes 2 servicios en el plan gratuito.<br>
+          Para agregar más servicios necesitas el plan Premium.
+        </p>
+        <a
+          routerLink="/payment"
+          [queryParams]="{ product_type: 'PROVIDER_SERVICE_30', returnTo: '/provider/add-service' }"
+          class="as-btn as-btn--primary as-btn--block">
+          Ver planes Premium
+        </a>
+        <a routerLink="/provider/tabs/my-services" class="as-gate-link">
+          Volver a mis servicios
+        </a>
+      </div>
+    }
+
+    <!-- ══ FORM ═══════════════════════════════════════════════════ -->
+    @if (!showPaymentGate()) {
+      <form [formGroup]="form" (ngSubmit)="submit()" class="as-form">
+
+        <!-- Alertas -->
+        @if (success()) {
+          <div class="as-alert as-alert--success" role="status">
+            <div class="as-alert-icon">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 6L9 17l-5-5"/>
+              </svg>
+            </div>
+            <div>
+              <p class="as-alert-title">Servicio creado exitosamente</p>
+              <p class="as-alert-sub">Tu servicio se registró y será visible en tu perfil.</p>
+            </div>
+          </div>
+        }
+        @if (error()) {
+          <div class="as-alert as-alert--error" role="alert">
+            <div class="as-alert-icon">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+            </div>
+            <div>
+              <p class="as-alert-title">Error al crear el servicio</p>
+              <p class="as-alert-sub">{{ error() }}</p>
+            </div>
+          </div>
+        }
+
+        <!-- ── Sección: Categoría ───────────────────────────────── -->
+        <div class="as-section">
+          <div class="as-section-header">
+            <div class="as-section-icon">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+              </svg>
+            </div>
+            <h2 class="as-section-title">Categoría</h2>
+          </div>
+
+          <div class="as-field">
+            <label class="as-label">Categoría principal <span class="as-required">*</span></label>
+            <select formControlName="main_category_id" class="as-select"
+              [class.as-select--error]="f['main_category_id'].invalid && f['main_category_id'].touched"
+              (change)="onMainCategoryChange()">
+              <option value="">Selecciona una categoría</option>
+              @for (cat of mainCategories(); track cat.id) {
+                <option [value]="cat.id">{{ cat.name }}</option>
+              }
+            </select>
+            @if (f['main_category_id'].invalid && f['main_category_id'].touched) {
+              <span class="as-field-error">Selecciona una categoría</span>
+            }
+          </div>
+
+          @if (loadingSubServices()) {
+            <div class="as-loading-row">
+              <span class="as-spinner"></span>
+              <span class="as-loading-text">Cargando servicios...</span>
+            </div>
+          } @else if (subServices().length > 0) {
+            <div class="as-field">
+              <label class="as-label">Servicio <span class="as-required">*</span></label>
+              <select formControlName="service_id" class="as-select"
+                [class.as-select--error]="f['service_id'].invalid && f['service_id'].touched">
+                <option value="">Selecciona un servicio</option>
+                @for (svc of subServices(); track svc.id) {
+                  <option [value]="svc.id">{{ svc.name }}</option>
+                }
+              </select>
+              @if (f['service_id'].invalid && f['service_id'].touched) {
+                <span class="as-field-error">Selecciona un servicio</span>
+              }
+            </div>
+          } @else if (f['main_category_id'].value && !loadingSubServices()) {
+            <p class="as-hint">No hay servicios disponibles para esta categoría.</p>
+          }
+        </div>
+
+        <!-- ── Sección: Información ─────────────────────────────── -->
+        <div class="as-section">
+          <div class="as-section-header">
+            <div class="as-section-icon">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+            </div>
+            <h2 class="as-section-title">Información del servicio</h2>
+          </div>
+
+          <div class="as-field">
+            <label class="as-label">Nombre del servicio <span class="as-required">*</span></label>
+            <input type="text" formControlName="business_name" class="as-input"
+              [class.as-input--error]="f['business_name'].invalid && f['business_name'].touched"
+              placeholder="Ej: Plomería residencial">
+            @if (f['business_name'].invalid && f['business_name'].touched) {
+              <span class="as-field-error">El nombre es requerido</span>
+            }
+          </div>
+
+          <div class="as-field">
+            <label class="as-label">Descripción</label>
+            <textarea formControlName="description" rows="3" class="as-textarea"
+              placeholder="Describe brevemente tu servicio, experiencia y especialidades..."></textarea>
+          </div>
+
+          <div class="as-fields-row">
+            <div class="as-field">
+              <label class="as-label">Teléfono de contacto <span class="as-required">*</span></label>
+              <input type="tel" formControlName="phone" class="as-input"
+                [class.as-input--error]="f['phone'].invalid && f['phone'].touched"
+                placeholder="+56 9 XXXX XXXX"
+                maxlength="17"
+                (input)="onPhoneInput($event)">
+              @if (f['phone'].invalid && f['phone'].touched) {
+                <span class="as-field-error">
+                  {{ f['phone'].errors?.['required'] ? 'El teléfono es requerido' : 'Ej: +56 9 1234 5678' }}
+                </span>
+              }
+            </div>
+
+            <div class="as-field">
+              <label class="as-label">Tarifa por hora</label>
+              <div class="as-input-prefix">
+                <span class="as-prefix">$</span>
+                <input type="number" formControlName="hourly_rate" class="as-input as-input--prefixed"
+                  placeholder="0" min="0">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Sección: Dirección ───────────────────────────────── -->
+        <div class="as-section">
+          <div class="as-section-header">
+            <div class="as-section-icon">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </div>
+            <h2 class="as-section-title">Dirección del servicio</h2>
+          </div>
+
+          <div class="as-field">
+            <label class="as-label">Dirección <span class="as-required">*</span></label>
+            <div class="as-address-wrap">
+              <input
+                type="text"
+                formControlName="address"
+                class="as-input"
+                [class.as-input--error]="f['address'].invalid && f['address'].touched"
+                placeholder="Calle, número, ciudad..."
+                autocomplete="off"
+                (focus)="showSuggestions.set(addressSuggestions().length > 0)"
+                (blur)="onAddressBlur()">
+
+              @if (f['address'].value && !searchingAddress()) {
+                <button type="button" class="as-address-clear" (click)="clearAddress()" aria-label="Limpiar dirección">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+              }
+              @if (searchingAddress()) {
+                <span class="as-address-spinner as-spinner"></span>
+              }
+
+              <!-- Dropdown sugerencias -->
+              @if (showSuggestions() && addressSuggestions().length > 0) {
+                <div class="as-suggestions">
+                  @for (sug of addressSuggestions(); track sug.id) {
+                    <button type="button" class="as-suggestion-item" (mousedown)="selectSuggestion(sug)">
+                      <ion-icon [name]="sug.icon" class="as-suggestion-icon"></ion-icon>
+                      <div class="as-suggestion-text">
+                        <span class="as-suggestion-main">{{ sug.displayText }}</span>
+                        @if (sug.context) {
+                          <span class="as-suggestion-sub">{{ sug.context }}</span>
+                        }
+                      </div>
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+            @if (f['address'].invalid && f['address'].touched) {
+              <span class="as-field-error">La dirección es requerida</span>
+            }
+          </div>
+        </div>
+
+        <!-- ── Sección: Horarios ────────────────────────────────── -->
+        <div class="as-section">
+          <div class="as-section-header">
+            <div class="as-section-icon">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <h2 class="as-section-title">Horario disponible</h2>
+          </div>
+          <p class="as-section-desc">Indica los días y horarios en que ofreces este servicio.</p>
+
+          <div [formArrayName]="'working_hours'" class="as-hours-list">
+            @for (ctrl of workingHoursArray.controls; track $index; let i = $index) {
+              <div [formGroupName]="i" class="as-day-row">
+                <div class="as-day-header">
+                  <span class="as-day-name">{{ dayNames[i] }}</span>
+                  <label class="as-toggle" [attr.aria-label]="'Activar ' + dayNames[i]">
+                    <input type="checkbox" formControlName="is_active" class="as-toggle-input">
+                    <span class="as-toggle-track">
+                      <span class="as-toggle-thumb"></span>
+                    </span>
+                  </label>
+                </div>
+                @if (ctrl.get('is_active')?.value) {
+                  <div class="as-day-times">
+                    <div class="as-field as-field--compact">
+                      <label class="as-label as-label--sm">Inicio</label>
+                      <input type="time" formControlName="start_time" class="as-input as-input--time">
+                    </div>
+                    <span class="as-time-sep">—</span>
+                    <div class="as-field as-field--compact">
+                      <label class="as-label as-label--sm">Fin</label>
+                      <input type="time" formControlName="end_time" class="as-input as-input--time">
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- ── Acciones ─────────────────────────────────────────── -->
+        <div class="as-actions">
+          <button type="button" class="as-btn as-btn--secondary" (click)="cancel()" [disabled]="loading()">
+            Cancelar
+          </button>
+          <button type="submit" class="as-btn as-btn--primary" [disabled]="loading()">
+            @if (loading()) {
+              <span class="as-spinner"></span>
+            }
+            Crear servicio
+          </button>
+        </div>
+
+      </form>
+    }
+  </div><!-- /as-body -->
+
+</div><!-- /as-frame -->
+</div><!-- /as-host -->

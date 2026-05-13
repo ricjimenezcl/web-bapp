@@ -363,6 +363,114 @@
   color: #94A3B8;
 }
 
+// ══════════════════════════════════════════════════════════════════════
+// PREMIUM MODAL
+// ══════════════════════════════════════════════════════════════════════
+.premium-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.68);
+  backdrop-filter: blur(3px);
+  z-index: 1200;
+}
+
+.premium-modal {
+  position: fixed;
+  width: min(680px, calc(100vw - 32px));
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--bw-surface-card);
+  border: 1px solid var(--bw-border);
+  border-radius: 18px;
+  padding: 22px;
+  z-index: 1210;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+}
+
+.premium-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  h3 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--bw-text-p);
+  }
+}
+
+.premium-modal-close {
+  border: 1px solid var(--bw-border);
+  background: transparent;
+  color: var(--bw-text-s);
+  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+  cursor: pointer;
+}
+
+.premium-modal-sub {
+  margin: 8px 0 16px;
+  color: var(--bw-text-s);
+  font-size: 14px;
+}
+
+.premium-plan-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  @media (max-width: 720px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.premium-plan-card {
+  text-align: left;
+  background: #000;
+  border: 1px solid var(--bw-border);
+  border-radius: 14px;
+  padding: 16px;
+  color: var(--bw-text-p);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+
+  h4 { margin: 2px 0 0; font-size: 16px; }
+  p { margin: 0; color: var(--bw-text-s); font-size: 13px; }
+  strong { color: var(--bw-accent); font-size: 18px; }
+
+  &:hover {
+    border-color: rgba(253, 230, 138, 0.4);
+    transform: translateY(-1px);
+  }
+}
+
+.premium-plan-card--featured {
+  border-color: rgba(253, 230, 138, 0.45);
+  background: rgba(253, 230, 138, 0.06);
+}
+
+.premium-plan-badge {
+  align-self: flex-start;
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--bw-text-s);
+}
+
+.premium-plan-badge--accent {
+  background: rgba(253, 230, 138, 0.15);
+  color: var(--bw-accent);
+}
+
 .perk-icon { width: 14px; height: 14px; flex-shrink: 0; color: #A7F3D0; }
 
 .stats-grid {

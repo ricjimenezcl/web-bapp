@@ -9,15 +9,15 @@ import { CategoryService } from '../../../../core/services/category.service';
 import { SearchStateService } from '../../../../core/services/search-state.service';
 import { LocationService } from '../../../../core/services/location.service';
 import { ServiceProvider, MainCategory } from '../../../../core/models/provider.model';
-import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
-import { LoadingSkeletonComponent } from '../../../../shared/components/loading-skeleton/loading-skeleton.component';
 import { ServiceMapComponent } from '../service-map/service-map.component';
 import { ContactLimitService } from '../../../../core/services/contact-limit.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-service-search',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, EmptyStateComponent, LoadingSkeletonComponent, ServiceMapComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, ServiceMapComponent],
   templateUrl: './service-search.component.html',
   styleUrl: './service-search.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -27,9 +27,17 @@ export class ServiceSearchComponent implements OnInit {
   private readonly providerSvc  = inject(ProviderService);
   private readonly categorySvc  = inject(CategoryService);
   private readonly route        = inject(ActivatedRoute);
+  private readonly router       = inject(Router);
   private readonly searchState  = inject(SearchStateService);
   private readonly locationSvc  = inject(LocationService);
+  private readonly auth         = inject(AuthService);
   readonly contactLimit         = inject(ContactLimitService);
+  readonly FREE_VISIBLE = 5;
+  readonly hasPremium = computed(() => {
+    const currentUser = this.auth.currentUser();
+    const profile = this.auth.currentProfile();
+    return Boolean(currentUser?.has_premium || profile?.has_premium);
+  });
 
   providers         = signal<ServiceProvider[]>([]);
   filteredProviders = signal<ServiceProvider[]>([]);
@@ -319,6 +327,19 @@ export class ServiceSearchComponent implements OnInit {
         this.hoveredProviderId() === providerId ? null : providerId
       );
     }
+  }
+
+  isLockedProvider(index: number): boolean {
+    return !this.hasPremium() && index >= this.FREE_VISIBLE;
+  }
+
+  goToPremium(): void {
+    this.router.navigate(['/payment'], {
+      queryParams: {
+        product_type: 'CLIENT_UNLOCK_7',
+        returnTo: '/client/tabs/service-search'
+      }
+    });
   }
 
   trackById(_: number, item: ServiceProvider) { return item.id; }

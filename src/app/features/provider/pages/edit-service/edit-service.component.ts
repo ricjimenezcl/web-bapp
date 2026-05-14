@@ -9,6 +9,7 @@ import { GeoapifyService, AddressSuggestion } from '../../../../core/services/ge
 import { ProviderWorkingHours } from '../../../../core/models/provider.model';
 import { CustomValidators } from '../../../../shared/validators/custom-validators';
 import { formatChileanPhone } from '../../../../shared/utils/form-formatters';
+import { ModalService } from '../../../../core/services/modal.service';
 
 const DAY_NAMES = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 
@@ -26,6 +27,7 @@ export class EditServiceComponent implements OnInit, OnDestroy {
   private geoapify    = inject(GeoapifyService);
   private router      = inject(Router);
   private route       = inject(ActivatedRoute);
+  private modal       = inject(ModalService);
   private destroy$    = new Subject<void>();
 
   readonly dayNames = DAY_NAMES;
@@ -192,7 +194,7 @@ export class EditServiceComponent implements OnInit, OnDestroy {
     this.showSuggestions.set(false);
   }
 
-  submit(): void {
+  async submit(): Promise<void> {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
     this.saving.set(true);
     this.error.set('');
@@ -200,7 +202,13 @@ export class EditServiceComponent implements OnInit, OnDestroy {
 
     // Endpoint: PUT /providers/{providerId}/services/{serviceId}
     // Acepta nombres en inglés (ServiceProviderUpdateRequest)
-    if (!confirm('¿Deseas confirmar la actualización de este servicio?')) {
+    const confirmed = await this.modal.confirm(
+      '¿Deseas confirmar la actualización de este servicio?',
+      'Confirmar edición',
+      'Actualizar'
+    );
+
+    if (!confirmed) {
       this.saving.set(false);
       return;
     }
@@ -261,8 +269,14 @@ export class EditServiceComponent implements OnInit, OnDestroy {
     }));
   }
 
-  cancel(): void {
-    if (!confirm('¿Deseas cancelar la edición? Los cambios no guardados se perderán.')) {
+  async cancel(): Promise<void> {
+    const confirmed = await this.modal.confirm(
+      '¿Deseas cancelar la edición? Los cambios no guardados se perderán.',
+      'Cancelar edición',
+      'Sí, salir'
+    );
+
+    if (!confirmed) {
       return;
     }
     this.router.navigate(['/provider/tabs/my-services']);

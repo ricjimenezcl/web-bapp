@@ -8,15 +8,14 @@ import { BookingService } from '../../../../core/services/booking.service';
 import { ChatService } from '../../../../core/services/chat.service';
 import { WebSocketService } from '../../../../core/services/websocket.service';
 import { BookingResponse, BookingStatus, BOOKING_STATUS_LABELS, BOOKING_STATUS_COLORS } from '../../../../core/models/booking.model';
-import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
-import { LoadingSkeletonComponent } from '../../../../shared/components/loading-skeleton/loading-skeleton.component';
+import { ModalService } from '../../../../core/services/modal.service';
 
 type TabId = 'upcoming' | 'pending' | 'cancelled';
 
 @Component({
   selector: 'app-client-bookings',
   standalone: true,
-  imports: [CommonModule, FormsModule, EmptyStateComponent, LoadingSkeletonComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './client-bookings.component.html',
   styleUrl: './client-bookings.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -26,13 +25,13 @@ export class ClientBookingsComponent implements OnInit, OnDestroy {
   private readonly chatSvc     = inject(ChatService);
   private readonly wsSvc       = inject(WebSocketService);
   private readonly router      = inject(Router);
+  private readonly modal       = inject(ModalService);
   private readonly destroy$    = new Subject<void>();
 
   bookings        = signal<BookingResponse[]>([]);
   loading         = signal(true);
   error           = signal('');
   activeTab       = signal<TabId>('upcoming');
-  toastMsg        = signal<string | null>(null);
   chatOpeningId   = signal<string | number | null>(null);
   cancelTarget    = signal<BookingResponse | null>(null);
   cancelComment   = '';
@@ -176,7 +175,6 @@ export class ClientBookingsComponent implements OnInit, OnDestroy {
   }
 
   showToast(msg: string): void {
-    this.toastMsg.set(msg);
-    setTimeout(() => this.toastMsg.set(null), 3000);
+    void this.modal.info(msg);
   }
 }

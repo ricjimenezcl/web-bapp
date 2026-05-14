@@ -12,7 +12,7 @@ import { SearchStateService } from '../../../../core/services/search-state.servi
 import { ContactLimitService } from '../../../../core/services/contact-limit.service';
 import { ProviderProfile, ServiceProvider, ProviderWorkingHours } from '../../../../core/models/provider.model';
 import { Review } from '../../../../core/models/review.model';
-import { LoadingSkeletonComponent } from '../../../../shared/components/loading-skeleton/loading-skeleton.component';
+import { ModalService } from '../../../../core/services/modal.service';
 
 interface CalendarDay {
   dateStr: string;      // YYYY-MM-DD
@@ -26,7 +26,7 @@ interface CalendarDay {
 @Component({
   selector: 'app-provider-info',
   standalone: true,
-  imports: [CommonModule, RouterLink, LoadingSkeletonComponent],
+  imports: [CommonModule, RouterLink],
   templateUrl: './provider-info.component.html',
   styleUrl: './provider-info.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -42,6 +42,7 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
   private readonly reviewSvc   = inject(ReviewService);
   private readonly geoapify    = inject(GeoapifyService);
   readonly contactLimit        = inject(ContactLimitService);
+  private readonly modal       = inject(ModalService);
   private readonly destroy$    = new Subject<void>();
 
   // ── Datos del proveedor ──────────────────────────────────────────────────
@@ -86,9 +87,6 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
 
   // ── Chat ─────────────────────────────────────────────────────────────────
   isStartingChat = signal(false);
-
-  // ── Toast ────────────────────────────────────────────────────────────────
-  toastState = signal<{ msg: string; type: string } | null>(null);
 
   // ── Privadas ─────────────────────────────────────────────────────────────
   private activeDays             = new Set<number>();
@@ -584,8 +582,19 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
 
   // ── Toast ─────────────────────────────────────────────────────────────────
   showToast(msg: string, type: string = 'success'): void {
-    this.toastState.set({ msg, type });
-    setTimeout(() => this.toastState.set(null), 3000);
+    if (type === 'danger') {
+      void this.modal.error(msg);
+      return;
+    }
+    if (type === 'warning') {
+      void this.modal.warning(msg);
+      return;
+    }
+    if (type === 'success') {
+      void this.modal.success(msg);
+      return;
+    }
+    void this.modal.info(msg);
   }
 
   // ── Navegación ────────────────────────────────────────────────────────────

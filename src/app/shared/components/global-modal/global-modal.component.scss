@@ -1,0 +1,108 @@
+.gm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 16px;
+}
+
+.gm-modal {
+  width: min(480px, 100%);
+  background: #101010;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  animation: gm-pop-in 0.2s ease;
+}
+
+@keyframes gm-pop-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.gm-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+  h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 800;
+    color: #f9fafb;
+  }
+}
+
+.gm-header--info { background: rgba(59, 130, 246, 0.14); }
+.gm-header--success { background: rgba(16, 185, 129, 0.14); }
+.gm-header--warning { background: rgba(245, 158, 11, 0.14); }
+.gm-header--error { background: rgba(239, 68, 68, 0.14); }
+.gm-header--confirm,
+.gm-header--prompt { background: rgba(253, 230, 138, 0.08); }
+
+.gm-message {
+  margin: 0;
+  padding: 18px;
+  color: #cbd5e1;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.gm-input-wrap {
+  padding: 0 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  label {
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  input {
+    width: 100%;
+    background: #000;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    padding: 10px 12px;
+    color: #f9fafb;
+    font-size: 14px;
+    outline: none;
+
+    &:focus {
+      border-color: #fde68a;
+      box-shadow: 0 0 0 3px rgba(253, 230, 138, 0.1);
+    }
+  }
+}
+
+.gm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 0 18px 18px;
+}
+
+.gm-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.gm-btn--ghost {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+}
+
+.gm-btn--solid {
+  background: #fde68a;
+  color: #111827;
+}

@@ -1,0 +1,36 @@
+@if (modal.state().open) {
+  <div class="gm-backdrop" (click)="onBackdropClick()">
+    <div class="gm-modal" (click)="$event.stopPropagation()">
+      <div class="gm-header gm-header--{{ modal.state().type }}">
+        <h3>{{ modal.state().title }}</h3>
+      </div>
+
+      <p class="gm-message">{{ modal.state().message }}</p>
+
+      @if (modal.state().type === 'prompt') {
+        <div class="gm-input-wrap">
+          @if (modal.state().inputLabel) {
+            <label>{{ modal.state().inputLabel }}</label>
+          }
+          <input
+            type="text"
+            [value]="modal.state().inputValue"
+            [placeholder]="modal.state().inputPlaceholder ?? ''"
+            (input)="modal.setPromptValue(($any($event.target).value ?? '').toString())"
+          />
+        </div>
+      }
+
+      <div class="gm-actions">
+        @if (modal.state().showCancel) {
+          <button type="button" class="gm-btn gm-btn--ghost" (click)="modal.cancel()">
+            {{ modal.state().cancelText || 'Cancelar' }}
+          </button>
+        }
+        <button type="button" class="gm-btn gm-btn--solid" (click)="modal.accept()">
+          {{ modal.state().confirmText }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

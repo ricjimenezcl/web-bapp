@@ -4,6 +4,7 @@ import { ProviderService } from '../../../../core/services/provider.service';
 import { ServiceProvider } from '../../../../core/models/provider.model';
 import { SearchStateService } from '../../../../core/services/search-state.service';
 import { LocationService } from '../../../../core/services/location.service';
+import { ModalService } from '../../../../core/services/modal.service';
 
 type MapStyle = 'streets' | 'light' | 'dark';
 
@@ -21,6 +22,7 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
   private readonly providerSvc = inject(ProviderService);
   private readonly searchState = inject(SearchStateService);
   private readonly locationSvc = inject(LocationService);
+  private readonly modal = inject(ModalService);
 
   nearbyProviders = signal<ServiceProvider[]>([]);
   loading         = signal(true);
@@ -336,7 +338,7 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
         marker.on('mouseout',  () => marker.closePopup());
         marker.on('click', () => {
           if (isLocked) {
-            alert('⭐ Accede a plan Premium para ver más proveedores');
+            this.modal.info('Accede a un plan Premium para desbloquear más proveedores.');
           }
         });
 

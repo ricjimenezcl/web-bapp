@@ -24,7 +24,7 @@
       </div>
 
       <div class="plan-picker">
-        @for (plan of plans; track plan.productType) {
+        @for (plan of visiblePlans(); track plan.productType) {
           <button
             type="button"
             class="plan-option"

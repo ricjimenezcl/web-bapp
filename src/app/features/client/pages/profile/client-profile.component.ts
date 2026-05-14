@@ -8,6 +8,7 @@ import { UserProfile } from '../../../../core/models/user.model';
 import { CustomValidators } from '../../../../shared/validators/custom-validators';
 import { formatChileanPhone } from '../../../../shared/utils/form-formatters';
 import { ProductType } from '../../../../core/services/payment.service';
+import { ModalService } from '../../../../core/services/modal.service';
 
 export type DashView = 'overview' | 'edit' | 'purchases' | 'config' | 'help';
 
@@ -23,6 +24,7 @@ export class ClientProfileComponent implements OnInit {
   private readonly profile = inject(ProfileService);
   private readonly router  = inject(Router);
   private readonly fb      = inject(FormBuilder);
+  private readonly modal   = inject(ModalService);
 
   // ── Profile ────────────────────────────────────────────────────────
   user    = signal<UserProfile | null>(null);
@@ -183,13 +185,24 @@ export class ClientProfileComponent implements OnInit {
     if (navigator.share && navigator.canShare?.(shareData)) {
       try { await navigator.share(shareData); } catch { /* cancelled */ }
     } else {
-      try { await navigator.clipboard.writeText(inviteUrl); alert('Enlace copiado al portapapeles'); }
-      catch { alert('No se pudo copiar el enlace'); }
+      try {
+        await navigator.clipboard.writeText(inviteUrl);
+        await this.modal.success('Enlace copiado al portapapeles.');
+      }
+      catch {
+        await this.modal.error('No se pudo copiar el enlace.');
+      }
     }
   }
 
   async goLogout(): Promise<void> {
-    if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+    const confirmed = await this.modal.confirm(
+      '¿Estás seguro de que deseas cerrar sesión?',
+      'Cerrar sesión',
+      'Cerrar sesión'
+    );
+
+    if (confirmed) {
       this.auth.logout();
       this.router.navigate(['/auth/login']);
     }

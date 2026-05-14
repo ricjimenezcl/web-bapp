@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { ProviderService } from '../../../../core/services/provider.service';
 import { ServiceProvider } from '../../../../core/models/provider.model';
+import { ModalService } from '../../../../core/services/modal.service';
 
 @Component({
   selector: 'app-my-services',
@@ -15,6 +16,7 @@ import { ServiceProvider } from '../../../../core/models/provider.model';
 export class MyServicesComponent implements OnInit {
   private readonly providerSvc = inject(ProviderService);
   private readonly router = inject(Router);
+  private readonly modal = inject(ModalService);
 
   services = signal<ServiceProvider[]>([]);
   loading  = signal(true);
@@ -34,8 +36,9 @@ export class MyServicesComponent implements OnInit {
     });
   }
 
-  delete(id: number): void {
-    if (!confirm('¿Eliminar este servicio?')) return;
+  async delete(id: number): Promise<void> {
+    const confirmed = await this.modal.confirm('¿Eliminar este servicio?', 'Confirmar eliminación', 'Eliminar');
+    if (!confirmed) return;
     this.providerSvc.deleteService(id).subscribe({
       next: () => this.services.update(list => list.filter(s => s.id !== id))
     });

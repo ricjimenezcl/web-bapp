@@ -6,11 +6,12 @@ import { SessionService } from './core/services/session.service';
 import { filter } from 'rxjs';
 import { fadeAnimation } from './core/animations/route-animations';
 import { AppFooterComponent } from './shared/components/app-footer/app-footer.component';
+import { GlobalModalComponent } from './shared/components/global-modal/global-modal.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, AppFooterComponent],
+  imports: [RouterOutlet, CommonModule, AppFooterComponent, GlobalModalComponent],
   animations: [fadeAnimation],
   template: `
     <div [@fadeAnimation]="getRouteAnimationData()">
@@ -20,6 +21,8 @@ import { AppFooterComponent } from './shared/components/app-footer/app-footer.co
     @if (showFooter()) {
       <app-footer />
     }
+
+    <app-global-modal />
 
     <!-- Modal sesión expirada -->
     @if (session.isExpired()) {

@@ -790,20 +790,3 @@
   </div>
 }
 
-<!-- ══════════════════════════════════════════════════════════════════
-     TOAST
-══════════════════════════════════════════════════════════════════ -->
-@if (toastState()) {
-  <div class="fixed bottom-6 left-4 right-4 z-[60] flex justify-center pointer-events-none">
-    <div class="px-4 py-3 rounded-xl shadow-lg text-sm font-semibold flex items-center gap-2 max-w-sm w-full pointer-events-auto"
-         [class]="toastState()!.type === 'success' ? 'bg-green-600 text-white'
-                : toastState()!.type === 'danger'  ? 'bg-red-600 text-white'
-                : toastState()!.type === 'warning' ? 'bg-amber-500 text-slate-900'
-                : 'bg-slate-800 text-white'">
-      @if (toastState()!.type === 'success') { <span>✓</span> }
-      @if (toastState()!.type === 'danger')  { <span>✕</span> }
-      @if (toastState()!.type === 'warning') { <span>⚠</span> }
-      {{ toastState()!.msg }}
-    </div>
-  </div>
-}

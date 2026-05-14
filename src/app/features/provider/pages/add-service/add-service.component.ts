@@ -11,6 +11,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { MainCategory, ServiceCategory } from '../../../../core/models/provider.model';
 import { CustomValidators } from '../../../../shared/validators/custom-validators';
 import { formatChileanPhone } from '../../../../shared/utils/form-formatters';
+import { ModalService } from '../../../../core/services/modal.service';
 
 const DAY_NAMES = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 
@@ -29,6 +30,7 @@ export class AddServiceComponent implements OnInit, OnDestroy {
   private geoapify     = inject(GeoapifyService);
   private auth         = inject(AuthService);
   private router       = inject(Router);
+  private modal        = inject(ModalService);
   private destroy$ = new Subject<void>();
 
   readonly dayNames = DAY_NAMES;
@@ -164,7 +166,7 @@ export class AddServiceComponent implements OnInit, OnDestroy {
     this.showSuggestions.set(false);
   }
 
-  submit(): void {
+  async submit(): Promise<void> {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
 
     // lat/lng son requeridos por el backend — el usuario debe seleccionar una sugerencia
@@ -190,7 +192,13 @@ export class AddServiceComponent implements OnInit, OnDestroy {
       id_contacto:      this.auth.currentUser()?.id ?? 0,
     };
 
-    if (!confirm('¿Deseas confirmar el alta de este servicio?')) {
+    const confirmed = await this.modal.confirm(
+      '¿Deseas confirmar el alta de este servicio?',
+      'Confirmar alta de servicio',
+      'Confirmar'
+    );
+
+    if (!confirmed) {
       this.loading.set(false);
       return;
     }
@@ -252,8 +260,14 @@ export class AddServiceComponent implements OnInit, OnDestroy {
     }));
   }
 
-  cancel(): void {
-    if (!confirm('¿Deseas cancelar y volver atrás? Los cambios no guardados se perderán.')) {
+  async cancel(): Promise<void> {
+    const confirmed = await this.modal.confirm(
+      '¿Deseas cancelar y volver atrás? Los cambios no guardados se perderán.',
+      'Cancelar creación',
+      'Sí, cancelar'
+    );
+
+    if (!confirmed) {
       return;
     }
     this.router.navigate(['/provider/tabs/profile']);

@@ -6,6 +6,19 @@ import { PaymentService, ProductType } from '../../core/services/payment.service
 
 export type PayMethod = 'transbank' | 'mercadopago' | 'transferencia';
 
+const CLIENT_PRODUCT_TYPES: ProductType[] = [
+  'CLIENT_UNLOCK_7',
+  'CLIENT_UNLOCK_30',
+];
+
+const PROVIDER_PRODUCT_TYPES: ProductType[] = [
+  'PROVIDER_SERVICE_30',
+  'PROVIDER_SERVICE_YEAR',
+  'PROVIDER_LEADS_7',
+  'PROVIDER_LEADS_30',
+  'PROVIDER_PREMIUM_MONTHLY',
+];
+
 interface PlanUi {
   productType: ProductType;
   title: string;
@@ -90,6 +103,10 @@ export class PaymentComponent implements OnInit {
   readonly user     = this.auth.currentProfile;
   readonly userRole = this.auth.currentUser()?.role ?? 'CLIENT';
   readonly plans = Object.values(PLAN_CATALOG);
+  readonly visiblePlans = computed(() => {
+    const allowed = this.userRole === 'PROVIDER' ? PROVIDER_PRODUCT_TYPES : CLIENT_PRODUCT_TYPES;
+    return this.plans.filter(plan => allowed.includes(plan.productType));
+  });
 
   selectedMethod = signal<PayMethod>('transbank');
   selectedProductType = signal<ProductType>('CLIENT_UNLOCK_7');
@@ -109,7 +126,17 @@ export class PaymentComponent implements OnInit {
       const returnTo = params.get('returnTo');
 
       if (returnTo) this.returnTo.set(returnTo);
-      if (productType && PLAN_CATALOG[productType]) this.selectedProductType.set(productType);
+
+      const rolePlans = this.visiblePlans();
+      const rolePlanTypes = new Set(rolePlans.map(plan => plan.productType));
+
+      if (productType && rolePlanTypes.has(productType)) {
+        this.selectedProductType.set(productType);
+      }
+
+      if (!rolePlanTypes.has(this.selectedProductType()) && rolePlans.length > 0) {
+        this.selectedProductType.set(rolePlans[0].productType);
+      }
 
       // Flujo normal de retorno Webpay (pago autorizado)
       if (tokenWs) {
@@ -129,6 +156,9 @@ export class PaymentComponent implements OnInit {
   }
 
   selectPlan(productType: ProductType): void {
+    const rolePlanTypes = new Set(this.visiblePlans().map(plan => plan.productType));
+    if (!rolePlanTypes.has(productType)) return;
+
     this.selectedProductType.set(productType);
     this.success.set(false);
     this.error.set('');

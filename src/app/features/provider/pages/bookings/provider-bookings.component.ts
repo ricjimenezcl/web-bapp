@@ -4,6 +4,7 @@ import { RouterLink, Router, NavigationEnd } from '@angular/router';
 import { Subscription, filter } from 'rxjs';
 import { BookingService } from '../../../../core/services/booking.service';
 import { BookingResponse, BOOKING_STATUS_LABELS, BOOKING_STATUS_COLORS } from '../../../../core/models/booking.model';
+import { ModalService } from '../../../../core/services/modal.service';
 
 @Component({
   selector: 'app-provider-bookings',
@@ -15,6 +16,7 @@ import { BookingResponse, BOOKING_STATUS_LABELS, BOOKING_STATUS_COLORS } from '.
 export class ProviderBookingsComponent implements OnInit, OnDestroy {
   private readonly bookingSvc = inject(BookingService);
   private readonly router     = inject(Router);
+  private readonly modal      = inject(ModalService);
   private sub?: Subscription;
 
   bookings  = signal<BookingResponse[]>([]);
@@ -57,8 +59,19 @@ export class ProviderBookingsComponent implements OnInit, OnDestroy {
     });
   }
 
-  reject(id: number): void {
-    const reason = prompt('Motivo del rechazo (opcional):');
+  async reject(id: number): Promise<void> {
+    const reason = await this.modal.prompt(
+      'Opcionalmente puedes indicar un motivo para rechazar la reserva.',
+      'Rechazar reserva',
+      {
+        inputLabel: 'Motivo del rechazo',
+        inputPlaceholder: 'Escribe un motivo (opcional)',
+        confirmText: 'Rechazar',
+      }
+    );
+
+    if (reason === null) return;
+
     this.bookingSvc.rejectBooking(id, reason ?? undefined).subscribe({
       next: (u) => this.bookings.update(l => l.map(b => String(b.id) === String(id) ? u : b))
     });

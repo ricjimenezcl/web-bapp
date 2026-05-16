@@ -10,7 +10,7 @@
 
       <div class="ph-cover"></div>
 
-      <!-- Badge verificación sobre el cover -->
+      <!-- Badge verificaci\xf3n sobre el cover -->
       @if (!loading() && validationStatus() !== 'approved') {
         <div class="ph-cover-badge">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,7 +71,7 @@
 
     </div>
 
-    <!-- ══ STATS ROW: 4 KPIs principales ══════════════════════════ -->
+    <!-- ══ STATS ROW: 3 KPIs principales ═══════════════════════════ -->
     @if (!loading()) {
       <div class="ph-stats-row">
         <div class="ph-stat-box">
@@ -91,16 +91,12 @@
               </svg>
             }
           </h3>
-          <p>Calificación</p>
-        </div>
-        <div class="ph-stat-box">
-          <h3 class="ph-stat--rate">${{ (stats()?.total_earnings ?? 0) | number:'1.0-0' }}</h3>
-          <p>Ganancias</p>
+          <p>Calificaci\xf3n</p>
         </div>
       </div>
     } @else {
       <div class="ph-stats-row ph-stats-row--skeleton">
-        @for (i of [1,2,3,4]; track i) {
+        @for (i of [1,2,3]; track i) {
           <div class="ph-stat-box">
             <div class="ph-sk ph-sk--val"></div>
             <div class="ph-sk ph-sk--lbl"></div>
@@ -115,7 +111,7 @@
       @if (loading()) {
 
         <div class="ph-loading-grid">
-          @for (i of [1,2,3,4,5,6]; track i) {
+          @for (i of [1,2,3,4]; track i) {
             <div class="ph-sk-card">
               <div class="ph-sk ph-sk--icon"></div>
               <div class="ph-sk ph-sk--title"></div>
@@ -126,7 +122,7 @@
 
       } @else {
 
-        <!-- ── Banner verificación pendiente ────────────────────── -->
+        <!-- ── Banner verificaci\xf3n pendiente ────────────────────── -->
         @if (showVerificationAlert()) {
           <div class="ph-verification-banner">
             <div class="ph-vb-icon">
@@ -136,7 +132,7 @@
               </svg>
             </div>
             <div class="ph-vb-content">
-              <h4>Verificación de identidad</h4>
+              <h4>Verificaci\xf3n de identidad</h4>
               <p>{{ verificationMessage() }}</p>
             </div>
             <div class="ph-vb-actions">
@@ -144,7 +140,7 @@
                 Verificar ahora
               </button>
               <button class="ph-btn-ghost" type="button" (click)="dismissVerificationAlert()">
-                Más tarde
+                M\xe1s tarde
               </button>
             </div>
           </div>
@@ -161,7 +157,7 @@
             </div>
             <span class="ph-pa-text">
               Tienes <strong>{{ stats()?.pending_services }}</strong>
-              servicio{{ (stats()?.pending_services ?? 1) !== 1 ? 's' : '' }} pendiente{{ (stats()?.pending_services ?? 1) !== 1 ? 's' : '' }} de activación
+              servicio{{ (stats()?.pending_services ?? 1) !== 1 ? 's' : '' }} pendiente{{ (stats()?.pending_services ?? 1) !== 1 ? 's' : '' }} de activaci\xf3n
             </span>
             <svg class="ph-pa-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -169,27 +165,12 @@
           </a>
         }
 
-        <!-- ── Sección: Tu actividad ─────────────────────────────── -->
+        <!-- ── Secci\xf3n: Tu actividad ─────────────────────────────── -->
         <div class="ph-section">
           <span class="ph-section-title">Tu actividad</span>
           <div class="ph-metrics-grid">
 
-            <div class="ph-metric-card">
-              <div class="ph-metric-icon ph-metric-icon--blue">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                </svg>
-              </div>
-              <div class="ph-metric-body">
-                <span class="ph-metric-value">{{ stats()?.profile_views ?? 0 }}</span>
-                <span class="ph-metric-label">Visitas al perfil</span>
-              </div>
-            </div>
-
-            <div class="ph-metric-card ph-metric-card--clickable" (click)="openServiceViewers()" role="button" tabindex="0" (keyup.enter)="openServiceViewers()">
+            <button class="ph-metric-card ph-metric-card--clickable" type="button" (click)="openServiceViewers()">
               <div class="ph-metric-icon ph-metric-icon--purple">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -206,20 +187,7 @@
                 </svg>
                 Ver
               </span>
-            </div>
-
-            <div class="ph-metric-card">
-              <div class="ph-metric-icon ph-metric-icon--green">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
-              </div>
-              <div class="ph-metric-body">
-                <span class="ph-metric-value">{{ stats()?.zone_searches ?? 0 }}</span>
-                <span class="ph-metric-label">Búsquedas en zona</span>
-              </div>
-            </div>
+            </button>
 
             <div class="ph-metric-card">
               <div class="ph-metric-icon ph-metric-icon--teal">
@@ -237,7 +205,7 @@
           </div>
         </div>
 
-        <!-- ── Accesos rápidos ───────────────────────────────────── -->
+        <!-- ── Accesos r\xe1pidos ───────────────────────────────────── -->
         <div class="ph-section">
           <span class="ph-section-title">Ir a</span>
           <div class="ph-quick-actions">
@@ -274,22 +242,6 @@
               </svg>
             </a>
 
-            <a class="ph-qa-item" routerLink="/provider/tabs/profile">
-              <div class="ph-qa-icon">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                </svg>
-              </div>
-              <div class="ph-qa-body">
-                <span class="ph-qa-title">Mi perfil</span>
-                <span class="ph-qa-sub">Editar información</span>
-              </div>
-              <svg class="ph-qa-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-              </svg>
-            </a>
-
             <a class="ph-qa-item" routerLink="/provider/tabs/chat">
               <div class="ph-qa-icon">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -315,12 +267,12 @@
     <!-- ══ FOOTER ═══════════════════════════════════════════════════ -->
     <footer class="ph-footer">
       <span class="ph-footer-brand">BappSearch</span>
-      <nav class="ph-footer-links" aria-label="Pie de página">
+      <nav class="ph-footer-links" aria-label="Pie de p\xe1gina">
         <a routerLink="/provider/tabs/home">Inicio</a>
-        <a routerLink="/terms">Términos</a>
+        <a routerLink="/terms">T\xe9rminos</a>
         <a routerLink="/privacy">Privacidad</a>
       </nav>
-      <span class="ph-footer-copy">© 2026 BappSearch.</span>
+      <span class="ph-footer-copy">\xa9 2026 BappSearch.</span>
     </footer>
 
   </div>

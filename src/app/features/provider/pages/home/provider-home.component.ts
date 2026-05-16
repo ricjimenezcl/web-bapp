@@ -4,7 +4,6 @@ import { RouterLink, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { ProviderService } from '../../../../core/services/provider.service';
 import { ProviderProfile, ProviderStats } from '../../../../core/models/provider.model';
-import { LoadingSkeletonComponent } from '../../../../shared/components/loading-skeleton/loading-skeleton.component';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../environments/environment';
 import { ServiceViewersComponent } from '../../components/service-viewers/service-viewers.component';
@@ -12,7 +11,7 @@ import { ServiceViewersComponent } from '../../components/service-viewers/servic
 @Component({
   selector: 'app-provider-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, LoadingSkeletonComponent, ServiceViewersComponent],
+  imports: [CommonModule, RouterLink, ServiceViewersComponent],
   templateUrl: './provider-home.component.html',
   styleUrl: './provider-home.component.scss',
 })

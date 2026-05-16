@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { StorageService } from './core/services/storage.service';
@@ -12,6 +12,7 @@ import { GlobalModalComponent } from './shared/components/global-modal/global-mo
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, CommonModule, AppFooterComponent, GlobalModalComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   animations: [fadeAnimation],
   template: `
     <div [@fadeAnimation]="getRouteAnimationData()">
@@ -26,85 +27,112 @@ import { GlobalModalComponent } from './shared/components/global-modal/global-mo
 
     <!-- Modal sesión expirada -->
     @if (session.isExpired()) {
-      <div class="session-expired-backdrop" (click)="$event.stopPropagation()">
-        <div class="session-expired-modal">
-          <div class="session-expired-icon">🔒</div>
-          <h2 class="session-expired-title">Sesión expirada</h2>
-          <p class="session-expired-msg">
-            Tu sesión ha finalizado por inactividad.<br>
-            Por favor, inicia sesión nuevamente.
+      <div class="se-backdrop" (click)="$event.stopPropagation()">
+        <div class="se-modal" (click)="$event.stopPropagation()">
+          <div class="se-header">
+            <div class="se-icon">
+              <ion-icon name="time-outline"></ion-icon>
+            </div>
+            <h3>Sesión expirada</h3>
+          </div>
+
+          <p class="se-message">
+            Tu sesión ha finalizado por inactividad. Por favor, inicia sesión nuevamente para continuar.
           </p>
-          <button class="session-expired-btn" (click)="goToLogin()">
-            Iniciar sesión
-          </button>
+
+          <div class="se-actions">
+            <button class="se-btn" (click)="goToLogin()">
+              Iniciar sesión
+            </button>
+          </div>
         </div>
       </div>
     }
   `,
   styles: [`
-    .session-expired-backdrop {
+    .se-backdrop {
       position: fixed;
       inset: 0;
       background: rgba(0, 0, 0, 0.55);
-      backdrop-filter: blur(4px);
+      backdrop-filter: blur(3px);
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 9999;
-      padding: 1rem;
+      z-index: 10000;
+      padding: 16px;
     }
 
-    .session-expired-modal {
-      background: #fff;
-      border-radius: 1rem;
-      padding: 2rem 1.5rem;
-      max-width: 360px;
-      width: 100%;
-      text-align: center;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
-      animation: modal-in 0.25s ease;
+    .se-modal {
+      width: min(420px, 100%);
+      background: #101010;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+      overflow: hidden;
+      animation: se-pop-in 0.2s ease;
     }
 
-    @keyframes modal-in {
-      from { opacity: 0; transform: scale(0.92) translateY(12px); }
-      to   { opacity: 1; transform: scale(1)   translateY(0);     }
+    @keyframes se-pop-in {
+      from { opacity: 0; transform: translateY(8px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
-    .session-expired-icon {
-      font-size: 3rem;
-      margin-bottom: 0.75rem;
+    .se-header {
+      padding: 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(245, 158, 11, 0.14);
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
-    .session-expired-title {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #1e293b;
-      margin-bottom: 0.5rem;
+    .se-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(245, 158, 11, 0.2);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fbbf24;
+      font-size: 24px;
     }
 
-    .session-expired-msg {
-      font-size: 0.9rem;
-      color: #64748b;
+    .se-header h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 800;
+      color: #f9fafb;
+    }
+
+    .se-message {
+      margin: 0;
+      padding: 18px;
+      color: #cbd5e1;
       line-height: 1.6;
-      margin-bottom: 1.5rem;
+      font-size: 14px;
     }
 
-    .session-expired-btn {
-      display: inline-block;
-      width: 100%;
-      padding: 0.75rem 1.5rem;
-      background: #2563eb;
-      color: #fff;
-      font-size: 0.95rem;
-      font-weight: 600;
+    .se-actions {
+      padding: 0 18px 18px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .se-btn {
       border: none;
-      border-radius: 0.625rem;
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 700;
       cursor: pointer;
-      transition: background 0.15s;
+      background: #fde68a;
+      color: #111827;
+      transition: background 0.15s ease;
     }
 
-    .session-expired-btn:hover {
-      background: #1d4ed8;
+    .se-btn:hover {
+      background: #fcd34d;
     }
   `],
 })

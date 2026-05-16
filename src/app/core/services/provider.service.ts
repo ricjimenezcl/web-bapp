@@ -51,7 +51,10 @@ export class ProviderService {
           map(items => items.map(item => ({
             ...item,
             avatar: item.provider?.avatar || item.avatar,
-            full_name: item.provider?.full_name || item.full_name
+            full_name: item.provider?.full_name || item.full_name,
+            rating_avg: item.rating_avg != null ? Number(item.rating_avg) : undefined,
+            total_reviews: item.total_reviews != null ? Number(item.total_reviews) : undefined,
+            hourly_rate: item.hourly_rate != null ? Number(item.hourly_rate) : undefined
           } as ServiceProvider))),
           tap(s => this._services.set(s))
         )
@@ -68,7 +71,10 @@ export class ProviderService {
       map(items => items.map(item => ({
         ...item,
         avatar: item.provider?.avatar || item.avatar,
-        full_name: item.provider?.full_name || item.full_name
+        full_name: item.provider?.full_name || item.full_name,
+        rating_avg: item.rating_avg != null ? Number(item.rating_avg) : undefined,
+        total_reviews: item.total_reviews != null ? Number(item.total_reviews) : undefined,
+        hourly_rate: item.hourly_rate != null ? Number(item.hourly_rate) : undefined
       } as ServiceProvider)))
     );
   }
@@ -169,10 +175,10 @@ export class ProviderService {
         full_name: item.provider?.full_name || item.full_name,
         // Incluir campo de disponibilidad (conectado/desconectado)
         is_available: item.is_available ?? true,
-        // Incluir rating, reviews e hourly_rate (pueden venir del backend)
-        rating_avg: item.rating_avg ?? undefined,
-        total_reviews: item.total_reviews ?? undefined,
-        hourly_rate: item.hourly_rate ?? undefined,
+        // Incluir rating, reviews e hourly_rate - convertir a números
+        rating_avg: item.rating_avg != null ? Number(item.rating_avg) : undefined,
+        total_reviews: item.total_reviews != null ? Number(item.total_reviews) : undefined,
+        hourly_rate: item.hourly_rate != null ? Number(item.hourly_rate) : undefined,
         // El backend retorna campos planos; construir objeto service_category
         service_category: item.service_category ?? (item.service_category_name ? {
           id: item.service_id,
@@ -204,10 +210,10 @@ export class ProviderService {
         full_name: item.provider?.full_name || item.full_name,
         // Incluir campo de disponibilidad (conectado/desconectado)
         is_available: item.is_available ?? true,
-        // Incluir rating, reviews e hourly_rate
-        rating_avg: item.rating_avg ?? undefined,
-        total_reviews: item.total_reviews ?? undefined,
-        hourly_rate: item.hourly_rate ?? undefined,
+        // Incluir rating, reviews e hourly_rate - convertir a números
+        rating_avg: item.rating_avg != null ? Number(item.rating_avg) : undefined,
+        total_reviews: item.total_reviews != null ? Number(item.total_reviews) : undefined,
+        hourly_rate: item.hourly_rate != null ? Number(item.hourly_rate) : undefined,
         // Construir objeto service_category si no viene estructura
         service_category: item.service_category ?? (item.service_category_name ? {
           id: item.service_id,

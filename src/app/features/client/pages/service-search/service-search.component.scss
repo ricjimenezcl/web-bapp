@@ -621,6 +621,13 @@
     flex-shrink: 0;
     // Estrella siempre visible, incluso cuando dice "Nuevo"
   }
+
+  .reviews-icon {
+    width: 12px;
+    height: 12px;
+    color: var(--text-s);
+    margin-left: 2px;
+  }
   
   .rating-count {
     color: var(--text-s);

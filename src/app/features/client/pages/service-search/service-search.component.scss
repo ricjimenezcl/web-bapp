@@ -67,7 +67,7 @@
   left: 20px;
   bottom: 20px;
   width: 400px;
-  background: #0E0E0E;
+  background: var(--bg-deep);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -345,7 +345,7 @@
 
 // ── Provider card — glassmorphism floating ────────────────────────────
 .pro-card-floating {
-  background: var(--bg-deep); // 🔥 cambio clave
+  background: #0E0E0E; // 🔥 cambio clave
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 16px;
@@ -474,13 +474,13 @@
   height: 56px;
   border-radius: 12px;
   object-fit: cover;
-  border: 1px solid var(--border);
+  border: 1.5px solid #FFF9C4;  // 🔥 Amarillo BAPP destacado (igual que mobile)
   flex-shrink: 0;
   display: block;
 
   &.card-img--fallback {
     background: rgba(253, 230, 138, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1.5px solid #FFF9C4;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -615,7 +615,12 @@
   align-items: center;
   gap: 4px;
 
-  svg { width: 13px; height: 13px; flex-shrink: 0; }
+  svg { 
+    width: 13px; 
+    height: 13px; 
+    flex-shrink: 0;
+    // Estrella siempre visible, incluso cuando dice "Nuevo"
+  }
   
   .rating-count {
     color: var(--text-s);

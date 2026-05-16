@@ -551,8 +551,6 @@
             </div>
           }
 
-          @let completedTx = transactions().filter(t => t.status === 'completed').length;
-          @let pendingTx = transactions().filter(t => t.status === 'pending').length;
           <div class="purchase-summary">
             <div class="sum-item">
               <span class="sum-val">{{ transactions().length }}</span>

@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, OnDestroy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, OnDestroy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router, NavigationEnd } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
@@ -55,6 +55,10 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
 
   transactions        = signal<ServiceTransaction[]>([]);
   transactionsLoading = signal(true);
+
+  // Computed signals para estadísticas de transacciones
+  completedTx = computed(() => this.transactions().filter(t => t.status === 'completed').length);
+  pendingTx   = computed(() => this.transactions().filter(t => t.status === 'pending').length);
 
   pwLoading = signal(false);
   pwError   = signal('');

@@ -167,11 +167,12 @@ export class AppComponent implements OnInit {
   private hasNavigatedOnInit = false;
 
   ngOnInit(): void {
+    this.updateFooterVisibility(this.router.url);
+
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
-      const url = event.urlAfterRedirects;
-      this.showFooter.set(!url.startsWith('/auth') && !url.includes('/chat/'));
+      this.updateFooterVisibility(event.urlAfterRedirects);
 
       if (!this.hasNavigatedOnInit) {
         this.handleInitialNavigation();
@@ -187,6 +188,11 @@ export class AppComponent implements OnInit {
 
   getRouteAnimationData(): string {
     return this.router.url;
+  }
+
+  private updateFooterVisibility(url: string): void {
+    const cleanUrl = url.split('?')[0] ?? url;
+    this.showFooter.set(!cleanUrl.startsWith('/auth') && !cleanUrl.includes('/chat/'));
   }
 
   private handleInitialNavigation(): void {

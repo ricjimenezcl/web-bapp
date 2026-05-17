@@ -193,6 +193,69 @@
           </div>
         </div>
 
+        <!-- ── Sección: Fotos de trabajos anteriores ────────────── -->
+        <div class="es-section">
+          <div class="es-section-header">
+            <div class="es-section-icon">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+            </div>
+            <h2 class="es-section-title">Fotos de trabajos anteriores</h2>
+          </div>
+          <p class="es-section-desc">Opcional • Máximo {{ maxPortfolioImages }} imágenes</p>
+
+          <!-- Upload button -->
+          <label class="es-file-upload-btn" [class.es-file-upload-btn--disabled]="portfolioImages().length >= maxPortfolioImages || uploadingImages()">
+            <input 
+              type="file" 
+              accept="image/jpeg,image/png,image/webp" 
+              multiple
+              (change)="onFileSelected($event)"
+              [disabled]="portfolioImages().length >= maxPortfolioImages || uploadingImages()"
+              class="es-file-input">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+            </svg>
+            @if (uploadingImages()) {
+              <span>Subiendo...</span>
+            } @else {
+              <span>Seleccionar imágenes</span>
+            }
+          </label>
+
+          <!-- Preview grid -->
+          @if (portfolioImages().length > 0) {
+            <div class="es-portfolio-grid">
+              @for (img of portfolioImages(); track $index; let i = $index) {
+                <div class="es-portfolio-item">
+                  <img [src]="img.preview" alt="Portfolio image" class="es-portfolio-img">
+                  <button 
+                    type="button"
+                    class="es-portfolio-remove"
+                    (click)="removeImage(i)"
+                    [disabled]="uploadingImages()"
+                    aria-label="Eliminar imagen">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                  </button>
+                </div>
+              }
+            </div>
+          }
+
+          <p class="es-hint">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Formatos: JPG, PNG, WEBP. Máximo 5 MB por imagen.
+          </p>
+        </div>
+
         <!-- ── Sección: Horarios ────────────────────────────────── -->
         <div class="es-section">
           <div class="es-section-header">

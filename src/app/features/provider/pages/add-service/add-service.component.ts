@@ -2,7 +2,7 @@ import { Component, inject, signal, OnInit, OnDestroy, CUSTOM_ELEMENTS_SCHEMA } 
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, FormArray, FormGroup } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
-import { Subject, debounceTime, distinctUntilChanged, switchMap, of, catchError } from 'rxjs';
+import { Subject, debounceTime, distinctUntilChanged, switchMap, of, catchError, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ProviderService } from '../../../../core/services/provider.service';
 import { CategoryService } from '../../../../core/services/category.service';
@@ -12,8 +12,16 @@ import { MainCategory, ServiceCategory } from '../../../../core/models/provider.
 import { CustomValidators } from '../../../../shared/validators/custom-validators';
 import { formatChileanPhone } from '../../../../shared/utils/form-formatters';
 import { ModalService } from '../../../../core/services/modal.service';
+import { DocumentUploadService } from '../../../../shared/services/document-upload.service';
 
 const DAY_NAMES = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+const MAX_PORTFOLIO_IMAGES = 5;
+
+interface PortfolioImage {
+  file: File;
+  preview: string;
+  url?: string;
+}
 
 @Component({
   selector: 'app-add-service',
@@ -31,9 +39,15 @@ export class AddServiceComponent implements OnInit, OnDestroy {
   private auth         = inject(AuthService);
   private router       = inject(Router);
   private modal        = inject(ModalService);
+  private documentUploadSvc = inject(DocumentUploadService);
   private destroy$ = new Subject<void>();
 
   readonly dayNames = DAY_NAMES;
+  readonly maxPortfolioImages = MAX_PORTFOLIO_IMAGES;
+
+  // Portfolio images
+  portfolioImages = signal<PortfolioImage[]>([]);
+  uploadingImages = signal(false);
 
   mainCategories    = signal<MainCategory[]>([]);
   subServices       = signal<ServiceCategory[]>([]);
@@ -179,6 +193,22 @@ export class AddServiceComponent implements OnInit, OnDestroy {
     this.error.set('');
     const v = this.form.value;
 
+    // ══ SUBIR IMÁGENES DE PORTAFOLIO PRIMERO ═══════════════════════
+    let portfolioUrls: string[] = [];
+    
+    if (this.portfolioImages().length > 0) {
+      try {
+        portfolioUrls = await this.uploadPortfolioImages();
+        console.log('Imágenes subidas:', portfolioUrls);
+      } catch (error) {
+        console.error('Error subiendo imágenes:', error);
+        this.loading.set(false);
+        this.error.set('Error al subir imágenes. Intenta nuevamente.');
+        return;
+      }
+    }
+    // ═══════════════════════════════════════════════════════════════
+
     // Payload con los nombres de campo exactos que espera el backend
     const payload: Record<string, unknown> = {
       servicio:         Number(v.main_category_id),
@@ -191,6 +221,12 @@ export class AddServiceComponent implements OnInit, OnDestroy {
       lng:              this.selectedLng,
       id_contacto:      this.auth.currentUser()?.id ?? 0,
     };
+
+    // ══ INCLUIR PORTFOLIO IMAGES SI EXISTEN ════════════════════════
+    if (portfolioUrls.length > 0) {
+      payload['portfolio_images'] = portfolioUrls;
+    }
+    // ═══════════════════════════════════════════════════════════════
 
     const confirmed = await this.modal.confirm(
       '¿Deseas confirmar el alta de este servicio?',
@@ -271,5 +307,156 @@ export class AddServiceComponent implements OnInit, OnDestroy {
       return;
     }
     this.router.navigate(['/provider/tabs/profile']);
+  }
+
+  // ══ PORTFOLIO IMAGES METHODS ══════════════════════════════════════════════
+
+  /**
+   * Handle file input change
+   */
+  async onFileSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const files = input.files;
+    
+    if (!files || files.length === 0) return;
+
+    const currentCount = this.portfolioImages().length;
+    const availableSlots = MAX_PORTFOLIO_IMAGES - currentCount;
+
+    if (availableSlots <= 0) {
+      this.error.set(`Máximo ${MAX_PORTFOLIO_IMAGES} imágenes permitidas`);
+      input.value = ''; // Reset input
+      return;
+    }
+
+    // Process only the available slots
+    const filesToProcess = Array.from(files).slice(0, availableSlots);
+
+    for (const file of filesToProcess) {
+      await this.processAndAddImage(file);
+    }
+
+    // Reset input to allow selecting the same file again
+    input.value = '';
+  }
+
+  /**
+   * Process and validate image before adding
+   */
+  private async processAndAddImage(file: File): Promise<void> {
+    try {
+      // Validate image
+      const validation = await this.documentUploadSvc.validateImage(file);
+      
+      if (!validation.valid) {
+        this.error.set(validation.error || 'Imagen no válida');
+        return;
+      }
+
+      // Generate preview
+      const preview = await this.fileToBase64(file);
+      
+      // Add to array
+      this.portfolioImages.update(images => [
+        ...images,
+        { file, preview }
+      ]);
+      
+    } catch (error) {
+      console.error('Error procesando imagen:', error);
+      this.error.set('Error al procesar imagen');
+    }
+  }
+
+  /**
+   * Convert file to base64 for preview
+   */
+  private fileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  /**
+   * Remove image from array
+   */
+  removeImage(index: number): void {
+    this.portfolioImages.update(images => 
+      images.filter((_, i) => i !== index)
+    );
+  }
+
+  /**
+   * Upload all portfolio images to Cloudinary
+   * Returns array of Cloudinary URLs
+   */
+  private async uploadPortfolioImages(): Promise<string[]> {
+    const images = this.portfolioImages();
+    if (images.length === 0) return [];
+
+    this.uploadingImages.set(true);
+    const uploadedUrls: string[] = [];
+
+    try {
+      // Upload each image sequentially
+      for (let i = 0; i < images.length; i++) {
+        const img = images[i];
+        
+        if (!img.file) {
+          console.warn(`Imagen ${i} no tiene file, saltando`);
+          continue;
+        }
+
+        try {
+          // Get signature from backend
+          const signature = await firstValueFrom(
+            this.documentUploadSvc.generateUploadSignature('portfolio')
+          );
+          
+          if (!signature) {
+            throw new Error('No se pudo generar firma de subida');
+          }
+
+          // Create FormData for Cloudinary
+          const formData = new FormData();
+          formData.append('file', img.file);
+          formData.append('api_key', signature.api_key);
+          formData.append('timestamp', signature.timestamp.toString());
+          formData.append('signature', signature.signature);
+          formData.append('folder', 'portfolio');
+
+          // Upload to Cloudinary directly
+          const response = await fetch(
+            `https://api.cloudinary.com/v1_1/${signature.cloud_name}/image/upload`,
+            {
+              method: 'POST',
+              body: formData
+            }
+          );
+
+          const data = await response.json();
+          
+          if (data.secure_url) {
+            uploadedUrls.push(data.secure_url);
+          } else {
+            console.error('Respuesta sin URL:', data);
+          }
+          
+        } catch (error) {
+          console.error(`Error subiendo imagen ${i}:`, error);
+        }
+      }
+
+      this.uploadingImages.set(false);
+      return uploadedUrls;
+      
+    } catch (error) {
+      this.uploadingImages.set(false);
+      console.error('Error general en upload:', error);
+      throw error;
+    }
   }
 }

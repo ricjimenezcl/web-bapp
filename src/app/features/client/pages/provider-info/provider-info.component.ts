@@ -580,6 +580,40 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Denunciar perfil del proveedor
+   * Muestra un modal para confirmar la denuncia y enviar el reporte al backend
+   */
+  async reportProvider(): Promise<void> {
+    if (!this.providerId) {
+      this.showToast('Error: no se puede denunciar este perfil', 'danger');
+      return;
+    }
+
+    // TODO: Implementar modal con opciones de motivo y llamada al backend
+    // Por ahora, mostrar confirmación simple
+    const confirmed = await this.modal.confirm(
+      '¿Deseas denunciar este perfil?',
+      'Selecciona el motivo de la denuncia:',
+      [
+        'Comportamiento inapropiado',
+        'Contenido engañoso o fraudulento',
+        'Spam o publicidad no deseada',
+        'Suplantación de identidad',
+        'Otro motivo'
+      ]
+    );
+
+    if (confirmed) {
+      // TODO: Implementar llamada al backend cuando esté disponible
+      // Ejemplo: this.reportService.reportProvider(this.providerId, reason).subscribe(...)
+      
+      // Por ahora, solo mostramos confirmación
+      this.showToast('Denuncia enviada. Gracias por tu reporte.', 'success');
+      console.log(`Proveedor ${this.providerId} denunciado`);
+    }
+  }
+
   // ── Toast ─────────────────────────────────────────────────────────────────
   showToast(msg: string, type: string = 'success'): void {
     if (type === 'danger') {

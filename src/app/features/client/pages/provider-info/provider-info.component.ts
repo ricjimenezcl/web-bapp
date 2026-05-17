@@ -590,18 +590,11 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // TODO: Implementar modal con opciones de motivo y llamada al backend
-    // Por ahora, mostrar confirmación simple
     const confirmed = await this.modal.confirm(
       '¿Deseas denunciar este perfil?',
-      'Selecciona el motivo de la denuncia:',
-      [
-        'Comportamiento inapropiado',
-        'Contenido engañoso o fraudulento',
-        'Spam o publicidad no deseada',
-        'Suplantación de identidad',
-        'Otro motivo'
-      ]
+      'Denunciar perfil',
+      'Denunciar',
+      'Cancelar'
     );
 
     if (confirmed) {
@@ -618,12 +611,8 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
    * Abre el visor de imagen en pantalla completa (portfolio)
    */
   openImageViewer(imageUrl: string): void {
-    // Crear un modal simple con la imagen en grande
-    void this.modal.confirm(
-      '',
-      `<div style="text-align:center;padding:20px 0;"><img src="${imageUrl}" style="width:100%;max-width:600px;border-radius:12px;" alt="Portfolio" /></div>`,
-      ['Cerrar']
-    );
+    // Abrir en una pestaña nueva para mantener una vista ampliada sin depender de HTML en el modal global.
+    window.open(imageUrl, '_blank', 'noopener,noreferrer');
   }
 
   /**
@@ -631,29 +620,10 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
    */
   async showPremiumPaywall(): Promise<void> {
     const confirmed = await this.modal.confirm(
-      '💎 Hazte Premium',
-      `
-        <div style="text-align:center;padding:10px 0;">
-          <p style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;">
-            Desbloquea la posibilidad de reservar múltiples servicios del mismo proveedor
-          </p>
-          <div style="background:rgba(255,193,7,0.1);border-radius:12px;padding:16px;margin-bottom:16px;">
-            <p style="font-size:16px;font-weight:600;color:var(--color-warning);margin:0;">
-              $9.990/mes
-            </p>
-            <p style="font-size:12px;color:var(--text-secondary);margin:4px 0 0;">
-              Cancela cuando quieras
-            </p>
-          </div>
-          <ul style="text-align:left;font-size:13px;color:var(--text-primary);list-style:none;padding:0;">
-            <li style="margin:8px 0;">✓ Reserva ilimitada de servicios</li>
-            <li style="margin:8px 0;">✓ Soporte prioritario</li>
-            <li style="margin:8px 0;">✓ Sin comisiones adicionales</li>
-            <li style="margin:8px 0;">✓ Acceso anticipado a nuevas funciones</li>
-          </ul>
-        </div>
-      `,
-      ['Ahora no', 'Suscribirme']
+      'Desbloquea la posibilidad de reservar múltiples servicios del mismo proveedor.\n\nPlan Premium: $9.990/mes\nCancela cuando quieras.\n\nIncluye:\n- Reserva ilimitada de servicios\n- Soporte prioritario\n- Sin comisiones adicionales\n- Acceso anticipado a nuevas funciones',
+      'Hazte Premium',
+      'Suscribirme',
+      'Ahora no'
     );
 
     if (confirmed) {

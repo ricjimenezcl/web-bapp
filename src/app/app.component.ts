@@ -52,16 +52,24 @@ import { GlobalModalComponent } from './shared/components/global-modal/global-mo
     }
   `,
   styles: [`
+    :host {
+      display: block;
+      width: 100%;
+      min-height: 100vh;
+    }
+
     .app-layout {
       display: flex;
       flex-direction: column;
       min-height: 100vh;
+      width: 100%;
     }
 
     .main-content {
       flex: 1;
       display: flex;
       flex-direction: column;
+      min-height: 0;
     }
 
     .se-backdrop {

@@ -42,6 +42,11 @@
             "outputPath": "dist/web-bapp",
             "index": "src/index.html",
             "browser": "src/main.ts",
+            "optimization": {
+              "fonts": {
+                "inline": false
+              }
+            },
             "polyfills": [
               "zone.js"
             ],

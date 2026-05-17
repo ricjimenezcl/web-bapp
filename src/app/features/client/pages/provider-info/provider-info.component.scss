@@ -929,3 +929,162 @@
 .animate-pulse { animation: bw-pulse 1.8s ease-in-out infinite; }
 
 // .ref-segmented-control y .ref-segment-btn se resuelven desde _bapp-web.scss
+
+// ══════════════════════════════════════════════════════════════════════════
+// EXTENSIONES PARA PORTFOLIO Y SERVICIOS - Overlay zoom y paywall premium
+// ══════════════════════════════════════════════════════════════════════════
+
+// Overlay con ícono de zoom para el carrusel de portfolio
+.pi-carousel-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 2;
+
+  .pi-carousel-slide:hover & { opacity: 1; }
+
+  svg {
+    width: 56px;
+    height: 56px;
+    color: white;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+  }
+}
+
+// Hint informativo debajo del carrusel
+.pi-portfolio-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: rgba(253, 230, 138, 0.08);
+  border: 1px solid rgba(253, 230, 138, 0.2);
+  border-radius: 12px;
+  font-size: 12px;
+  color: var(--text-s);
+  line-height: 1.5;
+
+  svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: var(--accent);
+  }
+}
+
+// Botón de reserva con gradient dorado (bloqueado - paywall)
+.pi-svc-reserve-btn--locked {
+  position: relative;
+  background: linear-gradient(135deg, #FFD700 0%, #FDB931 100%) !important;
+  color: rgba(0, 0, 0, 0.85) !important;
+  border: none !important;
+  box-shadow: 0 4px 14px rgba(255, 215, 0, 0.35);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  svg { width: 16px; height: 16px; }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// Badge Premium dentro del botón
+.pi-premium-badge {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(4px);
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.9);
+
+  svg {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+// Banner informativo del paywall
+.pi-paywall-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 14px 16px;
+  background: rgba(255, 193, 7, 0.08);
+  border: 1px solid rgba(255, 193, 7, 0.25);
+  border-radius: 12px;
+  font-size: 12px;
+  color: var(--text-s);
+  line-height: 1.5;
+
+  svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: var(--accent);
+  }
+}
+
+// Mejoras adicionales para service card
+.pi-svc-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pi-svc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.pi-svc-address {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--text-t);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  svg { width: 14px; height: 14px; flex-shrink: 0; color: var(--bw-accent-mint); }
+}
+
+.pi-price-unit {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-s);
+  opacity: 0.7;
+}

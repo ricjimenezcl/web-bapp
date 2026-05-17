@@ -15,13 +15,15 @@ import { GlobalModalComponent } from './shared/components/global-modal/global-mo
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   animations: [fadeAnimation],
   template: `
-    <div [@fadeAnimation]="getRouteAnimationData()">
-      <router-outlet #outlet="outlet"></router-outlet>
-    </div>
+    <div class="app-layout">
+      <main class="main-content" [@fadeAnimation]="getRouteAnimationData()">
+        <router-outlet #outlet="outlet"></router-outlet>
+      </main>
 
-    @if (showFooter()) {
-      <app-footer />
-    }
+      @if (showFooter()) {
+        <app-footer />
+      }
+    </div>
 
     <app-global-modal />
 
@@ -50,6 +52,18 @@ import { GlobalModalComponent } from './shared/components/global-modal/global-mo
     }
   `,
   styles: [`
+    .app-layout {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
     .se-backdrop {
       position: fixed;
       inset: 0;

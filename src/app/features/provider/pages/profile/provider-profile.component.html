@@ -554,14 +554,14 @@
           <div class="purchase-summary">
             <div class="sum-item">
               <span class="sum-val">{{ transactions().length }}</span>
-              <span class="sum-lbl">Total \xd3rdenes</span>
+              <span class="sum-lbl">Total Órdenes</span>
             </div>
             <div class="sum-item">
-              <span class="sum-val sum-val--success">{{ completedTx }}</span>
+              <span class="sum-val sum-val--success">{{ completedTx() }}</span>
               <span class="sum-lbl">Completadas</span>
             </div>
             <div class="sum-item sum-item--last">
-              <span class="sum-val sum-val--accent">{{ pendingTx }}</span>
+              <span class="sum-val sum-val--accent">{{ pendingTx() }}</span>
               <span class="sum-lbl">Pendientes</span>
             </div>
           </div>

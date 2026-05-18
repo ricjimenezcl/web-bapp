@@ -183,11 +183,12 @@ export class AppComponent implements OnInit {
     ).subscribe((event: NavigationEnd) => {
       const url = event.urlAfterRedirects;
       const fullscreenRoute = url.includes('/client/tabs/service-map');
+      const bookingsRoute = url.includes('/bookings');
       const hideFooter =
         url.startsWith('/auth') ||
         url.includes('/chat/') ||
         fullscreenRoute;
-      const useCompactFooter = fullscreenRoute;
+      const useCompactFooter = fullscreenRoute || bookingsRoute;
 
       this.showFooter.set(!hideFooter);
       this.compactFooter.set(useCompactFooter);

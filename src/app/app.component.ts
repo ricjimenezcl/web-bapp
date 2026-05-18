@@ -16,12 +16,15 @@ import { GlobalModalComponent } from './shared/components/global-modal/global-mo
   animations: [fadeAnimation],
   template: `
     <div class="app-layout">
-      <main class="main-content" [@fadeAnimation]="getRouteAnimationData()">
+      <main
+        class="main-content"
+        [class.main-content--fullscreen]="isFullscreenRoute()"
+        [@fadeAnimation]="getRouteAnimationData()">
         <router-outlet #outlet="outlet"></router-outlet>
       </main>
 
       @if (showFooter()) {
-        <app-footer />
+        <app-footer [compact]="compactFooter()" />
       }
     </div>
 
@@ -70,6 +73,12 @@ import { GlobalModalComponent } from './shared/components/global-modal/global-mo
       display: flex;
       flex-direction: column;
       min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .main-content--fullscreen {
+      overflow: hidden;
     }
 
     .se-backdrop {
@@ -164,15 +173,25 @@ export class AppComponent implements OnInit {
   readonly session         = inject(SessionService);
 
   readonly showFooter = signal(false);
+  readonly compactFooter = signal(false);
+  readonly isFullscreenRoute = signal(false);
   private hasNavigatedOnInit = false;
 
   ngOnInit(): void {
-    this.updateFooterVisibility(this.router.url);
-
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
-      this.updateFooterVisibility(event.urlAfterRedirects);
+      const url = event.urlAfterRedirects;
+      const fullscreenRoute = url.includes('/client/tabs/service-map');
+      const hideFooter =
+        url.startsWith('/auth') ||
+        url.includes('/chat/') ||
+        fullscreenRoute;
+      const useCompactFooter = fullscreenRoute;
+
+      this.showFooter.set(!hideFooter);
+      this.compactFooter.set(useCompactFooter);
+      this.isFullscreenRoute.set(fullscreenRoute);
 
       if (!this.hasNavigatedOnInit) {
         this.handleInitialNavigation();
@@ -188,11 +207,6 @@ export class AppComponent implements OnInit {
 
   getRouteAnimationData(): string {
     return this.router.url;
-  }
-
-  private updateFooterVisibility(url: string): void {
-    const cleanUrl = url.split('?')[0] ?? url;
-    this.showFooter.set(!cleanUrl.startsWith('/auth') && !cleanUrl.includes('/chat/'));
   }
 
   private handleInitialNavigation(): void {

@@ -6,7 +6,9 @@
 :host {
   display: flex;
   justify-content: center;
-  height: 100%;
+  // Ruta vive dentro de client-tabs (header de 64px): usamos dvh para evitar recortes.
+  height: calc(100dvh - 64px);
+  min-height: calc(100dvh - 64px);
   padding: 30px 40px;
   background: var(--bw-bg);
   background-image: radial-gradient(circle at 50% 0%, rgba(253, 230, 138, 0.03), transparent 60%);
@@ -23,6 +25,7 @@
   width: 100%;
   max-width: 1400px;
   height: 100%;
+  min-height: 0;
   background: var(--surface-card);
   border: 1px solid var(--border);
   border-radius: 24px;

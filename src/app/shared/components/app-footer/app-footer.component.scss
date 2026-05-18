@@ -5,6 +5,8 @@
   font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   color: #F9FAFB;
+  flex-shrink: 0;
+  width: 100%;
 }
 
 // ── Inner container ──────────────────────────────────────────────────
@@ -172,6 +174,32 @@
 .footer-sep {
   color: #1e293b;
   font-size: 14px;
+}
+
+// ── Compact variant ──────────────────────────────────────────────────
+.app-footer--compact {
+  .footer-inner {
+    display: none;
+  }
+
+  .footer-bottom {
+    padding: 6px 12px;
+    border-top-color: rgba(255, 255, 255, 0.04);
+    justify-content: center;
+    gap: 0;
+    min-height: 30px;
+  }
+
+  .footer-copy {
+    font-size: 11px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .footer-bottom-links,
+  .footer-sep {
+    display: none;
+  }
 }
 
 // ── Responsive ───────────────────────────────────────────────────────

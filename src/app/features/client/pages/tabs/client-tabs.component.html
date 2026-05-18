@@ -1,4 +1,4 @@
-<div class="flex flex-col min-h-full bg-surface-page">
+<div class="flex h-full flex-col bg-surface-page">
 
   <!-- ════════════════════════════════════════════════════════════════════
        NAVBAR HORIZONTAL — marketplace style
@@ -15,7 +15,7 @@
 
       <!-- Logo -->
       <a routerLink="service-search" class="flex items-center gap-2 flex-shrink-0">
-        <div class="w-9 h-9 rounded-xl bg-black flex items-center justify-center overflow-hidden">
+        <div class="w-9 h-9 rounded-xlflex items-center justify-center overflow-hidden">
           <img src="https://res.cloudinary.com/dghwotofx/image/upload/v1774563936/logo_gsgyrf.png"
                alt="Logo BappSearch" class="w-full h-full object-contain">
         </div>
@@ -49,13 +49,6 @@
           <ion-icon name="rocket-outline" class="text-lg"></ion-icon>
           <span>Proveedores</span>
         </a>
-        <!-- Mapa (desktop) -->
-        <a routerLink="service-map" routerLinkActive="text-primary bg-primary/10"
-           class="hidden lg:flex items-center gap-1.5 px-3 h-10 rounded-full text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors">
-          <ion-icon name="map-outline" class="text-lg"></ion-icon>
-          <span>Mapa</span>
-        </a>
-
         <!-- Reservas (desktop) -->
         <a routerLink="bookings" routerLinkActive="text-primary bg-primary/10"
            class="hidden lg:flex items-center gap-1.5 px-3 h-10 rounded-full text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors">
@@ -158,11 +151,6 @@
          (click)="closeSidebar()" class="sidebar-link">
         <ion-icon name="rocket-outline" class="text-xl"></ion-icon>
         <span>Proveedores</span>
-      </a>
-      <a routerLink="service-map" routerLinkActive="active"
-         (click)="closeSidebar()" class="sidebar-link">
-        <ion-icon name="map-outline" class="text-xl"></ion-icon>
-        <span>Mapa</span>
       </a>
       <a routerLink="bookings" routerLinkActive="active"
          (click)="closeSidebar()" class="sidebar-link">

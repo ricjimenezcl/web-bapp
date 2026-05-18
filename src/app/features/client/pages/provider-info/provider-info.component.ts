@@ -627,7 +627,13 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
     );
 
     if (confirmed) {
-      this.showToast('Próximamente: Suscripción Premium', 'warning');
+      void this.router.navigate(['/payment'], {
+        queryParams: {
+          plan: 'premium',
+          source: 'provider-info',
+          providerId: this.providerId
+        }
+      });
     }
   }
 

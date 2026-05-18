@@ -470,16 +470,17 @@
 .pi-service-card {
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--border);
-  border-left: 4px solid var(--border);
+  border-left: 3px solid var(--border);
   border-radius: 16px;
-  padding: 20px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  transition: border-left-color 0.3s ease, background 0.3s ease;
+  transition: border-left-color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
 
   &:hover {
     border-left-color: var(--accent);
+    border-color: var(--border-light);
     background: rgba(255, 255, 255, 0.04);
   }
 }
@@ -492,14 +493,21 @@
 }
 
 .pi-svc-name {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--text-p);
   margin: 0;
 }
 
+// Override explícito frente a tipografía global (h4) para evitar tamaños gigantes.
+.pi-service-card h4.pi-svc-name {
+  font-size: 14px !important;
+  line-height: 1.3 !important;
+  margin: 0 !important;
+}
+
 .pi-svc-price {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 800;
   color: var(--accent);
   flex-shrink: 0;
@@ -513,10 +521,19 @@
 }
 
 .pi-svc-cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   font-size: 11px;
   font-weight: 600;
   color: var(--accent);
   opacity: 0.8;
+
+  svg {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+  }
 }
 
 .pi-svc-actions { margin-top: 8px; }
@@ -1087,4 +1104,150 @@
   font-weight: 600;
   color: var(--text-s);
   opacity: 0.7;
+}
+
+// ── Denunciar perfil ─────────────────────────────────────────────
+.pi-report-section {
+  margin-top: 6px;
+}
+
+.pi-btn-report {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  color: var(--text-p);
+  border-radius: 14px;
+  padding: 14px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+
+  svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--text-s);
+    color: var(--text-p);
+  }
+}
+
+// Refuerzo de estilos para evitar que reglas globales rompan el bloque de servicios.
+.pi-tab-content .pi-service-list .pi-service-card,
+.pi-tab-content .pi-service-list .pro-card-floating {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+  padding: 16px !important;
+  border-radius: 16px !important;
+  border: 1px solid var(--border) !important;
+  border-left: 1px solid var(--border) !important;
+  background: #0E0E0E !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  animation: piCardIn 0.3s ease both !important;
+
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.14) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+    background: #161616 !important;
+  }
+}
+
+.pi-tab-content .pi-service-list .pi-service-card h4.pi-svc-name,
+.pi-tab-content .pi-service-list .pro-card-floating h4.pi-svc-name {
+  font-size: 14px !important;
+  line-height: 1.3 !important;
+  font-weight: 700 !important;
+  margin: 0 !important;
+  color: var(--text-p) !important;
+}
+
+.pi-tab-content .pi-service-list .pi-service-card .pi-svc-header,
+.pi-tab-content .pi-service-list .pro-card-floating .pi-svc-header {
+  margin-bottom: 10px !important;
+}
+
+.pi-tab-content .pi-service-list .pi-service-card .pi-svc-desc,
+.pi-tab-content .pi-service-list .pro-card-floating .pi-svc-desc {
+  margin: 0 0 10px 0 !important;
+}
+
+.pi-tab-content .pi-service-list .pi-service-card .pi-svc-actions,
+.pi-tab-content .pi-service-list .pro-card-floating .pi-svc-actions {
+  margin-top: 12px !important;
+}
+
+.pi-report-section .pi-btn-report {
+  display: inline-flex !important;
+  width: 100% !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  padding: 14px !important;
+  border-radius: 14px !important;
+  border: 1px solid var(--border) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  color: var(--text-p) !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  font-family: inherit !important;
+}
+
+// Tamaños de icono blindados para evitar herencia global inesperada.
+.pi-tab-content .pi-service-list .pi-svc-cat > svg {
+  width: 12px !important;
+  height: 12px !important;
+  min-width: 12px !important;
+  min-height: 12px !important;
+}
+
+.pi-tab-content .pi-service-list .pi-svc-address > svg {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  min-height: 14px !important;
+}
+
+.pi-tab-content .pi-service-list .pi-svc-reserve-btn > svg {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+}
+
+.pi-tab-content .pi-service-list .pi-premium-badge > svg {
+  width: 12px !important;
+  height: 12px !important;
+  min-width: 12px !important;
+  min-height: 12px !important;
+}
+
+.pi-tab-content .pi-paywall-info > svg {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  min-height: 18px !important;
+}
+
+.pi-report-section .pi-btn-report > svg {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  min-height: 14px !important;
+}
+
+@keyframes piCardIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }

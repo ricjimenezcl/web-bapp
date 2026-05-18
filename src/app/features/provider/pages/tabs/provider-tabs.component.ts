@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, OnDestroy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterOutlet, RouterLinkActive, Router } from '@angular/router';
 import { WebSocketService } from '../../../../core/services/websocket.service';
@@ -13,6 +13,7 @@ import { Subscription } from 'rxjs';
   standalone: true,
   imports: [CommonModule, RouterLink, RouterOutlet, RouterLinkActive],
   templateUrl: './provider-tabs.component.html',
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ProviderTabsComponent implements OnInit, OnDestroy {
   private ws     = inject(WebSocketService);
@@ -23,11 +24,17 @@ export class ProviderTabsComponent implements OnInit, OnDestroy {
   
   readonly unread = this.notif.unreadCount;
   readonly profile = signal<ProviderProfile | null>(null);
+  readonly firstName = computed(() => this.profile()?.full_name?.trim().split(/\s+/)[0] ?? '');
   sidebarOpen = signal(false);
   private subs: Subscription[] = [];
 
   toggleSidebar(): void { this.sidebarOpen.update(v => !v); }
   closeSidebar():  void { this.sidebarOpen.set(false); }
+
+  goToAddService(): void {
+    this.router.navigate(['/provider/add-service']);
+    this.closeSidebar();
+  }
 
   ngOnInit(): void {
     this.ws.connect();

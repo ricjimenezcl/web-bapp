@@ -1,24 +1,42 @@
 :host {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100%;
+  padding: 30px 40px;
   background: var(--bw-bg, #000);
-  min-height: 100dvh;
+  background-image: radial-gradient(circle at 50% 0%, rgba(253, 230, 138, 0.03), transparent 60%);
+  box-sizing: border-box;
+
+  @media (max-width: 1280px) { padding: 20px 28px; }
+  @media (max-width: 1024px) { padding: 14px 16px; }
+  @media (max-width: 767px)  { padding: 10px; }
 }
 
 /* ══ HOST / FRAME ═══════════════════════════════════════════════ */
 .ph-host {
-  background: var(--bw-bg, #000);
-  min-height: 100dvh;
+  width: 100%;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
+  background: var(--bw-bg, #000);
 }
 .ph-frame {
-  max-width: 600px;
   width: 100%;
-  margin: 0 auto;
+  max-width: 1400px;
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  flex: 1;
+
+  @media (max-width: 1024px) { border-radius: 20px; }
+  @media (max-width: 767px) {
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+  }
 }
 
 /* ══ PROFILE HEADER ═════════════════════════════════════════════ */
@@ -379,25 +397,3 @@
   100% { background-position: -200% 0; }
 }
 
-/* ══ FOOTER ═════════════════════════════════════════════════════ */
-.ph-footer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 24px 20px;
-  border-top: 1px solid rgba(255,255,255,0.06);
-  margin-top: auto;
-}
-.ph-footer-brand { font-size: 13px; font-weight: 800; color: var(--bw-accent, #FDE68A); letter-spacing: -0.3px; }
-.ph-footer-links {
-  display: flex;
-  gap: 20px;
-  a {
-    font-size: 12px;
-    color: var(--bw-text-s, #94A3B8);
-    text-decoration: none;
-    &:hover { color: var(--bw-text-p, #F9FAFB); }
-  }
-}
-.ph-footer-copy { font-size: 11px; color: rgba(148,163,184,0.5); }

@@ -470,6 +470,36 @@
   }
 }
 
+// ── Large desktop tuning (1920+) ─────────────────────────────────────────
+// Evita que el layout se perciba demasiado pequeño en pantallas Full HD.
+@media (min-width: 1920px) {
+  html {
+    font-size: 17px;
+  }
+
+  .max-w-7xl {
+    max-width: 96rem !important;
+  }
+
+  .page-container {
+    max-width: 96rem;
+  }
+
+  .page-shell {
+    max-width: 1160px;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .search-shell {
+    max-width: 1480px;
+  }
+
+  .app-footer .footer-inner {
+    max-width: 1200px;
+  }
+}
+
 @layer utilities {
   .scrollbar-hide {
     -ms-overflow-style: none;

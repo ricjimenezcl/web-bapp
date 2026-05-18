@@ -64,6 +64,9 @@
           </div>
         }
 
+        <div class="es-form-layout">
+          <div class="es-form-main">
+
         <!-- ── Sección: Información ─────────────────────────────── -->
         <div class="es-section">
           <div class="es-section-header">
@@ -155,9 +158,7 @@
                 class="es-input"
                 [class.es-input--error]="f['address'].invalid && f['address'].touched"
                 placeholder="Calle, número, ciudad..."
-                autocomplete="off"
-                (focus)="showSuggestions.set(addressSuggestions().length > 0)"
-                (blur)="onAddressBlur()">
+                autocomplete="off">
 
               @if (f['address'].value && !searchingAddress()) {
                 <button type="button" class="es-address-clear" (click)="clearAddress()" aria-label="Limpiar dirección">
@@ -169,29 +170,16 @@
               @if (searchingAddress()) {
                 <span class="es-address-spinner es-spinner"></span>
               }
-
-              <!-- Dropdown sugerencias -->
-              @if (showSuggestions() && addressSuggestions().length > 0) {
-                <div class="es-suggestions">
-                  @for (sug of addressSuggestions(); track sug.id) {
-                    <button type="button" class="es-suggestion-item" (mousedown)="selectSuggestion(sug)">
-                      <ion-icon [name]="sug.icon" class="es-suggestion-icon"></ion-icon>
-                      <div class="es-suggestion-text">
-                        <span class="es-suggestion-main">{{ sug.displayText }}</span>
-                        @if (sug.context) {
-                          <span class="es-suggestion-sub">{{ sug.context }}</span>
-                        }
-                      </div>
-                    </button>
-                  }
-                </div>
-              }
             </div>
             @if (f['address'].invalid && f['address'].touched) {
               <span class="es-field-error">La dirección es requerida</span>
             }
           </div>
         </div>
+
+          </div>
+
+          <aside class="es-form-side">
 
         <!-- ── Sección: Fotos de trabajos anteriores ────────────── -->
         <div class="es-section">
@@ -300,6 +288,10 @@
               </div>
             }
           </div>
+        </div>
+
+          </aside>
+
         </div>
 
         <!-- ── Acciones ─────────────────────────────────────────── -->

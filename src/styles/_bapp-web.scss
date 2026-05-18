@@ -103,6 +103,22 @@
   }
 }
 
+// ── Large desktop tuning (1920+) ─────────────────────────────────────────
+// Amplía los frames principales para mejorar presencia visual en Full HD.
+@media (min-width: 1920px) {
+  .bw-frame,
+  .app-frame,
+  .pi-frame,
+  .ph-frame,
+  .ms-frame,
+  .pb-frame,
+  .as-frame,
+  .es-frame,
+  .chat-app-container {
+    max-width: 1600px !important;
+  }
+}
+
 // ════════════════════════════════════════════════════════════════════
 // SUPERFICIES
 // ════════════════════════════════════════════════════════════════════

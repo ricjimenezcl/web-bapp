@@ -1,5 +1,5 @@
 <div class="min-h-screen bg-surface-page flex items-center justify-center p-4">
-  <div class="w-full max-w-lg animate-fade-in">
+  <div class="w-full max-w-2xl animate-fade-in">
 
     <!-- Header -->
     <div class="text-center mb-8">
@@ -10,27 +10,33 @@
         </svg>
       </div>
       <h1 class="text-2xl font-bold text-text-primary">Verificación de identidad</h1>
-      <p class="text-text-secondary mt-1">Necesitamos verificar tu identidad para activar tu cuenta</p>
+      <p class="text-text-secondary mt-1">Verificación facial automática con inteligencia artificial</p>
     </div>
 
     <!-- Step indicators -->
-    <div class="flex items-center justify-center gap-3 mb-8">
+    <div class="flex items-center justify-center gap-2 mb-8">
       <div class="flex items-center gap-2">
         <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors"
-          [class]="['document', 'selfie'].includes(step()) ? 'bg-primary text-text-inverse' : 'bg-surface-card text-text-tertiary'">1</div>
-        <span class="text-sm text-text-secondary hidden sm:block">Documento</span>
+          [class]="step() === 'upload' ? 'bg-primary text-text-inverse' : 'bg-surface-card text-text-tertiary'">1</div>
+        <span class="text-xs text-text-secondary hidden sm:block">Subir</span>
       </div>
-      <div class="flex-1 max-w-[60px] h-px bg-border"></div>
+      <div class="flex-1 max-w-[40px] h-px bg-border"></div>
       <div class="flex items-center gap-2">
         <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors"
-          [class]="step() === 'selfie' ? 'bg-primary text-text-inverse' : 'bg-surface-card text-text-tertiary'">2</div>
-        <span class="text-sm text-text-secondary hidden sm:block">Selfie</span>
+          [class]="step() === 'preview' ? 'bg-primary text-text-inverse' : 'bg-surface-card text-text-tertiary'">2</div>
+        <span class="text-xs text-text-secondary hidden sm:block">Preview</span>
       </div>
-      <div class="flex-1 max-w-[60px] h-px bg-border"></div>
+      <div class="flex-1 max-w-[40px] h-px bg-border"></div>
       <div class="flex items-center gap-2">
         <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors"
-          [class]="['reviewing', 'done'].includes(step()) ? 'bg-primary text-text-inverse' : 'bg-surface-card text-text-tertiary'">3</div>
-        <span class="text-sm text-text-secondary hidden sm:block">Revisión</span>
+          [class]="step() === 'verifying' ? 'bg-primary text-text-inverse' : 'bg-surface-card text-text-tertiary'">3</div>
+        <span class="text-xs text-text-secondary hidden sm:block">Verificar</span>
+      </div>
+      <div class="flex-1 max-w-[40px] h-px bg-border"></div>
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors"
+          [class]="['approved', 'rejected'].includes(step()) ? 'bg-primary text-text-inverse' : 'bg-surface-card text-text-tertiary'">4</div>
+        <span class="text-xs text-text-secondary hidden sm:block">Resultado</span>
       </div>
     </div>
 
@@ -38,36 +44,167 @@
       <div class="alert alert-danger mb-4"><span>{{ error() }}</span></div>
     }
 
-    <!-- Step 1: Document -->
-    @if (step() === 'document') {
+    <!-- Step 1: Upload Documents -->
+    @if (step() === 'upload') {
       <div class="card card-body">
-        <h3 class="font-semibold text-text-primary mb-1">Sube tu documento de identidad</h3>
-        <p class="text-sm text-text-secondary mb-4">Cédula de identidad, pasaporte o licencia de conducir</p>
+        <h3 class="font-semibold text-text-primary mb-4">📋 Subir documentos</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <!-- Selfie -->
+          <div>
+            <label class="block text-sm font-medium text-text-secondary mb-2">Selfie</label>
+            @if (state.selfieUrl) {
+              <div class="relative">
+                <img [src]="state.selfieUrl" alt="Selfie" class="w-full h-40 object-cover rounded-xl border border-border">
+                <button (click)="state.selfieUrl = null"
+                  type="button"
+                  class="absolute top-2 right-2 w-7 h-7 bg-surface-card border border-border rounded-full shadow flex items-center justify-center text-text-tertiary hover:text-danger transition-colors">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+            } @else {
+              <label class="flex flex-col items-center justify-center h-40 border-2 border-dashed border-border rounded-xl cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors">
+                <svg class="w-6 h-6 text-text-tertiary mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <span class="text-xs text-text-secondary">Selfie</span>
+                <input type="file" class="hidden" accept="image/*" capture="user" (change)="onSelfieSelect($event)">
+              </label>
+            }
+          </div>
 
-        @if (docPreview()) {
-          <div class="relative mb-4">
-            <img [src]="docPreview()!" alt="Documento" class="w-full max-h-48 object-contain rounded-xl border border-border">
-            <button (click)="docPreview.set(null)"
-              class="absolute top-2 right-2 w-7 h-7 bg-surface-card border border-border rounded-full shadow flex items-center justify-center text-text-tertiary hover:text-danger transition-colors">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-              </svg>
+          <!-- ID Document -->
+          <div>
+            <label class="block text-sm font-medium text-text-secondary mb-2">Documento de identidad</label>
+            @if (state.idDocumentUrl) {
+              <div class="relative">
+                <img [src]="state.idDocumentUrl" alt="Documento" class="w-full h-40 object-cover rounded-xl border border-border">
+                <button (click)="state.idDocumentUrl = null"
+                  type="button"
+                  class="absolute top-2 right-2 w-7 h-7 bg-surface-card border border-border rounded-full shadow flex items-center justify-center text-text-tertiary hover:text-danger transition-colors">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+            } @else {
+              <label class="flex flex-col items-center justify-center h-40 border-2 border-dashed border-border rounded-xl cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors">
+                <svg class="w-6 h-6 text-text-tertiary mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                </svg>
+                <span class="text-xs text-text-secondary">Documento</span>
+                <input type="file" class="hidden" accept="image/*" (change)="onDocumentSelect($event)">
+              </label>
+            }
+          </div>
+        </div>
+
+        <div class="bg-primary/5 border border-primary/20 rounded-lg p-3 mb-4">
+          <p class="text-xs text-text-secondary">
+            <strong>Importante:</strong> Asegúrate de que tu rostro sea claramente visible en ambas imágenes. 
+            La verificación es automática y usa reconocimiento facial.
+          </p>
+        </div>
+
+        <button class="btn btn-primary btn-block" 
+          type="button"
+          (click)="submit()" 
+          [disabled]="!state.selfieUrl || !state.idDocumentUrl || loading() || state.uploading">
+          @if (loading() || state.uploading) { 
+            <span class="spinner"></span> 
+            <span>Subiendo...</span>
+          } @else {
+            <span>Subir y validar</span>
+          }
+        </button>
+      </div>
+    }
+
+    <!-- Step 2: Face Preview -->
+    @if (step() === 'preview') {
+      <div class="card card-body">
+        <h3 class="font-semibold text-text-primary mb-4">👤 Preview de rostros detectados</h3>
+        
+        @if (state.loadingPreview) {
+          <div class="flex justify-center py-8">
+            <span class="spinner"></span>
+          </div>
+        } @else if (state.selfieFacePreview && state.idFacePreview) {
+          <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="text-center">
+              <p class="text-sm font-medium text-text-secondary mb-2">Selfie</p>
+              <img [src]="state.selfieFacePreview" alt="Rostro en selfie" 
+                class="w-full h-40 object-contain border-2 border-primary/30 rounded-xl bg-surface-card">
+            </div>
+            <div class="text-center">
+              <p class="text-sm font-medium text-text-secondary mb-2">Documento</p>
+              <img [src]="state.idFacePreview" alt="Rostro en documento" 
+                class="w-full h-40 object-contain border-2 border-primary/30 rounded-xl bg-surface-card">
+            </div>
+          </div>
+
+          <div class="bg-success/5 border border-success/20 rounded-lg p-3 mb-4">
+            <p class="text-sm text-text-secondary">
+              ✅ Rostros detectados correctamente. Haz clic en "Iniciar verificación" para comparar automáticamente.
+            </p>
+          </div>
+
+          <div class="flex gap-2">
+            <button class="btn btn-secondary flex-1" type="button" (click)="retryVerification()">Reintentar</button>
+            <button class="btn btn-primary flex-1" type="button" (click)="initiateVerification()" [disabled]="loading()">
+              @if (loading()) { <span class="spinner"></span> } 
+              Iniciar verificación
             </button>
           </div>
-        } @else {
-          <label class="flex flex-col items-center justify-center h-36 border-2 border-dashed border-border rounded-xl cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors mb-4">
-            <svg class="w-8 h-8 text-text-tertiary mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-            </svg>
-            <span class="text-sm text-text-secondary">Haz clic o arrastra tu documento</span>
-            <span class="text-xs text-text-tertiary mt-1">JPG, PNG, PDF · máx 10MB</span>
-            <input type="file" class="hidden" accept="image/*,.pdf" (change)="onDocumentSelect($event)">
-          </label>
+        } @else if (state.facePreviewError) {
+          <div class="alert alert-warning mb-4">
+            <span>{{ state.facePreviewError }}</span>
+          </div>
+          <button class="btn btn-secondary btn-block" type="button" (click)="retryVerification()">Reintentar con otras imágenes</button>
         }
+      </div>
+    }
 
-        <button class="btn btn-primary btn-block" (click)="nextToSelfie()" [disabled]="!docPreview()">
-          Continuar
+    <!-- Step 3: Verifying -->
+    @if (step() === 'verifying') {
+      <div class="card card-body text-center">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+          <span class="spinner"></span>
+        </div>
+        <h3 class="text-xl font-semibold text-text-primary">Verificando identidad...</h3>
+        <p class="text-text-secondary mt-2 text-sm">
+          Estamos comparando los rostros con inteligencia artificial. Esto puede tomar unos segundos.
+        </p>
+        <div class="mt-4 text-xs text-text-tertiary">
+          Estado: {{ state.verificationStatus }}
+        </div>
+      </div>
+    }
+
+    <!-- Step 4: Approved -->
+    @if (step() === 'approved') {
+      <div class="card card-body text-center">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-success/10 flex items-center justify-center">
+          <svg class="w-8 h-8 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-text-primary">¡Verificación exitosa!</h3>
+        <p class="text-text-secondary mt-2 text-sm">
+          Tu identidad ha sido verificada correctamente.
+        </p>
+        @if (state.confidenceScore !== null) {
+          <div class="mt-3 text-sm text-text-tertiary">
+            Nivel de confianza: <strong>{{ state.confidenceScore.toFixed(1) }}%</strong>
+          </div>
+        }
+        <button class="btn btn-primary btn-block mt-6" type="button" (click)="continueToDashboard()">
+          Continuar al panel de proveedor
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
           </svg>
@@ -75,64 +212,40 @@
       </div>
     }
 
-    <!-- Step 2: Selfie -->
-    @if (step() === 'selfie') {
-      <div class="card card-body">
-        <h3 class="font-semibold text-text-primary mb-1">Tómate una selfie</h3>
-        <p class="text-sm text-text-secondary mb-4">Asegúrate de que tu rostro sea claramente visible</p>
-
-        @if (selfiePreview()) {
-          <div class="relative mb-4">
-            <img [src]="selfiePreview()!" alt="Selfie" class="w-full max-h-48 object-contain rounded-xl border border-border">
-            <button (click)="selfiePreview.set(null)"
-              class="absolute top-2 right-2 w-7 h-7 bg-surface-card border border-border rounded-full shadow flex items-center justify-center text-text-tertiary hover:text-danger transition-colors">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-              </svg>
-            </button>
-          </div>
-        } @else {
-          <label class="flex flex-col items-center justify-center h-36 border-2 border-dashed border-border rounded-xl cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors mb-4">
-            <svg class="w-8 h-8 text-text-tertiary mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
-            <span class="text-sm text-text-secondary">Subir selfie</span>
-            <input type="file" class="hidden" accept="image/*" capture="user" (change)="onSelfieSelect($event)">
-          </label>
-        }
-
-        <div class="flex gap-2">
-          <button class="btn btn-secondary flex-1" (click)="step.set('document')">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-            </svg>
-            Atrás
-          </button>
-          <button class="btn btn-primary flex-1" (click)="submit()" [disabled]="!selfiePreview() || loading()">
-            @if (loading()) { <span class="spinner"></span> }
-            Enviar para revisión
-          </button>
-        </div>
-      </div>
-    }
-
-    <!-- Step 3: Reviewing -->
-    @if (step() === 'reviewing') {
+    <!-- Step 4: Rejected -->
+    @if (step() === 'rejected') {
       <div class="card card-body text-center">
-        <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-warning/10 flex items-center justify-center">
-          <svg class="w-7 h-7 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-danger/10 flex items-center justify-center">
+          <svg class="w-8 h-8 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
           </svg>
         </div>
-        <h3 class="text-xl font-semibold text-text-primary">Documentos enviados</h3>
+        <h3 class="text-xl font-semibold text-text-primary">Verificación rechazada</h3>
         <p class="text-text-secondary mt-2 text-sm">
-          Tu identidad está siendo verificada. Te notificaremos por correo cuando el proceso esté completo (1-2 días hábiles).
+          Los rostros no coinciden suficientemente. Por favor, intenta nuevamente con imágenes más claras.
         </p>
-        <button (click)="logout()" class="btn btn-secondary btn-block mt-6">Cerrar sesión</button>
+        @if (state.confidenceScore !== null) {
+          <div class="mt-3 text-sm text-text-tertiary">
+            Nivel de confianza: <strong>{{ state.confidenceScore.toFixed(1) }}%</strong>
+          </div>
+        }
+        <div class="bg-warning/5 border border-warning/20 rounded-lg p-3 mt-4">
+          <p class="text-xs text-text-secondary">
+            <strong>Consejos:</strong> Asegúrate de que las fotos tengan buena iluminación, 
+            tu rostro esté completo y sin accesorios que lo cubran (lentes oscuros, gorros, etc.).
+          </p>
+        </div>
+        <button class="btn btn-primary btn-block mt-6" type="button" (click)="retryVerification()">
+          Reintentar verificación
+        </button>
       </div>
     }
+
+    <!-- Logout option -->
+    <div class="text-center mt-6">
+      <button (click)="logout()" type="button" class="text-sm text-text-tertiary hover:text-text-secondary transition-colors">
+        Cerrar sesión
+      </button>
+    </div>
   </div>
 </div>

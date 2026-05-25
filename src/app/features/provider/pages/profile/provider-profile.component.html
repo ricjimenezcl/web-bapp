@@ -138,7 +138,7 @@
             <div>
               <h3 class="verification-title">
                 @if (provider()?.validation_status === 'approved') { Perfil Verificado }
-                @else if (provider()?.validation_status === 'pending') { Verificaci\xf3n en proceso }
+                @else if (provider()?.validation_status === 'pending') { Verificacion en proceso }
                 @else { Identidad sin verificar }
               </h3>
               <div class="perks-grid">
@@ -160,14 +160,14 @@
                     <svg class="perk-icon" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
                     </svg>
-                    Solicitud en revisi\xf3n &mdash; pronto recibir\xe1s una notificaci\xf3n
+                    Solicitud en revision &mdash; pronto recibiras una notificacion
                   </div>
                 } @else {
                   <div class="perk">
                     <svg class="perk-icon" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
                     </svg>
-                    Completa la verificaci\xf3n para activar tu perfil p\xfablico
+                    Completa la verificacion para activar tu perfil publico
                   </div>
                 }
               </div>
@@ -185,7 +185,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
             </svg>
-            <small class="stat-label">Valoraci\xf3n promedio</small>
+            <small class="stat-label">Valoracion promedio</small>
             <span class="stat-value">
               @if (provider()?.rating_avg && provider()!.rating_avg! > 0) {
                 \u2605 {{ provider()!.rating_avg | number:'1.1-1' }}
@@ -198,7 +198,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
             </svg>
-            <small class="stat-label">Tel\xe9fono</small>
+            <small class="stat-label">Telefono</small>
             <span class="stat-value">{{ provider()?.phone || 'Sin registrar' }}</span>
           </div>
 
@@ -207,7 +207,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
             </svg>
-            <small class="stat-label">Correo electr\xf3nico</small>
+            <small class="stat-label">Correo electronico</small>
             <span class="stat-value">{{ provider()?.email }}</span>
           </div>
         </div>

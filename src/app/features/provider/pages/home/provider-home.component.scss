@@ -1,8 +1,9 @@
 :host {
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: 100%;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  min-height: 100vh;
   padding: 30px 40px;
   background: var(--bw-bg, #000);
   background-image: radial-gradient(circle at 50% 0%, rgba(253, 230, 138, 0.03), transparent 60%);

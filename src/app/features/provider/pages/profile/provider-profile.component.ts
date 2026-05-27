@@ -9,6 +9,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { ProfileService } from '../../../../core/services/profile.service';
 import { ProviderProfile } from '../../../../core/models/provider.model';
 import { environment } from '../../../../../environments/environment';
+import { AppFooterComponent } from '../../../../shared/components/app-footer/app-footer.component';
 
 interface ServiceTransaction {
   id: number;
@@ -31,7 +32,7 @@ type ProviderProductType = 'PROVIDER_PREMIUM_MONTHLY' | 'PROVIDER_SERVICE_30' | 
 @Component({
   selector: 'app-provider-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, AppFooterComponent],
   templateUrl: './provider-profile.component.html',
   styleUrl: './provider-profile.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

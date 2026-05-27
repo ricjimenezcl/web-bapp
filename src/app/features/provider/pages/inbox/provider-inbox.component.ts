@@ -5,11 +5,12 @@ import { ActivatedRoute } from '@angular/router';
 import { ChatService } from '../../../../core/services/chat.service';
 import { ConversationUI } from '../../../../core/models/chat.model';
 import { ChatViewComponent } from '../../../../features/chat/chat-view.component';
+import { AppFooterComponent } from '../../../../shared/components/app-footer/app-footer.component';
 
 @Component({
   selector: 'app-provider-inbox',
   standalone: true,
-  imports: [CommonModule, FormsModule, DatePipe, ChatViewComponent],
+  imports: [CommonModule, FormsModule, DatePipe, ChatViewComponent, AppFooterComponent],
   templateUrl: './provider-inbox.component.html',
   styleUrl: './provider-inbox.component.scss',
 })

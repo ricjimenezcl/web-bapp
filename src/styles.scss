@@ -17,8 +17,19 @@
 @layer base {
   *, *::before, *::after { box-sizing: border-box; }
   // Noto Sans como fuente base — coherente con app Ionic
-  html { font-family: 'Noto Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; }
-  body { background-color: #1A1A1A; color: #FFFFFF; -webkit-font-smoothing: antialiased; margin: 0; }
+  html { 
+    font-family: 'Noto Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    height: 100%;
+  }
+  body { 
+    background-color: #1A1A1A; 
+    color: #FFFFFF; 
+    -webkit-font-smoothing: antialiased; 
+    margin: 0;
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
   input, select, textarea { font-family: inherit; }
 }
 

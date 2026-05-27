@@ -401,7 +401,7 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
       
       const updatedUser = {
         ...currentUser,
-        status: 'ACTIVE'
+        status: 'ACTIVE' as const
       };
       
       this.storage.setUser(updatedUser);

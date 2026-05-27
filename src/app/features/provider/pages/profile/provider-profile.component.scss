@@ -1,25 +1,27 @@
+// Tokens: viven en :root vía _bapp-web.scss (styles.scss)
 :host {
   display: flex;
   justify-content: center;
-  background: var(--bw-bg, #000);
+  background: var(--bw-bg);
   min-height: 100%;
   color: var(--bw-text-p);
 }
 
-/* ══ LAYOUT ═════════════════════════════════════════════════════ */
 .dashboard-container {
   display: flex;
   width: 100%;
   max-width: 1200px;
   margin: 40px 20px;
   gap: 40px;
-  align-items: flex-start;
+  align-items: start;
 
   @media (max-width: 1280px) { margin: 28px 16px; gap: 28px; }
   @media (max-width: 1024px) { margin: 20px 12px; gap: 20px; }
 }
 
-/* ══ SIDEBAR ════════════════════════════════════════════════════ */
+// ══════════════════════════════════════════════════════════════════════
+// SIDEBAR
+// ══════════════════════════════════════════════════════════════════════
 .sidebar {
   width: 260px;
   flex-shrink: 0;
@@ -30,7 +32,7 @@
   top: 40px;
 }
 
-/* User mini */
+// User mini card
 .user-mini {
   display: flex;
   align-items: center;
@@ -41,6 +43,7 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   min-width: 0;
 }
+
 .user-mini-avatar {
   width: 48px;
   height: 48px;
@@ -49,7 +52,7 @@
   flex-shrink: 0;
   display: block;
 
-  &--ph {
+  &.user-mini-avatar--ph {
     background: rgba(253, 230, 138, 0.08);
     display: flex;
     align-items: center;
@@ -58,6 +61,7 @@
     svg { width: 26px; height: 26px; }
   }
 }
+
 .user-mini-info {
   min-width: 0;
   flex: 1;
@@ -83,12 +87,9 @@
   }
 }
 
-/* Nav groups */
-.nav-group {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
+// Nav groups
+.nav-group { display: flex; flex-direction: column; gap: 4px; }
+
 .nav-label {
   font-size: 10px;
   font-weight: 800;
@@ -98,6 +99,7 @@
   margin-bottom: 10px;
   padding-left: 16px;
 }
+
 .nav-item {
   display: flex;
   align-items: center;
@@ -129,6 +131,7 @@
     .nav-icon { color: #FDE68A; }
   }
 }
+
 .nav-icon {
   width: 18px;
   height: 18px;
@@ -136,6 +139,7 @@
   color: inherit;
   transition: color 0.2s ease;
 }
+
 .nav-badge {
   background: rgba(253, 230, 138, 0.1);
   color: #FDE68A;
@@ -146,6 +150,8 @@
   margin-left: auto;
   white-space: nowrap;
 }
+
+// Logout
 .btn-logout {
   padding: 14px 16px;
   background: transparent;
@@ -170,7 +176,9 @@
   }
 }
 
-/* ══ MAIN CONTENT ════════════════════════════════════════════════ */
+// ══════════════════════════════════════════════════════════════════════
+// MAIN CONTENT CARD
+// ══════════════════════════════════════════════════════════════════════
 .main-content {
   flex: 1;
   background: #0E0E0E;
@@ -179,21 +187,16 @@
   padding: 40px;
   min-height: 600px;
   min-width: 0;
-
   @media (max-width: 1280px) { padding: 28px; }
   @media (max-width: 1024px) { padding: 24px; }
 }
 
-/* ══ VIEW ANIM ═══════════════════════════════════════════════════ */
+// View animation — usa bw-fade-in de _bapp-web.scss
 .view-anim {
-  animation: fadeSlideIn 0.22s ease-out;
-}
-@keyframes fadeSlideIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  animation: bw-fade-in 0.35s ease-out;
 }
 
-/* ══ VIEW HEADER ════════════════════════════════════════════════ */
+// View header
 .view-header {
   margin-bottom: 30px;
 
@@ -208,7 +211,9 @@
   p { font-size: 14px; color: #94A3B8; margin: 0; }
 }
 
-/* ══ ALERT BAR ══════════════════════════════════════════════════ */
+// ══════════════════════════════════════════════════════════════════════
+// ALERT BAR
+// ══════════════════════════════════════════════════════════════════════
 .alert-bar {
   display: flex;
   align-items: center;

@@ -7,12 +7,11 @@ import { ProviderProfile, ProviderStats } from '../../../../core/models/provider
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../environments/environment';
 import { ServiceViewersComponent } from '../../components/service-viewers/service-viewers.component';
-import { AppFooterComponent } from '../../../../shared/components/app-footer/app-footer.component';
 
 @Component({
   selector: 'app-provider-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, ServiceViewersComponent, AppFooterComponent],
+  imports: [CommonModule, RouterLink, ServiceViewersComponent],
   templateUrl: './provider-home.component.html',
   styleUrl: './provider-home.component.scss',
 })

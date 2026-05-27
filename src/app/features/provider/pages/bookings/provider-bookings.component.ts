@@ -5,12 +5,11 @@ import { Subscription, filter } from 'rxjs';
 import { BookingService } from '../../../../core/services/booking.service';
 import { BookingResponse, BOOKING_STATUS_LABELS, BOOKING_STATUS_COLORS } from '../../../../core/models/booking.model';
 import { ModalService } from '../../../../core/services/modal.service';
-import { AppFooterComponent } from '../../../../shared/components/app-footer/app-footer.component';
 
 @Component({
   selector: 'app-provider-bookings',
   standalone: true,
-  imports: [CommonModule, RouterLink, AppFooterComponent],
+  imports: [CommonModule, RouterLink],
   templateUrl: './provider-bookings.component.html',
   styleUrl: './provider-bookings.component.scss'
 })

@@ -7,11 +7,12 @@ import { ChatService } from '../../../../core/services/chat.service';
 import { ProviderService } from '../../../../core/services/provider.service';
 import { ProviderProfile } from '../../../../core/models/provider.model';
 import { Subscription } from 'rxjs';
+import { AppFooterComponent } from '../../../../shared/components/app-footer/app-footer.component';
 
 @Component({
   selector: 'app-provider-tabs',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterOutlet, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterOutlet, RouterLinkActive, AppFooterComponent],
   templateUrl: './provider-tabs.component.html',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

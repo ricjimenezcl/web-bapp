@@ -4,12 +4,11 @@ import { Router, RouterLink } from '@angular/router';
 import { ProviderService } from '../../../../core/services/provider.service';
 import { ServiceProvider } from '../../../../core/models/provider.model';
 import { ModalService } from '../../../../core/services/modal.service';
-import { AppFooterComponent } from '../../../../shared/components/app-footer/app-footer.component';
 
 @Component({
   selector: 'app-my-services',
   standalone: true,
-  imports: [CommonModule, RouterLink, AppFooterComponent],
+  imports: [CommonModule, RouterLink],
   templateUrl: './my-services.component.html',
   styleUrl: './my-services.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

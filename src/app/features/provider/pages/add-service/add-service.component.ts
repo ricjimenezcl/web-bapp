@@ -13,7 +13,6 @@ import { CustomValidators } from '../../../../shared/validators/custom-validator
 import { formatChileanPhone } from '../../../../shared/utils/form-formatters';
 import { ModalService } from '../../../../core/services/modal.service';
 import { DocumentUploadService } from '../../../../shared/services/document-upload.service';
-import { AppFooterComponent } from '../../../../shared/components/app-footer/app-footer.component';
 
 const DAY_NAMES = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 const MAX_PORTFOLIO_IMAGES = 5;
@@ -27,7 +26,7 @@ interface PortfolioImage {
 @Component({
   selector: 'app-add-service',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, AppFooterComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './add-service.component.html',
   styleUrl: './add-service.component.scss',

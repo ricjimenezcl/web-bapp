@@ -156,7 +156,7 @@
   font-size: 14px;
   font-family: inherit;
   cursor: pointer;
-  displa: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 24px;
   padding: 40px;
   min-height: 600px;
@@ -173,7 +173,22 @@
 
 /* ══ VIEW HEADER ════════════════════════════════════════════════ */
 .view-header {
-  margin-bottom: 30
+  margin-bottom: 30px;
+  
+  h2 {
+    font-size: 32px;
+    font-weight: 800;
+    color: #FFFFFF;
+    margin-bottom: 10px;
+  }
+  
+  p {
+    font-size: 16px;
+    color: #94A3B8;
+    line-height: 1.6;
+  }
+}
+
 /* ══ MAIN CONTENT ════════════════════════════════════════════════ */
 .main-content {
   flex: 1;

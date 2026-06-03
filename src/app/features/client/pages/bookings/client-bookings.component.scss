@@ -704,3 +704,74 @@ svg[width="14"] { width: 14px !important; height: 14px !important; }
     border: 1px solid rgba(253, 230, 138, 0.3);
   }
 }
+
+// Badge éxito (historial)
+.ref-tab-badge--success {
+  background: rgba(52, 211, 153, 0.2);
+  color: #34D399;
+  border: 1px solid rgba(52, 211, 153, 0.3);
+}
+
+// ── Botón Calificar ────────────────────────────────────────────
+.btn-booking-review {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  background: rgba(253, 230, 138, 0.12);
+  color: #FDE68A;
+  border: 1px solid rgba(253, 230, 138, 0.25);
+
+  &:hover { background: rgba(253, 230, 138, 0.2); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+// ── Review modal extras ────────────────────────────────────────
+.review-modal-icon-wrap {
+  background: rgba(253, 230, 138, 0.12) !important;
+  color: #FDE68A !important;
+
+  svg { color: #FDE68A; }
+}
+
+.review-stars {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  margin: 12px 0;
+}
+
+.review-star-btn {
+  background: none;
+  border: none;
+  padding: 2px;
+  cursor: pointer;
+  color: rgba(255,255,255,0.2);
+  transition: color 0.12s, transform 0.1s;
+
+  &--active { color: #FDE68A; }
+  &:hover { transform: scale(1.15); }
+}
+
+.cancel-modal-btn--primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  background: rgba(253, 230, 138, 0.85);
+  color: #000;
+  border: none;
+
+  &:hover:not(:disabled) { background: #FDE68A; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}

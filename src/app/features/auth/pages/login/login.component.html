@@ -1,686 +1,1107 @@
 <!-- ═══════════════════════════════════════════════════════════
-     BAPPSEARCH — Landing Page  |  Angular 18 Standalone
+     BAPPSEARCH — Landing Page Crypgo Style  |  Angular 18 
+     Tailwind CSS + Crypgo Design Tokens
      ═══════════════════════════════════════════════════════════ -->
 
-<!-- ══ NAVBAR ══════════════════════════════════════════════════ -->
-<nav class="lp-navbar">
-  <div class="lp-navbar-inner">
-    <div class="lp-brand">
-      <svg viewBox="0 0 200 180" class="lp-logo-svg" xmlns="http://www.w3.org/2000/svg">
-        <defs><mask id="lp-cutout"><rect width="100%" height="100%" fill="white"/><circle cx="120" cy="80" r="45" fill="black"/><line x1="20" y1="180" x2="100" y2="100" stroke="black" stroke-width="24" stroke-linecap="round"/></mask></defs>
-        <path d="M 60,80 A 60,60 0 0,1 180,80 L 180,150 L 90,150 A 60,60 0 0,1 50,110 Z" fill="#BE202E" mask="url(#lp-cutout)"/>
-        <circle cx="120" cy="80" r="35" stroke="#ffffff" stroke-width="14" fill="none"/>
-        <line x1="30" y1="170" x2="95" y2="105" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
-      </svg>
-      <span class="lp-brand-text">BAPPSEARCH</span>
-    </div>
-    <ul class="lp-nav-links">
-      <li><a href="javascript:void(0)" (click)="scrollTo('como-funciona')">Cómo funciona</a></li>
-      <li><a href="javascript:void(0)" (click)="scrollTo('sliders')">Proveedores</a></li>
-      <li><a href="javascript:void(0)" (click)="scrollTo('descargar')">Descargar App</a></li>
-      <li><a href="javascript:void(0)" (click)="scrollTo('contacto')">Contacto</a></li>
-    </ul>
-    <div class="lp-nav-actions">
-      <button class="lp-btn-ghost" (click)="showAuthModal('login')" type="button">Iniciar Sesión</button>
-      <button class="lp-btn-primary" (click)="showAuthModal('register')" type="button">Regístrate</button>
-    </div>
-    <button class="lp-hamburger" (click)="toggleMobileMenu()" type="button" aria-label="Menú">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-    </button>
-  </div>
-  @if (mobileMenuOpen()) {
-    <div class="lp-mobile-menu">
-      <a href="javascript:void(0)" (click)="scrollTo('como-funciona'); toggleMobileMenu()">Cómo funciona</a>
-      <a href="javascript:void(0)" (click)="scrollTo('sliders'); toggleMobileMenu()">Proveedores</a>
-      <a href="javascript:void(0)" (click)="scrollTo('descargar'); toggleMobileMenu()">Descargar App</a>
-      <a href="javascript:void(0)" (click)="scrollTo('contacto'); toggleMobileMenu()">Contacto</a>
-      <div class="lp-mobile-menu-ctas">
-        <button class="lp-btn-ghost" (click)="showAuthModal('login'); toggleMobileMenu()" type="button">Iniciar Sesión</button>
-        <button class="lp-btn-primary" (click)="showAuthModal('register'); toggleMobileMenu()" type="button">Regístrate Gratis</button>
+<!-- HEADER -->
+<header class="fixed top-0 z-40 w-full pb-5 transition-all duration-500 ease-out" 
+        [class.shadow-lg]="sticky()" 
+        [class.bg-crypgo-darkmode]="sticky()" 
+        [class.backdrop-blur-md]="sticky()" 
+        [class.bg-opacity-95]="sticky()"
+        [class.pt-5]="sticky()" 
+        [class.md:pt-14]="!sticky()" 
+        [class.pt-5]="!sticky()">
+  <div class="lg:py-0 py-2">
+    <div class="container mx-auto lg:max-w-screen-xl md:max-w-screen-md flex items-center justify-between px-4">
+      <!-- Logo -->
+      <div class="flex items-center gap-3">
+        <svg viewBox="0 0 200 180" class="w-10 h-10" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <mask id="logo-mask">
+              <rect width="100%" height="100%" fill="white"/>
+              <circle cx="120" cy="80" r="45" fill="black"/>
+              <line x1="20" y1="180" x2="100" y2="100" stroke="black" stroke-width="24" stroke-linecap="round"/>
+            </mask>
+          </defs>
+          <path d="M 60,80 A 60,60 0 0,1 180,80 L 180,150 L 90,150 A 60,60 0 0,1 50,110 Z" fill="#BE202E" mask="url(#logo-mask)"/>
+          <circle cx="120" cy="80" r="35" stroke="#ffffff" stroke-width="14" fill="none"/>
+          <line x1="30" y1="170" x2="95" y2="105" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
+        </svg>
+        <span class="text-white font-bold text-xl">BAPPSEARCH</span>
       </div>
+
+      <!-- Desktop Nav -->
+      <nav class="hidden lg:flex flex-grow items-center gap-8 justify-center" aria-label="Navegación principal">
+        <a href="#main-banner" (click)="scrollToSection('main-banner', $event)" class="text-white hover:text-crypgo-primary transition-colors">Inicio</a>
+        <a href="#how-it-works" (click)="scrollToSection('how-it-works', $event)" class="text-white hover:text-crypgo-primary transition-colors">Cómo Funciona</a>
+        <a href="#services" (click)="scrollToSection('services', $event)" class="text-white hover:text-crypgo-primary transition-colors">Servicios</a>
+        <a href="#testimonials" (click)="scrollToSection('testimonials', $event)" class="text-white hover:text-crypgo-primary transition-colors">Testimonios</a>
+        <a href="#contact" (click)="scrollToSection('contact', $event)" class="text-white hover:text-crypgo-primary transition-colors">Contacto</a>
+      </nav>
+
+      <!-- Auth Buttons -->
+      <div class="flex items-center gap-4">
+        <button 
+          (click)="showAuthModal('login')"
+          class="hidden lg:block bg-transparent text-crypgo-primary border hover:bg-crypgo-primary border-crypgo-primary hover:text-crypgo-darkmode px-4 py-2 rounded-lg transition-all">
+          Iniciar Sesión
+        </button>
+        <button 
+          (click)="showAuthModal('register')"
+          class="hidden lg:block bg-crypgo-primary text-crypgo-darkmode hover:bg-transparent hover:text-crypgo-primary border border-crypgo-primary px-4 py-2 rounded-lg transition-all">
+          Registrarse
+        </button>
+        
+        <!-- Mobile Menu Button -->
+        <button 
+          (click)="toggleMobileMenu()"
+          class="lg:hidden text-white">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  @if (mobileMenuOpen()) {
+    <div class="lg:hidden bg-crypgo-deepSlate border-t border-crypgo-dark_border">
+      <nav class="container mx-auto px-4 py-6 flex flex-col gap-4" aria-label="Navegación móvil">
+        <a href="#main-banner" (click)="scrollToSection('main-banner', $event, true)" class="text-white hover:text-crypgo-primary py-2">Inicio</a>
+        <a href="#how-it-works" (click)="scrollToSection('how-it-works', $event, true)" class="text-white hover:text-crypgo-primary py-2">Cómo Funciona</a>
+        <a href="#services" (click)="scrollToSection('services', $event, true)" class="text-white hover:text-crypgo-primary py-2">Servicios</a>
+        <a href="#testimonials" (click)="scrollToSection('testimonials', $event, true)" class="text-white hover:text-crypgo-primary py-2">Testimonios</a>
+        <a href="#contact" (click)="scrollToSection('contact', $event, true)" class="text-white hover:text-crypgo-primary py-2">Contacto</a>
+        <button (click)="showAuthModal('login'); toggleMobileMenu()" class="bg-transparent text-crypgo-primary border border-crypgo-primary px-4 py-2 rounded-lg">
+          Iniciar Sesión
+        </button>
+        <button (click)="showAuthModal('register'); toggleMobileMenu()" class="bg-crypgo-primary text-crypgo-darkmode px-4 py-2 rounded-lg">
+          Registrarse
+        </button>
+      </nav>
     </div>
   }
-</nav>
+</header>
 
-<!-- ══ HERO (Poseify carousel style) ══════════════════════════ -->
-<section class="lp-hero">
-  <div class="lp-carousel-inner">
-
-    <!-- Slide 1 -->
-    <div class="lp-carousel-item" [class.lp-carousel-item--active]="currentSlide() === 0">
-      <div class="lp-carousel-bg lp-carousel-bg--1"></div>
-      <div class="lp-carousel-caption">
-        <div class="lp-caption-title">
-          <div class="lp-title-block">
-            <h5>Bienvenido</h5>
-            <h1>ENCUENTRA SERVICIOS<br><span>EN TU SECTOR</span></h1>
+<!-- HERO SECTION -->
+<section class="relative md:pt-40 md:pb-28 py-20 overflow-hidden z-1 bg-crypgo-darkmode" id="main-banner">
+  <div class="container mx-auto lg:max-w-screen-xl px-4">
+    <div class="grid grid-cols-12 gap-8 items-center">
+      <div class="lg:col-span-6 col-span-12 flex flex-col justify-center">
+        <div class="hero-ideas-carousel animate-fade-in" style="animation-delay: 0.2s" aria-label="Carrusel de beneficios BappSearch">
+          <div class="hero-ideas-track">
+            <article class="hero-idea-slide">
+              <span class="hero-idea-chip">Activa ingresos hoy</span>
+              <h3>Si quieres más ingresos, este es tu canal: crea tu perfil gratis, publícate en minutos y empieza a recibir clientes cerca de ti.</h3>
+              <a href="#" class="hero-idea-cta" aria-label="Comenzar gratis ahora">Comenzar gratis ahora</a>
+            </article>
+            <article class="hero-idea-slide">
+              <span class="hero-idea-chip">Resuelve más rápido</span>
+              <h3>Encuentra profesionales verificados en tu zona para resolver cualquier necesidad del hogar sin esperas eternas ni vueltas.</h3>
+              <a href="#" class="hero-idea-cta" aria-label="Encontrar profesionales hoy">Encontrar profesionales hoy</a>
+            </article>
+            <article class="hero-idea-slide">
+              <span class="hero-idea-chip">Cero comisión</span>
+              <h3>Conectamos oferta y demanda con match inteligente: tú cierras el trabajo, tú te quedas con la ganancia, nosotros impulsamos la conexión.</h3>
+              <a href="#" class="hero-idea-cta" aria-label="Publicar servicio y vender hoy">Publicar servicio y vender hoy</a>
+            </article>
           </div>
         </div>
-        <p class="lp-caption-desc">
-          Profesionales verificados, a la vuelta de tu casa.<br>
-          Agenda en segundos, sin complicaciones.
-        </p>
-        <div class="lp-caption-actions">
-          <button class="lp-btn-outline-hero" (click)="showAuthModal('register')" type="button">Ingresar Ahora</button>
-          <button class="lp-btn-ghost" (click)="scrollTo('como-funciona')" type="button">Cómo funciona</button>
-        </div>
-        <!-- Tailwind App Store / Google Play Buttons -->
-        <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center relative z-20">
-          <a href="#" class="flex items-center gap-3 px-5 py-2.5 bg-black/60 hover:bg-black/90 text-white rounded-xl border border-white/20 transition-all backdrop-blur-md hover:scale-105 shadow-xl hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]" aria-label="Google Play">
-            <svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7">
-              <path d="M3.18 23.76c.33.18.7.24 1.06.18L15.88 12 4.24.06C3.88 0 3.51.06 3.18.24 2.51.61 2.06 1.28 2.06 2.06v19.88c0 .78.45 1.45 1.12 1.82z"/>
-              <path d="M20.06 10.56l-3.1-1.79-3.41 3.23 3.41 3.23 3.13-1.81c.9-.52.9-1.82-.03-2.86z" opacity=".8"/>
-              <path d="M4.24 23.94L15.53 12.74 12.13 9.34 3.2 23.58c.27.18.67.24 1.04.36z" opacity=".6"/>
-              <path d="M15.53 11.26L4.24.06C3.87.18 3.47.24 3.2.42L12.13 14.66l3.4-3.4z" opacity=".4"/>
-            </svg>
-            <div class="text-left leading-none">
-              <div class="text-[10px] text-gray-300 uppercase tracking-wide">Disponible en</div>
-              <div class="text-sm font-bold mt-0.5">Google Play</div>
-            </div>
+
+        <div class="flex items-center md:justify-start justify-center gap-12 mt-6 animate-fade-in" style="animation-delay: 0.4s">
+          <a href="#" class="hover:scale-110 duration-300 transition-all">
+            <img
+              src="https://res.cloudinary.com/dghwotofx/image/upload/v1779935705/playstore_wv06bw.png"
+              alt="Google Play Store"
+              class="w-[180px] h-auto object-contain">
           </a>
-          <a href="#" class="flex items-center gap-3 px-5 py-2.5 bg-black/60 hover:bg-black/90 text-white rounded-xl border border-white/20 transition-all backdrop-blur-md hover:scale-105 shadow-xl hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]" aria-label="App Store">
-            <svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7">
-              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98l-.09.06c-.22.15-2.2 1.28-2.18 3.83.03 3.02 2.65 4.03 2.68 4.04l-.05.2zM13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-            </svg>
-            <div class="text-left leading-none">
-              <div class="text-[10px] text-gray-300 uppercase tracking-wide">Descárgalo en</div>
-              <div class="text-sm font-bold mt-0.5">App Store</div>
-            </div>
+          <a href="#" class="hover:scale-110 duration-300 transition-all">
+            <img
+              src="https://res.cloudinary.com/dghwotofx/image/upload/v1779935705/applestore_lwwmhy.png"
+              alt="Apple App Store"
+              class="w-[180px] h-auto object-contain">
           </a>
         </div>
       </div>
-    </div>
 
-    <!-- Slide 2 -->
-    <div class="lp-carousel-item" [class.lp-carousel-item--active]="currentSlide() === 1">
-      <div class="lp-carousel-bg lp-carousel-bg--2"></div>
-      <div class="lp-carousel-caption">
-        <div class="lp-caption-title">
-          <div class="lp-title-block">
-            <h5>Confianza</h5>
-            <h1>CONECTA CON<br><span>EXPERTOS REALES</span></h1>
+      <div class="col-span-6 lg:block hidden">
+        <div class="scene-hologram">
+          <div class="scale-wrapper">
+            <div class="hologram-wrapper" id="holoWrapper" #holoWrapper>
+                <div class="phone">
+                    <div class="vol-buttons"></div>
+                    <div class="power-button"></div>
+                    <div class="notch">
+                        <div class="speaker-grill"></div>
+                        <div class="front-camera"></div>
+                    </div>
+                    <div class="screen">
+                        <div class="map-bg"></div>
+                        <div class="app-ui-mock">
+                            <div class="status-bar">
+                                <span>9:41</span>
+                                <div class="status-icons">
+                                    <svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 9h2V6H1v3zm4 0h2V4H5v5zm4 0h2V2H9v7zm4 0h2V0h-2v9z" fill="currentColor" stroke="none"/></svg>
+                                    <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 10a2 2 0 100-4 2 2 0 000 4zm0-6C5.5 4 3 5 1.2 6.6L0 5.2C2 3.2 5 2 8 2s6 1.2 8 3.2l-1.2 1.4C13 5 10.5 4 8 4z"/></svg>
+                                    <svg width="22" height="12" viewBox="0 0 22 12" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="2" width="16" height="8" rx="2"/><path d="M19 4v4" stroke-linecap="round"/><rect x="2" y="3" width="11" height="6" rx="1" fill="currentColor" stroke="none"/></svg>
+                                </div>
+                            </div>
+                            <div class="search-bar-mock">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>
+                                <span>Buscar en BappSearch...</span>
+                            </div>
+                            <div style="flex:1"></div>
+                            <div class="bottom-sheet">
+                                <div class="sheet-handle"></div>
+                                <div class="mock-card">
+                                    <div class="mock-card-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                                    </div>
+                                    <div class="mock-card-lines">
+                                        <div class="mock-line mid"></div>
+                                        <div class="mock-line short"></div>
+                                    </div>
+                                </div>
+                                <div class="mock-nav">
+                                    <div class="mock-nav-item" style="background:var(--bapp-red)"></div>
+                                    <div class="mock-nav-item"></div>
+                                    <div class="mock-nav-item"></div>
+                                    <div class="mock-nav-item"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="glow-core"></div>
+                        <div class="light-cone"></div>
+                        <svg class="laser-grid" width="100%" height="100%">
+                            <line x1="50%" y1="65%" x2="-25%" y2="35%" />  
+                            <line x1="50%" y1="65%" x2="115%" y2="25%" />  
+                            <line x1="50%" y1="65%" x2="-15%" y2="75%" />  
+                            <line x1="50%" y1="65%" x2="110%" y2="65%" />  
+                            <line x1="50%" y1="65%" x2="-30%" y2="115%" /> 
+                            <line x1="50%" y1="65%" x2="120%" y2="50%" opacity="0.4" stroke-dasharray="4,4"/>
+                            <line x1="50%" y1="65%" x2="5%" y2="15%" opacity="0.4" stroke-dasharray="4,4"/>
+                            <line x1="50%" y1="65%" x2="80%" y2="90%" opacity="0.4" stroke-dasharray="4,4"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="floating-item is-icon-wrapper pos-app-1 del-2">
+                    <div class="icon-a"><div class="app-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13a8 8 0 0 1 16 0H4z"/><rect x="4" y="15" width="16" height="2" rx="1"/><path d="M5 19a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2H5z"/></svg></div></div>
+                    <div class="icon-b"><div class="app-box red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg></div></div>
+                </div>
+                <!-- ... Resto de los elementos flotantes ... -->
+                <div class="floating-item is-icon-wrapper pos-app-2 del-3">
+                    <div class="icon-a"><div class="app-box red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10V6a2 2 0 0 0-2-2H9L5 8v3h4v8a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-6h1l2-1Z"/><line x1="18" y1="8" x2="22" y2="8"/><line x1="18" y1="10" x2="22" y2="10"/><line x1="18" y1="6" x2="22" y2="6"/></svg></div></div>
+                    <div class="icon-b"><div class="app-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg></div></div>
+                </div>
+                <div class="floating-item is-icon-wrapper pos-app-3 del-4">
+                    <div class="icon-a"><div class="app-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12c-2.5 0-5 2.5-5 5s2.5 5 5 5 5-2.5 5-5-2.5-5-5-5z"/><circle cx="7" cy="8" r="3"/><circle cx="12" cy="4" r="3"/><circle cx="17" cy="8" r="3"/></svg></div></div>
+                    <div class="icon-b"><div class="app-box red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 12m-3-1l3-2 3 1v3l-3 2-3-2z"/><path d="M12 10L10 6"/><path d="M15 11l4-2"/><path d="M15 14l3 4"/><path d="M9 14l-3 4"/><path d="M12 16v5"/></svg></div></div>
+                </div>
+                <div class="floating-item is-icon-wrapper pos-app-4 del-1">
+                    <div class="icon-a"><div class="app-box red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10l-10-4-10 4 10 4 10-4z"/><path d="M6 11.5v4c0 2 2.5 3.5 6 3.5s6-1.5 6-3.5v-4"/><path d="M22 10v6"/></svg></div></div>
+                    <div class="icon-b"><div class="app-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/><polygon points="17 4 18 6 20 6 18.5 7.5 19 9.5 17 8 15 9.5 15.5 7.5 14 6 16 6 17 4"/></svg></div></div>
+                </div>
+                <div class="floating-item is-icon-wrapper pos-app-5 del-2">
+                    <div class="icon-a"><div class="app-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div></div>
+                    <div class="icon-b"><div class="app-box red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg></div></div>
+                </div>
+                <div class="floating-item pos-pin-0 del-1"><svg class="hologram-pin" viewBox="0 0 24 24"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5c-1.4 0-2.5-1.1-2.5-2.5S10.6 6.5 12 6.5s2.5 1.1 2.5 2.5-1.1 2.5-2.5 2.5z"/><circle cx="12" cy="9.5" r="2.5"/></svg></div>
+            </div>
           </div>
         </div>
-        <p class="lp-caption-desc">
-          Cada profesional pasa por verificación de identidad.<br>
-          Trabaja solo con quienes merecen tu confianza.
-        </p>
-        <div class="lp-caption-actions">
-          <button class="lp-btn-outline-hero" (click)="showAuthModal('register')" type="button">Ver Proveedores</button>
-          <button class="lp-btn-ghost" (click)="scrollTo('sliders')" type="button">Explorar categorías</button>
-        </div>
-        <!-- Tailwind App Store / Google Play Buttons -->
-        <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center relative z-20">
-          <a href="#" class="flex items-center gap-3 px-5 py-2.5 bg-black/60 hover:bg-black/90 text-white rounded-xl border border-white/20 transition-all backdrop-blur-md hover:scale-105 shadow-xl hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]" aria-label="Google Play">
-            <svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7">
-              <path d="M3.18 23.76c.33.18.7.24 1.06.18L15.88 12 4.24.06C3.88 0 3.51.06 3.18.24 2.51.61 2.06 1.28 2.06 2.06v19.88c0 .78.45 1.45 1.12 1.82z"/>
-              <path d="M20.06 10.56l-3.1-1.79-3.41 3.23 3.41 3.23 3.13-1.81c.9-.52.9-1.82-.03-2.86z" opacity=".8"/>
-              <path d="M4.24 23.94L15.53 12.74 12.13 9.34 3.2 23.58c.27.18.67.24 1.04.36z" opacity=".6"/>
-              <path d="M15.53 11.26L4.24.06C3.87.18 3.47.24 3.2.42L12.13 14.66l3.4-3.4z" opacity=".4"/>
-            </svg>
-            <div class="text-left leading-none">
-              <div class="text-[10px] text-gray-300 uppercase tracking-wide">Disponible en</div>
-              <div class="text-sm font-bold mt-0.5">Google Play</div>
-            </div>
-          </a>
-          <a href="#" class="flex items-center gap-3 px-5 py-2.5 bg-black/60 hover:bg-black/90 text-white rounded-xl border border-white/20 transition-all backdrop-blur-md hover:scale-105 shadow-xl hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]" aria-label="App Store">
-            <svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7">
-              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98l-.09.06c-.22.15-2.2 1.28-2.18 3.83.03 3.02 2.65 4.03 2.68 4.04l-.05.2zM13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-            </svg>
-            <div class="text-left leading-none">
-              <div class="text-[10px] text-gray-300 uppercase tracking-wide">Descárgalo en</div>
-              <div class="text-sm font-bold mt-0.5">App Store</div>
-            </div>
-          </a>
-        </div>
       </div>
+
     </div>
 
-    <!-- Slide 3 -->
-    <div class="lp-carousel-item" [class.lp-carousel-item--active]="currentSlide() === 2">
-      <div class="lp-carousel-bg lp-carousel-bg--3"></div>
-      <div class="lp-carousel-caption">
-        <div class="lp-caption-title">
-          <div class="lp-title-block">
-            <h5>Reserva 24/7</h5>
-            <h1>RESERVA SIN<br><span>COMPLICACIONES</span></h1>
-          </div>
-        </div>
-        <p class="lp-caption-desc">
-          Disponibilidad 24/7. Confirma en segundos,<br>
-          paga de forma segura y recibe el servicio cuando lo necesitas.
-        </p>
-        <div class="lp-caption-actions">
-          <button class="lp-btn-outline-hero" (click)="showAuthModal('register')" type="button">Agendar Ahora</button>
-          <button class="lp-btn-ghost" (click)="scrollTo('descargar')" type="button">Descargar App</button>
-        </div>
-        <!-- Tailwind App Store / Google Play Buttons -->
-        <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center relative z-20">
-          <a href="#" class="flex items-center gap-3 px-5 py-2.5 bg-black/60 hover:bg-black/90 text-white rounded-xl border border-white/20 transition-all backdrop-blur-md hover:scale-105 shadow-xl hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]" aria-label="Google Play">
-            <svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7">
-              <path d="M3.18 23.76c.33.18.7.24 1.06.18L15.88 12 4.24.06C3.88 0 3.51.06 3.18.24 2.51.61 2.06 1.28 2.06 2.06v19.88c0 .78.45 1.45 1.12 1.82z"/>
-              <path d="M20.06 10.56l-3.1-1.79-3.41 3.23 3.41 3.23 3.13-1.81c.9-.52.9-1.82-.03-2.86z" opacity=".8"/>
-              <path d="M4.24 23.94L15.53 12.74 12.13 9.34 3.2 23.58c.27.18.67.24 1.04.36z" opacity=".6"/>
-              <path d="M15.53 11.26L4.24.06C3.87.18 3.47.24 3.2.42L12.13 14.66l3.4-3.4z" opacity=".4"/>
-            </svg>
-            <div class="text-left leading-none">
-              <div class="text-[10px] text-gray-300 uppercase tracking-wide">Disponible en</div>
-              <div class="text-sm font-bold mt-0.5">Google Play</div>
-            </div>
-          </a>
-          <a href="#" class="flex items-center gap-3 px-5 py-2.5 bg-black/60 hover:bg-black/90 text-white rounded-xl border border-white/20 transition-all backdrop-blur-md hover:scale-105 shadow-xl hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]" aria-label="App Store">
-            <svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7">
-              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98l-.09.06c-.22.15-2.2 1.28-2.18 3.83.03 3.02 2.65 4.03 2.68 4.04l-.05.2zM13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-            </svg>
-            <div class="text-left leading-none">
-              <div class="text-[10px] text-gray-300 uppercase tracking-wide">Descárgalo en</div>
-              <div class="text-sm font-bold mt-0.5">App Store</div>
-            </div>
-          </a>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Prev / Next (ancho 10% cada lado, estilo Poseify) -->
-  <button class="lp-carousel-prev" (click)="prevSlide()" type="button" aria-label="Anterior">
-    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19l-7-7 7-7"/></svg>
-  </button>
-  <button class="lp-carousel-next" (click)="nextSlide()" type="button" aria-label="Siguiente">
-    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7"/></svg>
-  </button>
-
-  <!-- Indicators -->
-  <div class="lp-carousel-indicators">
-    <button class="lp-indicator" [class.lp-indicator--active]="currentSlide() === 0" (click)="goToSlide(0)" type="button" aria-label="Slide 1"></button>
-    <button class="lp-indicator" [class.lp-indicator--active]="currentSlide() === 1" (click)="goToSlide(1)" type="button" aria-label="Slide 2"></button>
-    <button class="lp-indicator" [class.lp-indicator--active]="currentSlide() === 2" (click)="goToSlide(2)" type="button" aria-label="Slide 3"></button>
-  </div>
-</section>
-
-<!-- ══ SLIDER 1: Proveedores ════════════════════════════════════ -->
-<section class="lp-section lp-section--dark" id="sliders">
-  <div class="lp-container">
-    <div class="lp-section-header">
-      <p class="lp-section-sub">Explora los perfiles mejor calificados en tu zona.</p>
-      <h2 class="lp-section-title">Profesionales que te encantarán</h2>
-    </div>
-    <div class="lp-slider-wrapper">
-      <div class="lp-slider" id="slider-providers">
-        @for (provider of featuredProviders; track provider.id) {
-          <article class="lp-pro-card">
-            <div class="lp-pro-header">
-              <div class="lp-pro-avatar">
-                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
-              </div>
-              <div class="lp-pro-info">
-                <h3>{{ provider.name }}</h3>
-                <p>{{ provider.category }}</p>
+    <!-- Stats Carousel (arrows + dots) -->
+    <div class="stats-slider mt-24 animate-slide-up" style="animation-delay: 0.5s" aria-label="Indicadores principales BappSearch">
+      <div class="stats-slider-window">
+        <div class="stats-slider-track"
+             [class.stats-track-no-transition]="statLoopingReset()"
+             [style.transform]="getStatTranslate()">
+          @for (stat of statsLoopCards; track $index; let idx = $index) {
+            <div class="stats-slide">
+              <div class="stat-card glass-card bg-crypgo-deepSlate border border-crypgo-dark_border rounded-xl p-6">
+                <h3 class="text-40 font-bold text-gradient-crypgo mb-2">{{ stat.value }}</h3>
+                <p class="text-white text-lg">{{ stat.label }}</p>
               </div>
             </div>
-            <div class="lp-pro-rating">
-              <span class="lp-stars-yellow">★★★★★</span>
-              <span class="lp-rating-count">({{ provider.reviews }} reseñas)</span>
-            </div>
-            <div class="lp-pro-location">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
-              {{ provider.location }}
-            </div>
-            <button class="lp-pro-cta" (click)="showAuthModal('register')" type="button">Ver perfil</button>
-          </article>
-        }
+          }
+        </div>
       </div>
-      <div class="lp-slider-controls">
-        <button class="lp-slider-btn" (click)="slideLeft('slider-providers')" type="button" aria-label="Anterior">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-        </button>
-        <button class="lp-slider-btn" (click)="slideRight('slider-providers')" type="button" aria-label="Siguiente">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        </button>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- ══ SLIDER 2: Testimonios ════════════════════════════════════ -->
-<section class="lp-section lp-section--light">
-  <div class="lp-container">
-    <div class="lp-section-header">
-      <p class="lp-section-sub">Miles de usuarios ya confían en BappSearch.</p>
-      <h2 class="lp-section-title">Lo que dice nuestra comunidad</h2>
-    </div>
-    <div class="lp-slider-wrapper">
-      <div class="lp-slider" id="slider-reviews">
-        @for (review of testimonials; track review.id) {
-          <div class="lp-review-card">
-            <div class="lp-review-stars">★★★★★</div>
-            <p class="lp-review-text">"{{ review.text }}"</p>
-            <div class="lp-review-author">
-              <div class="lp-review-avatar">
-                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
-              </div>
-              <div>
-                <strong>{{ review.author }}</strong>
-                <span>{{ review.role }}</span>
-              </div>
-            </div>
-          </div>
-        }
-      </div>
-      <div class="lp-slider-controls">
-        <button class="lp-slider-btn" (click)="slideLeft('slider-reviews')" type="button" aria-label="Anterior">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-        </button>
-        <button class="lp-slider-btn" (click)="slideRight('slider-reviews')" type="button" aria-label="Siguiente">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        </button>
-      </div>
-    </div>
-  </div>
-</section>
+      <button type="button"
+              class="stats-nav stats-nav-prev"
+              (click)="prevStat()"
+              aria-label="Estadística anterior">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </button>
 
-<!-- ══ SLIDER 3: Categorías ═════════════════════════════════════ -->
-<section class="lp-section lp-section--dark">
-  <div class="lp-container">
-    <div class="lp-section-header">
-      <p class="lp-section-sub">Desde construcción hasta belleza, encuentra al experto que necesitas.</p>
-      <h2 class="lp-section-title">Todo tipo de servicios</h2>
-    </div>
-    <div class="lp-slider-wrapper">
-      <div class="lp-slider lp-slider--cats" id="slider-categories">
-        @for (cat of serviceCategories; track cat.id) {
-          <button class="lp-cat-card" (click)="showAuthModal('register')" type="button">
-            <div class="lp-cat-icon">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="cat.svgPath"/>
-              </svg>
-            </div>
-            <span>{{ cat.name }}</span>
+      <button type="button"
+              class="stats-nav stats-nav-next"
+              (click)="nextStat()"
+              aria-label="Siguiente estadística">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </button>
+
+      <div class="stats-dots">
+        @for (page of getStatPages(); track page; let idx = $index) {
+          <button type="button"
+                  class="stats-dot"
+                  [class.active]="activeStat() === idx"
+                  (click)="goToStat(idx)"
+                  [attr.aria-label]="'Ir a estadística ' + (idx + 1)">
+            <span class="sr-only">Indicador {{ idx + 1 }}</span>
           </button>
         }
       </div>
-      <div class="lp-slider-controls">
-        <button class="lp-slider-btn" (click)="slideLeft('slider-categories')" type="button" aria-label="Anterior">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-        </button>
-        <button class="lp-slider-btn" (click)="slideRight('slider-categories')" type="button" aria-label="Siguiente">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        </button>
-      </div>
     </div>
   </div>
+
+  <!-- Gradient Orb Effect -->
+  <div class="gradient-orb gradient-orb-teal gradient-orb-animate absolute w-[800px] h-[800px] -top-64 -right-14 -z-1"></div>
 </section>
 
-<!-- ══ CÓMO FUNCIONA ════════════════════════════════════════════ -->
-<section class="lp-section lp-section--light" id="como-funciona">
-  <div class="lp-container">
-    <div class="lp-section-header">
-      <p class="lp-section-sub">El profesional indicado, a un par de clics</p>
-      <h2 class="lp-section-title">¿Cómo funciona BappSearch?</h2>
-    </div>
+<!-- 3D INTERACTIVE ARCHITECTURE SECTION -->
+<section class="py-20 bg-crypgo-darkmode relative overflow-hidden min-h-screen flex items-center justify-center" style="perspective: 1200px;">
+  <main class="scene-container" id="sceneContainer" #sceneContainer>
     
-    <div class="lp-how-wrapper">
-      <div class="lp-how-visual relative">
-         <!-- Efecto de resplandor animado de fondo (Tailwind) -->
-         <div class="absolute inset-0 bg-red-500/20 rounded-full blur-[100px] animate-pulse -z-10 mix-blend-screen scale-150"></div>
-         <!-- Imagen de mockups animados -->
-         <img src="https://res.cloudinary.com/dghwotofx/image/upload/v1778387098/telefonos_yskzs2.png" alt="BappSearch App Demo" class="lp-how-img-animated drop-shadow-2xl"/>
+    <div class="bg-rings">
+      <svg viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="48" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="0.2"/>
+        <circle cx="50" cy="50" r="48" fill="none" stroke="var(--cream)" stroke-width="0.3" stroke-dasharray="10 300" stroke-linecap="round"/>
+        <circle cx="50" cy="50" r="35" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.4"/>
+        <circle cx="50" cy="50" r="35" fill="none" stroke="var(--cyan)" stroke-width="0.5" stroke-dasharray="50 150" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <div class="panels-wrapper">
+      <div class="info-panel panel-1">
+        <div class="panel-title-row">
+          <h3>Servicios a un paso</h3>
+          <div class="panel-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg></div>
+        </div>
+        <p>Encuentra servicios a la vuelta de tu casa con nuestro mapa de geolocalización en tiempo real.</p>
       </div>
+      <div class="info-panel panel-2">
+        <div class="panel-title-row">
+          <h3>Oportunidades locales</h3>
+          <div class="panel-icon"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg></div>
+        </div>
+        <p>Encuentra trabajo a la vuelta de tu casa. Monetiza tus oficios conectando con clientes de tu propio barrio.</p>
+      </div>
+      <div class="info-panel panel-3">
+        <div class="panel-title-row">
+          <div class="panel-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg></div>
+          <h3>Cuentas Verificadas</h3>
+        </div>
+        <p>Seguridad garantizada mediante la validación estricta de identidad y un sistema transparente de reseñas reales.</p>
+      </div>
+      <div class="info-panel panel-4">
+        <div class="panel-title-row">
+          <div class="panel-icon"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg></div>
+          <h3>Conexión inteligente</h3>
+        </div>
+        <p>Somos el intermediario tecnológico perfecto, facilitando el contacto y la reserva de forma directa y segura.</p>
+      </div>
+      <div class="info-panel panel-5">
+        <div class="panel-title-row">
+          <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 15h.01"/><path d="M11 15h.01"/><path d="M15 15h.01"/><path d="M19 15h.01"/><path d="M7 11h.01"/><path d="M11 11h.01"/><path d="M15 11h.01"/><path d="M19 11h.01"/><path d="M7 7h.01"/><path d="M11 7h.01"/><path d="M15 7h.01"/><path d="M19 7h.01"/></svg></div>
+          <h3>Cero comisión</h3>
+        </div>
+        <p>No cobramos comisión por los servicios entregados ya que solo somos intermediarios.</p>
+      </div>
+    </div>
+
+    <div class="phone-mockup">
+      <div class="phone-buttons"></div>
+      <div class="phone-notch"></div>
       
-      <div class="lp-how-steps">
-        <div class="lp-step-item group hover:-translate-y-1 hover:shadow-2xl transition-all duration-300">
-          <div class="lp-step-icon group-hover:scale-110 transition-transform">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-          </div>
-          <div class="lp-step-text">
-            <h3>1. Busca y filtra por zona</h3>
-            <p>Explora por más de 19 categorías. Usa el mapa para ver qué profesionales están cerca de ti en este momento.</p>
-          </div>
-        </div>
+      <div class="app-screen">
+        <div class="map-bg"></div>
         
-        <div class="lp-step-item group hover:-translate-y-1 hover:shadow-2xl transition-all duration-300">
-          <div class="lp-step-icon group-hover:scale-110 transition-transform">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-          </div>
-          <div class="lp-step-text">
-            <h3>2. Chatea y acuerda detalles</h3>
-            <p>No reserves a ciegas. Habla directo con el proveedor desde la app, comparte fotos y asegura tu presupuesto.</p>
+        <div class="user-center-pin"></div>
+
+        <svg class="bapp-map-pin pin-1" viewBox="0 0 200 180" xmlns="http://www.w3.org/2000/svg">
+          <defs><mask id="pin-mask-1"><rect width="100%" height="100%" fill="white" /><circle cx="120" cy="80" r="45" fill="black" /><line x1="20" y1="180" x2="100" y2="100" stroke="black" stroke-width="24" stroke-linecap="round" /></mask></defs>
+          <path d="M 60,80 A 60,60 0 0,1 180,80 L 180,150 L 90,150 A 60,60 0 0,1 50,110 Z" fill="#BE202E" mask="url(#pin-mask-1)" />
+          <circle cx="120" cy="80" r="35" stroke="#ffffff" stroke-width="14" fill="none" />
+          <line x1="30" y1="170" x2="95" y2="105" stroke="#ffffff" stroke-width="16" stroke-linecap="round" />
+        </svg>
+
+        <svg class="bapp-map-pin pin-2" viewBox="0 0 200 180" xmlns="http://www.w3.org/2000/svg">
+          <defs><mask id="pin-mask-2"><rect width="100%" height="100%" fill="white" /><circle cx="120" cy="80" r="45" fill="black" /><line x1="20" y1="180" x2="100" y2="100" stroke="black" stroke-width="24" stroke-linecap="round" /></mask></defs>
+          <path d="M 60,80 A 60,60 0 0,1 180,80 L 180,150 L 90,150 A 60,60 0 0,1 50,110 Z" fill="#BE202E" mask="url(#pin-mask-2)" />
+          <circle cx="120" cy="80" r="35" stroke="#ffffff" stroke-width="14" fill="none" />
+          <line x1="30" y1="170" x2="95" y2="105" stroke="#ffffff" stroke-width="16" stroke-linecap="round" />
+        </svg>
+
+        <svg class="bapp-map-pin pin-3" viewBox="0 0 200 180" xmlns="http://www.w3.org/2000/svg">
+          <defs><mask id="pin-mask-3"><rect width="100%" height="100%" fill="white" /><circle cx="120" cy="80" r="45" fill="black" /><line x1="20" y1="180" x2="100" y2="100" stroke="black" stroke-width="24" stroke-linecap="round" /></mask></defs>
+          <path d="M 60,80 A 60,60 0 0,1 180,80 L 180,150 L 90,150 A 60,60 0 0,1 50,110 Z" fill="#BE202E" mask="url(#pin-mask-3)" />
+          <circle cx="120" cy="80" r="35" stroke="#ffffff" stroke-width="14" fill="none" />
+          <line x1="30" y1="170" x2="95" y2="105" stroke="#ffffff" stroke-width="16" stroke-linecap="round" />
+        </svg>
+
+        <div class="app-header">
+          <h1>Mapa</h1>
+          <div class="header-badges">
+            <div class="badge-yellow">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+              3
+            </div>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-s)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           </div>
         </div>
 
-        <div class="lp-step-item group hover:-translate-y-1 hover:shadow-2xl transition-all duration-300">
-          <div class="lp-step-icon group-hover:scale-110 transition-transform">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        <div class="app-search-area">
+          <div class="search-input">
+            <span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              Buscar en el mapa...
+            </span>
+            <div class="km-badge">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="margin-right:2px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> 5 km
+            </div>
           </div>
-          <div class="lp-step-text">
-            <h3>3. Agenda y paga online</h3>
-            <p>Escoge tu horario. Con nuestro sistema respaldado por MercadoPago, tu transacción está 100% protegida.</p>
+          <div class="chips-row">
+            <div class="chip" style="color:var(--cream);"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg> 3 servicios</div>
+            <div class="chip" style="color:var(--mint);"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> 4 proveedores</div>
           </div>
         </div>
 
-        <div class="lp-step-item group hover:-translate-y-1 hover:shadow-2xl transition-all duration-300">
-          <div class="lp-step-icon group-hover:scale-110 transition-transform">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+        <div class="map-controls-right">
+          <div class="ctrl-btn"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg></div>
+          <div class="ctrl-btn"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10"></circle><line x1="8" y1="12" x2="16" y2="12"></line></svg></div>
+        </div>
+
+        <div class="app-bottom-sheet">
+          <div class="bs-title">4 proveedores en el área</div>
+          <div class="status-dots">
+            <div class="dot-item"><div class="dot" style="background:var(--mint);"></div> En línea</div>
+            <div class="dot-item"><div class="dot" style="background:var(--text-s);"></div> Desconectado</div>
+            <div class="dot-item"><div class="dot" style="background:var(--cream);"></div> Tu posición</div>
           </div>
-          <div class="lp-step-text">
-            <h3>4. Disfruta y califica</h3>
-            <p>Al terminar, evalúa tu experiencia. Así mantienes un entorno confiable para que otros también se beneficien.</p>
+          <div class="theme-toggles">
+            <div class="tgl-btn">Calles</div>
+            <div class="tgl-btn">Clara</div>
+            <div class="tgl-btn tgl-active">Oscuro</div>
+            <span class="dist-label">190 m</span>
           </div>
         </div>
+
+        <nav class="app-navbar" aria-label="Navegación principal de la aplicación">
+          <div class="nav-item">
+            <div class="nav-badge"></div>
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </div>
+          <div class="nav-item nav-active">
+            <svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+          </div>
+          <div class="nav-item">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          </div>
+          <div class="nav-item">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          </div>
+          <div class="nav-item">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </div>
+        </nav>
       </div>
     </div>
-  </div>
+  </main>
 </section>
 
-<!-- ══ MÉTRICAS ════════════════════════════════════════════════ -->
-<div class="lp-social-proof">
-  <div class="lp-metrics-grid">
-    <div class="lp-metric"><h4>10k+</h4><p>Usuarios Activos</p></div>
-    <div class="lp-metric"><h4>4.9/5</h4><p>Calificación Promedio</p></div>
-    <div class="lp-metric"><h4>500+</h4><p>Proveedores Verificados</p></div>
-    <div class="lp-metric"><h4>19</h4><p>Categorías de Servicio</p></div>
-  </div>
-</div>
 
-<!-- ══ DESCARGA APP ═════════════════════════════════════════════ -->
-<section class="lp-section lp-section--dark" id="descargar">
-  <div class="lp-container">
-    <div class="lp-download-wrapper">
-      <div class="lp-download-text">
-        <span class="lp-badge">Disponible ahora</span>
-        <h2 class="lp-section-title lp-section-title--left">Lleva BappSearch<br>en tu bolsillo</h2>
-        <p class="lp-section-sub lp-section-sub--left">Descarga la app y encuentra servicios profesionales cerca de ti, desde donde estés.</p>
-        <div class="lp-download-btns">
-          <a href="#" class="lp-download-btn" rel="noopener" aria-label="Google Play">
-            <svg viewBox="0 0 24 24" fill="currentColor" class="lp-store-icon">
-              <path d="M3.18 23.76c.33.18.7.24 1.06.18L15.88 12 4.24.06C3.88 0 3.51.06 3.18.24 2.51.61 2.06 1.28 2.06 2.06v19.88c0 .78.45 1.45 1.12 1.82z"/>
-              <path d="M20.06 10.56l-3.1-1.79-3.41 3.23 3.41 3.23 3.13-1.81c.9-.52.9-1.82-.03-2.86z" opacity=".8"/>
-              <path d="M4.24 23.94L15.53 12.74 12.13 9.34 3.2 23.58c.27.18.67.24 1.04.36z" opacity=".6"/>
-              <path d="M15.53 11.26L4.24.06C3.87.18 3.47.24 3.2.42L12.13 14.66l3.4-3.4z" opacity=".4"/>
-            </svg>
-            <div class="lp-download-btn-text">
-              <span class="lp-download-label">Disponible en</span>
-              <strong>Google Play</strong>
-            </div>
-          </a>
-          <a href="#" class="lp-download-btn" rel="noopener" aria-label="App Store">
-            <svg viewBox="0 0 24 24" fill="currentColor" class="lp-store-icon">
-              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98l-.09.06c-.22.15-2.2 1.28-2.18 3.83.03 3.02 2.65 4.03 2.68 4.04l-.05.2zM13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-            </svg>
-            <div class="lp-download-btn-text">
-              <span class="lp-download-label">Descarga en</span>
-              <strong>App Store</strong>
-            </div>
-          </a>
-        </div>
-      </div>
-      <div class="lp-download-mockup">
-        <div class="lp-mockup-phone">
-          <div class="lp-mockup-screen">
-            <div class="lp-mockup-logo">
-              <svg viewBox="0 0 200 180" xmlns="http://www.w3.org/2000/svg">
-                <defs><mask id="lp-cutout-sm"><rect width="100%" height="100%" fill="white"/><circle cx="120" cy="80" r="45" fill="black"/><line x1="20" y1="180" x2="100" y2="100" stroke="black" stroke-width="24" stroke-linecap="round"/></mask></defs>
-                <path d="M 60,80 A 60,60 0 0,1 180,80 L 180,150 L 90,150 A 60,60 0 0,1 50,110 Z" fill="#BE202E" mask="url(#lp-cutout-sm)"/>
-                <circle cx="120" cy="80" r="35" stroke="#ffffff" stroke-width="14" fill="none"/>
-                <line x1="30" y1="170" x2="95" y2="105" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
-              </svg>
-            </div>
-            <div class="lp-mockup-content">
-              <div class="lp-mockup-bar"></div>
-              <div class="lp-mockup-bar lp-mockup-bar--short"></div>
-              <div class="lp-mockup-grid">
-                <div class="lp-mockup-cell"></div>
-                <div class="lp-mockup-cell"></div>
-                <div class="lp-mockup-cell"></div>
-                <div class="lp-mockup-cell"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+<!-- HOW IT WORKS SECTION -->
+<section class="py-20 bg-crypgo-deepSlate relative overflow-hidden" id="how-it-works">
+  <div class="container mx-auto lg:max-w-screen-xl px-4 relative z-10">
+    <div class="text-center mb-12">
+      <p class="text-crypgo-primary text-lg mb-4 animate-fade-in">Guías Interactivas</p>
+      <h2 class="text-44 md:text-54 font-bold text-white mb-4 animate-slide-up">¿Cómo Funciona?</h2>
+      <p class="text-gray-400 text-lg max-w-2xl mx-auto animate-fade-in" style="animation-delay: 0.1s">
+        Descubre cómo usar BappSearch según tu perfil
+      </p>
     </div>
-  </div>
-</section>
 
-<!-- ══ REDES SOCIALES ══════════════════════════════════════════ -->
-<div class="lp-social-section">
-  <div class="lp-container">
-    <p class="lp-social-title">Síguenos en redes sociales</p>
-    <div class="lp-social-icons">
-      <a href="https://instagram.com/bappsearch" target="_blank" rel="noopener noreferrer" class="lp-social-btn" aria-label="Instagram">
-        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 16a4 4 0 110-8 4 4 0 010 8z"/></svg>
-      </a>
-      <a href="https://twitter.com/bappsearch" target="_blank" rel="noopener noreferrer" class="lp-social-btn" aria-label="X / Twitter">
-        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-      </a>
-      <a href="https://linkedin.com/company/bappsearch" target="_blank" rel="noopener noreferrer" class="lp-social-btn" aria-label="LinkedIn">
-        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-      </a>
-      <a href="https://facebook.com/bappsearch" target="_blank" rel="noopener noreferrer" class="lp-social-btn" aria-label="Facebook">
-        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-      </a>
-    </div>
-  </div>
-</div>
-
-<!-- ══ CONTACTO ════════════════════════════════════════════════ -->
-<section class="lp-section lp-section--light" id="contacto">
-  <div class="lp-container">
-    <div class="lp-contact-wrapper">
-      <div class="lp-contact-info">
-        <span class="lp-badge">Contacto</span>
-        <h2 class="lp-section-title lp-section-title--left">¿Tienes alguna pregunta?</h2>
-        <p class="lp-section-sub lp-section-sub--left">Nuestro equipo responde en menos de 24 horas.</p>
-        <div class="lp-contact-detail">
-          <div class="lp-contact-icon"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div>
-          <span>contacto&#64;bappsearch.cl</span>
-        </div>
-      </div>
-      <form class="lp-contact-form" [formGroup]="contactForm" (ngSubmit)="submitContact()" novalidate>
-        <div class="lp-field-group">
-          <label class="lp-field-label" for="contact-name">Nombre completo</label>
-          <div class="lp-input-box">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-            <input id="contact-name" type="text" formControlName="name" placeholder="Ej. Camila Vidal" autocomplete="name"/>
-          </div>
-          @if (contactForm.get('name')?.invalid && contactForm.get('name')?.touched) {
-            <span class="lp-field-error">El nombre es requerido</span>
-          }
-        </div>
-        <div class="lp-field-group">
-          <label class="lp-field-label" for="contact-email">Correo electrónico</label>
-          <div class="lp-input-box">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-            <input id="contact-email" type="email" formControlName="email" placeholder="tu&#64;email.com" autocomplete="email"/>
-          </div>
-          @if (contactForm.get('email')?.invalid && contactForm.get('email')?.touched) {
-            <span class="lp-field-error">Email inválido</span>
-          }
-        </div>
-        <div class="lp-field-group">
-          <label class="lp-field-label" for="contact-subject">Asunto</label>
-          <div class="lp-input-box">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg>
-            <input id="contact-subject" type="text" formControlName="subject" placeholder="¿En qué podemos ayudarte?"/>
-          </div>
-        </div>
-        <div class="lp-field-group">
-          <label class="lp-field-label" for="contact-message">Mensaje</label>
-          <div class="lp-input-box lp-input-box--textarea">
-            <textarea id="contact-message" formControlName="message" rows="4" placeholder="Escribe tu mensaje aquí..."></textarea>
-          </div>
-          @if (contactForm.get('message')?.invalid && contactForm.get('message')?.touched) {
-            <span class="lp-field-error">El mensaje es requerido</span>
-          }
-        </div>
-        <button type="submit" class="lp-btn-submit" [disabled]="contactForm.invalid || contactLoading()">
-          @if (contactLoading()) {
-            <svg class="lp-spinner" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" stroke-dasharray="60" stroke-dashoffset="40"/></svg>
-            Enviando...
-          } @else {
-            Enviar Mensaje
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-          }
+    <!-- Toggle Modernos (Pills) -->
+    <div class="flex justify-center mb-16 animate-fade-in" style="animation-delay: 0.2s">
+      <div class="toggle-track">
+        <div class="toggle-pill" [style.transform]="guideTab() === 'client' ? 'translateX(0px)' : 'translateX(160px)'"></div>
+        <button type="button" class="toggle-btn" 
+                [class.text-white]="guideTab() === 'client'"
+                [class.text-gray-500]="guideTab() !== 'client'"
+                (click)="setGuideTab('client')">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+          </svg>
+          Soy Cliente
         </button>
-        @if (contactSuccess()) {
-          <div class="lp-form-success">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            ¡Mensaje enviado! Te responderemos pronto.
+        <button type="button" class="toggle-btn"
+                [class.text-white]="guideTab() === 'provider'"
+                [class.text-gray-500]="guideTab() !== 'provider'"
+                (click)="setGuideTab('provider')">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+          Soy Proveedor
+        </button>
+      </div>
+    </div>
+
+    <!-- Acordeón Interactivo -->
+    <div class="container mx-auto px-4">
+      <div class="accordion-wrapper">
+        @if (guideTab() === 'client') {
+          @for (step of clientGuideSteps; track step.id; let idx = $index) {
+            <button type="button" class="acc-item" 
+                    [class.active]="activeAccordion() === idx"
+                    (click)="activateAccordion(idx)"
+                    [attr.aria-label]="'Ver paso ' + step.id + ': ' + step.title"
+                    [attr.aria-expanded]="activeAccordion() === idx">
+              
+              <!-- Vista Comprimida -->
+              <div class="acc-collapsed">
+                <span class="vertical-text">{{ step.title }}</span>
+              </div>
+
+              <!-- Vista Expandida -->
+              <div class="acc-expanded">
+                <div class="acc-text-content">
+                  <div class="step-number-big" [style.color]="step.color">{{ step.id }}</div>
+                  <h3 class="text-3xl font-extrabold text-white mb-4 leading-tight">{{ step.title }}</h3>
+                  <p class="text-gray-400 text-base leading-relaxed mb-8">{{ step.description }}</p>
+                  
+                  <button type="button" (click)="showAuthModal('register')" class="bg-white/10 hover:bg-white text-white hover:text-black border border-white/20 font-bold px-6 py-3 rounded-xl transition-colors">
+                    Comenzar Ahora
+                  </button>
+                </div>
+
+                <div class="acc-image-wrapper">
+                  <div class="glow-behind" [style.background]="step.color" style="opacity: 0.15;"></div>
+                  @if (idx === 0) {
+                    <app-device-3d-login variant="login"></app-device-3d-login>
+                  } @else if (idx === 1) {
+                    <app-device-3d-login variant="categories"></app-device-3d-login>
+                  } @else if (idx === 2) {
+                    <app-device-3d-login variant="map"></app-device-3d-login>
+                  } @else if (idx === 3) {
+                    <app-device-3d-login variant="providers"></app-device-3d-login>
+                  } @else if (idx === 4) {
+                    <app-device-3d-login variant="booking"></app-device-3d-login>
+                  } @else {
+                    <img [src]="step.screenImage" [alt]="step.title">
+                  }
+                </div>
+              </div>
+
+            </button>
+          }
+        }
+
+        @if (guideTab() === 'provider') {
+          @for (step of providerGuideSteps; track step.id; let idx = $index) {
+            <button type="button" class="acc-item" 
+                    [class.active]="activeAccordion() === idx"
+                    (click)="activateAccordion(idx)"
+                    [attr.aria-label]="'Ver paso ' + step.id + ': ' + step.title"
+                    [attr.aria-expanded]="activeAccordion() === idx">
+              
+              <!-- Vista Comprimida -->
+              <div class="acc-collapsed">
+                <span class="vertical-text">{{ step.title }}</span>
+              </div>
+
+              <!-- Vista Expandida -->
+              <div class="acc-expanded">
+                <div class="acc-text-content">
+                  <div class="step-number-big" [style.color]="step.color">{{ step.id }}</div>
+                  <h3 class="text-3xl font-extrabold text-white mb-4 leading-tight">{{ step.title }}</h3>
+                  <p class="text-gray-400 text-base leading-relaxed mb-8">{{ step.description }}</p>
+                  
+                  <button type="button" (click)="showAuthModal('register')" class="bg-white/10 hover:bg-white text-white hover:text-black border border-white/20 font-bold px-6 py-3 rounded-xl transition-colors">
+                    Registrarme
+                  </button>
+                </div>
+
+                <div class="acc-image-wrapper">
+                  <div class="glow-behind" [style.background]="step.color" style="opacity: 0.15;"></div>
+                  @if (idx === 0) {
+                    <app-device-3d-login variant="provider-register"></app-device-3d-login>
+                  } @else if (idx === 1) {
+                    <app-device-3d-login variant="categories"></app-device-3d-login>
+                  } @else if (idx === 2) {
+                    <app-device-3d-login variant="map"></app-device-3d-login>
+                  } @else if (idx === 3) {
+                    <app-device-3d-login variant="providers"></app-device-3d-login>
+                  } @else if (idx === 4) {
+                    <app-device-3d-login variant="booking"></app-device-3d-login>
+                  } @else {
+                    <img [src]="step.screenImage" [alt]="step.title">
+                  }
+                </div>
+              </div>
+
+            </button>
+          }
+        }
+      </div>
+    </div>
+  </div>
+  
+  <!-- Gradient Orb Secondary -->
+  <div class="gradient-orb gradient-orb-secondary absolute w-[600px] h-[600px] top-1/2 -right-32 -z-1 opacity-30"></div>
+  <div class="gradient-orb gradient-orb-primary absolute w-[500px] h-[500px] bottom-0 -left-32 -z-1 opacity-20"></div>
+</section>
+
+<!-- SERVICES SECTION -->
+<section class="py-20 bg-crypgo-darkmode relative overflow-hidden" id="services">
+  <div class="container mx-auto lg:max-w-screen-xl px-4 relative z-10">
+    <div class="text-center mb-16">
+      <p class="text-crypgo-primary text-lg mb-4">Categorías Populares</p>
+      <h2 class="text-44 md:text-54 font-bold text-white mb-4">Servicios Disponibles</h2>
+    </div>
+
+    <!-- Loading skeleton -->
+    @if (loadingCategories()) {
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        @for (i of [1,2,3,4,5,6,7,8]; track i) {
+          <div class="glass-card bg-crypgo-deepSlate border border-crypgo-dark_border rounded-xl p-6">
+            <div class="w-12 h-12 rounded-lg bg-crypgo-primary/10 animate-pulse mb-4 mx-auto"></div>
+            <div class="h-5 bg-crypgo-primary/10 animate-pulse rounded mx-auto" style="width: 60%;"></div>
           </div>
         }
-      </form>
-    </div>
+      </div>
+    }
+
+    <!-- Categories grid from DB -->
+    @else if (dbCategories().length > 0) {
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        @for (category of dbCategories(); track category.id) {
+          <button 
+            (click)="openServicesModal(category)"
+            class="glass-card card-hover-effect bg-crypgo-deepSlate border border-crypgo-dark_border rounded-xl p-6 group">
+            <div class="w-12 h-12 rounded-lg bg-crypgo-primary/20 flex items-center justify-center mb-4 mx-auto icon-glow">
+              @if (isImageUrl(category.icon)) {
+                <img [src]="category.icon" [alt]="category.name" class="w-8 h-8 object-contain" />
+              } @else {
+                <span class="text-2xl">{{ getCategoryEmoji(category.name, category.icon) }}</span>
+              }
+            </div>
+            <h3 class="text-white font-semibold text-center">{{ category.name }}</h3>
+          </button>
+        }
+      </div>
+    }
+
+    <!-- Empty state -->
+    @else {
+      <div class="text-center py-12">
+        <svg class="w-16 h-16 mx-auto mb-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+        </svg>
+        <p class="text-gray-400 text-lg">No hay categorías disponibles</p>
+      </div>
+    }
   </div>
+  
+  <!-- Gradient Orb Primary -->
+  <div class="gradient-orb gradient-orb-primary absolute w-[500px] h-[500px] bottom-0 -left-32 -z-1 opacity-20"></div>
 </section>
 
-<!-- ══ CTA FINAL ═══════════════════════════════════════════════ -->
-<section class="lp-section lp-section--cta">
-  <div class="lp-container">
-    <div class="lp-final-cta">
-      <h2>¿Listo para encontrar al experto ideal?</h2>
-      <p>Únete a miles de usuarios que ya simplificaron su día a día.</p>
-      <button class="lp-btn-cta" (click)="showAuthModal('register')" type="button">
+<!-- TESTIMONIALS SECTION -->
+<section class="py-20 bg-crypgo-deepSlate relative overflow-hidden" id="testimonials">
+  <div class="container mx-auto lg:max-w-screen-xl px-4 relative z-10">
+    <div class="text-center mb-16">
+      <p class="text-crypgo-primary text-lg mb-4">Testimonios</p>
+      <h2 class="text-44 md:text-54 font-bold text-white mb-4">Lo que Dicen Nuestros Usuarios</h2>
+      <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+        Historias reales de clientes y proveedores que transformaron su experiencia
+      </p>
+    </div>
+
+    <!-- Carrusel de Testimonios -->
+    <div class="relative max-w-4xl mx-auto">
+      <div class="overflow-hidden">
+        <div class="testimonial-carousel">
+          @for (testimonial of testimonials; track testimonial.id; let idx = $index) {
+            <div class="testimonial-slide" 
+                 [class.active]="activeTestimonial() === idx">
+              <div class="glass-card bg-crypgo-darkmode border border-crypgo-dark_border rounded-2xl p-8 md:p-12">
+                <div class="mb-6">
+                  <svg class="w-12 h-12 text-crypgo-primary opacity-50" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
+                  </svg>
+                </div>
+                <p class="text-white text-xl md:text-2xl leading-relaxed mb-8 font-light">
+                  "{{ testimonial.text }}"
+                </p>
+                <div class="flex items-center gap-4">
+                  <div class="w-14 h-14 rounded-full bg-crypgo-primary/20 flex items-center justify-center">
+                    <svg class="w-7 h-7 text-crypgo-primary" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 class="text-white font-semibold text-lg">{{ testimonial.author }}</h4>
+                    <p class="text-crypgo-primary text-sm">{{ testimonial.role }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Navigation Arrows -->
+      <button type="button" 
+              (click)="prevTestimonial()"
+              class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-16 w-12 h-12 rounded-full bg-crypgo-darkmode border border-crypgo-dark_border hover:bg-crypgo-primary hover:border-crypgo-primary transition-all flex items-center justify-center group">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </button>
+      <button type="button"
+              (click)="nextTestimonial()"
+              class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-16 w-12 h-12 rounded-full bg-crypgo-darkmode border border-crypgo-dark_border hover:bg-crypgo-primary hover:border-crypgo-primary transition-all flex items-center justify-center group">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </button>
+
+      <!-- Dots Indicator -->
+      <div class="flex justify-center gap-3 mt-12">
+        @for (testimonial of testimonials; track testimonial.id; let idx = $index) {
+          <button type="button"
+                  (click)="goToTestimonial(idx)"
+                  [class.bg-crypgo-primary]="activeTestimonial() === idx"
+                  [ngClass]="{'bg-white/20': activeTestimonial() !== idx}"
+                  class="w-3 h-3 rounded-full transition-all hover:bg-crypgo-primary/70"
+                  [attr.aria-label]="'Ir al testimonio ' + (idx + 1)">
+            <span class="sr-only">Testimonio {{ idx + 1 }}</span>
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+  
+  <!-- Gradient Orb Teal -->
+  <div class="gradient-orb gradient-orb-teal absolute w-[600px] h-[600px] top-1/3 -right-48 -z-1 opacity-25"></div>
+</section>
+
+<!-- CONTACT SECTION -->
+<section class="py-20 bg-crypgo-darkmode relative overflow-hidden" id="contact">
+  <div class="container mx-auto lg:max-w-screen-xl px-4 relative z-10">
+    <div class="text-center mb-16">
+      <p class="text-crypgo-primary text-lg mb-4">Contáctanos</p>
+      <h2 class="text-44 md:text-54 font-bold text-white mb-4">¿Tienes Preguntas?</h2>
+      <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+        Estamos aquí para ayudarte. Envíanos un mensaje y te responderemos pronto
+      </p>
+    </div>
+
+    <div class="max-w-3xl mx-auto">
+      <div class="glass-card bg-crypgo-deepSlate border border-crypgo-dark_border rounded-2xl p-8 md:p-12">
+        
+        @if (contactSuccess()) {
+          <div class="text-center py-12">
+            <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-crypgo-primary/20 flex items-center justify-center">
+              <svg class="w-10 h-10 text-crypgo-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-white mb-4">¡Mensaje Enviado!</h3>
+            <p class="text-gray-400 mb-8">Gracias por contactarnos. Te responderemos pronto.</p>
+            <button type="button"
+                    (click)="contactSuccess.set(false); contactForm.reset()"
+                    class="bg-crypgo-primary text-crypgo-darkmode px-8 py-3 rounded-lg font-semibold hover:bg-transparent hover:text-crypgo-primary border border-crypgo-primary transition-all">
+              Enviar Otro Mensaje
+            </button>
+          </div>
+        } @else {
+          <form [formGroup]="contactForm" (ngSubmit)="submitContact()" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label for="contact-name" class="text-white text-sm block mb-2">Nombre Completo</label>
+                <input 
+                  id="contact-name"
+                  type="text"
+                  formControlName="name"
+                  placeholder="Tu nombre"
+                  class="w-full bg-crypgo-darkmode border border-crypgo-dark_border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-crypgo-primary transition-colors"
+                  [class.border-red-500]="contactForm.get('name')?.invalid && contactForm.get('name')?.touched"
+                />
+              </div>
+              <div>
+                <label for="contact-email" class="text-white text-sm block mb-2">Correo Electrónico</label>
+                <input 
+                  id="contact-email"
+                  type="email"
+                  formControlName="email"
+                  placeholder="tu@email.com"
+                  class="w-full bg-crypgo-darkmode border border-crypgo-dark_border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-crypgo-primary transition-colors"
+                  [class.border-red-500]="contactForm.get('email')?.invalid && contactForm.get('email')?.touched"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label for="contact-subject" class="text-white text-sm block mb-2">Asunto (Opcional)</label>
+              <input 
+                id="contact-subject"
+                type="text"
+                formControlName="subject"
+                placeholder="¿En qué podemos ayudarte?"
+                class="w-full bg-crypgo-darkmode border border-crypgo-dark_border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-crypgo-primary transition-colors"
+              />
+            </div>
+
+            <div>
+              <label for="contact-message" class="text-white text-sm block mb-2">Mensaje</label>
+              <textarea 
+                id="contact-message"
+                formControlName="message"
+                rows="6"
+                placeholder="Escribe tu mensaje aquí..."
+                class="w-full bg-crypgo-darkmode border border-crypgo-dark_border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-crypgo-primary transition-colors resize-none"
+                [class.border-red-500]="contactForm.get('message')?.invalid && contactForm.get('message')?.touched"
+              ></textarea>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <div class="text-sm text-gray-400">
+                <p>También puedes escribirnos a:</p>
+                <a href="mailto:contacto@bappsearch.com" class="text-crypgo-primary hover:underline">
+                  contacto&#64;bappsearch.com
+                </a>
+              </div>
+              <button 
+                type="submit"
+                [disabled]="contactLoading()"
+                class="bg-crypgo-primary text-crypgo-darkmode px-8 py-3 rounded-lg font-semibold hover:bg-transparent hover:text-crypgo-primary border border-crypgo-primary transition-all disabled:opacity-50">
+                {{ contactLoading() ? 'Enviando...' : 'Enviar Mensaje' }}
+              </button>
+            </div>
+          </form>
+        }
+
+      </div>
+    </div>
+  </div>
+  
+  <!-- Gradient Orb Primary -->
+  <div class="gradient-orb gradient-orb-primary absolute w-[500px] h-[500px] bottom-0 left-0 -z-1 opacity-20"></div>
+</section>
+
+
+<!-- CTA SECTION -->
+<section class="py-20 bg-crypgo-darkmode relative overflow-hidden">
+  <div class="container mx-auto lg:max-w-screen-xl px-4 relative z-10">
+    <div class="text-center max-w-3xl mx-auto">
+      <h2 class="text-44 md:text-54 font-bold text-white mb-6">
+        ¿Listo para <span class="text-crypgo-primary">Comenzar</span>?
+      </h2>
+      <p class="text-gray-400 text-lg mb-10">
+        Únete a miles de usuarios que ya encontraron al profesional perfecto
+      </p>
+      <button 
+        (click)="showAuthModal('register')"
+        class="btn-crypgo btn-primary-crypgo bg-crypgo-primary border border-crypgo-primary rounded-lg text-21 font-medium hover:bg-transparent hover:text-crypgo-primary text-crypgo-darkmode py-3 px-10 transition-all duration-300 inline-block">
         Comenzar Ahora
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
       </button>
     </div>
   </div>
+  <!-- Gradient Orb -->
+  <div class="gradient-orb gradient-orb-primary gradient-orb-animate absolute w-[700px] h-[700px] -bottom-24 -left-24 -z-1"></div>
 </section>
 
-<!-- ══ FOOTER ══════════════════════════════════════════════════ -->
-<footer class="lp-footer">
-
-  <div class="lp-footer-grid">
-    <div class="lp-footer-brand">
-      <svg viewBox="0 0 200 180" class="lp-logo-svg lp-logo-svg--sm" xmlns="http://www.w3.org/2000/svg">
-        <defs><mask id="lp-cutout-ft"><rect width="100%" height="100%" fill="white"/><circle cx="120" cy="80" r="45" fill="black"/><line x1="20" y1="180" x2="100" y2="100" stroke="black" stroke-width="24" stroke-linecap="round"/></mask></defs>
-        <path d="M 60,80 A 60,60 0 0,1 180,80 L 180,150 L 90,150 A 60,60 0 0,1 50,110 Z" fill="#BE202E" mask="url(#lp-cutout-ft)"/>
-        <circle cx="120" cy="80" r="35" stroke="#ffffff" stroke-width="14" fill="none"/>
-        <line x1="30" y1="170" x2="95" y2="105" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
-      </svg>
-      <span class="lp-brand-text lp-brand-text--lg">BAPPSEARCH</span>
-      <p>La plataforma inteligente para conectar clientes con profesionales, siempre en tu sector.</p>
-    </div>
-    <div>
-      <h4>Plataforma</h4>
-      <ul class="lp-footer-links">
-        <li><a href="#" (click)="showAuthModal('register')">Buscar Profesionales</a></li>
-        <li><a href="#" (click)="showAuthModal('register')">Registrar mi negocio</a></li>
-        <li><a href="#">Centro de Ayuda</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4>Legal</h4>
-      <ul class="lp-footer-links">
-        <li><a routerLink="/terms">Términos y Condiciones</a></li>
-        <li><a routerLink="/privacy">Política de Privacidad</a></li>
-        <li><a href="#">Aviso de Cookies</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4>Descargar</h4>
-      <div class="lp-footer-download">
-        <a href="#descargar" class="lp-footer-dl-btn">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76c.33.18.7.24 1.06.18L15.88 12 4.24.06C3.88 0 3.51.06 3.18.24 2.51.61 2.06 1.28 2.06 2.06v19.88c0 .78.45 1.45 1.12 1.82z"/></svg>
-          Google Play
-        </a>
-        <a href="#descargar" class="lp-footer-dl-btn">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98l-.09.06c-.22.15-2.2 1.28-2.18 3.83.03 3.02 2.65 4.03 2.68 4.04l-.05.2zM13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-          App Store
-        </a>
+<!-- FOOTER -->
+<footer class="bg-crypgo-deepSlate py-12 border-t border-crypgo-dark_border">
+  <div class="container mx-auto lg:max-w-screen-xl px-4">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+      <div>
+        <div class="flex items-center gap-3 mb-4">
+          <svg viewBox="0 0 200 180" class="w-8 h-8" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <mask id="footer-mask">
+                <rect width="100%" height="100%" fill="white"/>
+                <circle cx="120" cy="80" r="45" fill="black"/>
+                <line x1="20" y1="180" x2="100" y2="100" stroke="black" stroke-width="24" stroke-linecap="round"/>
+              </mask>
+            </defs>
+            <path d="M 60,80 A 60,60 0 0,1 180,80 L 180,150 L 90,150 A 60,60 0 0,1 50,110 Z" fill="#BE202E" mask="url(#footer-mask)"/>
+            <circle cx="120" cy="80" r="35" stroke="#ffffff" stroke-width="14" fill="none"/>
+            <line x1="30" y1="170" x2="95" y2="105" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
+          </svg>
+          <span class="text-white font-bold text-lg">BAPPSEARCH</span>
+        </div>
+        <p class="text-gray-400 text-sm">
+          Conectando profesionales con clientes en toda Chile
+        </p>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold mb-4">Plataforma</h4>
+        <ul class="space-y-2">
+          <li><a href="#" class="text-gray-400 hover:text-crypgo-primary transition-colors">Buscar Profesionales</a></li>
+          <li><a href="#" class="text-gray-400 hover:text-crypgo-primary transition-colors">Ofrecer Servicios</a></li>
+          <li><a href="#" class="text-gray-400 hover:text-crypgo-primary transition-colors">Centro de Ayuda</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold mb-4">Legal</h4>
+        <ul class="space-y-2">
+          <li><a routerLink="/terms" class="text-gray-400 hover:text-crypgo-primary transition-colors">Términos y Condiciones</a></li>
+          <li><a routerLink="/privacy" class="text-gray-400 hover:text-crypgo-primary transition-colors">Política de Privacidad</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold mb-4">Síguenos</h4>
+        <div class="flex gap-4">
+          <a href="#" class="w-10 h-10 rounded-full bg-crypgo-darkmode border border-crypgo-dark_border flex items-center justify-center hover:border-crypgo-primary transition-colors">
+            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069z"/></svg>
+          </a>
+          <a href="#" class="w-10 h-10 rounded-full bg-crypgo-darkmode border border-crypgo-dark_border flex items-center justify-center hover:border-crypgo-primary transition-colors">
+            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231z"/></svg>
+          </a>
+          <a href="#" class="w-10 h-10 rounded-full bg-crypgo-darkmode border border-crypgo-dark_border flex items-center justify-center hover:border-crypgo-primary transition-colors">
+            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </a>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="lp-footer-bottom">
-    <p>© 2026 BappSearch Inc. Todos los derechos reservados.</p>
-    <div class="lp-social-icons lp-social-icons--sm">
-      <a href="https://instagram.com/bappsearch" target="_blank" rel="noopener noreferrer" class="lp-social-btn lp-social-btn--sm" aria-label="Instagram">
-        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 16a4 4 0 110-8 4 4 0 010 8z"/></svg>
-      </a>
-      <a href="https://twitter.com/bappsearch" target="_blank" rel="noopener noreferrer" class="lp-social-btn lp-social-btn--sm" aria-label="Twitter">
-        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-      </a>
-      <a href="https://facebook.com/bappsearch" target="_blank" rel="noopener noreferrer" class="lp-social-btn lp-social-btn--sm" aria-label="Facebook">
-        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-      </a>
+    <div class="border-t border-crypgo-dark_border pt-8 text-center">
+      <p class="text-gray-400 text-sm">© 2026 BappSearch Inc. Todos los derechos reservados.</p>
     </div>
   </div>
 </footer>
 
-<!-- ══ MODAL AUTH ══════════════════════════════════════════════ -->
-@if (showModal()) {
-  <div class="lp-auth-overlay" (click)="closeModal()" (keydown.escape)="closeModal()">
-    <div class="lp-auth-modal" aria-modal="true" aria-label="Autenticación" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
-
-      <button class="lp-close-modal" (click)="closeModal()" type="button" aria-label="Cerrar">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+<!-- SERVICES MODAL 3D -->
+@if (showServicesModal()) {
+  <div class="services-modal-backdrop" 
+       (click)="closeServicesModal()" 
+       (keydown.escape)="closeServicesModal()"
+       role="dialog"
+       aria-modal="true"
+       tabindex="-1">
+    <div class="services-modal-container" 
+         (click)="$event.stopPropagation()" 
+         (keydown)="$event.stopPropagation()">
+      
+      <!-- Close button -->
+      <button class="services-modal-close" (click)="closeServicesModal()" type="button" aria-label="Cerrar">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
       </button>
 
-      <div class="lp-modal-brand">
-        <svg viewBox="0 0 200 180" class="lp-logo-svg lp-logo-svg--modal" xmlns="http://www.w3.org/2000/svg">
-          <defs><mask id="lp-cutout-modal"><rect width="100%" height="100%" fill="white"/><circle cx="120" cy="80" r="45" fill="black"/><line x1="20" y1="180" x2="100" y2="100" stroke="black" stroke-width="24" stroke-linecap="round"/></mask></defs>
-          <path d="M 60,80 A 60,60 0 0,1 180,80 L 180,150 L 90,150 A 60,60 0 0,1 50,110 Z" fill="#BE202E" mask="url(#lp-cutout-modal)"/>
+      <!-- Header with 3D effect -->
+      <div class="services-modal-header">
+        <div class="services-header-glow"></div>
+        <div class="services-header-content">
+          @if (isImageUrl(selectedCategory()?.icon)) {
+            <img [src]="selectedCategory()?.icon" [alt]="selectedCategory()?.name" class="services-header-icon-img" />
+          } @else {
+            <ion-icon [name]="selectedCategory()?.icon || 'construct-outline'" class="services-header-icon"></ion-icon>
+          }
+          <h2 class="services-modal-title">{{ selectedCategory()?.name }}</h2>
+          <p class="services-modal-subtitle">Selecciona un servicio para continuar</p>
+        </div>
+      </div>
+
+      <!-- Services grid -->
+      <div class="services-modal-body">
+        
+        <!-- Loading skeleton -->
+        @if (loadingServices()) {
+          <div class="services-grid">
+            @for (i of [1,2,3,4,5,6]; track i) {
+              <div class="service-card-skeleton">
+                <div class="service-skel-icon animate-pulse"></div>
+                <div class="service-skel-line animate-pulse"></div>
+                <div class="service-skel-line-short animate-pulse"></div>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Services list -->
+        @else if (categoryServices().length > 0) {
+          <div class="services-grid">
+            @for (service of categoryServices(); track service.id) {
+              <button 
+                class="service-card-3d"
+                (click)="selectService(service)"
+                type="button">
+                <div class="service-card-inner">
+                  <div class="service-card-glow"></div>
+                  <div class="service-card-content">
+                    <div class="service-card-icon-container">
+                      @if (isImageUrl(service.icon)) {
+                        <img [src]="service.icon" [alt]="service.name" class="service-card-icon-img" />
+                      } @else {
+                        <span class="service-card-emoji">{{ getCategoryEmoji(service.name, service.icon) }}</span>
+                      }
+                    </div>
+                    <h3 class="service-card-name">{{ service.name }}</h3>
+                    @if (service.description) {
+                      <p class="service-card-desc">{{ service.description }}</p>
+                    }
+                  </div>
+                  <div class="service-card-arrow">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </div>
+                </div>
+              </button>
+            }
+          </div>
+        }
+
+        <!-- Empty state -->
+        @else {
+          <div class="services-empty">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+            </svg>
+            <p>No hay servicios disponibles en esta categoría</p>
+          </div>
+        }
+
+      </div>
+
+      <!-- Decorative orbs -->
+      <div class="services-modal-orb services-modal-orb-1"></div>
+      <div class="services-modal-orb services-modal-orb-2"></div>
+
+    </div>
+  </div>
+}
+
+<!-- AUTH MODAL -->
+@if (showModal()) {
+  <div class="modal-backdrop fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-50" (click)="closeModal()" (keydown.escape)="closeModal()" role="dialog" aria-modal="true">
+    <div class="modal-content glass-effect relative w-full max-w-md mx-4 overflow-hidden rounded-lg px-8 pt-14 pb-8 text-center border border-crypgo-dark_border" 
+         (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
+      <button 
+        (click)="closeModal()"
+        class="absolute top-4 right-4 text-white hover:text-crypgo-primary transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+
+      <div class="mb-8">
+        <svg viewBox="0 0 200 180" class="w-16 h-16 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <mask id="modal-mask">
+              <rect width="100%" height="100%" fill="white"/>
+              <circle cx="120" cy="80" r="45" fill="black"/>
+              <line x1="20" y1="180" x2="100" y2="100" stroke="black" stroke-width="24" stroke-linecap="round"/>
+            </mask>
+          </defs>
+          <path d="M 60,80 A 60,60 0 0,1 180,80 L 180,150 L 90,150 A 60,60 0 0,1 50,110 Z" fill="#BE202E" mask="url(#modal-mask)"/>
           <circle cx="120" cy="80" r="35" stroke="#ffffff" stroke-width="14" fill="none"/>
           <line x1="30" y1="170" x2="95" y2="105" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
         </svg>
-        <span class="lp-brand-text">BAPPSEARCH</span>
+        <h2 class="text-white text-24 font-bold">{{ activeTab() === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta' }}</h2>
       </div>
 
-      <div class="lp-auth-tabs">
-        <button class="lp-auth-tab" [class.lp-auth-tab--active]="activeTab() === 'login'" (click)="setTab('login')" type="button">Iniciar Sesión</button>
-        <button class="lp-auth-tab" [class.lp-auth-tab--active]="activeTab() === 'register'" (click)="setTab('register')" type="button">Crear Cuenta</button>
+      <!-- Tabs -->
+      <div class="flex gap-4 mb-6">
+        <button 
+          (click)="setTab('login')"
+          [class.text-crypgo-primary]="activeTab() === 'login'"
+          [class.border-crypgo-primary]="activeTab() === 'login'"
+          [class.text-gray-400]="activeTab() !== 'login'"
+          [class.border-transparent]="activeTab() !== 'login'"
+          class="flex-1 py-2 border-b-2 transition-colors">
+          Iniciar Sesión
+        </button>
+        <button 
+          (click)="setTab('register')"
+          [class.text-crypgo-primary]="activeTab() === 'register'"
+          [class.border-crypgo-primary]="activeTab() === 'register'"
+          [class.text-gray-400]="activeTab() !== 'register'"
+          [class.border-transparent]="activeTab() !== 'register'"
+          class="flex-1 py-2 border-b-2 transition-colors">
+          Registrarse
+        </button>
       </div>
 
+      <!-- Error Message -->
       @if (error()) {
-        <div class="lp-modal-error">
-          <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"/></svg>
+        <div class="bg-crypgo-error/10 border border-crypgo-error/30 rounded-lg p-3 mb-4 text-red-400 text-sm">
           {{ error() }}
         </div>
       }
 
-      <!-- LOGIN TAB -->
+      <!-- Login Form -->
       @if (activeTab() === 'login') {
-        <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="lp-modal-form">
-          <div class="lp-field-group">
-            <label class="lp-field-label" for="login-email">Correo electrónico</label>
-            <div class="lp-input-box" [class.lp-input-box--error]="f['email'].invalid && f['email'].touched">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-              <input id="login-email" type="email" formControlName="email" placeholder="tu&#64;email.com" autocomplete="email"/>
-            </div>
+        <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4 text-left">
+          <div>
+            <label class="text-white text-sm block mb-2">Correo Electrónico</label>
+            <input 
+              type="email"
+              formControlName="email"
+              placeholder="tu@email.com"
+              class="w-full bg-crypgo-darkmode border border-crypgo-dark_border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-crypgo-primary transition-colors"
+              [class.border-crypgo-error]="f['email'].invalid && f['email'].touched"
+            />
             @if (f['email'].invalid && f['email'].touched) {
-              <span class="lp-field-error">{{ f['email'].errors?.['required'] ? 'El correo es requerido' : 'Ingresa un correo válido' }}</span>
+              <span class="text-crypgo-error text-sm mt-1 block">
+                {{ f['email'].errors?.['required'] ? 'El correo es requerido' : 'Ingresa un correo válido' }}
+              </span>
             }
           </div>
-          <div class="lp-field-group">
-            <label class="lp-field-label" for="login-password">Contraseña</label>
-            <div class="lp-input-box lp-input-box--pass" [class.lp-input-box--error]="f['password'].invalid && f['password'].touched">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-              <input id="login-password" [type]="showPass() ? 'text' : 'password'" formControlName="password" placeholder="••••••••"/>
-              <button type="button" (click)="showPass.set(!showPass())" class="lp-pass-toggle" title="Ver contraseña">
-                <span class="lp-sr-only">Ver contraseña</span>
-                @if (showPass()) {
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
-                } @else {
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                }
-              </button>
-            </div>
+          <div>
+            <label for="login-password" class="text-white text-sm block mb-2">Contraseña</label>
+            <input 
+              id="login-password"
+              [type]="showModalPass() ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="••••••••"
+              class="w-full bg-crypgo-darkmode border border-crypgo-dark_border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-crypgo-primary transition-colors"
+              [class.border-crypgo-error]="f['password'].invalid && f['password'].touched"
+            />
             @if (f['password'].invalid && f['password'].touched) {
-              <span class="lp-field-error">La contraseña debe tener al menos 6 caracteres</span>
+              <span class="text-crypgo-error text-sm mt-1 block">La contraseña debe tener al menos 6 caracteres</span>
             }
           </div>
-          <div class="lp-modal-forgot"><a routerLink="/auth/reset-password" (click)="closeModal()">¿Olvidaste tu contraseña?</a></div>
-          <button type="submit" class="lp-btn-submit" [disabled]="loading()">
-            @if (loading()) {
-              <svg class="lp-spinner" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" stroke-dasharray="60" stroke-dashoffset="40"/></svg>
-            }
-            Iniciar Sesión
+          <button 
+            type="submit"
+            [disabled]="loading()"
+            class="btn-crypgo btn-primary-crypgo w-full bg-crypgo-primary text-crypgo-darkmode py-3 rounded-lg font-semibold hover:bg-transparent hover:text-crypgo-primary border border-crypgo-primary transition-all duration-300 disabled:opacity-50">
+            {{ loading() ? 'Cargando...' : 'Iniciar Sesión' }}
           </button>
-          <div class="lp-modal-divider">o continúa con</div>
-          <div class="lp-oauth-row">
-            <button type="button" class="lp-oauth-btn">
-              <svg viewBox="0 0 24 24" width="18" height="18">
+        </form>
+
+        <!-- Social Login -->
+        <div class="mt-6">
+          <div class="relative">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-crypgo-dark_border"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+              <span class="px-4 bg-crypgo-darkmode text-gray-400">O continúa con</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mt-6">
+            <button 
+              type="button"
+              (click)="loginWithGoogle()"
+              class="flex items-center justify-center gap-3 bg-white text-gray-800 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-all">
+              <svg class="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
@@ -688,65 +1109,117 @@
               </svg>
               Google
             </button>
-            <button type="button" class="lp-oauth-btn">
-              <svg fill="#1877F2" viewBox="0 0 24 24" width="18" height="18"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            <button 
+              type="button"
+              (click)="loginWithFacebook()"
+              class="flex items-center justify-center gap-3 bg-[#1877F2] text-white py-3 rounded-lg font-semibold hover:bg-[#166FE5] transition-all">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              </svg>
               Facebook
             </button>
           </div>
-          <div class="lp-modal-switch">¿No tienes cuenta? <button type="button" (click)="setTab('register')">Crear cuenta</button></div>
-          <div class="lp-modal-switch">¿Eres proveedor? <a routerLink="/auth/register-provider" (click)="closeModal()">Regístrate aquí</a></div>
-        </form>
+        </div>
       }
 
-      <!-- REGISTRO TAB -->
+      <!-- Register Form -->
       @if (activeTab() === 'register') {
-        <form [formGroup]="registerForm" (ngSubmit)="submit()" novalidate class="lp-modal-form">
-          <div class="lp-field-group">
-            <label class="lp-field-label" for="reg-name">Nombre completo</label>
-            <div class="lp-input-box" [class.lp-input-box--error]="rf['name'].invalid && rf['name'].touched">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-              <input id="reg-name" type="text" formControlName="name" placeholder="Tu nombre completo" autocomplete="name"/>
-            </div>
+        <form [formGroup]="registerForm" (ngSubmit)="submitRegister()" class="space-y-4 text-left">
+          <div>
+            <label for="register-name" class="text-white text-sm block mb-2">Nombre Completo</label>
+            <input 
+              id="register-name"
+              type="text"
+              formControlName="name"
+              placeholder="Tu nombre"
+              class="w-full bg-crypgo-darkmode border border-crypgo-dark_border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-crypgo-primary transition-colors"
+              [class.border-crypgo-error]="rf['name'].invalid && rf['name'].touched"
+            />
             @if (rf['name'].invalid && rf['name'].touched) {
-              <span class="lp-field-error">El nombre es requerido</span>
+              <span class="text-crypgo-error text-sm mt-1 block">El nombre es requerido</span>
             }
           </div>
-          <div class="lp-field-group">
-            <label class="lp-field-label" for="reg-email">Correo electrónico</label>
-            <div class="lp-input-box" [class.lp-input-box--error]="rf['email'].invalid && rf['email'].touched">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-              <input id="reg-email" type="email" formControlName="email" placeholder="tu&#64;email.com" autocomplete="email"/>
-            </div>
+          <div>
+            <label for="register-email" class="text-white text-sm block mb-2">Correo Electrónico</label>
+            <input 
+              id="register-email"
+              type="email"
+              formControlName="email"
+              placeholder="tu@email.com"
+              class="w-full bg-crypgo-darkmode border border-crypgo-dark_border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-crypgo-primary transition-colors"
+              [class.border-crypgo-error]="rf['email'].invalid && rf['email'].touched"
+            />
             @if (rf['email'].invalid && rf['email'].touched) {
-              <span class="lp-field-error">Ingresa un correo válido</span>
+              <span class="text-crypgo-error text-sm mt-1 block">Ingresa un correo válido</span>
             }
           </div>
-          <div class="lp-field-group">
-            <label class="lp-field-label" for="reg-password">Contraseña</label>
-            <div class="lp-input-box lp-input-box--pass" [class.lp-input-box--error]="rf['password'].invalid && rf['password'].touched">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-              <input id="reg-password" [type]="showModalPass() ? 'text' : 'password'" formControlName="password" placeholder="Mínimo 6 caracteres"/>
-              <button type="button" (click)="showModalPass.set(!showModalPass())" class="lp-pass-toggle" title="Ver contraseña">
-                <span class="lp-sr-only">Ver contraseña</span>
-                @if (showModalPass()) {
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
-                } @else {
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                }
-              </button>
-            </div>
+          <div>
+            <label for="register-phone" class="text-white text-sm block mb-2">Teléfono</label>
+            <input 
+              id="register-phone"
+              type="tel"
+              formControlName="phone"
+              placeholder="+56 9 1234 5678"
+              class="w-full bg-crypgo-darkmode border border-crypgo-dark_border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-crypgo-primary transition-colors"
+              [class.border-crypgo-error]="rf['phone'].invalid && rf['phone'].touched"
+            />
+            @if (rf['phone'].invalid && rf['phone'].touched) {
+              <span class="text-crypgo-error text-sm mt-1 block">El teléfono es requerido</span>
+            }
+          </div>
+          <div>
+            <label for="register-password" class="text-white text-sm block mb-2">Contraseña</label>
+            <input 
+              id="register-password"
+              [type]="showModalPass() ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="Mínimo 6 caracteres"
+              class="w-full bg-crypgo-darkmode border border-crypgo-dark_border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-crypgo-primary transition-colors"
+              [class.border-crypgo-error]="rf['password'].invalid && rf['password'].touched"
+            />
             @if (rf['password'].invalid && rf['password'].touched) {
-              <span class="lp-field-error">La contraseña debe tener al menos 6 caracteres</span>
+              <span class="text-crypgo-error text-sm mt-1 block">La contraseña debe tener al menos 6 caracteres</span>
             }
           </div>
-          <button type="submit" class="lp-btn-submit" [disabled]="registerForm.invalid">
-            Crear mi cuenta
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+          <div class="flex items-start gap-3">
+            <input 
+              id="register-terms"
+              type="checkbox"
+              formControlName="terms_accepted"
+              class="mt-1 w-4 h-4 accent-crypgo-primary"
+            />
+            <label for="register-terms" class="text-gray-400 text-sm">
+              Acepto los <a routerLink="/terms" class="text-crypgo-primary hover:underline">Términos y Condiciones</a> y la <a routerLink="/privacy" class="text-crypgo-primary hover:underline">Política de Privacidad</a>
+            </label>
+          </div>
+          @if (rf['terms_accepted'].invalid && rf['terms_accepted'].touched) {
+            <span class="text-crypgo-error text-sm -mt-2 block">Debes aceptar los términos y condiciones</span>
+          }
+          <button 
+            type="submit"
+            [disabled]="registerForm.invalid"
+            class="btn-crypgo btn-primary-crypgo w-full bg-crypgo-primary text-crypgo-darkmode py-3 rounded-lg font-semibold hover:bg-transparent hover:text-crypgo-primary border border-crypgo-primary transition-all duration-300 disabled:opacity-50">
+            Crear Cuenta
           </button>
-          <div class="lp-modal-divider">o regístrate con</div>
-          <div class="lp-oauth-row">
-            <button type="button" class="lp-oauth-btn">
-              <svg viewBox="0 0 24 24" width="18" height="18">
+        </form>
+
+        <!-- Social Login -->
+        <div class="mt-6">
+          <div class="relative">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-crypgo-dark_border"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+              <span class="px-4 bg-crypgo-darkmode text-gray-400">O regístrate con</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mt-6">
+            <button 
+              type="button"
+              (click)="loginWithGoogle()"
+              class="flex items-center justify-center gap-3 bg-white text-gray-800 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-all">
+              <svg class="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
@@ -754,18 +1227,18 @@
               </svg>
               Google
             </button>
-            <button type="button" class="lp-oauth-btn">
-              <svg fill="#1877F2" viewBox="0 0 24 24" width="18" height="18"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            <button 
+              type="button"
+              (click)="loginWithFacebook()"
+              class="flex items-center justify-center gap-3 bg-[#1877F2] text-white py-3 rounded-lg font-semibold hover:bg-[#166FE5] transition-all">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              </svg>
               Facebook
             </button>
           </div>
-          <div class="lp-modal-switch">¿Ya tienes cuenta? <button type="button" (click)="setTab('login')">Iniciar sesión</button></div>
-          <p class="lp-modal-terms">
-            Al registrarte, aceptas nuestros <a routerLink="/terms" (click)="closeModal()">Términos</a> y <a routerLink="/privacy" (click)="closeModal()">Política de Privacidad</a>.
-          </p>
-        </form>
+        </div>
       }
-
     </div>
   </div>
 }

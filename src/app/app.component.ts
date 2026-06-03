@@ -7,11 +7,12 @@ import { filter } from 'rxjs';
 import { fadeAnimation } from './core/animations/route-animations';
 import { AppFooterComponent } from './shared/components/app-footer/app-footer.component';
 import { GlobalModalComponent } from './shared/components/global-modal/global-modal.component';
+import { BappieChatbotComponent } from './shared/components/bappie-chatbot/bappie-chatbot.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, AppFooterComponent, GlobalModalComponent],
+  imports: [RouterOutlet, CommonModule, AppFooterComponent, GlobalModalComponent, BappieChatbotComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   animations: [fadeAnimation],
   template: `
@@ -26,6 +27,7 @@ import { GlobalModalComponent } from './shared/components/global-modal/global-mo
       @if (showFooter()) {
         <app-footer [compact]="compactFooter()" />
       }
+      <app-bappie-chatbot />
     </div>
 
     <app-global-modal />

@@ -89,6 +89,21 @@ module.exports = {
           600: '#2563EB',
           DEFAULT: '#3B82F6',
         },
+        // Crypgo colors
+        crypgo: {
+          primary: "#FFF9C4",      // Amarillo 100 - PASTEL PRIMARY
+          secondary: "#FFF176",    // Amarillo 200 - PASTEL SECONDARY
+          darkmode: "#000510",
+          darklight: "#0c372a",
+          deepSlate: "#282C36",
+          slateGray: "#2F3543",
+          tealGreen: "#FFFDE7",    // Amarillo 50 - PASTEL MUY SUAVE
+          charcoalGray: "#666C78",
+          dark_border: "#959595",
+          error: "#CF3127",
+          warning: "#F7931A",
+          success: "#3cd278",
+        },
       },
       fontFamily: {
         // Noto Sans = fuente oficial BAPP (misma que app Ionic)
@@ -108,6 +123,17 @@ module.exports = {
         '3xl': ['28px', { lineHeight: '1.2' }],
         '4xl': ['32px', { lineHeight: '1.2' }],
         '5xl': ['40px', { lineHeight: '1' }],
+        // Crypgo font sizes
+        '18': ['1.125rem', { lineHeight: '1.5' }],
+        '21': ['1.3125rem', { lineHeight: '1.4' }],
+        '24': ['1.5rem', { lineHeight: '1.3' }],
+        '28': ['1.75rem', { lineHeight: '1.3' }],
+        '40': ['2.5rem', { lineHeight: '1.2' }],
+        '44': ['2.75rem', { lineHeight: '1.3' }],
+        '54': ['3.375rem', { lineHeight: '1.2' }],
+        '70': ['4.375rem', { lineHeight: '1.2' }],
+        '76': ['4.75rem', { lineHeight: '1.2' }],
+        '86': ['5.375rem', { lineHeight: '1.2' }],
       },
       spacing: {
         '0.5': '2px',
@@ -125,6 +151,22 @@ module.exports = {
         '16': '64px',
         '20': '80px',
         '24': '96px',
+        // Crypgo spacing
+        '3.75': '3.75rem',
+        '6.25': '6.25rem',
+        '8.5': '8.5rem',
+        '25': '35.625rem',
+        '29': '28rem',
+        '45': '45rem',
+        '50': '50rem',
+        '51': '54.375rem',
+        '85': '21rem',
+        '94': '22.5rem',
+        '120': '120rem',
+        '70%': '70%',
+        '40%': '40%',
+        '30%': '30%',
+        '80%': '80%',
       },
       borderRadius: {
         none: '0px',
@@ -187,10 +229,24 @@ module.exports = {
         modal: '400',
         toast: '500',
         tooltip: '600',
+        // Crypgo z-index
+        '1': '1',
+        '2': '2',
+        '999': '999',
+      },
+      maxWidth: {
+        'screen-xl': '75rem',
+        'screen-2xl': '83.75rem',
+      },
+      inset: {
+        '5%': '5%',
+        '35%': '35%',
+      },
+      blur: {
+        '400': '400px',
       },
     },
   },
   plugins: [],
   darkMode: 'class',
 }
-

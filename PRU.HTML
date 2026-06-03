@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animación 2D - Personal de Servicio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+ 
+        body {
+            /* Fondo transparente requerido */
+            background-color: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+ 
+        .canvas-container {
+            width: 100vw;
+            height: 100vh;
+            max-width: 600px;
+            max-height: 600px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+ 
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+ 
+        /* --- ANIMACIONES --- */
+ 
+        /* Saludo del Constructor (Brazo izquierdo desde su perspectiva) */
+        @keyframes saludoConstructor {
+            0%, 100% { transform: rotate(0deg); }
+            20%, 60% { transform: rotate(-35deg); }
+            40%, 80% { transform: rotate(-20deg); }
+        }
+ 
+        /* Saludo de la Estilista (Brazo derecho desde su perspectiva) */
+        @keyframes saludoEstilista {
+            0%, 100% { transform: rotate(0deg); }
+            30%, 70% { transform: rotate(40deg); }
+            50%, 90% { transform: rotate(25deg); }
+        }
+ 
+        /* Movimiento sutil de la colita del perro */
+        @keyframes moverCola {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(15deg); }
+        }
+ 
+        /* Parpadeo general para dar vida */
+        @keyframes parpadeo {
+            0%, 90%, 100% { transform: scaleY(1); }
+            95% { transform: scaleY(0.1); }
+        }
+ 
+        /* --- ASIGNACIÓN DE ANIMACIONES --- */
+        .brazo-constructor {
+            animation: saludoConstructor 3s ease-in-out infinite;
+            transform-origin: 195px 210px; /* Hombro del constructor */
+        }
+ 
+        .brazo-estilista {
+            animation: saludoEstilista 3.2s ease-in-out infinite;
+            transform-origin: 395px 230px; /* Hombro de la estilista */
+        }
+ 
+        .cola-perro {
+            animation: moverCola 0.6s ease-in-out infinite;
+            transform-origin: 220px 395px;
+        }
+ 
+        .ojos {
+            animation: parpadeo 4s linear infinite;
+            transform-origin: center;
+        }
+    </style>
+</head>
+<body>
+ 
+    <div class="canvas-container">
+        <svg viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+            
+            <defs>
+                <filter id="sombraSutil" x="-10%" y="-10%" width="120%" height="120%">
+                    <feDropShadow dx="0" dy="4" stdDeviation="4" flood-opacity="0.15"/>
+                </filter>
+            </defs>
+ 
+            <g id="constructor" filter="url(#sombraSutil)">
+                <path d="M 285 210 Q 305 250 295 290" fill="none" stroke="#25477a" stroke-width="24" stroke-linecap="round"/>
+                
+                <path d="M 200 210 L 280 210 L 290 380 L 190 380 Z" fill="#2d558f" />
+                <rect x="205" y="210" width="12" height="60" fill="#1e3a63" />
+                <rect x="263" y="210" width="12" height="60" fill="#1e3a63" />
+                <rect x="222" y="245" width="36" height="28" fill="#1e3a63" rx="3" />
+                <path d="M 240 220 L 246 230 L 241 231 L 245 240 L 237 228 L 242 227 Z" fill="#facc15" />
+                <rect x="185" y="340" width="110" height="15" fill="#c6a07c" rx="4" />
+                <rect x="200" y="355" width="25" height="25" fill="#a17a56" />
+                <rect x="255" y="355" width="20" height="25" fill="#a17a56" />
+ 
+                <polygon points="230,210 250,210 240,195" fill="#e0a98c" />
+                <circle cx="240" cy="165" r="32" fill="#f0b799" />
+                
+                <g class="ojos">
+                    <circle cx="230" cy="160" r="3.5" fill="#2c3e50" />
+                    <circle cx="252" cy="160" r="3.5" fill="#2c3e50" />
+                </g>
+                <path d="M 235 180 Q 241 187 247 180" fill="none" stroke="#2c3e50" stroke-width="2.5" stroke-linecap="round" />
+                <path d="M 222 150 Q 232 145 238 150" fill="none" stroke="#684c3c" stroke-width="3" stroke-linecap="round" />
+                <path d="M 246 150 Q 252 145 262 150" fill="none" stroke="#684c3c" stroke-width="3" stroke-linecap="round" />
+ 
+                <path d="M 204 150 C 204 105 276 105 276 150 Z" fill="#facc15" />
+                <ellipse cx="240" cy="150" rx="40" ry="6" fill="#eab308" />
+                <path d="M 236 110 Q 240 100 244 110 Z" fill="#facc15" />
+ 
+                <g class="brazo-constructor">
+                    <path d="M 195 210 Q 155 190 145 150" fill="none" stroke="#2d558f" stroke-width="24" stroke-linecap="round"/>
+                    <circle cx="145" cy="145" r="13" fill="#f0b799" />
+                </g>
+            </g>
+ 
+            <g id="estilista" filter="url(#sombraSutil)">
+                <path d="M 320 230 Q 305 280 320 320" fill="none" stroke="#d946ef" stroke-width="20" stroke-linecap="round"/>
+ 
+                <path d="M 315 230 L 395 230 L 410 400 L 320 400 Z" fill="#d946ef" />
+                <path d="M 330 270 L 385 270 L 395 400 L 325 400 Z" fill="#475569" /> <circle cx="345" cy="290" r="6" fill="none" stroke="#94a3b8" stroke-width="3" />
+                <circle cx="355" cy="290" r="6" fill="none" stroke="#94a3b8" stroke-width="3" />
+                <line x1="350" y1="295" x2="350" y2="315" stroke="#94a3b8" stroke-width="4" />
+ 
+                <polygon points="345,230 365,230 355,215" fill="#e0a98c" />
+                <circle cx="355" cy="180" r="30" fill="#f3c1a4" />
+                
+                <g class="ojos">
+                    <circle cx="345" cy="178" r="3.5" fill="#2c3e50" />
+                    <circle cx="365" cy="178" r="3.5" fill="#2c3e50" />
+                </g>
+                <path d="M 348 195 Q 355 202 362 195" fill="none" stroke="#b91c1c" stroke-width="3" stroke-linecap="round" />
+ 
+                <path d="M 320 180 C 310 120 400 120 390 180 C 400 210 380 220 380 220 L 330 220 Z" fill="#1e1b4b" />
+                <path d="M 325 160 Q 355 140 375 160" fill="none" stroke="#312e81" stroke-width="4" stroke-linecap="round" />
+ 
+                <g class="brazo-estilista">
+                    <path d="M 395 230 Q 435 210 445 170" fill="none" stroke="#d946ef" stroke-width="20" stroke-linecap="round"/>
+                    <circle cx="445" cy="165" r="11" fill="#f3c1a4" />
+                </g>
+            </g>
+ 
+            <g id="perro" filter="url(#sombraSutil)">
+                <path class="cola-perro" d="M 220 395 Q 190 380 180 350" fill="none" stroke="#d97706" stroke-width="12" stroke-linecap="round" />
+ 
+                <ellipse cx="260" cy="410" rx="45" ry="35" fill="#f59e0b" />
+                <circle cx="230" cy="425" r="14" fill="#d97706" /> <rect x="270" y="415" width="14" height="40" fill="#d97706" rx="6" /> <circle cx="295" cy="365" r="28" fill="#f59e0b" />
+                <ellipse cx="315" cy="375" rx="14" ry="10" fill="#fef3c7" />
+                <circle cx="324" cy="370" r="4.5" fill="#1e293b" /> <path d="M 280 350 Q 260 360 270 390 Q 285 390 290 365 Z" fill="#b45309" />
+                
+                <circle cx="300" cy="355" r="8" fill="#b45309" /> <circle cx="302" cy="355" r="3" fill="#1e293b" /> <path d="M 280 385 L 295 380 L 285 405 Z" fill="#ef4444" />
+            </g>
+ 
+        </svg>
+    </div>
+ 
+</body>
+</html>
+SVG namespace
+ 

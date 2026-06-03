@@ -20,6 +20,8 @@
   html { 
     font-family: 'Noto Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
     height: 100%;
+    scroll-behavior: smooth;
+    scroll-padding-top: 112px;
   }
   body { 
     background-color: #1A1A1A; 

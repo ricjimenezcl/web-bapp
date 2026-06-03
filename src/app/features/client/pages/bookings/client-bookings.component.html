@@ -47,6 +47,20 @@
           }
         </button>
 
+        <button (click)="activeTab.set('history')"
+          class="ref-segment-btn"
+          [class.ref-segment-btn--active]="activeTab() === 'history'"
+          type="button">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Historial
+          @if (historyBookings.length > 0) {
+            <span class="ref-tab-badge ref-tab-badge--success">{{ historyBookings.length }}</span>
+          }
+        </button>
+
         <button (click)="activeTab.set('cancelled')"
           class="ref-segment-btn"
           [class.ref-segment-btn--active]="activeTab() === 'cancelled'"
@@ -111,6 +125,8 @@
               Sin reservas próximas
             } @else if (activeTab() === 'pending') {
               Sin reservas pendientes
+            } @else if (activeTab() === 'history') {
+              Sin historial de reservas
             } @else {
               Sin reservas canceladas
             }
@@ -119,7 +135,9 @@
             @if (activeTab() === 'upcoming') {
               Tus reservas confirmadas aparecerán aquí.
             } @else if (activeTab() === 'pending') {
-              Aquí verás las reservas pendientes de confirmación y las completadas.
+              Aquí verás las reservas pendientes de confirmación.
+            } @else if (activeTab() === 'history') {
+              Las reservas completadas aparecerán aquí.
             } @else {
               Aquí aparecerán las reservas que hayas cancelado.
             }
@@ -234,6 +252,23 @@
                 </div>
               }
 
+              <!-- Calificar (COMPLETED, no revisado aún) -->
+              @if (booking.status === 'COMPLETED' && !$any(booking).reviewed) {
+                <div class="booking-actions">
+                  <button (click)="openReviewModal(booking)" class="btn-booking-review">
+                    <svg class="icon-16" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969
+                           0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755
+                           1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838
+                           -.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57
+                           -.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                    </svg>
+                    <span>Calificar servicio</span>
+                  </button>
+                </div>
+              }
+
             </div>
           }
         </div>
@@ -291,5 +326,80 @@
 
   </div><!-- /app-frame -->
 
+    <!-- ── Review modal ─────────────────────────────────────────── -->
+    @if (reviewTarget()) {
+      <div class="cancel-backdrop" (click)="closeReviewModal()">
+        <div class="cancel-modal review-modal" (click)="$event.stopPropagation()">
+
+          <!-- Icon -->
+          <div class="cancel-modal-icon-wrap review-modal-icon-wrap">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969
+                   0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755
+                   1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838
+                   -.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57
+                   -.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+            </svg>
+          </div>
+
+          <h3 class="cancel-modal-title">Calificar servicio</h3>
+          <p class="cancel-modal-desc">
+            ¿Cómo fue tu experiencia con<br>
+            <strong>{{ reviewTarget()?.service_category }}</strong>?
+          </p>
+
+          <!-- Stars -->
+          <div class="review-stars">
+            @for (star of [1,2,3,4,5]; track star) {
+              <button
+                type="button"
+                class="review-star-btn"
+                [class.review-star-btn--active]="star <= (reviewHoverStar() || reviewRating())"
+                (mouseenter)="reviewHoverStar.set(star)"
+                (mouseleave)="reviewHoverStar.set(0)"
+                (click)="setReviewRating(star)">
+                <svg fill="currentColor" viewBox="0 0 24 24" width="32" height="32">
+                  <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969
+                     0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755
+                     1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838
+                     -.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57
+                     -.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                </svg>
+              </button>
+            }
+          </div>
+
+          <!-- Comment -->
+          <textarea
+            [value]="reviewComment()"
+            (input)="reviewComment.set($any($event.target).value)"
+            placeholder="Cuéntanos más sobre tu experiencia (opcional)"
+            rows="3"
+            class="cancel-modal-textarea">
+          </textarea>
+
+          <!-- Buttons -->
+          <div class="cancel-modal-actions">
+            <button (click)="closeReviewModal()"
+              [disabled]="reviewLoading()"
+              class="cancel-modal-btn cancel-modal-btn--secondary">
+              Cancelar
+            </button>
+            <button (click)="submitReview()"
+              [disabled]="reviewLoading() || reviewRating() < 1"
+              class="cancel-modal-btn cancel-modal-btn--primary">
+              @if (reviewLoading()) {
+                <svg class="spin icon-16" fill="none" viewBox="0 0 24 24" width="16" height="16">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                </svg>
+              }
+              Enviar calificación
+            </button>
+          </div>
+        </div>
+      </div>
+    }
 
 </div>

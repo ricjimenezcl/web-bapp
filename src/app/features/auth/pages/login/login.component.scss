@@ -455,24 +455,6 @@
     display: inline-block; border: 1px solid rgba(253, 230, 138, 0.3); animation: pulseHint 2s infinite;
 }
 
-// ─────────────────────────────────────────────────────────────
-
-:host {
-  display: block;
-  background: #000510; // Crypgo darkmode
-  color: #ffffff;
-  min-height: 100vh;
-  
-  // Variables CSS para 3D scene
-  --cream: #FDE68A;
-  --cream-dim: rgba(253, 230, 138, 0.15);
-  --mint: #A7F3D0;
-  --bapp-red: #BE202E;
-  --cyan: #38BDF8;
-  --text-p: #F4F4F5;
-  --text-s: #A1A1AA;
-}
-
 // ═══════════════════════════════════════════════════════════
 //  ANIMATIONS — Crypgo Style
 // ═══════════════════════════════════════════════════════════

@@ -49,13 +49,13 @@ export class ClientBookingsComponent implements OnInit, OnDestroy {
   readonly statusLabels = BOOKING_STATUS_LABELS;
   readonly statusColors = BOOKING_STATUS_COLORS;
 
-  /** CONFIRMADAS / EN_PROGRESO con fecha futura (o sin fecha) */
+  /** APROBADAS / CONFIRMADAS / EN_PROGRESO con fecha futura (o sin fecha) */
   get upcomingBookings(): BookingResponse[] {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
     return this.bookings().filter(b => {
       const s = (b.status || '').toUpperCase();
-      if (s !== 'CONFIRMED' && s !== 'IN_PROGRESS') return false;
+      if (s !== 'APPROVED' && s !== 'CONFIRMED' && s !== 'IN_PROGRESS') return false;
       if (!b.scheduled_date) return true;
       return new Date(String(b.scheduled_date)) >= now;
     });
@@ -75,11 +75,11 @@ export class ClientBookingsComponent implements OnInit, OnDestroy {
     );
   }
 
-  /** CANCELADAS + NO PRESENTADO */
+  /** RECHAZADAS + CANCELADAS + NO PRESENTADO */
   get cancelledBookings(): BookingResponse[] {
     return this.bookings().filter(b => {
       const s = (b.status || '').toUpperCase();
-      return s === 'CANCELLED' || s === 'NOSHOW';
+      return s === 'REJECTED' || s === 'CANCELLED' || s === 'NOSHOW';
     });
   }
 

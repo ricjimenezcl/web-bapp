@@ -27,8 +27,8 @@ export class ProviderBookingsComponent implements OnInit, OnDestroy {
   getStatusColor(status: string): string { return (BOOKING_STATUS_COLORS as any)[status] ?? 'badge-gray'; }
 
   get pending()    { return this.bookings().filter(b => b.status === 'PENDING'); }
-  get activeList() { return this.bookings().filter(b => ['CONFIRMED', 'IN_PROGRESS'].includes(b.status)); }
-  get historyList(){ return this.bookings().filter(b => ['COMPLETED', 'CANCELLED', 'NOSHOW'].includes(b.status)); }
+  get activeList() { return this.bookings().filter(b => ['APPROVED', 'CONFIRMED', 'IN_PROGRESS'].includes(b.status)); }
+  get historyList(){ return this.bookings().filter(b => ['COMPLETED', 'REJECTED', 'CANCELLED', 'NOSHOW'].includes(b.status)); }
   get displayed()  { return this.activeTab() === 'pending' ? [...this.pending, ...this.activeList] : this.historyList; }
 
   ngOnInit(): void {

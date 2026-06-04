@@ -1,4 +1,13 @@
-export type BookingStatus = 'PENDING' | 'CONFIRMED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'NOSHOW';
+export type BookingStatus =
+  | 'PENDING'
+  | 'APPROVED'
+  | 'REJECTED'
+  | 'COMPLETED'
+  // Legacy — compatibilidad con datos históricos
+  | 'CONFIRMED'
+  | 'IN_PROGRESS'
+  | 'CANCELLED'
+  | 'NOSHOW';
 
 export interface BookingCreate {
   provider_id: number;
@@ -43,18 +52,22 @@ export interface BookingResponse {
 
 export const BOOKING_STATUS_LABELS: Record<BookingStatus, string> = {
   PENDING:     'Pendiente',
+  APPROVED:    'Aprobado',
+  REJECTED:    'Rechazado',
+  COMPLETED:   'Completado',
   CONFIRMED:   'Confirmado',
   IN_PROGRESS: 'En progreso',
-  COMPLETED:   'Completado',
   CANCELLED:   'Cancelado',
   NOSHOW:      'No presentado',
 };
 
 export const BOOKING_STATUS_COLORS: Record<BookingStatus, string> = {
   PENDING:     'badge-warning',
+  APPROVED:    'badge-success',
+  REJECTED:    'badge-danger',
+  COMPLETED:   'badge-success',
   CONFIRMED:   'badge-primary',
   IN_PROGRESS: 'badge-primary',
-  COMPLETED:   'badge-success',
   CANCELLED:   'badge-danger',
   NOSHOW:      'badge-gray',
 };

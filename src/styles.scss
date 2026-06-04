@@ -246,9 +246,11 @@
     text-transform: uppercase;
 
     &[data-status="PENDING"]      { background: rgba(253,215,53,0.18);  color: #FDD735; }
+    &[data-status="APPROVED"]     { background: rgba(16,185,129,0.16);  color: #34D399; }
     &[data-status="CONFIRMED"]    { background: rgba(16,185,129,0.16);  color: #34D399; }
     &[data-status="IN_PROGRESS"]  { background: rgba(16,185,129,0.16);  color: #34D399; }
     &[data-status="COMPLETED"]    { background: rgba(14,165,233,0.16);  color: #38BDF8; }
+    &[data-status="REJECTED"]     { background: rgba(239,68,68,0.14);   color: #F87171; }
     &[data-status="CANCELLED"]    { background: rgba(239,68,68,0.14);   color: #F87171; }
     &[data-status="NOSHOW"]       { background: rgba(107,114,128,0.14); color: rgba(255,255,255,0.50); }
   }

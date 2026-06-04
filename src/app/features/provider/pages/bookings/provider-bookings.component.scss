@@ -246,9 +246,11 @@
   flex-shrink: 0;
 
   &[data-status="PENDING"]     { background: rgba(253,230,138,0.18); color: #FDE68A; }
+  &[data-status="APPROVED"]    { background: rgba(167,243,208,0.16); color: #A7F3D0; }
   &[data-status="CONFIRMED"]   { background: rgba(167,243,208,0.16); color: #A7F3D0; }
   &[data-status="IN_PROGRESS"] { background: rgba(167,243,208,0.16); color: #A7F3D0; }
   &[data-status="COMPLETED"]   { background: rgba(56,189,248,0.16);  color: #38BDF8; }
+  &[data-status="REJECTED"]    { background: rgba(252,165,165,0.14); color: #FCA5A5; }
   &[data-status="CANCELLED"]   { background: rgba(252,165,165,0.14); color: #FCA5A5; }
   &[data-status="NOSHOW"]      { background: rgba(148,163,184,0.14); color: #94A3B8; }
 }

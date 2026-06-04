@@ -34,12 +34,11 @@ export class BookingService {
   }
 
   confirmBooking(id: number): Observable<BookingResponse> {
-    return this.http.post<BookingResponse>(`${this.api}/bookings/${id}/confirm`, {});
+    return this.http.post<BookingResponse>(`${this.api}/bookings/${id}/approve`, {});
   }
 
   rejectBooking(id: number, reason?: string): Observable<BookingResponse> {
-    return this.http.post<BookingResponse>(`${this.api}/bookings/${id}/cancel`, {
-      reason: 'PROVIDER_REQUEST',
+    return this.http.patch<BookingResponse>(`${this.api}/bookings/${id}/reject`, {
       reason_comment: reason ?? null
     });
   }

@@ -152,10 +152,10 @@
               <!-- Card header -->
               <div class="booking-card-main">
                 <div class="booking-icon-wrap"
-                  [class.booking-icon-wrap--confirmed]="booking.status === 'CONFIRMED' || booking.status === 'IN_PROGRESS'"
+                  [class.booking-icon-wrap--confirmed]="booking.status === 'APPROVED' || booking.status === 'CONFIRMED' || booking.status === 'IN_PROGRESS'"
                   [class.booking-icon-wrap--pending]="booking.status === 'PENDING'"
                   [class.booking-icon-wrap--completed]="booking.status === 'COMPLETED'"
-                  [class.booking-icon-wrap--cancelled]="booking.status === 'CANCELLED' || booking.status === 'NOSHOW'">
+                  [class.booking-icon-wrap--cancelled]="booking.status === 'REJECTED' || booking.status === 'CANCELLED' || booking.status === 'NOSHOW'">
                   <svg class="icon-20" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c-.94 1.543.826 3.31 2.37 2.37a1.724 1.724 0 002.572 1.065c.426 1.756 2.924 1.756 3.35 0a1.724 1.724 0 012.573-1.066c1.543.94 3.31-.826 2.37-2.37a1.724 1.724 0 011.065-2.572c1.756-.426 1.756-2.924 0-3.35a1.724 1.724 0 00-1.066-2.573c.94-1.543-.826-3.31-2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
@@ -220,7 +220,7 @@
               </div>
 
               <!-- Actions (PENDING or CONFIRMED) -->
-              @if (booking.status === 'PENDING' || booking.status === 'CONFIRMED') {
+              @if (booking.status === 'PENDING' || booking.status === 'APPROVED' || booking.status === 'CONFIRMED') {
                 <div class="booking-actions">
                   <button (click)="goToChat(booking)"
                     [disabled]="chatOpeningId() === booking.id"

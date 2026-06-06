@@ -6,12 +6,10 @@ import { SessionService } from './core/services/session.service';
 import { filter } from 'rxjs';
 import { AppFooterComponent } from './shared/components/app-footer/app-footer.component';
 import { GlobalModalComponent } from './shared/components/global-modal/global-modal.component';
-import { BappieChatbotComponent } from './shared/components/bappie-chatbot/bappie-chatbot.component';
-
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, AppFooterComponent, GlobalModalComponent, BappieChatbotComponent],
+  imports: [RouterOutlet, CommonModule, AppFooterComponent, GlobalModalComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <div class="app-layout">
@@ -24,7 +22,6 @@ import { BappieChatbotComponent } from './shared/components/bappie-chatbot/bappi
       @if (showFooter()) {
         <app-footer [compact]="compactFooter()" />
       }
-      <app-bappie-chatbot />
     </div>
 
     <app-global-modal />

@@ -6,11 +6,12 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { CategoryService } from '../../../../core/services/category.service';
 import { MainCategory, ServiceCategory } from '../../../../core/models/provider.model';
 import { Device3dLoginComponent } from '../../../../shared/components/device-3d-login/device-3d-login.component';
+import { BappieChatbotComponent } from '../../../../shared/components/bappie-chatbot/bappie-chatbot.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, Device3dLoginComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, Device3dLoginComponent, BappieChatbotComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

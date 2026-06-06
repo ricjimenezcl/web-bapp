@@ -4,35 +4,25 @@
      ═══════════════════════════════════════════════════════════ -->
 
 <!-- HEADER -->
-<header class="fixed top-0 z-40 w-full pb-5 transition-all duration-500 ease-out pointer-events-none" 
+<header class="fixed top-0 z-40 w-full transition-all duration-500 ease-out pointer-events-none" 
         [class.shadow-lg]="sticky()" 
         [class.bg-crypgo-darkmode]="sticky()" 
         [class.backdrop-blur-md]="sticky()" 
-        [class.bg-opacity-95]="sticky()"
-        [class.pt-5]="sticky()" 
-        [class.md:pt-14]="!sticky()" 
-        [class.pt-5]="!sticky()">
-  <div class="lg:py-0 py-2 pointer-events-auto">
-    <div class="container mx-auto lg:max-w-screen-xl md:max-w-screen-md flex items-center justify-between px-4">
+        [class.bg-opacity-95]="sticky()">
+  <div class="py-0 pointer-events-auto">
+    <div class="container lg:max-w-screen-xl md:max-w-screen-md flex items-center justify-between pr-4">
       <!-- Logo -->
       <div class="flex items-center gap-3">
-        <svg viewBox="0 0 200 180" class="w-10 h-10" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <mask id="logo-mask">
-              <rect width="100%" height="100%" fill="white"/>
-              <circle cx="120" cy="80" r="45" fill="black"/>
-              <line x1="20" y1="180" x2="100" y2="100" stroke="black" stroke-width="24" stroke-linecap="round"/>
-            </mask>
-          </defs>
-          <path d="M 60,80 A 60,60 0 0,1 180,80 L 180,150 L 90,150 A 60,60 0 0,1 50,110 Z" fill="#BE202E" mask="url(#logo-mask)"/>
-          <circle cx="120" cy="80" r="35" stroke="#ffffff" stroke-width="14" fill="none"/>
-          <line x1="30" y1="170" x2="95" y2="105" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
-        </svg>
-        <span class="text-white font-bold text-xl">BAPPSEARCH</span>
+        <div class="w-[70px] h-[108px] rounded-xl flex overflow-hidden">
+          <img src="https://res.cloudinary.com/dghwotofx/image/upload/v1774563936/logo_gsgyrf.png"
+               alt="Logo BappSearch" class="w-full h-full object-contain">
+        </div>
+        <img src="https://res.cloudinary.com/dghwotofx/image/upload/v1774563936/titulo_bycrju.png"
+             alt="BappSearch" class="hidden sm:block h-[30px] object-contain">
       </div>
 
       <!-- Desktop Nav -->
-      <nav class="hidden lg:flex flex-grow items-center gap-8 justify-center" aria-label="Navegación principal">
+      <nav class="hidden lg:flex flex-grow items-end gap-4 justify-center" aria-label="Navegación principal">
         <a href="#main-banner" (click)="scrollToSection('main-banner', $event)" class="text-white hover:text-crypgo-primary transition-colors">Inicio</a>
         <a href="#how-it-works" (click)="scrollToSection('how-it-works', $event)" class="text-white hover:text-crypgo-primary transition-colors">Cómo Funciona</a>
         <a href="#services" (click)="scrollToSection('services', $event)" class="text-white hover:text-crypgo-primary transition-colors">Servicios</a>
@@ -982,6 +972,9 @@
     </div>
   </div>
 }
+
+<!-- BAPPIE CHATBOT -->
+<app-bappie-chatbot />
 
 <!-- AUTH MODAL -->
 @if (showModal()) {

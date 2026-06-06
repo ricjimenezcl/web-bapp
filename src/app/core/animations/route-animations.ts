@@ -2,18 +2,20 @@ import { trigger, transition, style, query, animate, group } from '@angular/anim
 
 /**
  * Animación de fade para transiciones de ruta
- * Previene parpadeos con optional: true en queries
+ * IMPORTANTE: NO usar pointerEvents en las queries — en iOS Safari las animaciones
+ * pueden ser pausadas por gestos táctiles, dejando el host del componente con
+ * pointer-events:none indefinidamente (root cause de clicks que no funcionan en móvil).
  */
 export const fadeAnimation = trigger('fadeAnimation', [
   transition('* <=> *', [
     query(':enter', [
       style({ opacity: 0 })
     ], { optional: true }),
-    
+
     query(':leave', [
       animate('150ms ease-out', style({ opacity: 0 }))
     ], { optional: true }),
-    
+
     query(':enter', [
       animate('200ms 50ms ease-in', style({ opacity: 1 }))
     ], { optional: true })

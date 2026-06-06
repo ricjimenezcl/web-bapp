@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { StorageService } from './core/services/storage.service';
 import { SessionService } from './core/services/session.service';
 import { filter } from 'rxjs';
-import { fadeAnimation } from './core/animations/route-animations';
 import { AppFooterComponent } from './shared/components/app-footer/app-footer.component';
 import { GlobalModalComponent } from './shared/components/global-modal/global-modal.component';
 import { BappieChatbotComponent } from './shared/components/bappie-chatbot/bappie-chatbot.component';
@@ -14,13 +13,11 @@ import { BappieChatbotComponent } from './shared/components/bappie-chatbot/bappi
   standalone: true,
   imports: [RouterOutlet, CommonModule, AppFooterComponent, GlobalModalComponent, BappieChatbotComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  animations: [fadeAnimation],
   template: `
     <div class="app-layout">
       <main
         class="main-content"
-        [class.main-content--fullscreen]="isFullscreenRoute()"
-        [@fadeAnimation]="getRouteAnimationData()">
+        [class.main-content--fullscreen]="isFullscreenRoute()">
         <router-outlet #outlet="outlet"></router-outlet>
       </main>
 
@@ -75,8 +72,8 @@ import { BappieChatbotComponent } from './shared/components/bappie-chatbot/bappi
       display: flex;
       flex-direction: column;
       min-height: 0;
-      overflow-y: auto;
-      overflow-x: hidden;
+      /* overflow-x gestionado en body/html para evitar bloquear
+         eventos táctiles en iOS Safari durante animaciones de ruta */
     }
 
     .main-content--fullscreen {
@@ -205,10 +202,6 @@ export class AppComponent implements OnInit {
   goToLogin(): void {
     this.session.reset();
     this.router.navigate(['/auth/login']);
-  }
-
-  getRouteAnimationData(): string {
-    return this.router.url;
   }
 
   private handleInitialNavigation(): void {

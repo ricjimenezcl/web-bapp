@@ -21,6 +21,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   private readonly renderer = inject(Renderer2);
   private readonly categorySvc = inject(CategoryService);
   private carouselInterval: ReturnType<typeof setInterval> | null = null;
+  private scrollObserver?: IntersectionObserver;
 
   // ── ViewChild para 3D parallax ───────────────────────────────────
   @ViewChild('sceneContainer') sceneContainer?: ElementRef<HTMLElement>;
@@ -162,14 +163,51 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.loadCategories();
     this.startTestimonialCarousel();
     this.startStatCarousel();
+    // Iniciar reveal después de que Angular termine de renderizar
+    setTimeout(() => this.initScrollReveal(), 100);
   }
 
   ngOnDestroy(): void {
     this.stopCarouselAutoPlay();
     this.stopTestimonialCarousel();
     this.stopStatCarousel();
-    // Restaurar scroll del body al destruir el componente
-    document.body.style.overflow = '';
+    this.scrollObserver?.disconnect();
+    // Garantizar que el scroll-lock se libere al destruir el componente
+    this.unlockBodyScroll();
+  }
+
+  private initScrollReveal(): void {
+    this.scrollObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('revealed');
+            this.scrollObserver?.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+    );
+    document.querySelectorAll('.reveal').forEach(el => this.scrollObserver!.observe(el));
+  }
+
+  // ── Scroll lock iOS-safe ─────────────────────────────────────────
+  // `overflow:hidden` en body bloquea touchstart en iOS Safari.
+  // La técnica correcta es fijar el body con position:fixed.
+  private scrollY = 0;
+
+  private lockBodyScroll(): void {
+    this.scrollY = window.scrollY;
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${this.scrollY}px`;
+    document.body.style.width = '100%';
+  }
+
+  private unlockBodyScroll(): void {
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.width = '';
+    window.scrollTo(0, this.scrollY);
   }
 
   private startCarouselAutoPlay(): void {
@@ -198,9 +236,10 @@ export class LoginComponent implements OnInit, OnDestroy {
   // ── Guías de uso - Formato Acordeón ──────────────────────────────
   activeAccordion = signal(0); // Panel activo en el acordeón
   
-  // ── Carrusel de testimonios ──────────────────────────────────────
+  // ── Carrusel de testimonios 3D ───────────────────────────────────
   activeTestimonial = signal(0);
   testimonialInterval: ReturnType<typeof setInterval> | null = null;
+  testimonialResetting = signal(false); // fuerza reflow de barra ::before
 
   // ── Carrusel de estadísticas ─────────────────────────────────────
   activeStat = signal(0);
@@ -308,10 +347,10 @@ export class LoginComponent implements OnInit, OnDestroy {
   ];
 
   testimonials = [
-    { id: 1, text: 'Encontré un electricista en minutos. El servicio fue impecable y muy profesional. Totalmente recomendado.', author: 'Valentina R.', role: 'Cliente' },
-    { id: 2, text: 'Como proveedor, BappSearch me ha dado visibilidad increíble. Mis reservas aumentaron un 60% en el primer mes.', author: 'Felipe A.', role: 'Proveedor de Plomería' },
-    { id: 3, text: 'La geolocalización es maravillosa. Puedo ver quién está disponible en mi sector en tiempo real. Genial.', author: 'Claudia M.', role: 'Cliente' },
-    { id: 4, text: 'Nunca fue tan fácil agendar una reparación. En 3 clics tenía confirmada mi cita. Excelente plataforma.', author: 'Roberto P.', role: 'Cliente' },
+    { id: 1, stars: 5, text: 'Publicar mis servicios aquí cambió mi agenda por completo. La visibilidad que me dio BappSearch duplicó mis reservas en menos de un mes.', author: 'Felipe Arancibia', role: 'Proveedor Destacado' },
+    { id: 2, stars: 5, text: 'Tuve una urgencia eléctrica un domingo. Abrí la app, usé el mapa y tuve a un técnico calificado en mi puerta en 20 minutos. El diseño es increíble.', author: 'Carolina Valdés', role: 'Cliente Verificada' },
+    { id: 3, stars: 4, text: 'La interfaz es rápida y el sistema de geolocalización es muy preciso. Publicar oficios aquí eleva el estándar por completo.', author: 'Matías R.', role: 'Contratista General' },
+    { id: 4, stars: 5, text: 'Nunca fue tan fácil agendar una reparación. En 3 clics tenía confirmada mi cita. BappSearch transformó la forma en que contrato servicios.', author: 'Valentina R.', role: 'Cliente' },
   ];
 
   // ── Métodos originales ───────────────────────────────────────────
@@ -385,20 +424,14 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.activeTab.set(tab);
     this.showModal.set(true);
     this.error.set('');
-    // Prevenir scroll del body cuando el modal está abierto
-    setTimeout(() => {
-      document.body.style.overflow = 'hidden';
-    }, 0);
+    this.lockBodyScroll();
   }
 
   closeModal(): void {
     this.showModal.set(false);
-    // Restaurar scroll del body
-    setTimeout(() => {
-      if (!this.showServicesModal()) {
-        document.body.style.overflow = '';
-      }
-    }, 0);
+    if (!this.showServicesModal()) {
+      this.unlockBodyScroll();
+    }
   }
 
   setTab(tab: 'login' | 'register'): void {
@@ -439,11 +472,13 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.activeAccordion.set(index);
   }
 
-  // ── Carrusel de testimonios ──────────────────────────────────────
+  // ── Carrusel de testimonios 3D ───────────────────────────────────
   startTestimonialCarousel(): void {
+    // Limpiar siempre antes de crear para evitar intervalos duplicados
+    this.stopTestimonialCarousel();
     this.testimonialInterval = setInterval(() => {
       this.nextTestimonial();
-    }, 6000);
+    }, 5000);
   }
 
   stopTestimonialCarousel(): void {
@@ -454,19 +489,47 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   nextTestimonial(): void {
-    this.activeTestimonial.update(current => 
+    this.resetProgressBar();
+    this.activeTestimonial.update(current =>
       (current + 1) % this.testimonials.length
     );
   }
 
   prevTestimonial(): void {
-    this.activeTestimonial.update(current => 
+    this.resetProgressBar();
+    this.activeTestimonial.update(current =>
       current === 0 ? this.testimonials.length - 1 : current - 1
     );
   }
 
   goToTestimonial(index: number): void {
+    this.stopTestimonialCarousel();
+    this.resetProgressBar();
     this.activeTestimonial.set(index);
+    this.startTestimonialCarousel();
+  }
+
+  /** Aplica clase de reset un tick para reiniciar la transición ::before */
+  private resetProgressBar(): void {
+    this.testimonialResetting.set(true);
+    requestAnimationFrame(() => {
+      this.testimonialResetting.set(false);
+    });
+  }
+
+  /** Devuelve el estado 3D de cada tarjeta según el índice activo */
+  getTestimonialState(idx: number): 'active' | 'prev' | 'next' | 'hidden' {
+    const active = this.activeTestimonial();
+    const total  = this.testimonials.length;
+    if (idx === active) return 'active';
+    if (idx === (active - 1 + total) % total) return 'prev';
+    if (idx === (active + 1) % total) return 'next';
+    return 'hidden';
+  }
+
+  /** Devuelve array de booleanos para renderizar estrellas llenas/vacías */
+  getStarsArray(stars: number): boolean[] {
+    return Array.from({ length: 5 }, (_, i) => i < stars);
   }
 
   // ── Carrusel de estadísticas ─────────────────────────────────────
@@ -604,6 +667,12 @@ export class LoginComponent implements OnInit, OnDestroy {
         console.log('✅ Categorías cargadas en landing:', categories.length);
         this.dbCategories.set(categories);
         this.loadingCategories.set(false);
+        // Re-observar elementos reveal que se renderizaron tras la carga async
+        setTimeout(() => {
+          document.querySelectorAll('.reveal:not(.revealed)').forEach(el => {
+            this.scrollObserver?.observe(el);
+          });
+        }, 50);
       },
       error: (err) => {
         console.error('❌ Error cargando categorías:', err);
@@ -652,10 +721,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.selectedCategory.set(category);
     this.showServicesModal.set(true);
     this.loadingServices.set(true);
-    // Prevenir scroll del body cuando el modal está abierto
-    setTimeout(() => {
-      document.body.style.overflow = 'hidden';
-    }, 0);
+    this.lockBodyScroll();
     
     // Cargar servicios usando el mismo método que categories.component
     this.categorySvc.getCategoryWithServices(category.id).subscribe({
@@ -688,12 +754,9 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.showServicesModal.set(false);
     this.selectedCategory.set(null);
     this.categoryServices.set([]);
-    // Restaurar scroll del body
-    setTimeout(() => {
-      if (!this.showModal()) {
-        document.body.style.overflow = '';
-      }
-    }, 0);
+    if (!this.showModal()) {
+      this.unlockBodyScroll();
+    }
   }
 
   // ── Seleccionar servicio y abrir modal de registro ───────────────

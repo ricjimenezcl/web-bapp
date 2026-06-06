@@ -29,8 +29,14 @@
     -webkit-font-smoothing: antialiased; 
     margin: 0;
     min-height: 100%;
-    overflow-x: hidden;
+    /* overflow-x: hidden causa que iOS Safari bloquee touchstart en toda la página.
+       El desbordamiento horizontal se controla a nivel de contenedor individual. */
+    overflow-x: clip;
     overflow-y: auto;
+  }
+  /* Elimina el delay de 300ms en taps (iOS/Android) para todos los interactivos */
+  a, button, [role="button"], input, select, textarea, label {
+    touch-action: manipulation;
   }
   input, select, textarea { font-family: inherit; }
 }

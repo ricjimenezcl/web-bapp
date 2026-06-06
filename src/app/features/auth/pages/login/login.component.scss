@@ -1776,6 +1776,8 @@ html {
   padding: 1rem;
   animation: fadeIn 0.3s ease-out;
   overflow-y: auto;
+  /* Contener el scroll dentro del modal sin bloquear eventos del body */
+  overscroll-behavior: contain;
 }
 
 .services-modal-container {
@@ -2224,29 +2226,286 @@ html {
 // ═══════════════════════════════════════════════════════════
 
 // ═══════════════════════════════════════════════════════════
-//  TESTIMONIALS CAROUSEL
+//  TESTIMONIALS — 3D Carousel
 // ═══════════════════════════════════════════════════════════
 
-.testimonial-carousel {
+.testimonials-section {
+  padding: 100px 24px;
+  
+  background-image: radial-gradient(circle at center, rgba(255, 241, 193, 0.05) 0%, transparent 70%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
   position: relative;
-  width: 100%;
-  min-height: 400px;
 }
 
-.testimonial-slide {
-  position: absolute;
-  top: 0;
-  left: 0;
+// ── Header ────────────────────────────────────────────────
+.ts-header {
+  text-align: center;
+  margin-bottom: 60px;
+  position: relative;
+  z-index: 10;
+
+  h2 {
+    font-size: 46px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 12px;
+    color: #ffffff;
+  }
+
+  p {
+    font-size: 16px;
+    color: #94A3B8;
+    font-weight: 300;
+  }
+}
+
+.ts-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 241, 193, 0.1);
+  border: 1px solid rgba(255, 241, 193, 0.3);
+  padding: 6px 16px;
+  border-radius: 30px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #FFF1C1;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+// ── Contenedor 3D ─────────────────────────────────────────
+.ts-carousel-3d {
+  position: relative;
   width: 100%;
-  transition: transform 0.6s cubic-bezier(0.25, 1, 0.3, 1), 
-              opacity 0.6s cubic-bezier(0.25, 1, 0.3, 1);
-  opacity: 0;
+  max-width: 1200px;
+  height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+// ── Tarjetas ──────────────────────────────────────────────
+.ts-card {
+  // Reset de estilos nativos del <button>
+  appearance: none;
+  font-family: inherit;
+  font-size: inherit;
+  text-align: left;
+
+  position: absolute;
+  width: 550px;
+  background: rgba(20, 20, 25, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
+  padding: 45px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transition: all 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+  cursor: pointer;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+
+  // Barra de progreso superior
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 3px;
+    width: 0%;
+    background: #FFF1C1;
+    transition: width 0s linear;
+  }
+}
+
+// Fuerza reflow de la barra de progreso: un frame sin transición resetea a 0
+.ts-card--resetting::before {
+  width: 0% !important;
+  transition: none !important;
+}
+
+// ── Estados 3D ────────────────────────────────────────────
+.ts-card--active {
+  transform: translate3d(0, 0, 0) rotateY(0deg);
+  opacity: 1;
+  z-index: 3;
+  border-color: rgba(255, 241, 193, 0.4);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(255, 241, 193, 0.1);
+  pointer-events: auto;
+
+  &::before {
+    width: 100%;
+    transition: width 5s linear;
+  }
+}
+
+.ts-card--prev {
+  transform: translate3d(-55%, 0, -180px) rotateY(12deg);
+  opacity: 0.4;
+  z-index: 2;
+  filter: blur(3px);
   pointer-events: none;
 }
 
-.testimonial-slide.active {
-  opacity: 1;
-  pointer-events: auto;
+.ts-card--next {
+  transform: translate3d(55%, 0, -180px) rotateY(-12deg);
+  opacity: 0.4;
+  z-index: 2;
+  filter: blur(3px);
+  pointer-events: none;
+}
+
+.ts-card--hidden {
+  transform: translate3d(0, 0, -300px) rotateY(0deg);
+  opacity: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+// ── Contenido de la tarjeta ────────────────────────────────
+.ts-quote-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.ts-quote-icon {
+  width: 36px;
+  height: 36px;
+  fill: #FFF1C1;
+  opacity: 0.8;
+  flex-shrink: 0;
+}
+
+.ts-stars {
+  display: flex;
+  gap: 4px;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.ts-quote-text {
+  font-size: 20px;
+  line-height: 1.6;
+  font-weight: 300;
+  color: #f8fafc;
+  margin: 0;
+}
+
+.ts-author-box {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 20px;
+}
+
+.ts-author-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #FFF1C1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 18px;
+  color: #111111;
+  box-shadow: 0 4px 15px rgba(255, 241, 193, 0.2);
+  flex-shrink: 0;
+}
+
+.ts-author-info {
+  h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 2px;
+  }
+
+  p {
+    font-size: 13px;
+    font-weight: 600;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0;
+  }
+}
+
+// ── Controles ─────────────────────────────────────────────
+.ts-controls {
+  display: flex;
+  gap: 15px;
+  margin-top: 40px;
+  z-index: 10;
+}
+
+.ts-btn-control {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(20, 20, 25, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  &:hover {
+    background: #FFF1C1;
+    color: #111111;
+    border-color: #FFF1C1;
+    transform: scale(1.1);
+  }
+}
+
+// ── Responsive ────────────────────────────────────────────
+@media (max-width: 768px) {
+  .ts-header h2 {
+    font-size: 32px;
+  }
+
+  .ts-carousel-3d {
+    height: 370px;
+  }
+
+  .ts-card {
+    width: 90%;
+    padding: 35px;
+  }
+
+  .ts-quote-text {
+    font-size: 16px;
+  }
+
+  .ts-card--prev {
+    transform: translate3d(-15%, 0, -150px) rotateY(8deg);
+  }
+
+  .ts-card--next {
+    transform: translate3d(15%, 0, -150px) rotateY(-8deg);
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -2508,6 +2767,41 @@ html {
 }
 
 // ═══════════════════════════════════════════════════════════
+//  SCROLL REVEAL — Animaciones al entrar en viewport
+// ═══════════════════════════════════════════════════════════
+
+// Estado inicial — todos los elementos con .reveal empiezan ocultos
+.reveal {
+  opacity: 0;
+  will-change: opacity, transform;
+  transition:
+    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+// Variantes de dirección (estado inicial)
+.reveal--up     { transform: translateY(52px); }
+.reveal--down   { transform: translateY(-40px); }
+.reveal--left   { transform: translateX(-60px); }
+.reveal--right  { transform: translateX(60px); }
+.reveal--scale  { transform: scale(0.88); }
+.reveal--fade   { transform: none; }
+
+// Delays escalonados (usar con .reveal--up/left/etc.)
+.reveal-d1 { transition-delay: 0.08s; }
+.reveal-d2 { transition-delay: 0.16s; }
+.reveal-d3 { transition-delay: 0.24s; }
+.reveal-d4 { transition-delay: 0.32s; }
+.reveal-d5 { transition-delay: 0.40s; }
+.reveal-d6 { transition-delay: 0.48s; }
+
+// Estado final — cuando IntersectionObserver detecta visibilidad
+.reveal.revealed {
+  opacity: 1;
+  transform: none;
+}
+
+// ═══════════════════════════════════════════════════════════
 //  ACCESSIBILITY
 // ═══════════════════════════════════════════════════════════
 
@@ -2519,6 +2813,9 @@ html {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+
+  // Mostrar todos los elementos reveal inmediatamente
+  .reveal { opacity: 1 !important; transform: none !important; }
 }
 
 // ═══════════════════════════════════════════════════════════

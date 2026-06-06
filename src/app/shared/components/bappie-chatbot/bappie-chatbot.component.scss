@@ -12,6 +12,14 @@
     position: fixed; bottom: 35px; right: 24px;
     display: flex; flex-direction: column; align-items: flex-end;
     z-index: 9999;
+    /* El contenedor no debe interceptar eventos fuera de sus hijos visibles */
+    pointer-events: none;
+}
+
+/* Solo el botón trigger y el tooltip recuperan eventos — NO el chat window oculto */
+#bappie-trigger,
+.bappie-tooltip {
+    pointer-events: auto;
 }
 
 /* --- TOOLTIP DE BIENVENIDA --- */

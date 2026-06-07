@@ -1,20 +1,49 @@
 <div class="app-frame">
 
+  <!-- ══════════════════════════════════════════════════════════
+       TAB SWITCHER — solo visible en móvil (≤ 767px)
+  ══════════════════════════════════════════════════════════ -->
+  <div class="mobile-tabs">
+    <button
+      type="button"
+      class="mobile-tab"
+      [class.mobile-tab--active]="viewMode() === 'map'"
+      (click)="viewMode.set('map')">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+      </svg>
+      Mapa
+    </button>
+    <button
+      type="button"
+      class="mobile-tab"
+      [class.mobile-tab--active]="viewMode() === 'list'"
+      (click)="viewMode.set('list')">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/>
+      </svg>
+      Proveedores
+      @if (!loading() && !showInitial() && filteredProviders().length > 0) {
+        <span class="mobile-tab-badge">{{ filteredProviders().length }}</span>
+      }
+    </button>
+  </div>
+
   <!-- ── MAPA fullscreen — fondo del frame ── -->
-  <div class="map-fullscreen">
+  <div class="map-fullscreen" [class.mobile-hidden]="viewMode() === 'list'">
     <app-service-map
       [embedded]="true"
       [embeddedProviders]="filteredProviders()"
       [highlightedProviderId]="hoveredProviderId()">
     </app-service-map>
-
- 
   </div>
 
   <!-- ═══════════════════════════════════════════════════════════
        SIDEBAR FLOTANTE
   ═══════════════════════════════════════════════════════════ -->
-  <aside class="floating-sidebar">
+  <aside class="floating-sidebar" [class.mobile-providers-panel]="viewMode() === 'list'">
 
     <!-- ── Header ── -->
     <div class="sidebar-header">
@@ -181,7 +210,7 @@
           <a class="pro-card-floating"
              [class.pro-card-floating--active]="hoveredProviderId() === provider.provider_id"
              [class.pro-card-floating--locked]="isLockedProvider(i)"
-             [routerLink]="(isMobile() || isLockedProvider(i)) ? null : ['/client/provider-info', provider.provider_id]"
+             [routerLink]="isLockedProvider(i) ? null : ['/client/provider-info', provider.provider_id]"
              (mouseenter)="hoveredProviderId.set(provider.provider_id)"
              (mouseleave)="hoveredProviderId.set(null)"
              (click)="onCardClick($event, provider.provider_id)">

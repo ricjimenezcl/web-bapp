@@ -814,20 +814,13 @@
   <div class="container mx-auto lg:max-w-screen-xl px-4">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
       <div>
-        <div class="flex items-center gap-3 mb-4">
-          <svg viewBox="0 0 200 180" class="w-8 h-8" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <mask id="footer-mask">
-                <rect width="100%" height="100%" fill="white"/>
-                <circle cx="120" cy="80" r="45" fill="black"/>
-                <line x1="20" y1="180" x2="100" y2="100" stroke="black" stroke-width="24" stroke-linecap="round"/>
-              </mask>
-            </defs>
-            <path d="M 60,80 A 60,60 0 0,1 180,80 L 180,150 L 90,150 A 60,60 0 0,1 50,110 Z" fill="#BE202E" mask="url(#footer-mask)"/>
-            <circle cx="120" cy="80" r="35" stroke="#ffffff" stroke-width="14" fill="none"/>
-            <line x1="30" y1="170" x2="95" y2="105" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
-          </svg>
-          <span class="text-white font-bold text-lg">BAPPSEARCH</span>
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-[36px] h-[56px] rounded-lg flex overflow-hidden flex-shrink-0">
+            <img src="https://res.cloudinary.com/dghwotofx/image/upload/v1774563936/logo_gsgyrf.png"
+                 alt="Logo BappSearch" class="w-full h-full object-contain">
+          </div>
+          <img src="https://res.cloudinary.com/dghwotofx/image/upload/v1774563936/titulo_bycrju.png"
+               alt="BappSearch" class="h-[18px] object-contain">
         </div>
         <p class="text-gray-400 text-sm">
           Conectando profesionales con clientes en toda Chile
@@ -990,18 +983,14 @@
       </button>
 
       <div class="mb-5">
-        <svg viewBox="0 0 200 180" class="w-12 h-12 mx-auto mb-3" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <mask id="modal-mask">
-              <rect width="100%" height="100%" fill="white"/>
-              <circle cx="120" cy="80" r="45" fill="black"/>
-              <line x1="20" y1="180" x2="100" y2="100" stroke="black" stroke-width="24" stroke-linecap="round"/>
-            </mask>
-          </defs>
-          <path d="M 60,80 A 60,60 0 0,1 180,80 L 180,150 L 90,150 A 60,60 0 0,1 50,110 Z" fill="#BE202E" mask="url(#modal-mask)"/>
-          <circle cx="120" cy="80" r="35" stroke="#ffffff" stroke-width="14" fill="none"/>
-          <line x1="30" y1="170" x2="95" y2="105" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
-        </svg>
+        <div class="flex items-center justify-center gap-2 mb-3">
+          <div class="w-[40px] h-[62px] rounded-xl flex overflow-hidden flex-shrink-0">
+            <img src="https://res.cloudinary.com/dghwotofx/image/upload/v1774563936/logo_gsgyrf.png"
+                 alt="Logo BappSearch" class="w-full h-full object-contain">
+          </div>
+          <img src="https://res.cloudinary.com/dghwotofx/image/upload/v1774563936/titulo_bycrju.png"
+               alt="BappSearch" class="h-[20px] object-contain">
+        </div>
         <h2 class="text-white text-24 font-bold">{{ activeTab() === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta' }}</h2>
       </div>
 

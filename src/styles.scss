@@ -746,24 +746,49 @@
   font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
 }
 
-// Header: nombre + rating
+// Header: avatar + nombre + rating
 .provider-popup .popup-header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 8px;
+  align-items: center;
+  gap: 10px;
   margin-bottom: 10px;
   padding-bottom: 10px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
+.provider-popup .popup-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid rgba(253, 230, 138, 0.35);
+}
+.provider-popup .popup-avatar--fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.07);
+  color: #71717A;
+  svg { width: 22px; height: 22px; }
+}
+.provider-popup .popup-header-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 .provider-popup .popup-header strong {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 800;
   color: #FFFFFF;
   line-height: 1.3;
   display: flex;
   align-items: center;
   gap: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .provider-popup .popup-header .rating {
   display: inline-flex;
@@ -773,7 +798,6 @@
   color: #FFA000;
   font-weight: 700;
   white-space: nowrap;
-  flex-shrink: 0;
 }
 .provider-popup .popup-header .rating-new {
   font-size: 10px;

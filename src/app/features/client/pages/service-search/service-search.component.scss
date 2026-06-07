@@ -95,50 +95,6 @@
       pointer-events: none;
     }
   }
-
-  // ── Mobile: panel inferior con cards de proveedores ──
-  // height concreto (dvh) es NECESARIO para que flex: 1 en results-list
-  // tenga una referencia y los cards sean visibles.
-  // El stacking context queda encapsulado en .app-frame (z-index: 1),
-  // así el mobile drawer (z-50) y el header (z-30) siempre quedan encima.
-  @media (max-width: 767px) {
-    top: auto;
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
-    width: auto;
-    height: 28dvh;       // altura concreta: flex: 1 en results-list funciona
-    max-height: 30dvh;   // cap de seguridad — nunca supera 1/3 del viewport
-    border-radius: 16px;
-    overflow: hidden;
-  }
-
-  // Teléfonos pequeños (≤ 390px — Honor 400, Samsung S12, iPhone SE …)
-  @media (max-width: 390px) {
-    bottom: 8px;
-    left: 8px;
-    right: 8px;
-    height: 28dvh;
-    max-height: 30dvh;
-    border-radius: 14px;
-  }
-
-  // Pantallas muy pequeñas (≤ 320px)
-  @media (max-width: 320px) {
-    bottom: 6px;
-    left: 6px;
-    right: 6px;
-    height: 30dvh;
-    max-height: 32dvh;
-    border-radius: 12px;
-  }
-
-  // Landscape en móvil: más espacio porque la pantalla está girada
-  @media (max-width: 767px) and (orientation: landscape) {
-    height: 42dvh;
-    max-height: 45dvh;
-    bottom: 8px;
-  }
 }
 
 // ── Header del sidebar ────────────────────────────────────────────────
@@ -834,77 +790,173 @@
   }
 }
 
+// ══════════════════════════════════════════════════════════════════════
+// TAB SWITCHER MÓVIL
+// ══════════════════════════════════════════════════════════════════════
+.mobile-tabs {
+  display: none; // oculto en desktop/tablet
+}
+
+@media (max-width: 767px) {
+
+  // ── Tab bar fija en la parte superior del frame ──
+  .mobile-tabs {
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1100;
+    background: var(--bg-deep);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    height: 48px;
+    flex-shrink: 0;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .mobile-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--text-s);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: color 0.2s ease, border-bottom-color 0.2s ease;
+
+    svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    &--active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+  }
+
+  .mobile-tab-badge {
+    background: var(--bapp-red);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1;
+    padding: 2px 5px;
+    border-radius: 999px;
+    min-width: 18px;
+    text-align: center;
+  }
+
+  // El mapa ocupa todo el frame desplazado 48px por el tab bar
+  .map-fullscreen {
+    top: 48px !important;
+  }
+
+  // Ocultar el mapa cuando el tab activo es "Proveedores"
+  .mobile-hidden {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  // ── Sidebar como panel fullscreen cuando el tab = Proveedores ──
+  .floating-sidebar.mobile-providers-panel {
+    position: absolute;
+    top: 48px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: calc(100% - 48px);
+    max-height: none;
+    border-radius: 0;
+    border: none;
+    z-index: 1050;
+    box-shadow: none;
+  }
+
+  // Sidebar en tab Mapa → completamente oculto
+  .floating-sidebar:not(.mobile-providers-panel) {
+    display: none;
+  }
+}
+
 // ── Responsive adjustments ───────────────────────────────────────────
 @media (max-width: 767px) {
-  // En móvil no hay nada visible en el header → colapsar completamente
+  // Header visible con búsqueda + filtros en el panel de proveedores
   .sidebar-header {
-    padding: 0;
-    border-bottom: none;
+    padding: 12px 14px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     flex-shrink: 0;
   }
 
-  // Ocultar todo el contenido del header en móvil:
-  // el espacio íntegro del panel queda disponible para los cards
+  // Ocultar solo los elementos menos relevantes; búsqueda y filtros quedan
   .location-context,
-  .ref-search-bar,
-  .ref-segmented-control,
   .active-services,
   .ref-results-meta {
     display: none;
   }
 
-  // Lista de resultados: scroll horizontal de cards compactas
+  .ref-search-bar   { display: flex;  margin-bottom: 8px; }
+  .ref-segmented-control { display: flex; margin-bottom: 0; }
+
+  // Lista vertical (panel fullscreen) con scroll vertical
   .results-list {
     flex: 1;
-    min-height: 0;              // permite que flex respete el height del padre
-    flex-direction: row;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding: 6px 10px 8px;
-    gap: 8px;
-    align-items: stretch;
-    -webkit-overflow-scrolling: touch;  // scroll suave en iOS/Android
+    min-height: 0;
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 10px 12px;
+    gap: 10px;
+    -webkit-overflow-scrolling: touch;
   }
 
-  // Cards compactas para el panel móvil
+  // Cards a ancho completo en el panel
   .pro-card-floating {
-    min-width: 185px;
-    max-width: 215px;
+    min-width: unset;
+    max-width: unset;
+    width: 100%;
     flex-shrink: 0;
-    padding: 10px;
+    padding: 12px;
 
-    .card-main   { margin-bottom: 6px; }
-    .card-footer { margin-top: 6px; }
+    .card-main   { margin-bottom: 8px; }
+    .card-footer { margin-top: 8px; }
 
     &:hover { transform: none; }
   }
 
   .card-img {
-    width: 44px;
-    height: 44px;
+    width: 50px;
+    height: 50px;
   }
 }
 
-// Teléfonos ≤ 390px: cards aún más compactas
+// Teléfonos ≤ 390px
 @media (max-width: 390px) {
   .sidebar-header {
-    padding: 0;
+    padding: 10px 12px 6px;
   }
 
   .results-list {
-    padding: 4px 8px 6px;
-    gap: 6px;
+    padding: 8px 10px;
+    gap: 8px;
   }
 
   .pro-card-floating {
-    min-width: 165px;
-    max-width: 195px;
-    padding: 8px;
+    padding: 10px;
   }
 
   .card-img {
-    width: 38px;
-    height: 38px;
+    width: 44px;
+    height: 44px;
   }
 }
 

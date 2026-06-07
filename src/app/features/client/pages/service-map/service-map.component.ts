@@ -322,12 +322,25 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
           }
         });
 
-        // Popup en hover (entrada/salida) — el click queda solo para el aviso de proveedor bloqueado
+        // Desktop: hover abre/cierra popup
         marker.on('mouseover', () => marker.openPopup());
-        marker.on('mouseout',  () => marker.closePopup());
+        marker.on('mouseout',  () => {
+          // No cerrar si es un provider bloqueado (el modal lo gestiona)
+          if (!isLocked) marker.closePopup();
+        });
+
+        // Click / tap (funciona en desktop y móvil touch)
         marker.on('click', () => {
           if (isLocked) {
+            marker.openPopup();
             this.modal.info('Accede a un plan Premium para desbloquear más proveedores.');
+            return;
+          }
+          // Toggle popup en click/tap
+          if (marker.isPopupOpen()) {
+            marker.closePopup();
+          } else {
+            marker.openPopup();
           }
         });
 
@@ -382,11 +395,18 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
     const hourlyRate = hourlyRateNum > 0 ? `$${hourlyRateNum.toLocaleString('es-CL')}` : 'Consultar';
     const lockIcon = isLocked ? '🔒 ' : '';
 
+    const avatarHtml = provider.avatar
+      ? `<img class="popup-avatar" src="${provider.avatar}" alt="${provider.business_name || provider.full_name}" />`
+      : `<div class="popup-avatar popup-avatar--fallback"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></div>`;
+
     return `
       <div class="provider-popup">
         <div class="popup-header">
-          <strong>${lockIcon}${provider.business_name || provider.full_name}</strong>
-          ${rating > 0 ? `<div class="rating">${stars} ${rating.toFixed(1)}</div>` : '<div class="rating-new">Nuevo</div>'}
+          ${avatarHtml}
+          <div class="popup-header-info">
+            <strong>${lockIcon}${provider.business_name || provider.full_name}</strong>
+            ${rating > 0 ? `<div class="rating">${stars} ${rating.toFixed(1)}</div>` : '<div class="rating-new">Nuevo</div>'}
+          </div>
         </div>
         <div class="popup-body">
           ${provider.service_category?.name ? `<p class="category">📂 ${provider.service_category.name}</p>` : ''}

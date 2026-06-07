@@ -320,13 +320,10 @@ export class ServiceSearchComponent implements OnInit {
    * En desktop con hover real no interceptamos nada.
    */
   onCardClick(event: Event, providerId: number): void {
-    if (this.isMobile()) {
-      // En móvil: toggle highlight del pin en el mapa
-      // La navegación está deshabilitada vía [routerLink]=null
-      this.hoveredProviderId.set(
-        this.hoveredProviderId() === providerId ? null : providerId
-      );
-    }
+    // Highlight del pin en el mapa independientemente del dispositivo
+    this.hoveredProviderId.set(
+      this.hoveredProviderId() === providerId ? null : providerId
+    );
   }
 
   isLockedProvider(index: number): boolean {

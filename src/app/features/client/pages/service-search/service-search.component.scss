@@ -31,6 +31,9 @@
   border-radius: 24px;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
   position: relative;
+  // z-index: 1 crea un stacking context que contiene el z-index del floating-sidebar
+  // Esto impide que el sidebar (z-1000) supere al mobile drawer (z-50) y al header (z-30)
+  z-index: 1;
   overflow: hidden;
 
   @media (max-width: 1024px) { border-radius: 20px; }
@@ -93,15 +96,48 @@
     }
   }
 
-  // En mobile: barra compacta flotante con solo el filtro visible
+  // ── Mobile: panel inferior con cards de proveedores ──
+  // height concreto (dvh) es NECESARIO para que flex: 1 en results-list
+  // tenga una referencia y los cards sean visibles.
+  // El stacking context queda encapsulado en .app-frame (z-index: 1),
+  // así el mobile drawer (z-50) y el header (z-30) siempre quedan encima.
   @media (max-width: 767px) {
     top: auto;
     left: 10px;
     right: 10px;
     bottom: 10px;
     width: auto;
-    height: auto;
-    border-radius: 20px;
+    height: 28dvh;       // altura concreta: flex: 1 en results-list funciona
+    max-height: 30dvh;   // cap de seguridad — nunca supera 1/3 del viewport
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  // Teléfonos pequeños (≤ 390px — Honor 400, Samsung S12, iPhone SE …)
+  @media (max-width: 390px) {
+    bottom: 8px;
+    left: 8px;
+    right: 8px;
+    height: 28dvh;
+    max-height: 30dvh;
+    border-radius: 14px;
+  }
+
+  // Pantallas muy pequeñas (≤ 320px)
+  @media (max-width: 320px) {
+    bottom: 6px;
+    left: 6px;
+    right: 6px;
+    height: 30dvh;
+    max-height: 32dvh;
+    border-radius: 12px;
+  }
+
+  // Landscape en móvil: más espacio porque la pantalla está girada
+  @media (max-width: 767px) and (orientation: landscape) {
+    height: 42dvh;
+    max-height: 45dvh;
+    bottom: 8px;
   }
 }
 
@@ -800,41 +836,75 @@
 
 // ── Responsive adjustments ───────────────────────────────────────────
 @media (max-width: 767px) {
-  // Sin borde inferior cuando solo hay el filtro
+  // En móvil no hay nada visible en el header → colapsar completamente
   .sidebar-header {
-    padding: 12px 14px;
+    padding: 0;
     border-bottom: none;
+    flex-shrink: 0;
   }
 
-  // Ocultar en móvil todo excepto el control de filtros
+  // Ocultar todo el contenido del header en móvil:
+  // el espacio íntegro del panel queda disponible para los cards
   .location-context,
   .ref-search-bar,
+  .ref-segmented-control,
   .active-services,
   .ref-results-meta {
     display: none;
   }
 
-  // El control segmentado no tiene margin-bottom en móvil
-  .ref-segmented-control {
-    margin-bottom: 0;
-  }
-
-  // Lista de resultados en móvil: scroll horizontal, cards compactas
+  // Lista de resultados: scroll horizontal de cards compactas
   .results-list {
+    flex: 1;
+    min-height: 0;              // permite que flex respete el height del padre
     flex-direction: row;
     overflow-x: auto;
     overflow-y: hidden;
-    padding: 10px 14px;
-    gap: 12px;
+    padding: 6px 10px 8px;
+    gap: 8px;
+    align-items: stretch;
+    -webkit-overflow-scrolling: touch;  // scroll suave en iOS/Android
+  }
+
+  // Cards compactas para el panel móvil
+  .pro-card-floating {
+    min-width: 185px;
+    max-width: 215px;
+    flex-shrink: 0;
+    padding: 10px;
+
+    .card-main   { margin-bottom: 6px; }
+    .card-footer { margin-top: 6px; }
+
+    &:hover { transform: none; }
+  }
+
+  .card-img {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+// Teléfonos ≤ 390px: cards aún más compactas
+@media (max-width: 390px) {
+  .sidebar-header {
+    padding: 0;
+  }
+
+  .results-list {
+    padding: 4px 8px 6px;
+    gap: 6px;
   }
 
   .pro-card-floating {
-    min-width: 240px;
-    flex-shrink: 0;
-    // Sin efecto hover en touch
-    &:hover {
-      transform: none;
-    }
+    min-width: 165px;
+    max-width: 195px;
+    padding: 8px;
+  }
+
+  .card-img {
+    width: 38px;
+    height: 38px;
   }
 }
 

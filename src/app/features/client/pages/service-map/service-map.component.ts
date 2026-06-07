@@ -121,24 +121,13 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
       // Agregar capa de tiles con el estilo seleccionado
       this.applyMapStyle(this.selectedStyle());
 
-      // Crear grupo de clustering (ahora markerClusterGroup estará disponible)
+      // Grupo de marcadores sin clustering — cada pin siempre visible e independiente
       this.markerClusterGroup = (this.L as any).markerClusterGroup({
-        maxClusterRadius: 50,
-        spiderfyOnMaxZoom: true,
+        maxClusterRadius: 0,          // radio 0 → nunca agrupa
+        disableClusteringAtZoom: 0,   // desactiva clustering desde el zoom mínimo
+        spiderfyOnMaxZoom: false,
         showCoverageOnHover: false,
-        zoomToBoundsOnClick: true,
-        iconCreateFunction: (cluster: any) => {
-          const count = cluster.getChildCount();
-          let className = 'marker-cluster-small';
-          if (count > 10) className = 'marker-cluster-medium';
-          if (count > 30) className = 'marker-cluster-large';
-          
-          return this.L.divIcon({
-            html: `<div><span>${count}</span></div>`,
-            className: `marker-cluster ${className}`,
-            iconSize: this.L.point(40, 40)
-          });
-        }
+        zoomToBoundsOnClick: false,
       });
       this.map.addLayer(this.markerClusterGroup);
 

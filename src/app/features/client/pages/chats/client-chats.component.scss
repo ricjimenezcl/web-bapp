@@ -526,5 +526,10 @@
   }
 }
 
+@media (max-width: 375px) {
+  :host { padding: 0; }
+  .chat-app-container { border-radius: 0; }
+}
+
 // ── Utilidades ────────────────────────────────────────────────────────
 .hidden { display: none !important; }

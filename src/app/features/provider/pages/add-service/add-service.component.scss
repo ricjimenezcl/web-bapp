@@ -841,3 +841,8 @@
     margin-top: 1px;
   }
 }
+
+// ── Responsive adicional: móviles muy pequeños ──────────────────
+@media (max-width: 375px) {
+  :host { padding: 0; }
+}

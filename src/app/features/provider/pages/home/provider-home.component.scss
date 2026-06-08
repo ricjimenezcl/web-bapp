@@ -398,3 +398,29 @@
   100% { background-position: -200% 0; }
 }
 
+/* ══ RESPONSIVE ═════════════════════════════════════════════════ */
+
+// Teléfonos (≤ 480px): stats en 3 col apretado → reducir fuentes
+@media (max-width: 480px) {
+  .ph-stats-row { gap: 1px; }
+  .ph-stat-box {
+    padding: 14px 8px;
+    h3 { font-size: 18px; }
+    p  { font-size: 10px; letter-spacing: 0; }
+  }
+  .ph-provider-name { font-size: 18px; }
+  .ph-metric-value  { font-size: 22px; }
+}
+
+// Teléfonos muy pequeños (≤ 360px): métricas en 1 col
+@media (max-width: 360px) {
+  .ph-metrics-grid { grid-template-columns: 1fr; }
+  .ph-stats-row    { grid-template-columns: repeat(3, 1fr); }
+  .ph-stat-box {
+    padding: 12px 6px;
+    h3 { font-size: 16px; gap: 2px; svg { display: none; } }
+    p  { font-size: 9px; }
+  }
+  .ph-loading-grid { grid-template-columns: 1fr; }
+}
+

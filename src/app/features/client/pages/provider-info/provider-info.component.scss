@@ -1251,3 +1251,41 @@
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+// ── Responsive adicional: móviles muy pequeños ─────────────────
+
+@media (max-width: 480px) {
+  .pi-stats-row {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    padding: 16px 14px;
+  }
+
+  .pi-stat-box {
+    h3 { font-size: 18px; }
+    p  { font-size: 10px; letter-spacing: 0; }
+  }
+
+  .pi-avatar-container {
+    width: 76px;
+    height: 76px;
+    top: 108px;
+    left: 16px;
+  }
+
+  .pi-profile-info-top {
+    margin-top: 44px;
+    padding: 0 16px;
+  }
+
+  .pi-provider-name { font-size: 18px; }
+}
+
+@media (max-width: 360px) {
+  .pi-stats-row {
+    gap: 4px;
+    padding: 14px 10px;
+  }
+
+  .pi-stat-box h3 { font-size: 16px; }
+}

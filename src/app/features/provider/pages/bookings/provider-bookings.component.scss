@@ -304,6 +304,7 @@
 
 .pb-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   padding: 0 16px 16px;
 }
@@ -473,3 +474,17 @@
 
 svg[width="15"] { width: 15px !important; height: 15px !important; }
 svg[width="14"] { width: 14px !important; height: 14px !important; }
+
+// ── Responsive adicional: móviles muy pequeños ─────────────────────
+
+@media (max-width: 375px) {
+  .pb-shell  { padding: 6px; }
+  .pb-frame  { border-radius: 0; }
+  .pb-content { padding: 10px; }
+  .pb-card-main { padding: 12px 12px 8px; }
+  .pb-details  { padding: 8px 12px; }
+  .pb-actions  { padding: 0 12px 12px; gap: 6px; }
+  .pb-service-name { font-size: 13px; }
+  .pb-detail-row   { font-size: 12px; }
+  .pb-btn { padding: 8px 12px; font-size: 12px; }
+}

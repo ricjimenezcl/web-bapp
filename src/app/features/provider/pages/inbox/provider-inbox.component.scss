@@ -491,3 +491,8 @@
   .pi-sidebar { width: 100%; border-right: none; }
   .pi-chat-window { display: none; }
 }
+
+@media (max-width: 375px) {
+  :host { padding: 0; }
+  .pi-container { border-radius: 0; }
+}

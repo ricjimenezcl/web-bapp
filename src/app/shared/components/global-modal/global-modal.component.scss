@@ -83,6 +83,7 @@
 
 .gm-actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 10px;
   padding: 0 18px 18px;
@@ -105,4 +106,12 @@
 .gm-btn--solid {
   background: #fde68a;
   color: #111827;
+}
+
+@media (max-width: 360px) {
+  .gm-header { padding: 12px 14px; }
+  .gm-message { padding: 14px; font-size: 13px; }
+  .gm-input-wrap { padding: 0 14px 14px; }
+  .gm-actions { padding: 0 14px 14px; gap: 8px; }
+  .gm-btn { padding: 9px 12px; font-size: 12px; width: 100%; text-align: center; justify-content: center; }
 }

@@ -754,3 +754,9 @@
 @media (max-width: 600px) {
   .stats-grid { grid-template-columns: 1fr; }
 }
+@media (max-width: 375px) {
+  :host { padding: 12px 8px; }
+  .dashboard-container { margin: 10px 8px; gap: 12px; }
+  .main-content { padding: 18px 14px; }
+  .stats-grid { gap: 8px; }
+}

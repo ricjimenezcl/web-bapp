@@ -336,6 +336,7 @@ svg[width="14"] { width: 14px !important; height: 14px !important; }
 
 .booking-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   padding: 0 16px 16px;
 }
@@ -617,6 +618,15 @@ svg[width="14"] { width: 14px !important; height: 14px !important; }
   .booking-service-name  { font-size: 13px; }
   .booking-detail-row    { font-size: 12px; }
   .cancel-modal          { padding: 24px 20px 20px; border-radius: 20px; }
+}
+
+@media (max-width: 375px) {
+  .bookings-title  { font-size: 18px; }
+  .bookings-header { padding: 14px 12px 0; }
+  .bookings-content{ padding: 8px; }
+  .booking-card-main { padding: 12px 12px 8px; }
+  .booking-details   { padding: 8px 12px; }
+  .booking-actions   { padding: 0 12px 12px; gap: 6px; }
 }
 
 // ══════════════════════════════════════════════════════════════════════

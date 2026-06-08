@@ -808,17 +808,75 @@
   .btn-logout { width: auto; }
   .main-content { padding: 24px 20px; min-height: auto; }
 
-  .premium-banner { flex-direction: column; align-items: flex-start; gap: 20px; }
-  .btn-primary { width: 100%; justify-content: center; }
+  .view-header h2 { font-size: 20px; }
+
+  .premium-banner { flex-direction: column; align-items: flex-start; gap: 16px; padding: 20px; }
+
+  // btn-primary con display flex para que justify-content + align-items funcionen
+  .btn-primary {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  // form-actions: apilar verticalmente en orden inverso (guardar arriba, cancelar abajo)
+  .form-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    .btn-secondary { text-align: center; justify-content: center; }
+  }
+
   .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .stat-card { min-width: 0; padding: 18px; }
+
   .form-grid { grid-template-columns: 1fr; .form-group--full { grid-column: span 1; } }
-  .purchase-summary { grid-template-columns: 1fr 1fr; }
+  .purchase-summary { grid-template-columns: 1fr 1fr; padding: 16px; }
   .sum-item:nth-child(2) { border-right: none; }
   .pw-form-grid { grid-template-columns: 1fr; }
+
+  .config-item { padding: 16px 18px; gap: 16px; }
+  .faq-question { padding: 14px 16px; }
+  .help-contact { padding: 18px; }
+  .avatar-section { padding: 16px 18px; }
+}
+
+@media (max-width: 640px) {
+  .main-content { padding: 20px 16px; }
+  .view-header { margin-bottom: 20px; }
+  .view-header h2 { font-size: 18px; }
+  .premium-plan-title { font-size: 16px; }
+
+  // Avatar section: apilar en pantallas pequeñas
+  .avatar-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .stat-card { padding: 14px; gap: 8px; }
+  .stat-value { font-size: 14px; }
+  .empty-state { padding: 40px 16px; }
 }
 
 @media (max-width: 500px) {
   .stats-grid { grid-template-columns: 1fr; }
   .perks-grid { flex-direction: column; gap: 8px; }
   .purchase-summary { grid-template-columns: 1fr 1fr; }
+  .config-item { padding: 14px; }
+  .faq-question { padding: 12px 14px; font-size: 13px; }
+  .faq-answer { padding: 0 14px 14px; }
+  .help-contact-actions { flex-direction: column; }
+  .help-contact-btn { width: 100%; justify-content: center; }
+}
+
+@media (max-width: 375px) {
+  .dashboard-container { margin: 12px 8px; gap: 12px; }
+  .main-content { padding: 16px 12px; }
+  .view-header h2 { font-size: 16px; }
+  .stats-grid { grid-template-columns: 1fr; gap: 8px; }
+  .stat-card { padding: 12px; }
+  .purchase-summary { grid-template-columns: 1fr; padding: 12px; }
+  .sum-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .premium-banner { padding: 14px; }
 }

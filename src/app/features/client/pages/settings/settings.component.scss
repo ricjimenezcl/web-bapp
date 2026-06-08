@@ -369,3 +369,8 @@
   .main-content { padding: 24px 20px; min-height: auto; }
   .pw-form-grid { grid-template-columns: 1fr; }
 }
+
+@media (max-width: 375px) {
+  .dashboard-container { margin: 10px 8px; gap: 12px; }
+  .main-content { padding: 18px 14px; }
+}

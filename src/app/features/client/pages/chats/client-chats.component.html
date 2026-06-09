@@ -1,9 +1,9 @@
-<div class="chat-app-container">
+<div class="chat-app-container" [class.chat-app-container--chat-open]="!!selectedConvId()">
 
   <!-- ══════════════════════════════════════════════════════════════════
        SIDEBAR — Lista de conversaciones
   ══════════════════════════════════════════════════════════════════ -->
-  <aside class="chat-sidebar">
+  <aside class="chat-sidebar" [class.chat-sidebar--hidden-mobile]="!!selectedConvId()">
 
     <!-- Header -->
     <div class="sidebar-header">
@@ -190,7 +190,7 @@
   <!-- ══════════════════════════════════════════════════════════════════
        CHAT WINDOW — Conversación activa
   ══════════════════════════════════════════════════════════════════ -->
-  <section class="chat-window">
+  <section class="chat-window" [class.chat-window--visible-mobile]="!!selectedConvId()">
     @if (selectedConvId()) {
       <app-chat-view [conversationId]="selectedConvId()!" (close)="closeChat()"/>
     } @else {

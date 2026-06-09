@@ -514,15 +514,29 @@
 
   .chat-app-container {
     border-radius: 16px;
+    // En móvil el contenedor apila sidebar / window en pantalla completa
+    position: relative;
   }
 
   .chat-sidebar {
     width: 100%;
     border-right: none;
+    // Cuando hay una conversación abierta, el sidebar se oculta
+    &.chat-sidebar--hidden-mobile {
+      display: none;
+    }
   }
 
   .chat-window {
+    // Por defecto oculta en móvil (sin conversación seleccionada)
     display: none;
+    // Cuando hay conversación: ocupa toda la pantalla
+    &.chat-window--visible-mobile {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+    }
   }
 }
 

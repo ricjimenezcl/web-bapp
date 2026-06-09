@@ -1,9 +1,9 @@
-<div class="pi-container">
+<div class="pi-container" [class.pi-container--chat-open]="!!selectedConvId()">
 
   <!-- ══════════════════════════════════════════════════════════════════
        SIDEBAR — Lista de conversaciones
   ══════════════════════════════════════════════════════════════════ -->
-  <aside class="pi-sidebar">
+  <aside class="pi-sidebar" [class.pi-sidebar--hidden-mobile]="!!selectedConvId()">
 
     <!-- Header -->
     <div class="pi-sidebar-header">
@@ -174,7 +174,7 @@
   <!-- ══════════════════════════════════════════════════════════════════
        PANEL DERECHO — Conversación activa / estado vacío
   ══════════════════════════════════════════════════════════════════ -->
-  <section class="pi-chat-window">
+  <section class="pi-chat-window" [class.pi-chat-window--visible-mobile]="!!selectedConvId()">
     @if (selectedConvId()) {
       <app-chat-view [conversationId]="selectedConvId()!" (close)="closeChat()"/>
     } @else {

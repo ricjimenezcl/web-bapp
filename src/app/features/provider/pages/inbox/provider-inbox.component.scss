@@ -487,9 +487,26 @@
 
 @media (max-width: 900px) {
   :host { padding: 10px; }
-  .pi-container { border-radius: 16px; }
-  .pi-sidebar { width: 100%; border-right: none; }
-  .pi-chat-window { display: none; }
+  .pi-container {
+    border-radius: 16px;
+    position: relative;
+  }
+  .pi-sidebar {
+    width: 100%;
+    border-right: none;
+    &.pi-sidebar--hidden-mobile {
+      display: none;
+    }
+  }
+  .pi-chat-window {
+    display: none;
+    &.pi-chat-window--visible-mobile {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+    }
+  }
 }
 
 @media (max-width: 375px) {

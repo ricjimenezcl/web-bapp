@@ -2,7 +2,7 @@ import { Component, inject, signal, OnInit, OnDestroy, ViewChild, ElementRef, Af
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { RouterLink, ActivatedRoute } from '@angular/router';
-import { Subscription, filter, take } from 'rxjs';
+import { Subscription, filter } from 'rxjs';
 import { ChatService } from '../../core/services/chat.service';
 import { WebSocketService } from '../../core/services/websocket.service';
 import { StorageService } from '../../core/services/storage.service';
@@ -69,15 +69,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       error: () => this.loading.set(false)
     });
 
-    // Unirse a la sala WS — si no está conectado aún, esperar
-    if (this.ws.connected$.value) {
+    // Unirse a la sala WS en cada conexión (inicial + reconexiones)
+    const joinSub = this.ws.connected$.pipe(filter(c => c)).subscribe(() => {
       this.ws.joinChat(this.conversationId);
-    } else {
-      const joinSub = this.ws.connected$.pipe(filter(c => c), take(1)).subscribe(() => {
-        this.ws.joinChat(this.conversationId);
-      });
-      this.subs.push(joinSub);
-    }
+    });
+    this.subs.push(joinSub);
 
     this.subs.push(
       this.ws.chatMessage$.subscribe(msg => {

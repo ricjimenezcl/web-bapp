@@ -2,7 +2,7 @@ import { Component, inject, signal, OnInit, OnDestroy, ViewChild, ElementRef, Af
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { RouterLink, ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, filter, take } from 'rxjs';
 import { ChatService } from '../../core/services/chat.service';
 import { WebSocketService } from '../../core/services/websocket.service';
 import { StorageService } from '../../core/services/storage.service';
@@ -69,7 +69,15 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       error: () => this.loading.set(false)
     });
 
-    this.ws.joinChat(this.conversationId);
+    // Unirse a la sala WS — si no está conectado aún, esperar
+    if (this.ws.connected$.value) {
+      this.ws.joinChat(this.conversationId);
+    } else {
+      const joinSub = this.ws.connected$.pipe(filter(c => c), take(1)).subscribe(() => {
+        this.ws.joinChat(this.conversationId);
+      });
+      this.subs.push(joinSub);
+    }
 
     this.subs.push(
       this.ws.chatMessage$.subscribe(msg => {
@@ -121,8 +129,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.ws.sendTyping(this.conversationId, false);
 
     this.chatSvc.sendMessage(this.conversationId, content).subscribe({
-      next: (msg) => {
-        this.messages.update(list => [...list, msg]);
+      next: () => {
+        // El mensaje llegará vía WS broadcast al emisor (no agregar localmente para evitar duplicados)
         this.shouldScrollToBottom = true;
         this.sending.set(false);
       },

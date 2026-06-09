@@ -92,9 +92,19 @@ export class ChatViewComponent implements OnInit, OnDestroy, AfterViewChecked, O
     this.subs.push(
       this.ws.chatMessage$.subscribe(msg => {
         if (msg.conversation_id === this.conversationId) {
-          this.messages.update(list => [...list, msg.message]);
+          // El backend emite el mensaje plano (no anidado en .message)
+          // Mapeamos al formato ChatMessage que usa la lista
+          const chatMsg: ChatMessage = {
+            id:               msg.message_id,
+            conversation_id:  msg.conversation_id,
+            sender_id:        msg.sender_id,
+            message_content:  msg.content,
+            is_read:          msg.is_read,
+            created_at:       msg.timestamp,
+          };
+          this.messages.update(list => [...list, chatMsg]);
           this.shouldScrollToBottom = true;
-          if (msg.message.sender_id !== this.currentUserId) {
+          if (msg.sender_id !== this.currentUserId) {
             this.chatSvc.markAllRead(this.conversationId).subscribe({ error: () => {} });
           }
         }

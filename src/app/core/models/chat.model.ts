@@ -91,7 +91,13 @@ export interface WsChatMessage {
   type: 'message';
   channel: 'chat';
   conversation_id: number;
-  message: ChatMessage;
+  // Campos planos del mensaje (formato que emite el backend via WS)
+  message_id: number;
+  sender_id: number;
+  sender_name?: string;
+  content: string;
+  timestamp: string;
+  is_read: boolean;
 }
 
 export interface WsTypingIndicator {

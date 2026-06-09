@@ -39,8 +39,7 @@ export class BookingService {
 
   rejectBooking(id: number, reason?: string): Observable<BookingResponse> {
     return this.http.put<BookingResponse>(`${this.api}/bookings/${id}/status`, {
-      status: 'REJECTED',
-      reason_comment: reason ?? null
+      status: 'REJECTED'
     });
   }
 

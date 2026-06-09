@@ -82,4 +82,15 @@ export class ProviderBookingsComponent implements OnInit, OnDestroy {
       next: (u) => this.bookings.update(l => l.map(b => String(b.id) === String(id) ? u : b))
     });
   }
+
+  /** Retorna true si la fecha+hora de la cita ya pasó */
+  isAppointmentPast(booking: BookingResponse): boolean {
+    const dateStr = booking.scheduled_date;
+    const timeStr = booking.scheduled_time ?? '00:00';
+    const duration = booking.duration ?? 0;
+    if (!dateStr) return true;
+    const dt = new Date(`${dateStr}T${timeStr}`);
+    dt.setMinutes(dt.getMinutes() + duration);
+    return dt <= new Date();
+  }
 }

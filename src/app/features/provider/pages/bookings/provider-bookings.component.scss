@@ -354,7 +354,13 @@
     box-shadow: 0 4px 15px rgba(253, 230, 138, 0.15);
 
     svg { color: #000000; }
-    &:hover { box-shadow: 0 6px 20px rgba(253, 230, 138, 0.22); }
+    &:hover:not(:disabled) { box-shadow: 0 6px 20px rgba(253, 230, 138, 0.22); }
+
+    &:disabled {
+      opacity: 0.38;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
   }
 }
 

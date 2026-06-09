@@ -521,13 +521,13 @@
             </div>
           }
 
-          @if (contactLimit.remaining() < contactLimit.FREE_LIMIT) {
+          @if (contactLimit.remaining(currentServiceId) < contactLimit.FREE_LIMIT) {
             <p class="pi-contact-limit"
-               [class.pi-contact-limit--danger]="contactLimit.remaining() === 0">
-              @if (contactLimit.remaining() === 0) {
+               [class.pi-contact-limit--danger]="contactLimit.remaining(currentServiceId) === 0">
+              @if (contactLimit.remaining(currentServiceId) === 0) {
                 Límite de contactos alcanzado
               } @else {
-                {{ contactLimit.remaining() }} contacto{{ contactLimit.remaining() !== 1 ? 's' : '' }} gratis restante{{ contactLimit.remaining() !== 1 ? 's' : '' }}
+                {{ contactLimit.remaining(currentServiceId) }} contacto{{ contactLimit.remaining(currentServiceId) !== 1 ? 's' : '' }} gratis restante{{ contactLimit.remaining(currentServiceId) !== 1 ? 's' : '' }}
               }
             </p>
           }

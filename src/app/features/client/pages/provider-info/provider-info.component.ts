@@ -113,6 +113,11 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
     return this.services()[0]?.hourly_rate ?? null;
   }
 
+  /** service_id del primer servicio del proveedor (usado para el límite de contactos) */
+  get currentServiceId(): number {
+    return this.services()[0]?.service_id ?? 0;
+  }
+
   get providerPhone(): string {
     return this.provider()?.phone ?? 'No disponible';
   }
@@ -408,6 +413,8 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
     const totalPrice      = (service?.hourly_rate ?? 0) * (duration / 60);
 
     this.bookingLoading.set(true);
+    // Registrar el contacto al agendar (idempotente, no consume si ya fue contactado)
+    this.contactLimit.recordContact(serviceId, this.providerId);
     this.bookingSvc.createBooking({
       provider_id:      this.providerId,
       service_id:       serviceId,
@@ -562,7 +569,8 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
       this.showToast('Error: ID de proveedor no disponible', 'danger');
       return;
     }
-    if (!this.contactLimit.canContact(this.providerId)) {
+    const serviceId = this.services()[0]?.service_id ?? 0;
+    if (!this.contactLimit.canContact(serviceId, this.providerId)) {
       this.showContactLimitModal.set(true);
       return;
     }
@@ -570,7 +578,7 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
     this.chatSvc.createConversation(this.providerId).subscribe({
       next: (conv) => {
         this.isStartingChat.set(false);
-        this.contactLimit.recordContact(this.providerId);
+        this.contactLimit.recordContact(serviceId, this.providerId);
         void this.router.navigate(['/client/chat', conv.id]);
       },
       error: () => {

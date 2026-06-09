@@ -9,6 +9,8 @@ import { CategoryService } from '../../../../core/services/category.service';
 import { SearchStateService } from '../../../../core/services/search-state.service';
 import { LocationService } from '../../../../core/services/location.service';
 import { ServiceProvider, MainCategory } from '../../../../core/models/provider.model';
+
+export type LockedProvider = ServiceProvider & { locked: boolean };
 import { ServiceMapComponent } from '../service-map/service-map.component';
 import { ContactLimitService } from '../../../../core/services/contact-limit.service';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -32,7 +34,6 @@ export class ServiceSearchComponent implements OnInit {
   private readonly locationSvc  = inject(LocationService);
   private readonly auth         = inject(AuthService);
   readonly contactLimit         = inject(ContactLimitService);
-  readonly FREE_VISIBLE = 5;
   readonly hasPremium = computed(() => {
     const currentUser = this.auth.currentUser();
     const profile = this.auth.currentProfile();
@@ -57,6 +58,44 @@ export class ServiceSearchComponent implements OnInit {
   hoveredProviderId = signal<number | null>(null);
   /** true en dispositivos táctiles/móvil (sin hover fino) */
   readonly isMobile = signal(!globalThis.matchMedia?.('(hover: hover) and (pointer: fine)').matches);
+
+  /** service_id dominante de la búsqueda actual (primero de la lista) */
+  readonly currentServiceId = computed(() => this.serviceIds()[0] ?? 0);
+
+  /**
+   * Proveedores con flag `locked` calculado según reglas de negocio:
+   * - Premium: nunca bloqueado
+   * - Ya contactado en el service_id: desbloqueado
+   * - Slots gratuitos restantes: desbloqueados en orden
+   * - El resto: bloqueados
+   */
+  readonly visibleProviders = computed((): LockedProvider[] => {
+    const providers = this.filteredProviders();
+    if (this.hasPremium()) return providers.map(p => ({ ...p, locked: false }));
+
+    // Mapa de slots restantes por service_id (se decrementa al asignar)
+    const slotsMap = new Map<number, number>();
+
+    return providers.map(p => {
+      const svcId = p.service_id ?? 0;
+      const contacted = new Set(this.contactLimit.contactedProviders(svcId));
+
+      // Ya contactó a este proveedor → siempre visible
+      if (contacted.has(p.provider_id)) return { ...p, locked: false };
+
+      // Inicializar contador para este service_id si aún no existe
+      if (!slotsMap.has(svcId)) {
+        slotsMap.set(svcId, this.contactLimit.remaining(svcId));
+      }
+
+      const slots = slotsMap.get(svcId)!;
+      if (slots > 0) {
+        slotsMap.set(svcId, slots - 1);
+        return { ...p, locked: false };
+      }
+      return { ...p, locked: true };
+    });
+  });
 
   /**
    * Chips a mostrar en el header:
@@ -324,10 +363,6 @@ export class ServiceSearchComponent implements OnInit {
     this.hoveredProviderId.set(
       this.hoveredProviderId() === providerId ? null : providerId
     );
-  }
-
-  isLockedProvider(index: number): boolean {
-    return !this.hasPremium() && index >= this.FREE_VISIBLE;
   }
 
   goToPremium(): void {

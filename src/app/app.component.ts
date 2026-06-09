@@ -174,6 +174,9 @@ export class AppComponent implements OnInit {
   private hasNavigatedOnInit = false;
 
   ngOnInit(): void {
+    // Detectar expiración proactiva al recargar la página
+    this.session.watchExpiry(this.storage.token());
+
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
@@ -207,6 +210,14 @@ export class AppComponent implements OnInit {
     const user          = this.storage.user();
 
     if (currentUrl.startsWith('/auth/') && currentUrl !== '/auth/login') return;
+
+    // Si hay credenciales guardadas pero el browser fue cerrado y reabierto
+    // (sessionStorage vacío), se fuerza el re-login
+    if (isAuthenticated && !this.storage.isBrowserSessionActive()) {
+      this.storage.clearSession();
+      this.router.navigate(['/auth/login']);
+      return;
+    }
 
     if (!isAuthenticated) {
       if (currentUrl !== '/auth/login') this.router.navigate(['/auth/login']);

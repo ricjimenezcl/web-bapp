@@ -7,6 +7,8 @@ const KEYS = {
   PROFILE: 'bapp_profile',
 } as const;
 
+const SESSION_FLAG = 'bapp_session_active';
+
 @Injectable({ providedIn: 'root' })
 export class StorageService {
   private _token   = signal<string | null>(localStorage.getItem(KEYS.TOKEN));
@@ -41,10 +43,21 @@ export class StorageService {
     }
   }
 
+  /** Marca la sesión como activa en la pestaña actual (se borra al cerrar el browser). */
+  markSessionActive(): void {
+    sessionStorage.setItem(SESSION_FLAG, '1');
+  }
+
+  /** Devuelve true si el usuario inició sesión en esta ventana del browser. */
+  isBrowserSessionActive(): boolean {
+    return sessionStorage.getItem(SESSION_FLAG) === '1';
+  }
+
   clearSession(): void {
     localStorage.removeItem(KEYS.TOKEN);
     localStorage.removeItem(KEYS.USER);
     localStorage.removeItem(KEYS.PROFILE);
+    sessionStorage.removeItem(SESSION_FLAG);
     this._token.set(null);
     this._user.set(null);
     this._profile.set(null);

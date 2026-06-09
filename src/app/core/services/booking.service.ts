@@ -34,11 +34,12 @@ export class BookingService {
   }
 
   confirmBooking(id: number): Observable<BookingResponse> {
-    return this.http.post<BookingResponse>(`${this.api}/bookings/${id}/approve`, {});
+    return this.http.post<BookingResponse>(`${this.api}/bookings/${id}/confirm`, {});
   }
 
   rejectBooking(id: number, reason?: string): Observable<BookingResponse> {
-    return this.http.patch<BookingResponse>(`${this.api}/bookings/${id}/reject`, {
+    return this.http.put<BookingResponse>(`${this.api}/bookings/${id}/status`, {
+      status: 'REJECTED',
       reason_comment: reason ?? null
     });
   }

@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Observable, tap, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { StorageService } from './storage.service';
+import { SessionService } from './session.service';
 import {
   User, UserProfile, StoredUser, LoginRequest, TokenResponse,
   ClientRegister, ProviderRegister
@@ -14,6 +15,7 @@ export class AuthService {
   private readonly http    = inject(HttpClient);
   private readonly router  = inject(Router);
   private readonly storage = inject(StorageService);
+  private readonly session = inject(SessionService);
 
   private readonly api = environment.apiUrl;
 
@@ -101,7 +103,10 @@ export class AuthService {
   refreshToken(): Observable<TokenResponse> {
     return this.http.post<TokenResponse>(`${this.api}/auth/refresh`, {}).pipe(
       tap(res => {
-        if (res.access_token) this.storage.setToken(res.access_token);
+        if (res.access_token) {
+          this.storage.setToken(res.access_token);
+          this.session.watchExpiry(res.access_token);
+        }
       })
     );
   }
@@ -137,6 +142,8 @@ export class AuthService {
 
   private _storeSession(res: TokenResponse): void {
     this.storage.setToken(res.access_token);
+    this.storage.markSessionActive();
+    this.session.watchExpiry(res.access_token);
     const stored: StoredUser = {
       id:          res.user_id,
       email:       '',

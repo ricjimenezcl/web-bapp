@@ -7,6 +7,7 @@ import { CategoryService } from '../../../../core/services/category.service';
 import { MainCategory, ServiceCategory } from '../../../../core/models/provider.model';
 import { Device3dLoginComponent } from '../../../../shared/components/device-3d-login/device-3d-login.component';
 import { BappieChatbotComponent } from '../../../../shared/components/bappie-chatbot/bappie-chatbot.component';
+import { CustomValidators } from '../../../../shared/validators/custom-validators';
 
 @Component({
   selector: 'app-login',
@@ -40,6 +41,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   contactLoading = signal(false);
   contactSuccess = signal(false);
   showModalPass  = signal(false);
+  registerRole   = signal<'client' | 'provider'>('client');
   sticky         = signal(false); // Para header sticky
   guideTab       = signal<'client' | 'provider'>('client'); // Tab para guías de uso
   
@@ -85,7 +87,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     name:           ['', Validators.required],
     email:          ['', [Validators.required, Validators.email]],
     phone:          ['', Validators.required],
-    password:       ['', [Validators.required, Validators.minLength(6)]],
+    password:       ['', [Validators.required, Validators.minLength(8), CustomValidators.passwordComplexity()]],
     terms_accepted: [false, Validators.requiredTrue],
   });
 
@@ -379,13 +381,19 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.error.set('');
 
     const { name, email, phone, password, terms_accepted } = this.registerForm.value;
-    this.auth.registerClient({ 
+    const payload = {
       email: email!, 
       password: password!, 
       full_name: name!,
       phone: phone!,
       terms_accepted: terms_accepted!
-    }).subscribe({
+    };
+
+    const register$ = this.registerRole() === 'provider'
+      ? this.auth.registerProvider(payload)
+      : this.auth.registerClient(payload);
+
+    register$.subscribe({
       next: () => {
         this.loading.set(false);
         this.closeModal();
@@ -395,7 +403,12 @@ export class LoginComponent implements OnInit, OnDestroy {
       },
       error: (err: any) => {
         this.loading.set(false);
-        this.error.set(err?.error?.detail ?? 'Error al crear la cuenta. Inténtalo de nuevo.');
+        const detail = err?.error?.detail;
+        if (Array.isArray(detail) && detail.length > 0) {
+          this.error.set(detail[0]?.msg ?? 'Error al crear la cuenta. Verifica los datos.');
+          return;
+        }
+        this.error.set(detail ?? 'Error al crear la cuenta. Inténtalo de nuevo.');
       }
     });
   }
@@ -438,6 +451,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   setTab(tab: 'login' | 'register'): void {
     this.activeTab.set(tab);
     this.error.set('');
+    if (tab === 'register') {
+      this.registerRole.set('client');
+    }
   }
 
   toggleMobileMenu(): void {

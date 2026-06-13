@@ -7,6 +7,31 @@ import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 export class CustomValidators {
 
   /**
+   * Valida complejidad mínima de contraseña para coincidir con backend:
+   * al menos 1 mayúscula, 1 minúscula y 1 número.
+   * No falla si el campo está vacío (usar Validators.required para ese caso).
+   */
+  static passwordComplexity(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) return null;
+      const value = String(control.value);
+      const missingUppercase = !/[A-Z]/.test(value);
+      const missingLowercase = !/[a-z]/.test(value);
+      const missingNumber = !/\d/.test(value);
+
+      if (!missingUppercase && !missingLowercase && !missingNumber) {
+        return null;
+      }
+
+      return {
+        missingUppercase,
+        missingLowercase,
+        missingNumber,
+      };
+    };
+  }
+
+  /**
    * Valida un número de teléfono chileno (solo móviles con 9 inicial).
    * Acepta el valor con o sin formato (+56 9 XXXX XXXX) y también dígitos crudos.
    * No falla si el campo está vacío (usar Validators.required para ese caso).

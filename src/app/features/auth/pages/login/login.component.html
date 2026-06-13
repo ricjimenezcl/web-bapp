@@ -1104,6 +1104,34 @@
       @if (activeTab() === 'register') {
         <form [formGroup]="registerForm" (ngSubmit)="submitRegister()" class="space-y-4 text-left">
           <div>
+            <label class="text-white text-sm block mb-2">Tipo de cuenta</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                (click)="registerRole.set('client')"
+                class="py-2 rounded-lg border transition-colors"
+                [class.bg-crypgo-primary]="registerRole() === 'client'"
+                [class.text-crypgo-darkmode]="registerRole() === 'client'"
+                [class.border-crypgo-primary]="registerRole() === 'client'"
+                [class.border-crypgo-dark_border]="registerRole() !== 'client'"
+                [class.text-white]="registerRole() !== 'client'">
+                Cliente
+              </button>
+              <button
+                type="button"
+                (click)="registerRole.set('provider')"
+                class="py-2 rounded-lg border transition-colors"
+                [class.bg-crypgo-primary]="registerRole() === 'provider'"
+                [class.text-crypgo-darkmode]="registerRole() === 'provider'"
+                [class.border-crypgo-primary]="registerRole() === 'provider'"
+                [class.border-crypgo-dark_border]="registerRole() !== 'provider'"
+                [class.text-white]="registerRole() !== 'provider'">
+                Proveedor
+              </button>
+            </div>
+          </div>
+
+          <div>
             <label for="register-name" class="text-white text-sm block mb-2">Nombre Completo</label>
             <input 
               id="register-name"
@@ -1151,12 +1179,14 @@
               id="register-password"
               [type]="showModalPass() ? 'text' : 'password'"
               formControlName="password"
-              placeholder="Mínimo 6 caracteres"
+              placeholder="Mínimo 8, 1 mayúscula, 1 minúscula y 1 número"
               class="w-full bg-crypgo-darkmode border border-crypgo-dark_border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-crypgo-primary transition-colors"
               [class.border-crypgo-error]="rf['password'].invalid && rf['password'].touched"
             />
             @if (rf['password'].invalid && rf['password'].touched) {
-              <span class="text-crypgo-error text-sm mt-1 block">La contraseña debe tener al menos 6 caracteres</span>
+              <span class="text-crypgo-error text-sm mt-1 block">
+                La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula y un número.
+              </span>
             }
           </div>
           <div class="flex items-start gap-3">

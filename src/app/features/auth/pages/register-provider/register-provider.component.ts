@@ -34,7 +34,7 @@ export class RegisterProviderComponent {
     email:           ['', [Validators.required, Validators.email]],
     phone:           ['', [Validators.required, CustomValidators.phone()]],
     run:             ['', CustomValidators.rut()],
-    password:        ['', [Validators.required, Validators.minLength(8)]],
+    password:        ['', [Validators.required, Validators.minLength(8), CustomValidators.passwordComplexity()]],
     confirmPassword: ['', Validators.required],
     terms_accepted:  [false, Validators.requiredTrue],
   }, { validators: passwordMatch });
@@ -60,7 +60,12 @@ export class RegisterProviderComponent {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err?.error?.detail ?? 'Error al registrarse. Inténtalo de nuevo.');
+        const detail = err?.error?.detail;
+        if (Array.isArray(detail) && detail.length > 0) {
+          this.error.set(detail[0]?.msg ?? 'Error al registrarse. Verifica los datos.');
+          return;
+        }
+        this.error.set(detail ?? 'Error al registrarse. Inténtalo de nuevo.');
       }
     });
   }

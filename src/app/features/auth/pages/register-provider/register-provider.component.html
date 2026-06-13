@@ -77,7 +77,7 @@
             <label for="password" class="form-label">Contraseña</label>
             <div class="relative">
               <input id="password" [type]="showPass() ? 'text' : 'password'" formControlName="password" class="form-input pr-10"
-                [class.error]="f['password'].invalid && f['password'].touched" placeholder="Mínimo 8 caracteres">
+                [class.error]="f['password'].invalid && f['password'].touched" placeholder="Mínimo 8, 1 mayúscula, 1 minúscula y 1 número">
               <button type="button" (click)="showPass.set(!showPass())"
                 class="absolute right-3 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text-primary"
                 aria-label="Mostrar/ocultar contraseña">
@@ -96,7 +96,7 @@
               </button>
             </div>
             @if (f['password'].invalid && f['password'].touched) {
-              <span class="form-error">Contraseña mínima de 8 caracteres</span>
+              <span class="form-error">La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula y un número</span>
             }
           </div>
 

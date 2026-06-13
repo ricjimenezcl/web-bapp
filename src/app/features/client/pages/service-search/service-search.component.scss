@@ -359,8 +359,8 @@
 
     // Efecto de escala del ícono de ubicación on hover
     .location-icon {
-      transform: scale(1.4);
-      filter: drop-shadow(0 0 8px rgba(253, 230, 138, 0.4));
+      transform: scale(1.6);
+      filter: drop-shadow(0 0 10px rgba(253, 230, 138, 0.6));
     }
   }
 
@@ -443,14 +443,6 @@
 @keyframes cardIn {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
-}
-
-// Ícono de ubicación — efecto de escala y brillo on hover
-.location-icon {
-  width: 18px;
-  height: 18px;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), filter 0.3s ease;
-  transform-origin: center;
 }
 
 // Tag de categoría — arriba del main (igual que referencia)
@@ -675,6 +667,13 @@
   gap: 4px;
 
   svg { width: 12px; height: 12px; flex-shrink: 0; color: var(--bapp-red); }
+
+  .location-icon {
+    width: 16px !important;
+    height: 16px !important;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), filter 0.3s ease;
+    transform-origin: center;
+  }
 }
 
 .card-chevron {

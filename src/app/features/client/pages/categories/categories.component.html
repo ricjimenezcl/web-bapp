@@ -181,6 +181,25 @@
       </div>
     }
 
+    @if (!hasPremium()) {
+      <div class="cat-limit-banner">
+        <div class="cat-limit-banner__text">
+          <strong>Plan gratuito:</strong>
+          Hasta {{ freeDailySearchLimit }} búsquedas diarias y máximo {{ maxFreeServices }} servicios por búsqueda.
+        </div>
+        <button type="button" class="cat-limit-banner__cta" (click)="openPremiumModal()">
+          Desbloquear ilimitado
+        </button>
+      </div>
+    } @else {
+      <div class="cat-limit-banner cat-limit-banner--premium">
+        <div class="cat-limit-banner__text">
+          <strong>Plan Premium activo</strong>
+          Búsquedas y selección de servicios sin límites.
+        </div>
+      </div>
+    }
+
   </header>
 
   <!-- ══════════════════════════════════════════════════════════════════
@@ -423,6 +442,12 @@
               </div>
             }
 
+            @if (!hasPremium()) {
+              <p class="cat-selection-cap">
+                Plan gratuito: puedes seleccionar hasta {{ maxFreeServices }} servicios por búsqueda.
+              </p>
+            }
+
           }
         </div>
       }
@@ -469,4 +494,31 @@
     (locationSelected)="onLocationSelected($event)"
     (closed)="onMapPickerClose()">
   </app-map-picker>
+}
+
+@if (showPremiumModal()) {
+  <button type="button" class="cat-premium-modal-backdrop" (click)="closePremiumModal()" aria-label="Cerrar modal"></button>
+  <dialog open class="cat-premium-modal" aria-modal="true" aria-label="Planes premium" (keydown.escape)="closePremiumModal()">
+    <div class="cat-premium-modal-header">
+      <h3>{{ premiumModalTitle() }}</h3>
+      <button type="button" class="cat-premium-modal-close" (click)="closePremiumModal()">✕</button>
+    </div>
+    <p class="cat-premium-modal-sub">{{ premiumModalSub() }}</p>
+
+    <div class="cat-premium-plan-grid">
+      <button type="button" class="cat-premium-plan-card" (click)="choosePremiumPlan('CLIENT_UNLOCK_7')">
+        <span class="cat-premium-plan-badge">Popular</span>
+        <h4>Acceso 7 días</h4>
+        <p>Ideal para resolver una necesidad puntual.</p>
+        <strong>$1.490 CLP</strong>
+      </button>
+
+      <button type="button" class="cat-premium-plan-card cat-premium-plan-card--featured" (click)="choosePremiumPlan('CLIENT_UNLOCK_30')">
+        <span class="cat-premium-plan-badge cat-premium-plan-badge--accent">Mejor valor</span>
+        <h4>Acceso 30 días</h4>
+        <p>Más tiempo para comparar y reservar sin límites.</p>
+        <strong>$4.990 CLP</strong>
+      </button>
+    </div>
+  </dialog>
 }

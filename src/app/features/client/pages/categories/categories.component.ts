@@ -1,11 +1,13 @@
 import { Component, inject, signal, OnInit, computed, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CategoryService } from '../../../../core/services/category.service';
 import { LocationService, LocationSuggestion } from '../../../../core/services/location.service';
 import { MainCategory, ServiceCategory } from '../../../../core/models/provider.model';
 import { MapPickerComponent } from '../../../../shared/components/map-picker/map-picker.component';
+import { AuthService } from '../../../../core/services/auth.service';
+import { ProductType } from '../../../../core/services/payment.service';
 
 @Component({
   selector: 'app-categories',
@@ -17,8 +19,10 @@ import { MapPickerComponent } from '../../../../shared/components/map-picker/map
 })
 export class CategoriesComponent implements OnInit {
   private readonly router      = inject(Router);
+  private readonly route       = inject(ActivatedRoute);
   private readonly categorySvc = inject(CategoryService);
   private readonly locationSvc = inject(LocationService);
+  private readonly auth        = inject(AuthService);
 
   categories = signal<MainCategory[]>([]);
   allCategories = signal<ServiceCategory[]>([]);
@@ -59,6 +63,37 @@ export class CategoriesComponent implements OnInit {
   // Map picker functionality
   showMapPicker = signal(false);
 
+  // Premium / limits
+  showPremiumModal = signal(false);
+  premiumModalReason = signal<'DAILY_SEARCH_LIMIT_REACHED' | 'FREE_SERVICE_SELECTION_LIMIT' | null>(null);
+  readonly freeDailySearchLimit = 3;
+  readonly maxFreeServices = 3;
+  readonly hasPremium = computed(() => {
+    const currentUser = this.auth.currentUser();
+    const profile = this.auth.currentProfile();
+    return Boolean(currentUser?.has_premium || profile?.has_premium);
+  });
+  readonly premiumModalTitle = computed(() => {
+    const reason = this.premiumModalReason();
+    if (reason === 'DAILY_SEARCH_LIMIT_REACHED') {
+      return 'Alcanzaste tu límite diario';
+    }
+    if (reason === 'FREE_SERVICE_SELECTION_LIMIT') {
+      return 'Límite de servicios por búsqueda';
+    }
+    return 'Desbloquea búsquedas ilimitadas';
+  });
+  readonly premiumModalSub = computed(() => {
+    const reason = this.premiumModalReason();
+    if (reason === 'DAILY_SEARCH_LIMIT_REACHED') {
+      return `Ya usaste tus ${this.freeDailySearchLimit} búsquedas de hoy. Mejora a Premium para seguir buscando sin esperar al próximo día.`;
+    }
+    if (reason === 'FREE_SERVICE_SELECTION_LIMIT') {
+      return `En plan gratuito puedes seleccionar hasta ${this.maxFreeServices} servicios por búsqueda. Con Premium no tienes este tope.`;
+    }
+    return `En plan gratuito puedes realizar ${this.freeDailySearchLimit} búsquedas al día y seleccionar hasta ${this.maxFreeServices} servicios por búsqueda.`;
+  });
+
   private readonly EMOJI_MAP: Record<string, string> = {
     // Por nombre (español)
     'construcción': '🏗️', 'plomería': '🚿', 'fontanería': '🚿',
@@ -77,6 +112,18 @@ export class CategoriesComponent implements OnInit {
 
   ngOnInit(): void {
     console.log('🎯 CategoriesComponent - ngOnInit');
+
+    const premiumReason = this.route.snapshot.queryParamMap.get('premium_reason');
+    if (!this.hasPremium() && (premiumReason === 'DAILY_SEARCH_LIMIT_REACHED' || premiumReason === 'FREE_SERVICE_SELECTION_LIMIT')) {
+      this.openPremiumModal(premiumReason);
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { premium_reason: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    }
+
     // Cargar categorías principales
     this.categorySvc.getMainCategories().subscribe({
       next: cats => { 
@@ -281,6 +328,10 @@ export class CategoriesComponent implements OnInit {
     if (index >= 0) {
       this.selectedServices.set(current.filter(s => s.id !== service.id));
     } else {
+      if (!this.hasPremium() && current.length >= this.maxFreeServices) {
+        this.openPremiumModal('FREE_SERVICE_SELECTION_LIMIT');
+        return;
+      }
       this.selectedServices.set([...current, service]);
     }
   }
@@ -296,7 +347,7 @@ export class CategoriesComponent implements OnInit {
       console.warn('⚠️ No hay servicios seleccionados');
       return;
     }
-    
+
     // Navegar con los IDs y nombres de servicios seleccionados
     const serviceIds   = selected.map(s => s.id).join(',');
     const serviceNames = selected.map(s => s.name).join(',');
@@ -310,4 +361,23 @@ export class CategoriesComponent implements OnInit {
   skip(): void {
     this.router.navigate(['/client/tabs/service-search'], { replaceUrl: true });
   }
+
+  openPremiumModal(reason: 'DAILY_SEARCH_LIMIT_REACHED' | 'FREE_SERVICE_SELECTION_LIMIT' | null = null): void {
+    this.premiumModalReason.set(reason);
+    this.showPremiumModal.set(true);
+  }
+  closePremiumModal(): void {
+    this.showPremiumModal.set(false);
+    this.premiumModalReason.set(null);
+  }
+  choosePremiumPlan(productType: ProductType): void {
+    this.closePremiumModal();
+    this.router.navigate(['/payment'], {
+      queryParams: {
+        product_type: productType,
+        returnTo: '/client/tabs/categories'
+      }
+    });
+  }
+
 }

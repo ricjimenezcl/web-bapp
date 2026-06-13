@@ -1,9 +1,9 @@
 import { Component, inject, signal, computed, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
-import { RouterLink, ActivatedRoute } from '@angular/router';
+import { RouterLink, ActivatedRoute, Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { debounceTime, distinctUntilChanged, take } from 'rxjs/operators';
-import { forkJoin } from 'rxjs';
 import { ProviderService } from '../../../../core/services/provider.service';
 import { CategoryService } from '../../../../core/services/category.service';
 import { SearchStateService } from '../../../../core/services/search-state.service';
@@ -14,7 +14,6 @@ export type LockedProvider = ServiceProvider & { locked: boolean };
 import { ServiceMapComponent } from '../service-map/service-map.component';
 import { ContactLimitService } from '../../../../core/services/contact-limit.service';
 import { AuthService } from '../../../../core/services/auth.service';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-service-search',
@@ -214,7 +213,11 @@ export class ServiceSearchComponent implements OnInit {
         this.searchState.setFilters({ query: term, category_id: this.selectedCat() });
         this.loading.set(false);
       },
-      error: () => {
+      error: (err) => {
+        if (this.handleBusinessLimitError(err)) {
+          this.loading.set(false);
+          return;
+        }
         this.error.set('Error al cargar proveedores.');
         this.loading.set(false);
       }
@@ -251,13 +254,9 @@ export class ServiceSearchComponent implements OnInit {
 
   private fetchProvidersByLocation(serviceIds: number[], lat: number, lng: number): void {
     const radius = 20;
-    const requests = serviceIds.map(id =>
-      this.providerSvc.getNearbyProvidersByServiceId(lat, lng, radius, id, 0, 20)
-    );
-
-    forkJoin(requests).subscribe({
-      next: (results: ServiceProvider[][]) => {
-        const uniqueProviders = this.removeDuplicates(results.flat());
+    this.providerSvc.getNearbyProvidersByServiceIds(lat, lng, radius, serviceIds, 0, 60).subscribe({
+      next: (results: ServiceProvider[]) => {
+        const uniqueProviders = this.removeDuplicates(results);
         this.providers.set(uniqueProviders);
         this.applyFilter();
         this.searchState.setProviders(this.filteredProviders());
@@ -269,11 +268,28 @@ export class ServiceSearchComponent implements OnInit {
         });
         this.loading.set(false);
       },
-      error: () => {
+      error: (err) => {
+        if (this.handleBusinessLimitError(err)) {
+          this.loading.set(false);
+          return;
+        }
         this.error.set('Error al cargar proveedores.');
         this.loading.set(false);
       }
     });
+  }
+
+  private handleBusinessLimitError(err?: unknown): boolean {
+    const httpErr = err as HttpErrorResponse | undefined;
+    const code = httpErr?.error?.detail?.code;
+    if (code === 'DAILY_SEARCH_LIMIT_REACHED' || code === 'FREE_SERVICE_SELECTION_LIMIT') {
+      this.router.navigate(['/client/tabs/categories'], {
+        queryParams: { premium_reason: code },
+        replaceUrl: true,
+      });
+      return true;
+    }
+    return false;
   }
 
   private removeDuplicates(providers: ServiceProvider[]): ServiceProvider[] {

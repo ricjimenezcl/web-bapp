@@ -196,6 +196,51 @@ export class ProviderService {
     );
   }
 
+  getNearbyProvidersByServiceIds(
+    lat: number,
+    lng: number,
+    radius: number,
+    serviceIds: number[],
+    skip: number = 0,
+    limit: number = 20
+  ): Observable<ServiceProvider[]> {
+    const serviceIdsParam = serviceIds.join(',');
+    return this.http.get<any[]>(
+      `${this.api}/providers/nearby/services`,
+      {
+        params: {
+          lat: String(lat),
+          lng: String(lng),
+          radius: String(radius),
+          service_ids: serviceIdsParam,
+          skip: String(skip),
+          limit: String(limit)
+        }
+      }
+    ).pipe(
+      map(items => items.map(item => ({
+        ...item,
+        avatar: item.provider?.avatar || item.avatar,
+        full_name: item.provider?.full_name || item.full_name,
+        is_available: item.is_available ?? true,
+        rating_avg: item.rating_avg != null ? Number(item.rating_avg) : undefined,
+        total_reviews: item.total_reviews != null ? Number(item.total_reviews) : undefined,
+        hourly_rate: item.hourly_rate != null ? Number(item.hourly_rate) : undefined,
+        service_category: item.service_category ?? (item.service_category_name ? {
+          id: item.service_id,
+          name: item.service_category_name,
+          icon: item.service_icon ?? null
+        } : undefined),
+        distance_km: item.distance ?? item.distance_km,
+        description: item.description ?? undefined
+      } as ServiceProvider))),
+      catchError(err => {
+        console.error('Error fetching nearby providers by service IDs:', err);
+        return of([]);
+      })
+    );
+  }
+
   searchProviders(params: {
     category_id?: number;
     query?: string;

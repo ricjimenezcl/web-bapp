@@ -45,6 +45,7 @@ export interface ServiceProvider {
   // Campos planos del endpoint geoespacial (se mapean a service_category en el service)
   service_category_name?: string;
   service_icon?: string;
+  portfolio_images?: string[];
 }
 
 export interface ServiceCategory {

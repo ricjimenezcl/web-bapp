@@ -356,6 +356,12 @@
     border-color: rgba(255, 255, 255, 0.14);
     transform: translateY(-2px);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+
+    // Efecto de escala del ícono de ubicación on hover
+    .location-icon {
+      transform: scale(1.4);
+      filter: drop-shadow(0 0 8px rgba(253, 230, 138, 0.4));
+    }
   }
 
   // Activo sincronizado con mapa — igual que nav-item--active del profile
@@ -437,6 +443,14 @@
 @keyframes cardIn {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+// Ícono de ubicación — efecto de escala y brillo on hover
+.location-icon {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), filter 0.3s ease;
+  transform-origin: center;
 }
 
 // Tag de categoría — arriba del main (igual que referencia)

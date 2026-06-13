@@ -52,17 +52,37 @@ export class RegisterClientComponent {
       },
       error: (err) => {
         this.loading.set(false);
-        const detail = err?.error?.detail;
-        if (Array.isArray(detail) && detail.length > 0) {
-          this.error.set(detail[0]?.msg ?? 'Error al registrarse. Verifica los datos.');
-          return;
-        }
-        this.error.set(detail ?? 'Error al registrarse. Inténtalo de nuevo.');
+        this.error.set(this.getApiErrorMessage(err, 'Error al registrarse. Inténtalo de nuevo.'));
       }
     });
   }
 
   get f() { return this.form.controls; }
+
+  getPasswordError(): string {
+    const control = this.f['password'];
+    if (!control.touched || !control.errors) return '';
+    if (control.errors['required']) return 'La contraseña es requerida';
+    if (control.errors['minlength']) return 'La contraseña debe tener al menos 8 caracteres';
+    if (control.errors['missingUppercase']) return 'La contraseña debe contener al menos una mayúscula';
+    if (control.errors['missingLowercase']) return 'La contraseña debe contener al menos una minúscula';
+    if (control.errors['missingNumber']) return 'La contraseña debe contener al menos un número';
+    return 'Contraseña inválida';
+  }
+
+  private getApiErrorMessage(err: any, fallback: string): string {
+    const response = err?.error;
+    if (typeof response?.detail === 'string' && response.detail.trim()) {
+      return response.detail;
+    }
+    if (Array.isArray(response?.detail) && response.detail.length > 0) {
+      return response.detail[0]?.msg ?? fallback;
+    }
+    if (Array.isArray(response?.errors) && response.errors.length > 0) {
+      return response.errors[0]?.message ?? fallback;
+    }
+    return fallback;
+  }
 
   onPhoneInput(event: Event): void {
     const input = event.target as HTMLInputElement;

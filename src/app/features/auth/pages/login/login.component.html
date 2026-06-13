@@ -1168,9 +1168,11 @@
               placeholder="+56 9 1234 5678"
               class="w-full bg-crypgo-darkmode border border-crypgo-dark_border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-crypgo-primary transition-colors"
               [class.border-crypgo-error]="rf['phone'].invalid && rf['phone'].touched"
+              maxlength="17"
+              (input)="onRegisterPhoneInput($event)"
             />
             @if (rf['phone'].invalid && rf['phone'].touched) {
-              <span class="text-crypgo-error text-sm mt-1 block">El teléfono es requerido</span>
+              <span class="text-crypgo-error text-sm mt-1 block">{{ getRegisterPhoneError() }}</span>
             }
           </div>
           <div>
@@ -1184,9 +1186,7 @@
               [class.border-crypgo-error]="rf['password'].invalid && rf['password'].touched"
             />
             @if (rf['password'].invalid && rf['password'].touched) {
-              <span class="text-crypgo-error text-sm mt-1 block">
-                La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula y un número.
-              </span>
+              <span class="text-crypgo-error text-sm mt-1 block">{{ getRegisterPasswordError() }}</span>
             }
           </div>
           <div class="flex items-start gap-3">

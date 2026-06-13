@@ -96,7 +96,7 @@
               </button>
             </div>
             @if (f['password'].invalid && f['password'].touched) {
-              <span class="form-error">La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula y un número</span>
+              <span class="form-error">{{ getPasswordError() }}</span>
             }
           </div>
 

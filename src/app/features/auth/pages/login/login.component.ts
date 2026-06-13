@@ -8,6 +8,7 @@ import { MainCategory, ServiceCategory } from '../../../../core/models/provider.
 import { Device3dLoginComponent } from '../../../../shared/components/device-3d-login/device-3d-login.component';
 import { BappieChatbotComponent } from '../../../../shared/components/bappie-chatbot/bappie-chatbot.component';
 import { CustomValidators } from '../../../../shared/validators/custom-validators';
+import { formatChileanPhone } from '../../../../shared/utils/form-formatters';
 
 @Component({
   selector: 'app-login',
@@ -86,7 +87,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   registerForm = this.fb.group({
     name:           ['', Validators.required],
     email:          ['', [Validators.required, Validators.email]],
-    phone:          ['', Validators.required],
+    phone:          ['', [Validators.required, CustomValidators.phone()]],
     password:       ['', [Validators.required, Validators.minLength(8), CustomValidators.passwordComplexity()]],
     terms_accepted: [false, Validators.requiredTrue],
   });
@@ -403,18 +404,53 @@ export class LoginComponent implements OnInit, OnDestroy {
       },
       error: (err: any) => {
         this.loading.set(false);
-        const detail = err?.error?.detail;
-        if (Array.isArray(detail) && detail.length > 0) {
-          this.error.set(detail[0]?.msg ?? 'Error al crear la cuenta. Verifica los datos.');
-          return;
-        }
-        this.error.set(detail ?? 'Error al crear la cuenta. Inténtalo de nuevo.');
+        this.error.set(this.getApiErrorMessage(err, 'Error al crear la cuenta. Inténtalo de nuevo.'));
       }
     });
   }
 
   get f() { return this.form.controls; }
   get rf() { return this.registerForm.controls; }
+
+  getRegisterPhoneError(): string {
+    const control = this.rf['phone'];
+    if (!control.touched || !control.errors) return '';
+    if (control.errors['required']) return 'El teléfono es requerido';
+    if (control.errors['invalidPhone']) return 'Ingresa un teléfono chileno válido. Ej: +56 9 1234 5678';
+    return 'Teléfono inválido';
+  }
+
+  getRegisterPasswordError(): string {
+    const control = this.rf['password'];
+    if (!control.touched || !control.errors) return '';
+    if (control.errors['required']) return 'La contraseña es requerida';
+    if (control.errors['minlength']) return 'La contraseña debe tener al menos 8 caracteres';
+    if (control.errors['missingUppercase']) return 'La contraseña debe contener al menos una mayúscula';
+    if (control.errors['missingLowercase']) return 'La contraseña debe contener al menos una minúscula';
+    if (control.errors['missingNumber']) return 'La contraseña debe contener al menos un número';
+    return 'Contraseña inválida';
+  }
+
+  onRegisterPhoneInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const formatted = formatChileanPhone(input.value);
+    input.value = formatted;
+    this.registerForm.get('phone')?.setValue(formatted, { emitEvent: false });
+  }
+
+  private getApiErrorMessage(err: any, fallback: string): string {
+    const response = err?.error;
+    if (typeof response?.detail === 'string' && response.detail.trim()) {
+      return response.detail;
+    }
+    if (Array.isArray(response?.detail) && response.detail.length > 0) {
+      return response.detail[0]?.msg ?? fallback;
+    }
+    if (Array.isArray(response?.errors) && response.errors.length > 0) {
+      return response.errors[0]?.message ?? fallback;
+    }
+    return fallback;
+  }
 
   // ── Social Login ──────────────────────────────────────────────────
   loginWithGoogle(): void {

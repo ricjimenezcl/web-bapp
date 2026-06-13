@@ -206,10 +206,10 @@
 
               <div class="pi-carousel">
                 @for (svc of services(); track svc.id) {
-                  @for (img of $any(svc).portfolio_images || []; track img.id || img.url; let i = $index) {
-                    <div class="pi-carousel-slide" (click)="openImageViewer(img.url || img)">
+                  @for (img of $any(svc).portfolio_images || []; track img; let i = $index) {
+                    <div class="pi-carousel-slide" (click)="openImageViewer($any(img))">
                       <img
-                        [src]="img.url || img"
+                        [src]="$any(img)"
                         [alt]="svc.business_name + ' — trabajo ' + (i + 1)"
                         loading="lazy"
                         (error)="$any($event.target).src='/assets/images/placeholder.png'" />

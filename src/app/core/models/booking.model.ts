@@ -48,6 +48,7 @@ export interface BookingResponse {
   completed_at?: string;
   provider?: { full_name: string; avatar?: string };
   client?: { full_name: string; avatar?: string };
+  reviewed?: boolean;
 }
 
 export const BOOKING_STATUS_LABELS: Record<BookingStatus, string> = {

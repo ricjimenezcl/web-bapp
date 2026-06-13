@@ -741,6 +741,16 @@ svg[width="14"] { width: 14px !important; height: 14px !important; }
 
   &:hover { background: rgba(253, 230, 138, 0.2); }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  &--done {
+    background: rgba(74, 222, 128, 0.1);
+    color: #4ADE80;
+    border-color: rgba(74, 222, 128, 0.25);
+    cursor: default;
+    opacity: 1;
+
+    &:hover { background: rgba(74, 222, 128, 0.1); }
+  }
 }
 
 // ── Review modal extras ────────────────────────────────────────

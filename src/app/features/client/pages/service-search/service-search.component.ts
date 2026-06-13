@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { debounceTime, distinctUntilChanged, take } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, take, catchError } from 'rxjs/operators';
+import { forkJoin, of } from 'rxjs';
 import { ProviderService } from '../../../../core/services/provider.service';
 import { CategoryService } from '../../../../core/services/category.service';
 import { SearchStateService } from '../../../../core/services/search-state.service';
@@ -254,10 +255,32 @@ export class ServiceSearchComponent implements OnInit {
 
   private fetchProvidersByLocation(serviceIds: number[], lat: number, lng: number): void {
     const radius = 20;
-    this.providerSvc.getNearbyProvidersByServiceIds(lat, lng, radius, serviceIds, 0, 60).subscribe({
-      next: (results: ServiceProvider[]) => {
-        const uniqueProviders = this.removeDuplicates(results);
-        this.providers.set(uniqueProviders);
+
+    this.providerSvc.getNearbyProvidersByServiceIds(lat, lng, radius, serviceIds, 0, 60).pipe(
+      catchError(err => {
+        // Errores de límite de negocio → propagar para que el componente redirija al modal premium
+        const code = (err as HttpErrorResponse)?.error?.detail?.code;
+        if (code === 'DAILY_SEARCH_LIMIT_REACHED' || code === 'FREE_SERVICE_SELECTION_LIMIT') {
+          throw err;
+        }
+        // Endpoint unificado no disponible (ej. aún no desplegado) → fallback individual
+        console.warn('Endpoint unificado no disponible, usando fallback individual', err?.status);
+        const requests = serviceIds.map(id =>
+          this.providerSvc.getNearbyProvidersByServiceId(lat, lng, radius, id, 0, 20)
+        );
+        return forkJoin(requests.length ? requests : [of([])]).pipe(
+          catchError(() => of([] as ServiceProvider[][])),
+        ).pipe(
+          // forkJoin devuelve ServiceProvider[][] → aplanar
+          catchError(() => of([] as ServiceProvider[])),
+        );
+      })
+    ).subscribe({
+      next: (results: ServiceProvider[] | ServiceProvider[][]) => {
+        const flat: ServiceProvider[] = Array.isArray(results[0])
+          ? this.removeDuplicates((results as ServiceProvider[][]).flat())
+          : this.removeDuplicates(results as ServiceProvider[]);
+        this.providers.set(flat);
         this.applyFilter();
         this.searchState.setProviders(this.filteredProviders());
         this.searchState.setUserLocation(lat, lng);

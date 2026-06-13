@@ -233,11 +233,8 @@ export class ProviderService {
         } : undefined),
         distance_km: item.distance ?? item.distance_km,
         description: item.description ?? undefined
-      } as ServiceProvider))),
-      catchError(err => {
-        console.error('Error fetching nearby providers by service IDs:', err);
-        return of([]);
-      })
+      } as ServiceProvider)))
+      // Sin catchError: los errores propagan al componente para manejo contextual
     );
   }
 

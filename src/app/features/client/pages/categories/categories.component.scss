@@ -250,6 +250,53 @@
   }
 }
 
+// ── Limits banner ───────────────────────────────────────────────
+
+.cat-limit-banner {
+  margin-top: -16px;
+  margin-bottom: 24px;
+  padding: 12px 14px;
+  border: 1px solid rgba(253, 230, 138, 0.25);
+  border-radius: 12px;
+  background: rgba(253, 230, 138, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  &--premium {
+    border-color: rgba(167, 243, 208, 0.25);
+    background: rgba(167, 243, 208, 0.08);
+  }
+}
+
+.cat-limit-banner__text {
+  font-size: 12px;
+  color: var(--text-p);
+
+  strong {
+    color: var(--cream);
+    margin-right: 6px;
+  }
+}
+
+.cat-limit-banner__cta {
+  border: 1px solid rgba(253, 230, 138, 0.35);
+  background: rgba(253, 230, 138, 0.14);
+  color: var(--cream);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+
+  &:hover {
+    background: rgba(253, 230, 138, 0.24);
+  }
+}
+
 // ── Location dropdown ────────────────────────────────────────────
 
 .cat-location-dropdown {
@@ -569,6 +616,7 @@
   transition: color 0.3s;
   max-width: 100%;
   display: -webkit-box;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -837,6 +885,12 @@
   }
 }
 
+.cat-selection-cap {
+  margin: 2px 2px 0;
+  font-size: 12px;
+  color: var(--text-s);
+}
+
 // ── Footer spacer ────────────────────────────────────────────────
 
 .cat-footer-space { height: 24px; }
@@ -922,6 +976,122 @@
   border-radius: 10px;
   font-size: 12px;
   font-weight: 800;
+}
+
+// ── Premium modal ───────────────────────────────────────────────
+
+.cat-premium-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1400;
+}
+
+.cat-premium-modal {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(640px, calc(100vw - 24px));
+  background: #101012;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 20px;
+  z-index: 1401;
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.55);
+}
+
+.cat-premium-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  h3 {
+    margin: 0;
+    font-size: 20px;
+    color: var(--text-p);
+  }
+}
+
+.cat-premium-modal-close {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-s);
+  cursor: pointer;
+}
+
+.cat-premium-modal-sub {
+  margin: 12px 0 16px;
+  color: var(--text-s);
+  font-size: 13px;
+}
+
+.cat-premium-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+
+  @media (max-width: 767px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cat-premium-plan-card {
+  position: relative;
+  text-align: left;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-p);
+  border-radius: 14px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: rgba(253, 230, 138, 0.35);
+    transform: translateY(-1px);
+  }
+
+  h4 {
+    margin: 12px 0 6px;
+    font-size: 16px;
+  }
+
+  p {
+    margin: 0 0 10px;
+    color: var(--text-s);
+    font-size: 13px;
+  }
+
+  strong {
+    color: var(--cream);
+    font-size: 18px;
+  }
+}
+
+.cat-premium-plan-card--featured {
+  border-color: rgba(253, 230, 138, 0.35);
+  background: rgba(253, 230, 138, 0.06);
+}
+
+.cat-premium-plan-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #000;
+  background: var(--cream);
+  border-radius: 999px;
+  padding: 4px 8px;
+}
+
+.cat-premium-plan-badge--accent {
+  background: var(--accent-mint);
 }
 
 // ════════════════════════════════════════════════════════════════════
@@ -1165,11 +1335,11 @@
   p {
     font-size: 10px;
     font-weight: 800;
-    color: #A7F3D0;
+    color: #E6FFF3;
     text-transform: uppercase;
     letter-spacing: 3px;
     margin: 0;
-    background: rgba(167, 243, 208, 0.1);
+    background: rgba(8, 28, 24, 0.92);
     padding: 6px 14px;
     border-radius: 20px;
     display: inline-block;

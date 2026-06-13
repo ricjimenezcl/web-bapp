@@ -310,8 +310,8 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
             maxWidth: 250,
             autoPan: true,
             keepInView: true,
-            closeOnClick: false,
-            autoClose: false
+            closeButton: false,
+          
           });
 
         // FIX mobile: asegurar que popup sea visible viewport

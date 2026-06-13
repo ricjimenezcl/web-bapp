@@ -884,20 +884,20 @@
 
 .bap-panel {
   
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;  /* centra el SVG + tooltip + footer verticalmente */
-  padding: 32px;
-  position: sticky;
-  top: 0;
-  /* align-self: stretch viene del host → el panel llena la altura completa */
-  z-index: 10;
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
-  flex-shrink: 0;
-  background: #030303;
-  border-radius: 24px 0 0 24px;
+  position: relative;
+  width: 100%;
+  max-width: 1100px;
+
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 120px; // espacio para la action bar fija
+  align-items: center;
+   justify-content: center; 
 
   /* 29vw proporcional: igual ratio en cualquier resolución (1440px→418px, 1920px→557px) */
   @media (min-width: 768px) {

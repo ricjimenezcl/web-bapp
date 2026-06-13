@@ -434,9 +434,6 @@ export class EditServiceComponent implements OnInit, OnDestroy {
             formData.append('timestamp', signature.timestamp.toString());
             formData.append('signature', signature.signature);
             formData.append('folder', signature.folder || 'portfolio');
-            if (signature.public_id) {
-              formData.append('public_id', signature.public_id);
-            }
           }
 
           const response = await fetch(

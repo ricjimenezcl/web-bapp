@@ -1,6 +1,6 @@
 import { Component, inject, signal, OnInit, OnDestroy, HostListener, ViewChild, ElementRef, Renderer2, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { CategoryService } from '../../../../core/services/category.service';
@@ -41,8 +41,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   mobileMenuOpen = signal(false);
   contactLoading = signal(false);
   contactSuccess = signal(false);
-  showModalPass  = signal(false);
-  registerRole   = signal<'client' | 'provider'>('client');
+  showModalPass        = signal(false);
+  showModalConfirmPass = signal(false);
+  registerRole         = signal<'client' | 'provider'>('client');
   sticky         = signal(false); // Para header sticky
   guideTab       = signal<'client' | 'provider'>('client'); // Tab para guías de uso
   
@@ -85,12 +86,17 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   // ── FormGroup registro (modal) ───────────────────────────────────
   registerForm = this.fb.group({
-    name:           ['', Validators.required],
-    email:          ['', [Validators.required, Validators.email]],
-    phone:          ['', [Validators.required, CustomValidators.phone()]],
-    password:       ['', [Validators.required, Validators.minLength(8), CustomValidators.passwordComplexity()]],
-    terms_accepted: [false, Validators.requiredTrue],
-  });
+    name:            ['', Validators.required],
+    email:           ['', [Validators.required, Validators.email]],
+    phone:           ['', [Validators.required, CustomValidators.phone()]],
+    password:        ['', [Validators.required, Validators.minLength(8), CustomValidators.passwordComplexity()]],
+    confirmPassword: ['', Validators.required],
+    terms_accepted:  [false, Validators.requiredTrue],
+  }, { validators: (ctrl: AbstractControl): ValidationErrors | null => {
+    const p = ctrl.get('password'), c = ctrl.get('confirmPassword');
+    if (!p || !c || !c.value) return null;
+    return p.value === c.value ? null : { passwordMismatch: true };
+  }});
 
   // ── FormGroup contacto ───────────────────────────────────────────
   contactForm = this.fb.group({
@@ -429,6 +435,10 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (control.errors['missingLowercase']) return 'La contraseña debe contener al menos una minúscula';
     if (control.errors['missingNumber']) return 'La contraseña debe contener al menos un número';
     return 'Contraseña inválida';
+  }
+
+  get registerPasswordMismatch(): boolean {
+    return !!(this.registerForm.errors?.['passwordMismatch'] && this.registerForm.get('confirmPassword')?.touched);
   }
 
   onRegisterPhoneInput(event: Event): void {

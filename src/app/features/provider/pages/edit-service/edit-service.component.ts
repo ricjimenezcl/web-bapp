@@ -422,10 +422,22 @@ export class EditServiceComponent implements OnInit, OnDestroy {
 
           const formData = new FormData();
           formData.append('file', img.file);
-          formData.append('api_key', signature.api_key);
-          formData.append('timestamp', signature.timestamp.toString());
-          formData.append('signature', signature.signature);
-          formData.append('folder', 'portfolio');
+          // Soporta tanto uploads signed como unsigned según respuesta del backend
+          if (signature.upload_preset) {
+            formData.append('upload_preset', signature.upload_preset);
+            formData.append('folder', signature.folder || 'portfolio');
+            if (signature.public_id) {
+              formData.append('public_id', signature.public_id);
+            }
+          } else {
+            formData.append('api_key', signature.api_key);
+            formData.append('timestamp', signature.timestamp.toString());
+            formData.append('signature', signature.signature);
+            formData.append('folder', signature.folder || 'portfolio');
+            if (signature.public_id) {
+              formData.append('public_id', signature.public_id);
+            }
+          }
 
           const response = await fetch(
             `https://api.cloudinary.com/v1_1/${signature.cloud_name}/image/upload`,

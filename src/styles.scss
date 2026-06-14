@@ -885,7 +885,9 @@
 .bap-panel {
   position: relative;
   flex-shrink: 0;
-  overflow: hidden;          /* evita que hijos se salgan */
+  /* NO overflow:hidden aquí — el canvas necesita overflow:visible para el tooltip.
+     El glow queda recortado mediante su propio contenedor. */
+  overflow: visible;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -895,12 +897,13 @@
   border-radius: 24px;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
 
-  /* Móvil: ancho completo, altura proporcional */
+  /* Móvil: ancho completo */
   width: 100%;
   min-height: 260px;
   padding: 24px 16px;
+  box-sizing: border-box;
 
-  /* Tablet/Desktop: columna lateral fija proporcional */
+  /* Tablet/Desktop: columna lateral proporcional */
   @media (min-width: 768px) {
     width: clamp(220px, 28vw, 480px);
     min-height: 0;
@@ -914,37 +917,47 @@
   }
 }
 
+/* Wrapper interno que sí recorta el glow sin afectar el tooltip */
+.bap-glow-clip {
+  position: absolute;
+  inset: 0;           /* cubre exactamente el panel */
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
 .bap-glow {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  /* Relativo al contenedor para no sobresalir */
-  width: 80%;
-  height: 80%;
-  max-width: 288px;
-  max-height: 288px;
+  width: 70%;
+  height: 70%;
   background: #A7F3D0;
   opacity: 0.03;
-  filter: blur(80px);
+  filter: blur(60px);
   border-radius: 50%;
   pointer-events: none;
 }
 
 .bap-canvas {
   position: relative;
-  /* Se adapta al ancho del panel sin desbordarse */
+  z-index: 1;
+  /* Nunca más ancho que el panel, menos el padding */
   width: 100%;
-  max-width: 340px;
-  aspect-ratio: 320 / 380;   /* mantiene proporciones del SVG */
+  max-width: min(340px, 100%);
+  aspect-ratio: 320 / 380;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  overflow: visible;          /* permite que el tooltip flote */
+  /* overflow:visible es necesario para que el tooltip se vea */
+  overflow: visible;
+  flex-shrink: 0;
 
   @media (max-width: 767px) {
-    max-width: 280px;
+    max-width: min(280px, 100%);
   }
 }
 

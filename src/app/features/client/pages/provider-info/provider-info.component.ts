@@ -13,6 +13,7 @@ import { ContactLimitService } from '../../../../core/services/contact-limit.ser
 import { ProviderProfile, ServiceProvider, ProviderWorkingHours } from '../../../../core/models/provider.model';
 import { Review } from '../../../../core/models/review.model';
 import { ModalService } from '../../../../core/services/modal.service';
+import { ReportService, ReportType, REPORT_TYPE_LABELS } from '../../../../core/services/report.service';
 
 interface CalendarDay {
   dateStr: string;      // YYYY-MM-DD
@@ -43,6 +44,7 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
   private readonly geoapify    = inject(GeoapifyService);
   readonly contactLimit        = inject(ContactLimitService);
   private readonly modal       = inject(ModalService);
+  private readonly reportSvc   = inject(ReportService);
   private readonly destroy$    = new Subject<void>();
 
   // ── Datos del proveedor ──────────────────────────────────────────────────
@@ -601,8 +603,8 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Denunciar perfil del proveedor
-   * Muestra un modal para confirmar la denuncia y enviar el reporte al backend
+   * Denunciar perfil del proveedor.
+   * Pregunta el motivo al usuario (prompt) y envía POST /api/v1/reports/ al backend.
    */
   async reportProvider(): Promise<void> {
     if (!this.providerId) {
@@ -610,21 +612,49 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const confirmed = await this.modal.confirm(
+    // Paso 1: confirmar intención
+    const wantReport = await this.modal.confirm(
       '¿Deseas denunciar este perfil?',
       'Denunciar perfil',
-      'Denunciar',
+      'Continuar',
       'Cancelar'
     );
+    if (!wantReport) return;
 
-    if (confirmed) {
-      // TODO: Implementar llamada al backend cuando esté disponible
-      // Ejemplo: this.reportService.reportProvider(this.providerId, reason).subscribe(...)
-      
-      // Por ahora, solo mostramos confirmación
-      this.showToast('Denuncia enviada. Gracias por tu reporte.', 'success');
-      console.log(`Proveedor ${this.providerId} denunciado`);
-    }
+    // Paso 2: pedir motivo mediante prompt
+    const motivos = Object.values(REPORT_TYPE_LABELS).join(' · ');
+    const description = await this.modal.prompt(
+      `Describe el motivo de tu denuncia (opcional).\n\nMotivos comunes: ${motivos}`,
+      'Motivo de la denuncia',
+      { inputPlaceholder: 'Ej: perfil falso, comportamiento sospechoso…', confirmText: 'Enviar denuncia', cancelText: 'Cancelar' }
+    );
+    if (description === null) return; // usuario canceló
+
+    // Determinar report_type según palabras clave del texto ingresado
+    const lc = (description ?? '').toLowerCase();
+    let reportType: ReportType = 'OTHER';
+    if (lc.includes('falso') || lc.includes('fake'))       reportType = 'FAKE_PROFILE';
+    else if (lc.includes('acoso') || lc.includes('haras')) reportType = 'HARASSMENT';
+    else if (lc.includes('spam'))                          reportType = 'SPAM';
+    else if (lc.includes('fraude') || lc.includes('esta')) reportType = 'FRAUD';
+    else if (lc.includes('contenido') || lc.includes('in'))reportType = 'INAPPROPRIATE_CONTENT';
+
+    this.reportSvc.createReport({
+      report_type:          reportType,
+      reported_entity_type: 'USER',
+      reported_entity_id:   this.providerId,
+      reported_user_id:     this.providerId,
+      description:          description || undefined,
+    }).subscribe({
+      next: () => {
+        this.showToast('Denuncia enviada. Gracias por tu reporte.', 'success');
+      },
+      error: (err) => {
+        const msg = err?.error?.detail ?? 'Error al enviar la denuncia. Intenta nuevamente.';
+        this.showToast(msg, 'danger');
+        console.error('[ReportService] Error:', err);
+      }
+    });
   }
 
   /**

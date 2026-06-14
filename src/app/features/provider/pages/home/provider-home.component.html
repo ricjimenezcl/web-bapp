@@ -10,7 +10,7 @@
 
       <div class="ph-cover"></div>
 
-      <!-- Badge verificaci\xf3n sobre el cover -->
+      <!-- Badge Verificación sobre el cover -->
       @if (!loading() && validationStatus() !== 'approved') {
         <div class="ph-cover-badge">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -91,7 +91,7 @@
               </svg>
             }
           </h3>
-          <p>Calificaci\xf3n</p>
+          <p>Calificaci�n</p>
         </div>
       </div>
     } @else {
@@ -122,7 +122,7 @@
 
       } @else {
 
-        <!-- ── Banner verificaci\xf3n pendiente ────────────────────── -->
+        <!-- ── Banner Verificación pendiente ────────────────────── -->
         @if (showVerificationAlert()) {
           <div class="ph-verification-banner">
             <div class="ph-vb-icon">
@@ -132,7 +132,7 @@
               </svg>
             </div>
             <div class="ph-vb-content">
-              <h4>Verificaci\xf3n de identidad</h4>
+              <h4>Verificación de identidad</h4>
               <p>{{ verificationMessage() }}</p>
             </div>
             <div class="ph-vb-actions">
@@ -140,7 +140,7 @@
                 Verificar ahora
               </button>
               <button class="ph-btn-ghost" type="button" (click)="dismissVerificationAlert()">
-                M\xe1s tarde
+                M�s tarde
               </button>
             </div>
           </div>
@@ -157,7 +157,7 @@
             </div>
             <span class="ph-pa-text">
               Tienes <strong>{{ stats()?.pending_services }}</strong>
-              servicio{{ (stats()?.pending_services ?? 1) !== 1 ? 's' : '' }} pendiente{{ (stats()?.pending_services ?? 1) !== 1 ? 's' : '' }} de activaci\xf3n
+              servicio{{ (stats()?.pending_services ?? 1) !== 1 ? 's' : '' }} pendiente{{ (stats()?.pending_services ?? 1) !== 1 ? 's' : '' }} de activaci�n
             </span>
             <svg class="ph-pa-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -165,7 +165,7 @@
           </a>
         }
 
-        <!-- ── Secci\xf3n: Tu actividad ─────────────────────────────── -->
+        <!-- ── Secci�n: Tu actividad ─────────────────────────────── -->
         <div class="ph-section">
           <span class="ph-section-title">Tu actividad</span>
           <div class="ph-metrics-grid">
@@ -205,7 +205,7 @@
           </div>
         </div>
 
-        <!-- ── Accesos r\xe1pidos ───────────────────────────────────── -->
+        <!-- ── Accesos r�pidos ───────────────────────────────────── -->
         <div class="ph-section">
           <span class="ph-section-title">Ir a</span>
           <div class="ph-quick-actions">

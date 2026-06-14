@@ -153,7 +153,7 @@
                     <svg class="perk-icon" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.59L5.41 12 6.83 10.58 10 13.75l7.17-7.17 1.42 1.42L10 16.59z"/>
                     </svg>
-                    Perfil p\xfablico activo
+                    Perfil p�blico activo
                   </div>
                 } @else if (provider()?.validation_status === 'pending') {
                   <div class="perk">
@@ -214,7 +214,7 @@
 
         @if (provider()?.bio) {
           <div class="bio-card">
-            <small class="stat-label">Descripci\xf3n profesional</small>
+            <small class="stat-label">Descripci�n profesional</small>
             <p class="bio-text">{{ provider()!.bio }}</p>
           </div>
         }
@@ -227,7 +227,7 @@
       <div class="view-anim">
         <div class="view-header">
           <h2>Editar Perfil</h2>
-          <p>Actualiza tu informaci\xf3n personal y descripci\xf3n profesional.</p>
+          <p>Actualiza tu informaci�n personal y descripci�n profesional.</p>
         </div>
 
         @if (success()) {
@@ -275,7 +275,7 @@
           </div>
           <div>
             <p class="avatar-info-title">Foto de perfil</p>
-            <p class="avatar-info-hint">JPG o PNG. M\xe1x. 5 MB</p>
+            <p class="avatar-info-hint">JPG o PNG. M�x. 5 MB</p>
           </div>
         </div>
 
@@ -293,7 +293,7 @@
             </div>
 
             <div class="form-group">
-              <label for="pp_phone">Tel\xe9fono</label>
+              <label for="pp_phone">Tel�fono</label>
               <input id="pp_phone" type="tel" formControlName="phone"
                 placeholder="+56 9 XXXX XXXX" maxlength="17">
             </div>
@@ -304,9 +304,9 @@
             </div>
 
             <div class="form-group form-group--full">
-              <label for="pp_bio">Descripci\xf3n profesional / Bio</label>
+              <label for="pp_bio">Descripci�n profesional / Bio</label>
               <textarea id="pp_bio" formControlName="bio" rows="4"
-                placeholder="Cu\xe9ntanos sobre ti y tus servicios..."></textarea>
+                placeholder="Cu�ntanos sobre ti y tus servicios..."></textarea>
             </div>
 
           </div>
@@ -321,12 +321,12 @@
       </div>
     }
 
-    <!-- ── VISTA: CONFIGURACI\xd3N ───────────────────────────────────── -->
+    <!-- ── VISTA: CONFIGURACI�N ───────────────────────────────────── -->
     @if (activeView() === 'cuenta') {
       <div class="view-anim">
         <div class="view-header">
-          <h2>Configuraci\xf3n</h2>
-          <p>Administra tu cuenta, seguridad y verificaci\xf3n de identidad.</p>
+          <h2>Configuraci�n</h2>
+          <p>Administra tu cuenta, seguridad y Verificación de identidad.</p>
         </div>
 
         <div class="config-list">
@@ -339,8 +339,8 @@
               </svg>
             </div>
             <div class="config-menu-info">
-              <span class="config-menu-label">Actualizar contrase\xf1a</span>
-              <span class="config-menu-sub">Cambia tu contrase\xf1a de acceso</span>
+              <span class="config-menu-label">Actualizar contrase�a</span>
+              <span class="config-menu-sub">Cambia tu contrase�a de acceso</span>
             </div>
             <svg class="config-menu-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -355,7 +355,7 @@
               </svg>
             </div>
             <div class="config-menu-info">
-              <span class="config-menu-label">Validaci\xf3n biom\xe9trica</span>
+              <span class="config-menu-label">Validaci�n biom�trica</span>
               <span class="config-menu-sub">Verifica tu identidad</span>
             </div>
             @if (provider()?.validation_status === 'approved') {
@@ -412,7 +412,7 @@
               </svg>
             </div>
             <div class="config-menu-info">
-              <span class="config-menu-label">T\xe9rminos y condiciones</span>
+              <span class="config-menu-label">T�rminos y condiciones</span>
             </div>
             <svg class="config-menu-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -426,7 +426,7 @@
               </svg>
             </div>
             <div class="config-menu-info">
-              <span class="config-menu-label">Pol\xedtica de privacidad</span>
+              <span class="config-menu-label">Pol�tica de privacidad</span>
             </div>
             <svg class="config-menu-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -437,12 +437,12 @@
       </div>
     }
 
-    <!-- ── VISTA: CAMBIAR CONTRASE\xd1A ─────────────────────────────── -->
+    <!-- ── VISTA: CAMBIAR CONTRASE�A ─────────────────────────────── -->
     @if (activeView() === 'password') {
       <div class="view-anim">
         <div class="view-header">
-          <h2>Actualizar contrase\xf1a</h2>
-          <p>Ingresa tu contrase\xf1a actual y la nueva para continuar.</p>
+          <h2>Actualizar contrase�a</h2>
+          <p>Ingresa tu contrase�a actual y la nueva para continuar.</p>
         </div>
 
         @if (pwSuccess()) {
@@ -450,7 +450,7 @@
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
             </svg>
-            Contrase\xf1a actualizada correctamente
+            Contrase�a actualizada correctamente
           </div>
         }
         @if (pwError()) {
@@ -466,37 +466,37 @@
         <form [formGroup]="pwForm" (ngSubmit)="changePassword()">
           <div class="form-grid">
             <div class="form-group form-group--full">
-              <label for="pp_old_pw">Contrase\xf1a actual</label>
+              <label for="pp_old_pw">Contrase�a actual</label>
               <input id="pp_old_pw" type="password" formControlName="old_password" placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"
                 [class.is-error]="pwForm.get('old_password')!.invalid && pwForm.get('old_password')!.touched">
               @if (pwForm.get('old_password')!.invalid && pwForm.get('old_password')!.touched) {
-                <span class="form-error">La contrase\xf1a actual es requerida</span>
+                <span class="form-error">La contrase�a actual es requerida</span>
               }
             </div>
             <div class="form-group form-group--full">
-              <label for="pp_new_pw">Nueva contrase\xf1a</label>
-              <input id="pp_new_pw" type="password" formControlName="new_password" placeholder="M\xednimo 8 caracteres"
+              <label for="pp_new_pw">Nueva contrase�a</label>
+              <input id="pp_new_pw" type="password" formControlName="new_password" placeholder="M�nimo 8 caracteres"
                 [class.is-error]="pwForm.get('new_password')!.invalid && pwForm.get('new_password')!.touched">
               @if (pwForm.get('new_password')!.invalid && pwForm.get('new_password')!.touched) {
                 <span class="form-error">
-                  {{ pwForm.get('new_password')!.errors?.['required'] ? 'La nueva contrase\xf1a es requerida' : 'M\xednimo 8 caracteres' }}
+                  {{ pwForm.get('new_password')!.errors?.['required'] ? 'La nueva contrase�a es requerida' : 'M�nimo 8 caracteres' }}
                 </span>
               }
             </div>
             <div class="form-group form-group--full">
-              <label for="pp_confirm_pw">Repetir nueva contrase\xf1a</label>
+              <label for="pp_confirm_pw">Repetir nueva contrase�a</label>
               <input id="pp_confirm_pw" type="password" formControlName="confirm_password"
-                placeholder="Repite la nueva contrase\xf1a"
+                placeholder="Repite la nueva contrase�a"
                 [class.is-error]="pwForm.get('confirm_password')!.touched && pwForm.hasError('passwordsMismatch')">
               @if (pwForm.get('confirm_password')!.touched && pwForm.hasError('passwordsMismatch')) {
-                <span class="form-error">Las contrase\xf1as no coinciden</span>
+                <span class="form-error">Las contrase�as no coinciden</span>
               }
             </div>
           </div>
           <div class="form-actions">
             <button type="button" class="btn-secondary" (click)="showView('cuenta')">Cancelar</button>
             <button type="submit" class="btn-primary" [disabled]="pwLoading()">
-              @if (pwLoading()) { Guardando... } @else { Actualizar contrase\xf1a }
+              @if (pwLoading()) { Guardando... } @else { Actualizar contrase�a }
             </button>
           </div>
         </form>
@@ -522,7 +522,7 @@
                 d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
             </svg>
             <h3>Sin servicios contratados</h3>
-            <p>A\xfan no has contratado ning\xfan plan en BAPP.</p>
+            <p>A�n no has contratado ning�n plan en BAPP.</p>
             <button type="button" class="btn-primary" (click)="goToPayment('PROVIDER_PREMIUM_MONTHLY')">
               Activar Premium mensual
             </button>
@@ -543,7 +543,7 @@
                       <svg class="perk-icon" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.59L5.41 12 6.83 10.58 10 13.75l7.17-7.17 1.42 1.42L10 16.59z"/>
                       </svg>
-                      Vence: {{ activePlan.expires_at | date:'dd/MM/yyyy' }} &mdash; {{ remainingDays(activePlan.expires_at) }} d\xedas restantes
+                      Vence: {{ activePlan.expires_at | date:'dd/MM/yyyy' }} &mdash; {{ remainingDays(activePlan.expires_at) }} d�as restantes
                     </div>
                   }
                 </div>
@@ -595,66 +595,66 @@
       <div class="view-anim">
         <div class="view-header">
           <h2>Centro de Ayuda</h2>
-          <p>Encuentra respuestas a las preguntas m\xe1s frecuentes.</p>
+          <p>Encuentra respuestas a las preguntas m�s frecuentes.</p>
         </div>
 
         <div class="faq-list">
 
           <details class="faq-item">
             <summary class="faq-question">
-              \xbfC\xf3mo activo mi perfil para recibir solicitudes?
+              �C�mo activo mi perfil para recibir solicitudes?
               <svg class="faq-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
               </svg>
             </summary>
-            <p class="faq-answer">Completa la verificaci\xf3n biom\xe9trica y agrega al menos un servicio activo. Una vez aprobado, tu perfil ser\xe1 visible para clientes en la plataforma.</p>
+            <p class="faq-answer">Completa la Verificación biom�trica y agrega al menos un servicio activo. Una vez aprobado, tu perfil ser� visible para clientes en la plataforma.</p>
           </details>
 
           <details class="faq-item">
             <summary class="faq-question">
-              \xbfC\xf3mo gestiono mis reservas?
+              �C�mo gestiono mis reservas?
               <svg class="faq-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
               </svg>
             </summary>
-            <p class="faq-answer">Desde la secci\xf3n "Reservas" podr\xe1s ver, aceptar, rechazar y completar las solicitudes de tus clientes en tiempo real.</p>
+            <p class="faq-answer">Desde la secci�n "Reservas" podr�s ver, aceptar, rechazar y completar las solicitudes de tus clientes en tiempo real.</p>
           </details>
 
           <details class="faq-item">
             <summary class="faq-question">
-              \xbfQu\xe9 incluye el plan de proveedor?
+              �Qu� incluye el plan de proveedor?
               <svg class="faq-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
               </svg>
             </summary>
-            <p class="faq-answer">Perfil p\xfablico verificado, recepci\xf3n de solicitudes ilimitadas, gesti\xf3n de reservas, chat integrado y estad\xedsticas de actividad en la plataforma.</p>
+            <p class="faq-answer">Perfil p�blico verificado, recepci�n de solicitudes ilimitadas, gesti�n de reservas, chat integrado y estad�sticas de actividad en la plataforma.</p>
           </details>
 
           <details class="faq-item">
             <summary class="faq-question">
-              \xbfC\xf3mo cambio mi contrase\xf1a?
+              �C�mo cambio mi contrase�a?
               <svg class="faq-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
               </svg>
             </summary>
-            <p class="faq-answer">Ve a "Configuraci\xf3n" en el men\xfa lateral y luego a "Actualizar contrase\xf1a". Necesitar\xe1s ingresar tu contrase\xf1a actual antes de establecer una nueva.</p>
+            <p class="faq-answer">Ve a "Configuraci�n" en el men� lateral y luego a "Actualizar contrase�a". Necesitar�s ingresar tu contrase�a actual antes de establecer una nueva.</p>
           </details>
 
           <details class="faq-item">
             <summary class="faq-question">
-              \xbfC\xf3mo reporto un problema con un cliente?
+              �C�mo reporto un problema con un cliente?
               <svg class="faq-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
               </svg>
             </summary>
-            <p class="faq-answer">Puedes reportar un problema desde el historial de reservas seleccionando la reserva afectada. Nuestro equipo revisar\xe1 el caso en un plazo de 48 horas h\xe1biles.</p>
+            <p class="faq-answer">Puedes reportar un problema desde el historial de reservas seleccionando la reserva afectada. Nuestro equipo revisar� el caso en un plazo de 48 horas h�biles.</p>
           </details>
 
         </div>
 
         <div class="help-contact">
-          <h4 class="help-contact-title">\xbfNo encontraste lo que buscabas?</h4>
-          <p class="help-contact-sub">Nuestro equipo est\xe1 disponible para ayudarte.</p>
+          <h4 class="help-contact-title">�No encontraste lo que buscabas?</h4>
+          <p class="help-contact-sub">Nuestro equipo est� disponible para ayudarte.</p>
           <div class="help-contact-actions">
             <a class="help-contact-btn" href="mailto:soporte@bappsearch.com">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -668,7 +668,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
               </svg>
-              T\xe9rminos de uso
+              T�rminos de uso
             </a>
             <a routerLink="/privacy" class="help-contact-btn">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">

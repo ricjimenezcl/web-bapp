@@ -71,14 +71,14 @@ export class ProviderHomeComponent implements OnInit, OnDestroy {
   }
 
   private showVerificationWarning(status: string): void {
-    let message = 'Para poder agregar servicios, debes completar la verificación de identidad.';
+    let message = 'Debes realizar la verificación de identidad para poder agregar servicios.';
     
     if (status === 'pending') {
-      message = 'Tu verificación está pendiente de procesamiento. No podrás agregar servicios hasta que sea aprobada.';
+      message = 'Debes realizar la verificación de identidad para poder agregar servicios.';
     } else if (status === 'rejected') {
       message = 'Tu verificación fue rechazada. No podrás agregar servicios hasta verificar tu identidad nuevamente.';
     } else if (status === 'not_submitted') {
-      message = 'Para poder agregar servicios, debes completar la verificación de identidad.';
+      message = 'Debes realizar la verificación de identidad para poder agregar servicios.';
     }
 
     this.verificationMessage.set(message);

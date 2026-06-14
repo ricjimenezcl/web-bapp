@@ -33,6 +33,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   // ── Signals originales ───────────────────────────────────────────
   loading   = signal(false);
   error     = signal('');
+  success   = signal('');
   showPass  = signal(false);
 
   // ── Signals landing page ─────────────────────────────────────────
@@ -368,6 +369,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
     this.loading.set(true);
     this.error.set('');
+    this.success.set('');
 
     const { email, password } = this.form.value;
     this.auth.login({ username: email!, password: password! }).subscribe({
@@ -386,6 +388,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (this.registerForm.invalid) { this.registerForm.markAllAsTouched(); return; }
     this.loading.set(true);
     this.error.set('');
+    this.success.set('');
 
     const { name, email, phone, password, terms_accepted } = this.registerForm.value;
     const payload = {
@@ -403,10 +406,10 @@ export class LoginComponent implements OnInit, OnDestroy {
     register$.subscribe({
       next: () => {
         this.loading.set(false);
-        this.closeModal();
-        // Auto-login después de registro exitoso
+        this.success.set('Cuenta creada con éxito. Ahora inicia sesión con tus credenciales.');
+        this.activeTab.set('login');
+        // Prellenar login para facilitar acceso
         this.form.patchValue({ email, password });
-        this.submit();
       },
       error: (err: any) => {
         this.loading.set(false);
@@ -484,11 +487,13 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.activeTab.set(tab);
     this.showModal.set(true);
     this.error.set('');
+    this.success.set('');
     this.lockBodyScroll();
   }
 
   closeModal(): void {
     this.showModal.set(false);
+    this.success.set('');
     if (!this.showServicesModal()) {
       this.unlockBodyScroll();
     }
@@ -497,6 +502,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   setTab(tab: 'login' | 'register'): void {
     this.activeTab.set(tab);
     this.error.set('');
+    this.success.set('');
     if (tab === 'register') {
       this.registerRole.set('client');
     }

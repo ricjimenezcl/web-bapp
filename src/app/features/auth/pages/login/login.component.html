@@ -1023,6 +1023,12 @@
         </div>
       }
 
+      @if (success()) {
+        <div class="bg-green-500/10 border border-green-500/30 rounded-lg p-3 mb-4 text-green-300 text-sm">
+          {{ success() }}
+        </div>
+      }
+
       <!-- Login Form -->
       @if (activeTab() === 'login') {
         <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4 text-left">

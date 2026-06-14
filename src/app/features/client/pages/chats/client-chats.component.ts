@@ -37,8 +37,13 @@ export class ClientChatsComponent implements OnInit {
     this.loading.set(true);
     this.chatSvc.loadConversations().subscribe({
       next: (list) => {
-        console.log('Conversations loaded:', list);
-        this.conversations.set(list);
+        const sorted = [...list].sort((a, b) =>
+          new Date(b.updated_at ?? 0).getTime() - new Date(a.updated_at ?? 0).getTime()
+        );
+        this.conversations.set(sorted);
+        if (!this.selectedConvId() && sorted.length > 0) {
+          this.selectedConvId.set(sorted[0].id);
+        }
         this.loading.set(false);
       },
       error: (err) => {

@@ -44,6 +44,12 @@ export class ChatViewComponent implements OnInit, OnDestroy, AfterViewChecked, O
   private subs: Subscription[] = [];
   private _initialized = false;
 
+  private normalizeMessages(msgs: ChatMessage[] | null | undefined): ChatMessage[] {
+    return [...(msgs ?? [])].sort((a, b) =>
+      new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    );
+  }
+
   goBack(): void {
     this.close.emit();
   }
@@ -80,11 +86,12 @@ export class ChatViewComponent implements OnInit, OnDestroy, AfterViewChecked, O
           : res.client;
         this.otherParticipant.set(other ?? null);
 
-        this.chatSvc.getMessages(this.conversationId).subscribe({
+        this.chatSvc.getMessages(this.conversationId, 0, 200).subscribe({
           next: (msgs) => {
-            this.messages.set(msgs ?? []);
+            this.messages.set(this.normalizeMessages(msgs));
             this.shouldScrollToBottom = true;
             this.loading.set(false);
+            requestAnimationFrame(() => this.scrollToBottom());
             this.chatSvc.markAllRead(this.conversationId).subscribe({ error: () => {} });
           },
           error: () => this.loading.set(false)
@@ -116,8 +123,9 @@ export class ChatViewComponent implements OnInit, OnDestroy, AfterViewChecked, O
             is_read:          msg.is_read,
             created_at:       msg.timestamp,
           };
-          this.messages.update(list => [...list, chatMsg]);
+          this.messages.update(list => this.normalizeMessages([...list, chatMsg]));
           this.shouldScrollToBottom = true;
+          requestAnimationFrame(() => this.scrollToBottom());
           if (msg.sender_id !== this.currentUserId) {
             this.chatSvc.markAllRead(this.conversationId).subscribe({ error: () => {} });
           }
@@ -202,6 +210,8 @@ export class ChatViewComponent implements OnInit, OnDestroy, AfterViewChecked, O
       next: () => {
         this.messages.update(list => list.filter(m => m.id !== msg.id));
         this.deletingMsgId.set(null);
+        this.shouldScrollToBottom = true;
+        requestAnimationFrame(() => this.scrollToBottom());
       },
       error: () => this.deletingMsgId.set(null)
     });

@@ -55,11 +55,20 @@ export class ProviderInboxComponent implements OnInit {
     const clientId = this.route.snapshot.queryParamMap.get('clientId');
     this.chatSvc.loadConversations().subscribe({
       next: (list) => {
-        this.conversations.set(list);
+        const sorted = [...list].sort((a, b) =>
+          new Date(b.updated_at ?? 0).getTime() - new Date(a.updated_at ?? 0).getTime()
+        );
+        this.conversations.set(sorted);
         this.loading.set(false);
         if (clientId) {
-          const conv = list.find(c => c.client_id === +clientId);
-          if (conv) this.selectedConvId.set(conv.id);
+          const conv = sorted.find(c => c.client_id === +clientId);
+          if (conv) {
+            this.selectedConvId.set(conv.id);
+          } else if (sorted.length > 0) {
+            this.selectedConvId.set(sorted[0].id);
+          }
+        } else if (!this.selectedConvId() && sorted.length > 0) {
+          this.selectedConvId.set(sorted[0].id);
         }
       },
       error: () => this.loading.set(false)

@@ -883,26 +883,34 @@
 // ════════════════════════════════════════════════════════════════════
 
 .bap-panel {
-  
   position: relative;
-  width: 100%;
-  max-width: 1100px;
-
+  flex-shrink: 0;
+  overflow: hidden;          /* evita que hijos se salgan */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   background: var(--bg-deep);
   border: 1px solid var(--border);
   border-radius: 24px;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  padding-bottom: 120px; // espacio para la action bar fija
-  align-items: center;
-   justify-content: center; 
 
-  /* 29vw proporcional: igual ratio en cualquier resolución (1440px→418px, 1920px→557px) */
+  /* Móvil: ancho completo, altura proporcional */
+  width: 100%;
+  min-height: 260px;
+  padding: 24px 16px;
+
+  /* Tablet/Desktop: columna lateral fija proporcional */
   @media (min-width: 768px) {
-    display: flex;
-    width: clamp(260px, 29vw, 640px);
+    width: clamp(220px, 28vw, 480px);
+    min-height: 0;
+    padding: 32px 20px;
+    align-self: stretch;
+  }
+
+  @media (min-width: 1280px) {
+    width: clamp(260px, 26vw, 520px);
+    padding: 40px 24px;
   }
 }
 
@@ -911,8 +919,11 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 288px;
-  height: 288px;
+  /* Relativo al contenedor para no sobresalir */
+  width: 80%;
+  height: 80%;
+  max-width: 288px;
+  max-height: 288px;
   background: #A7F3D0;
   opacity: 0.03;
   filter: blur(80px);
@@ -922,12 +933,19 @@
 
 .bap-canvas {
   position: relative;
-  width: 320px;
-  height: 380px;
+  /* Se adapta al ancho del panel sin desbordarse */
+  width: 100%;
+  max-width: 340px;
+  aspect-ratio: 320 / 380;   /* mantiene proporciones del SVG */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  overflow: visible;          /* permite que el tooltip flote */
+
+  @media (max-width: 767px) {
+    max-width: 280px;
+  }
 }
 
 .bap-tooltip {

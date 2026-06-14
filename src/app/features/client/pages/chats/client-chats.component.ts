@@ -57,6 +57,19 @@ export class ClientChatsComponent implements OnInit {
     this.selectedConvId.set(null);
   }
 
+  deleteConversation(id: number, event: Event): void {
+    event.stopPropagation();
+    if (!confirm('¿Eliminar esta conversación? Esta acción no se puede deshacer.')) return;
+    this.chatSvc.deleteConversation(id).subscribe({
+      next: () => {
+        this.chatSvc.removeConversationLocally(id);
+        this.conversations.update(list => list.filter(c => c.id !== id));
+        if (this.selectedConvId() === id) this.selectedConvId.set(null);
+      },
+      error: () => {}
+    });
+  }
+
   isNow(date: string | Date | undefined): boolean {
     if (!date) return false;
     const d = new Date(date);

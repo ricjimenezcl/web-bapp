@@ -111,6 +111,79 @@
   }
 }
 
+// Wrapper relativo para posicionar el menú contextual
+.message-bubble-wrap {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  max-width: 100%;
+
+  .mine & {
+    flex-direction: row-reverse;
+  }
+}
+
+// Botón ⋮ para abrir menú de mensaje
+.msg-menu-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: rgba(255,255,255,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+  border-radius: 50%;
+
+  svg { width: 16px; height: 16px; }
+  &:hover { color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.08); }
+}
+.message-bubble-wrap:hover .msg-menu-btn { opacity: 1; }
+
+// Menú contextual
+.msg-context-menu {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  right: 0;
+  background: #1E1E1E;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 4px;
+  z-index: 50;
+  min-width: 160px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+.msg-context-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+  &--danger {
+    color: #FF6B6B;
+    &:hover { background: rgba(255,107,107,0.12); }
+  }
+}
+
+// Bubble en proceso de eliminación
+.bubble--deleting {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
 .empty-messages {
   display: flex;
   flex-direction: column;

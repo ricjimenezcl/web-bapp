@@ -77,6 +77,23 @@ export class ChatService {
     return this.http.post(`${this.api}/chat/conversations/${conversationId}/read-all`, {});
   }
 
+  /** DELETE /chat/conversations/{id}/messages/{messageId} */
+  deleteMessage(conversationId: number, messageId: number): Observable<any> {
+    return this.http.delete(
+      `${this.api}/chat/conversations/${conversationId}/messages/${messageId}`
+    );
+  }
+
+  /** DELETE /chat/conversations/{id} */
+  deleteConversation(conversationId: number): Observable<any> {
+    return this.http.delete(`${this.api}/chat/conversations/${conversationId}`);
+  }
+
+  removeConversationLocally(conversationId: number): void {
+    const list = this._conversations$.value.filter(c => c.id !== conversationId);
+    this._conversations$.next(list);
+  }
+
   applyLocalMessageUpdate(conversationId: number, preview: string): void {
     const list = this._conversations$.value;
     const idx  = list.findIndex(c => c.id === conversationId);

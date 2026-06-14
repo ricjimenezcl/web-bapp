@@ -22,7 +22,7 @@
   </header>
 
   <!-- Messages -->
-  <div class="messages-area" #messagesArea>
+  <div class="messages-area" #messagesArea (click)="closeMenuOnOutsideClick()">
     @if (loading()) {
       <div class="flex justify-center py-8"><span class="spinner w-6 h-6 border-primary-600"></span></div>
     } @else if (messages().length === 0) {
@@ -33,12 +33,38 @@
     } @else {
       @for (msg of messages(); track msg.id) {
         <div class="message-row" [class.mine]="isMyMessage(msg)">
-          <div [class]="isMyMessage(msg) ? 'bubble-mine' : 'bubble-other'">
-            <p class="whitespace-pre-wrap break-words">{{ msg.message_content }}</p>
-            <p class="bubble-time">
-              {{ msg.created_at | date:'HH:mm' }}
-              @if (isMyMessage(msg) && msg.is_read) { ✓✓ }
-            </p>
+          <div class="message-bubble-wrap">
+            <div [class]="isMyMessage(msg) ? 'bubble-mine' : 'bubble-other'"
+                 [class.bubble--deleting]="deletingMsgId() === msg.id">
+              <p class="whitespace-pre-wrap break-words">{{ msg.message_content }}</p>
+              <p class="bubble-time">
+                {{ msg.created_at | date:'HH:mm' }}
+                @if (isMyMessage(msg) && msg.is_read) { ✓✓ }
+              </p>
+            </div>
+            @if (isMyMessage(msg)) {
+              <button class="msg-menu-btn" type="button"
+                      (click)="toggleMessageMenu(msg.id, $event)"
+                      aria-label="Opciones del mensaje">
+                <svg fill="currentColor" viewBox="0 0 24 24">
+                  <circle cx="12" cy="5"  r="1.5"/>
+                  <circle cx="12" cy="12" r="1.5"/>
+                  <circle cx="12" cy="19" r="1.5"/>
+                </svg>
+              </button>
+              @if (activeMenuMsgId() === msg.id) {
+                <div class="msg-context-menu" (click)="$event.stopPropagation()">
+                  <button type="button" class="msg-context-item msg-context-item--danger"
+                          (click)="deleteMessage(msg)">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                    Eliminar mensaje
+                  </button>
+                </div>
+              }
+            }
           </div>
         </div>
       }

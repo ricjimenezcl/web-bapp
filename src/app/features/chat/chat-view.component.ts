@@ -33,6 +33,8 @@ export class ChatViewComponent implements OnInit, OnDestroy, AfterViewChecked, O
   loading           = signal(true);
   sending           = signal(false);
   typing            = signal(false);
+  deletingMsgId     = signal<number | null>(null);
+  activeMenuMsgId   = signal<number | null>(null);
   typingTimeout: ReturnType<typeof setTimeout> | null = null;
   private shouldScrollToBottom = true;
 
@@ -181,6 +183,28 @@ export class ChatViewComponent implements OnInit, OnDestroy, AfterViewChecked, O
 
   isMyMessage(msg: ChatMessage): boolean {
     return msg.sender_id === this.currentUserId;
+  }
+
+  toggleMessageMenu(msgId: number, event: Event): void {
+    event.stopPropagation();
+    this.activeMenuMsgId.update(v => v === msgId ? null : msgId);
+  }
+
+  closeMenuOnOutsideClick(): void {
+    this.activeMenuMsgId.set(null);
+  }
+
+  deleteMessage(msg: ChatMessage): void {
+    if (!this.isMyMessage(msg)) return;
+    this.activeMenuMsgId.set(null);
+    this.deletingMsgId.set(msg.id);
+    this.chatSvc.deleteMessage(this.conversationId, msg.id).subscribe({
+      next: () => {
+        this.messages.update(list => list.filter(m => m.id !== msg.id));
+        this.deletingMsgId.set(null);
+      },
+      error: () => this.deletingMsgId.set(null)
+    });
   }
 
   ngOnDestroy(): void {

@@ -33,6 +33,19 @@ export class ProviderInboxComponent implements OnInit {
   selectChat(id: number): void { this.selectedConvId.set(id); }
   closeChat(): void { this.selectedConvId.set(null); }
 
+  deleteConversation(id: number, event: Event): void {
+    event.stopPropagation();
+    if (!confirm('¿Eliminar esta conversación? Esta acción no se puede deshacer.')) return;
+    this.chatSvc.deleteConversation(id).subscribe({
+      next: () => {
+        this.chatSvc.removeConversationLocally(id);
+        this.conversations.update(list => list.filter(c => c.id !== id));
+        if (this.selectedConvId() === id) this.selectedConvId.set(null);
+      },
+      error: () => {}
+    });
+  }
+
   isNow(date?: string): boolean {
     if (!date) return false;
     return Date.now() - new Date(date).getTime() < 60_000;

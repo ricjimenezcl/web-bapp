@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { tap, map } from 'rxjs/operators';
+import { BehaviorSubject, Observable, forkJoin, of } from 'rxjs';
+import { tap, map, switchMap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import {
   ConversationUI, ConversationListResponse, ConversationResponse,
@@ -40,6 +40,46 @@ export class ChatService {
       params: { skip, limit }
     }).pipe(
       map(res => (res.items ?? []).map(c => this._toUI(c))),
+      tap(list => this._conversations$.next(list))
+    );
+  }
+
+  /** GET /chat/conversations — loads all pages and updates conversations$ */
+  loadAllConversations(limit = 100): Observable<ConversationUI[]> {
+    return this.http.get<ConversationListResponse>(`${this.api}/chat/conversations`, {
+      params: { skip: 0, limit }
+    }).pipe(
+      switchMap(first => {
+        const firstItems = first.items ?? [];
+        const total = first.total ?? firstItems.length;
+        const pageSize = Math.max(1, first.limit || firstItems.length || limit);
+
+        if (total <= firstItems.length) {
+          return of(firstItems);
+        }
+
+        const requests: Observable<ConversationListResponse>[] = [];
+        for (let pageSkip = firstItems.length; pageSkip < total; pageSkip += pageSize) {
+          requests.push(
+            this.http.get<ConversationListResponse>(`${this.api}/chat/conversations`, {
+              params: { skip: pageSkip, limit: pageSize }
+            })
+          );
+        }
+
+        return forkJoin(requests).pipe(
+          map(pages => {
+            const all = [
+              ...firstItems,
+              ...pages.flatMap(page => page.items ?? [])
+            ];
+            const uniqueById = new Map<number, ConversationResponse>();
+            all.forEach(item => uniqueById.set(item.id, item));
+            return Array.from(uniqueById.values());
+          })
+        );
+      }),
+      map(items => items.map(c => this._toUI(c))),
       tap(list => this._conversations$.next(list))
     );
   }

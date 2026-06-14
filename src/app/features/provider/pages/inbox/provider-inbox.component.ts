@@ -53,7 +53,7 @@ export class ProviderInboxComponent implements OnInit {
 
   ngOnInit(): void {
     const clientId = this.route.snapshot.queryParamMap.get('clientId');
-    this.chatSvc.loadConversations().subscribe({
+    this.chatSvc.loadAllConversations().subscribe({
       next: (list) => {
         const sorted = [...list].sort((a, b) =>
           new Date(b.updated_at ?? 0).getTime() - new Date(a.updated_at ?? 0).getTime()
@@ -73,6 +73,11 @@ export class ProviderInboxComponent implements OnInit {
       },
       error: () => this.loading.set(false)
     });
-    this.chatSvc.conversations$.subscribe(c => this.conversations.set(c));
+    this.chatSvc.conversations$.subscribe(c => {
+      const sorted = [...c].sort((a, b) =>
+        new Date(b.updated_at ?? 0).getTime() - new Date(a.updated_at ?? 0).getTime()
+      );
+      this.conversations.set(sorted);
+    });
   }
 }

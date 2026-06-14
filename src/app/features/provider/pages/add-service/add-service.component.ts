@@ -332,7 +332,7 @@ export class AddServiceComponent implements OnInit, OnDestroy {
         if (status !== 'approved') {
           this.showIdentityGate.set(true);
           if (status === 'pending') {
-            this.identityMessage.set('Tu verificación está en revisión. No podrás agregar servicios hasta que sea aprobada.');
+            this.identityMessage.set('Debes realizar la verificación de identidad para poder agregar servicios.');
           } else if (status === 'rejected') {
             this.identityMessage.set('Tu verificación fue rechazada. Debes verificar tu identidad nuevamente para poder agregar servicios.');
           } else {

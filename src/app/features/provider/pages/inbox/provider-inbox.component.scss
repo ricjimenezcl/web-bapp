@@ -9,11 +9,13 @@
   align-items: center;
   justify-content: flex-start;
   min-height: 100vh;
+  height: 100%;
   padding: 20px;
   background: var(--bw-bg);
   background-image: radial-gradient(circle at 50% 0%, rgba(253, 230, 138, 0.03), transparent 60%);
   box-sizing: border-box;
   color: var(--bw-text-p);
+  overflow: hidden;
 
   @media (max-width: 1024px) { padding: 14px; }
   @media (max-width: 767px)  { padding: 10px; }
@@ -24,7 +26,9 @@
 .pi-container {
   width: 100%;
   max-width: 1400px;
-  min-height: 600px;
+  min-height: 0;
+  height: calc(100dvh - 40px);
+  max-height: calc(100dvh - 40px);
   flex: 1;
   background: var(--surface-card);
   border: 1px solid var(--border);
@@ -465,6 +469,7 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
+  max-height: 100%;
   background: var(--bg-deep);
   position: relative;
   overflow: hidden;
@@ -520,6 +525,8 @@
   .pi-container {
     border-radius: 16px;
     position: relative;
+    height: calc(100dvh - 20px);
+    max-height: calc(100dvh - 20px);
   }
   .pi-sidebar {
     width: 100%;
@@ -535,6 +542,7 @@
       flex-direction: column;
       width: 100%;
       height: 100%;
+      min-height: 0;
     }
   }
 }

@@ -264,6 +264,7 @@ export class AddServiceComponent implements OnInit, OnDestroy {
           this.loading.set(false);
           this.error.set('');
           this.success.set(true);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
           setTimeout(() => this.success.set(false), 2500);
           setTimeout(() => this.router.navigate(['/provider/tabs/profile']), 2200);
         };
@@ -292,6 +293,7 @@ export class AddServiceComponent implements OnInit, OnDestroy {
           this.showPaymentGate.set(true);
         } else {
           this.error.set(err?.error?.detail ?? 'Error al crear servicio.');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         }
       }
     });

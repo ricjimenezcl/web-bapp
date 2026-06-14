@@ -87,8 +87,18 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
 
   // ── Chat ─────────────────────────────────────────────────────────────────
   isStartingChat = signal(false);
-
+  // ── Lightbox ─────────────────────────────────────────────────────────────
+  lightboxOpen   = signal(false);
+  lightboxImages = signal<string[]>([]);
+  lightboxIndex  = signal(0);
   // ── Privadas ─────────────────────────────────────────────────────────────
+  private readonly _onKeyDown = (e: KeyboardEvent): void => {
+    if (!this.lightboxOpen()) return;
+    if (e.key === 'ArrowRight') this.lightboxNext();
+    else if (e.key === 'ArrowLeft') this.lightboxPrev();
+    else if (e.key === 'Escape') this.closeLightbox();
+  };
+
   private activeDays             = new Set<number>();
   private slotsCache             = new Map<string, { time: string; available: boolean }[]>();
   private useManualAddress       = false;
@@ -153,12 +163,14 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
     this.providerId = Number(this.route.snapshot.paramMap.get('id'));
     this.load();
     this.setupAddressAutocomplete();
+    document.addEventListener('keydown', this._onKeyDown);
     // Working hours se cargan después de services para tener el spid disponible
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    document.removeEventListener('keydown', this._onKeyDown);
   }
 
   // ── Carga de datos ────────────────────────────────────────────────────────
@@ -616,11 +628,26 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Abre el visor de imagen en pantalla completa (portfolio)
+   * Abre el lightbox de portafolio con la imagen seleccionada
    */
-  openImageViewer(imageUrl: string): void {
-    // Abrir en una pestaña nueva para mantener una vista ampliada sin depender de HTML en el modal global.
-    window.open(imageUrl, '_blank', 'noopener,noreferrer');
+  openImageViewer(images: string[], index: number): void {
+    this.lightboxImages.set(images);
+    this.lightboxIndex.set(index);
+    this.lightboxOpen.set(true);
+  }
+
+  lightboxNext(): void {
+    const len = this.lightboxImages().length;
+    this.lightboxIndex.update(i => (i + 1) % len);
+  }
+
+  lightboxPrev(): void {
+    const len = this.lightboxImages().length;
+    this.lightboxIndex.update(i => (i - 1 + len) % len);
+  }
+
+  closeLightbox(): void {
+    this.lightboxOpen.set(false);
   }
 
   /**

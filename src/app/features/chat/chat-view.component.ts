@@ -86,7 +86,7 @@ export class ChatViewComponent implements OnInit, OnDestroy, AfterViewChecked, O
           : res.client;
         this.otherParticipant.set(other ?? null);
 
-        this.chatSvc.getMessages(this.conversationId, 0, 200).subscribe({
+        this.chatSvc.getAllMessages(this.conversationId, 100, 50).subscribe({
           next: (msgs) => {
             this.messages.set(this.normalizeMessages(msgs));
             this.shouldScrollToBottom = true;

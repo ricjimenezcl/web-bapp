@@ -33,7 +33,7 @@
 .as-frame {
   width: 100%;
   max-width: 1320px;
-  min-height: calc(100vh - 60px);
+  min-height: calc(100svh - 60px);
   background: var(--bw-surface-card);
   border: 1px solid var(--bw-border);
   border-radius: 24px;

@@ -282,6 +282,7 @@ export class EditServiceComponent implements OnInit, OnDestroy {
           this.saving.set(false);
           this.error.set('');
           this.success.set(true);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
           setTimeout(() => this.success.set(false), 2500);
           setTimeout(() => this.router.navigate(['/provider/tabs/my-services']), 2200);
         };
@@ -307,6 +308,7 @@ export class EditServiceComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.saving.set(false);
         this.error.set(err?.error?.detail ?? 'Error al actualizar el servicio.');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     });
   }

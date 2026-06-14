@@ -32,7 +32,7 @@
 .ms-frame {
   width: 100%;
   max-width: 1400px;
-  min-height: calc(100vh - 60px);
+  min-height: calc(100svh - 60px);
   background: var(--surface-card);
   border: 1px solid var(--border);
   border-radius: 24px;
@@ -46,6 +46,7 @@
     border-radius: 0;
     border: none;
     box-shadow: none;
+    min-height: 100svh;
   }
 }
 

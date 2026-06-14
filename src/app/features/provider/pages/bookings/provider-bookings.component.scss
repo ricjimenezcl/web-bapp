@@ -6,7 +6,7 @@
 :host {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 100%;
   color: var(--bw-text-p);
 }
 
@@ -24,6 +24,7 @@
   @media (max-width: 1280px) { padding: 20px 28px; }
   @media (max-width: 1024px) { padding: 14px 16px; }
   @media (max-width: 767px)  { padding: 10px; }
+  @media (max-width: 430px)  { padding: 6px 4px; }
 }
 
 // ── Frame ─────────────────────────────────────────────────────────

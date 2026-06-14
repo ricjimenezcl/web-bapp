@@ -4,6 +4,8 @@ import { RouterLink, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { ProviderService } from '../../../../core/services/provider.service';
 import { ProviderProfile, ProviderStats } from '../../../../core/models/provider.model';
+import { Review } from '../../../../core/models/review.model';
+import { ReviewService } from '../../../../core/services/review.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../environments/environment';
 import { ServiceViewersComponent } from '../../components/service-viewers/service-viewers.component';
@@ -17,6 +19,7 @@ import { ServiceViewersComponent } from '../../components/service-viewers/servic
 })
 export class ProviderHomeComponent implements OnInit, OnDestroy {
   private providerSvc = inject(ProviderService);
+  private reviewSvc   = inject(ReviewService);
   private http = inject(HttpClient);
   private router = inject(Router);
   private destroy$ = new Subject<void>();
@@ -28,6 +31,10 @@ export class ProviderHomeComponent implements OnInit, OnDestroy {
   showVerificationAlert = signal(false);
   verificationMessage = signal('');
   showViewers = signal(false);
+
+  reviews         = signal<Review[]>([]);
+  showReviews     = signal(false);
+  reviewsLoading  = signal(false);
 
   ngOnInit(): void {
     this.loadProfileAndStats();
@@ -44,6 +51,7 @@ export class ProviderHomeComponent implements OnInit, OnDestroy {
         this.profile.set(p);
         this.loadStats();
         this.checkValidationStatus();
+        this.loadReviews(p.id);
       },
       error: () => {
         this.loading.set(false);
@@ -96,6 +104,18 @@ export class ProviderHomeComponent implements OnInit, OnDestroy {
 
   openServiceViewers(): void {
     this.showViewers.set(true);
+  }
+
+  openReviews(): void {
+    this.showReviews.set(true);
+  }
+
+  private loadReviews(providerId: number): void {
+    this.reviewsLoading.set(true);
+    this.reviewSvc.getProviderReviews(providerId).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (r) => { this.reviews.set(r); this.reviewsLoading.set(false); },
+      error: () => this.reviewsLoading.set(false)
+    });
   }
 
   greeting(): string {

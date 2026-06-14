@@ -55,7 +55,11 @@ export class ProviderBookingsComponent implements OnInit, OnDestroy {
 
   confirm(id: number): void {
     this.bookingSvc.confirmBooking(id).subscribe({
-      next: (u) => this.bookings.update(l => l.map(b => String(b.id) === String(id) ? u : b))
+      next: (u) => {
+        this.bookings.update(l => l.map(b => String(b.id) === String(id) ? u : b));
+        void this.modal.info('Reserva confirmada exitosamente.');
+      },
+      error: () => void this.modal.info('No se pudo confirmar la reserva. Inténtalo nuevamente.')
     });
   }
 
@@ -73,13 +77,21 @@ export class ProviderBookingsComponent implements OnInit, OnDestroy {
     if (reason === null) return;
 
     this.bookingSvc.rejectBooking(id, reason ?? undefined).subscribe({
-      next: (u) => this.bookings.update(l => l.map(b => String(b.id) === String(id) ? u : b))
+      next: (u) => {
+        this.bookings.update(l => l.map(b => String(b.id) === String(id) ? u : b));
+        void this.modal.info('Reserva rechazada.');
+      },
+      error: () => void this.modal.info('No se pudo rechazar la reserva. Inténtalo nuevamente.')
     });
   }
 
   complete(id: number): void {
     this.bookingSvc.completeBooking(id).subscribe({
-      next: (u) => this.bookings.update(l => l.map(b => String(b.id) === String(id) ? u : b))
+      next: (u) => {
+        this.bookings.update(l => l.map(b => String(b.id) === String(id) ? u : b));
+        void this.modal.info('Reserva marcada como completada.');
+      },
+      error: () => void this.modal.info('No se pudo completar la reserva. Inténtalo nuevamente.')
     });
   }
 

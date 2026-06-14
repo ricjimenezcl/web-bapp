@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, forkJoin, of } from 'rxjs';
-import { tap, map, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, EMPTY, Observable, forkJoin, of } from 'rxjs';
+import { expand, tap, map, reduce, switchMap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import {
   ConversationUI, ConversationListResponse, ConversationResponse,
@@ -101,6 +101,20 @@ export class ChatService {
     return this.http.get<ChatMessage[]>(
       `${this.api}/chat/conversations/${conversationId}/messages`,
       { params: { skip, limit } }
+    );
+  }
+
+  /** GET all pages of /chat/conversations/{id}/messages */
+  getAllMessages(conversationId: number, pageSize = 100, maxPages = 30): Observable<ChatMessage[]> {
+    return this.getMessages(conversationId, 0, pageSize).pipe(
+      expand((page, index) => {
+        const nextPage = index + 1;
+        if (page.length < pageSize || nextPage >= maxPages) {
+          return EMPTY;
+        }
+        return this.getMessages(conversationId, nextPage * pageSize, pageSize);
+      }),
+      reduce((all, page) => [...all, ...page], [] as ChatMessage[])
     );
   }
 

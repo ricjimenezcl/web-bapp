@@ -207,7 +207,7 @@
               <div class="pi-carousel">
                 @for (svc of services(); track svc.id) {
                   @for (img of $any(svc).portfolio_images || []; track img; let i = $index) {
-                    <div class="pi-carousel-slide" (click)="openImageViewer($any(img))">
+                    <div class="pi-carousel-slide" (click)="openImageViewer($any(svc).portfolio_images, i)">
                       <img
                         [src]="$any(img)"
                         [alt]="svc.business_name + ' — trabajo ' + (i + 1)"
@@ -854,6 +854,38 @@
           Cerrar
         </button>
       </div>
+    </div>
+  </div>
+}
+
+<!-- ══ LIGHTBOX: Galería de portafolio ══════════════════════════ -->
+@if (lightboxOpen()) {
+  <div class="pi-lb-overlay" (click)="closeLightbox()" role="dialog" aria-modal="true">
+    <div class="pi-lb-box" (click)="$event.stopPropagation()">
+      <button class="pi-lb-close" type="button" (click)="closeLightbox()" aria-label="Cerrar">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+      @if (lightboxImages().length > 1) {
+        <button class="pi-lb-nav pi-lb-nav--prev" type="button" (click)="lightboxPrev()" aria-label="Anterior">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+          </svg>
+        </button>
+      }
+      <img class="pi-lb-img"
+           [src]="lightboxImages()[lightboxIndex()]"
+           alt="Portafolio"
+           (error)="$any($event.target).src='/assets/images/placeholder.png'" />
+      @if (lightboxImages().length > 1) {
+        <button class="pi-lb-nav pi-lb-nav--next" type="button" (click)="lightboxNext()" aria-label="Siguiente">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+          </svg>
+        </button>
+        <div class="pi-lb-counter">{{ lightboxIndex() + 1 }} / {{ lightboxImages().length }}</div>
+      }
     </div>
   </div>
 }

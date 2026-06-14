@@ -7,6 +7,9 @@
   font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   color: #F9FAFB;
+  box-sizing: border-box;
+  @media (max-width: 767px) { padding: 0 12px 20px; }
+  @media (max-width: 430px) { padding: 0 8px 16px; }
 }
 
 .dashboard-container {
@@ -19,6 +22,8 @@
 
   @media (max-width: 1280px) { margin: 28px 16px; gap: 28px; }
   @media (max-width: 1024px) { margin: 20px 12px; gap: 20px; }
+  @media (max-width: 767px)  { flex-direction: column; margin: 0; gap: 16px; }
+  @media (max-width: 430px)  { gap: 12px; }
 }
 
 // ── Sidebar ──────────────────────────────────────────────────────────
@@ -30,6 +35,9 @@
   gap: 30px;
   position: sticky;
   top: 40px;
+
+  @media (max-width: 1024px) { width: 220px; }
+  @media (max-width: 767px)  { width: 100%; position: static; top: auto; gap: 12px; }
 }
 
 .user-mini {

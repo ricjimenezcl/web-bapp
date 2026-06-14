@@ -73,6 +73,7 @@ export interface ProviderStats {
   pending_bookings: number;
   total_earnings: number;
   average_rating: number;
+  total_reviews?: number;
   profile_views: number;
   service_views: number;
   zone_searches: number;

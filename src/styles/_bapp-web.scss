@@ -88,6 +88,8 @@
 .bw-frame {
   width: 100%;
   max-width: 1400px;
+  min-width: 0;
+  min-height: 0;
   background: var(--bw-surface-card);
   border: 1px solid var(--bw-border);
   border-radius: 24px;
@@ -101,6 +103,63 @@
     border: none;
     box-shadow: none;
   }
+}
+
+// Hardening global de shells/frames usados en módulos principales
+// para evitar que algún hijo flex extienda la pantalla o recorte contenido.
+.app-frame,
+.chat-app-container,
+.pi-container,
+.page-shell,
+.search-shell,
+.search-shell-list,
+.search-shell-map,
+.map-shell {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+// Evita que hijos de filas flex fuercen overflow horizontal inesperado.
+.app-frame > *,
+.chat-app-container > *,
+.pi-container > *,
+.search-shell > * {
+  min-width: 0;
+  min-height: 0;
+}
+
+// ── Responsive tokens fluidos ──────────────────────────────────────────────
+// Shell padding adaptado: móvil pequeño (320-375) → desktop wide
+:root {
+  --shell-pad-x:  clamp(10px, 3vw, 40px);
+  --shell-pad-y:  clamp(10px, 2.5vh, 30px);
+  --frame-radius: clamp(0px, 1.5vw, 24px);
+}
+
+// ── Botones: touch target mínimo 44px en móvil ─────────────────────────────
+@media (max-width: 430px) {
+  button, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  // Botones icon-only no deben estirarse de ancho
+  .pi-action-btn, .cat-map-btn, .action-btn, .as-back-btn,
+  .bookings-reload-btn, .pb-reload-btn, .msg-menu-btn {
+    min-width: 44px !important;
+    width: 44px !important;
+    height: 44px !important;
+  }
+}
+
+// ── Tipografías fluidas para títulos críticos ──────────────────────────────
+.ph-name, .pp-user-name {
+  font-size: clamp(18px, 3vw, 26px);
+}
+.bookings-title, .pb-title {
+  font-size: clamp(17px, 2.5vw, 22px);
 }
 
 // ── Large desktop tuning (1920+) ─────────────────────────────────────────

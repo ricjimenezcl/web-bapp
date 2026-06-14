@@ -277,6 +277,10 @@ export class ProviderService {
     return this.http.post(`${this.api}/providers/validate-identity`, formData);
   }
 
+  getValidationStatus(): Observable<{ status: string }> {
+    return this.http.get<{ status: string }>(`${this.api}/providers/validation/status`);
+  }
+
   // Working hours
   getMyWorkingHours(): Observable<ProviderWorkingHours[]> {
     return this.http.get<ProviderWorkingHours[]>(`${this.api}/working-hours/me`);

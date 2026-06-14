@@ -74,7 +74,9 @@ export class ProviderHomeComponent implements OnInit, OnDestroy {
     let message = 'Para poder agregar servicios, debes completar la verificación de identidad.';
     
     if (status === 'pending') {
-      message = 'Tu verificación está pendiente de procesamiento.';
+      message = 'Tu verificación está pendiente de procesamiento. No podrás agregar servicios hasta que sea aprobada.';
+    } else if (status === 'rejected') {
+      message = 'Tu verificación fue rechazada. No podrás agregar servicios hasta verificar tu identidad nuevamente.';
     } else if (status === 'not_submitted') {
       message = 'Para poder agregar servicios, debes completar la verificación de identidad.';
     }

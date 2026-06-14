@@ -56,6 +56,9 @@ export class AddServiceComponent implements OnInit, OnDestroy {
   error             = signal('');
   success           = signal(false);
   showPaymentGate   = signal(false);
+  showIdentityGate  = signal(false);
+  validationStatus  = signal<string>('not_submitted');
+  identityMessage   = signal('Para agregar servicios debes verificar tu identidad.');
 
   // Address autocomplete
   addressSuggestions = signal<AddressSuggestion[]>([]);
@@ -82,6 +85,8 @@ export class AddServiceComponent implements OnInit, OnDestroy {
   get f() { return this.form.controls; }
 
   ngOnInit(): void {
+    this.checkIdentityStatus();
+
     // Check service count gate
     this.providerSvc.getMyServices().pipe(takeUntil(this.destroy$)).subscribe({
       next: (services) => {
@@ -181,6 +186,11 @@ export class AddServiceComponent implements OnInit, OnDestroy {
   }
 
   async submit(): Promise<void> {
+    if (this.showIdentityGate()) {
+      this.error.set('No puedes agregar servicios hasta verificar tu identidad.');
+      return;
+    }
+
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
 
     // lat/lng son requeridos por el backend — el usuario debe seleccionar una sugerencia
@@ -307,6 +317,36 @@ export class AddServiceComponent implements OnInit, OnDestroy {
       return;
     }
     this.router.navigate(['/provider/tabs/profile']);
+  }
+
+  goToVerifyIdentity(): void {
+    this.router.navigate(['/auth/verify-identity']);
+  }
+
+  private checkIdentityStatus(): void {
+    this.providerSvc.getValidationStatus().pipe(takeUntil(this.destroy$)).subscribe({
+      next: (res) => {
+        const status = res?.status ?? 'not_submitted';
+        this.validationStatus.set(status);
+
+        if (status !== 'approved') {
+          this.showIdentityGate.set(true);
+          if (status === 'pending') {
+            this.identityMessage.set('Tu verificación está en revisión. No podrás agregar servicios hasta que sea aprobada.');
+          } else if (status === 'rejected') {
+            this.identityMessage.set('Tu verificación fue rechazada. Debes verificar tu identidad nuevamente para poder agregar servicios.');
+          } else {
+            this.identityMessage.set('Para agregar servicios debes verificar tu identidad.');
+          }
+        } else {
+          this.showIdentityGate.set(false);
+        }
+      },
+      error: () => {
+        this.showIdentityGate.set(true);
+        this.identityMessage.set('No se pudo validar tu identidad. Verifícala antes de agregar servicios.');
+      }
+    });
   }
 
   // ══ PORTFOLIO IMAGES METHODS ══════════════════════════════════════════════

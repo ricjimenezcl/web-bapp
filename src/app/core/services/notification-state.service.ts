@@ -16,25 +16,16 @@ export class NotificationStateService {
   readonly unreadCount   = this._unreadCount.asReadonly();
   readonly hasUnread     = computed(() => this._unreadCount() > 0);
 
-  // Flag para deshabilitar carga HTTP de notificaciones
-  // Las notificaciones se manejan por WebSocket en tiempo real
-  private readonly ENABLE_HTTP_NOTIFICATIONS = false;
+  // Carga notificaciones desde el backend al iniciar sesión
+  private readonly ENABLE_HTTP_NOTIFICATIONS = true;
 
   loadNotifications(): void {
-    // El endpoint /notifications/ NO existe en el backend actual
-    // Las notificaciones se reciben únicamente por WebSocket
     if (!this.ENABLE_HTTP_NOTIFICATIONS) {
-      console.info('📬 Notifications: Using WebSocket only (HTTP endpoint disabled)');
-      this._notifications.set([]);
-      this._unreadCount.set(0);
       return;
     }
 
     this.http.get<any[]>(`${this.api}/notifications/`).pipe(
-      catchError(err => {
-        console.warn('Notifications endpoint not available:', err);
-        return of([]); // Retorna array vacío sin romper UI
-      })
+      catchError(() => of([]))
     ).subscribe({
       next: (list) => {
         const mapped: AppNotification[] = (list ?? []).map(n => ({
@@ -45,7 +36,6 @@ export class NotificationStateService {
         this._unreadCount.set(mapped.filter(n => !n.is_read).length);
       },
       error: () => {
-        // Fallback adicional por si catchError no funciona
         this._notifications.set([]);
         this._unreadCount.set(0);
       }

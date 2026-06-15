@@ -169,6 +169,11 @@ export const routes: Routes = [
 
   // SHARED ROUTES
   {
+    // Bridge para la app móvil: recibe JWT en query param y establece sesión web
+    path: 'app-payment',
+    loadComponent: () => import('./features/payment/app-payment-bridge.component').then(m => m.AppPaymentBridgeComponent)
+  },
+  {
     path: 'payment',
     canActivate: [authGuard],
     loadComponent: () => import('./features/payment/payment.component').then(m => m.PaymentComponent)

@@ -1,0 +1,558 @@
+<div class="min-h-screen bg-surface-base font-sans antialiased overflow-x-hidden">
+
+  <!-- ══════════════════════════════════════════════════════════
+       NAVBAR
+  ══════════════════════════════════════════════════════════ -->
+  <nav class="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+       [class.bg-surface-base]="scrolled()"
+       [class.shadow-lg]="scrolled()"
+       [class.border-b]="scrolled()"
+       [class.border-border]="scrolled()">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+      <!-- Logo -->
+  
+        <div class="flex items-center gap-2 sm:gap-3">
+        <div class="w-[44px] h-[68px] sm:w-[56px] sm:h-[86px] lg:w-[70px] lg:h-[108px] rounded-xl flex overflow-hidden">
+          <img src="https://res.cloudinary.com/dghwotofx/image/upload/f_auto,q_auto,w_320,c_limit/v1774563936/logo_gsgyrf.png"
+               alt="Logo BappSearch" class="w-full h-full object-contain">
+        </div>
+        <img src="https://res.cloudinary.com/dghwotofx/image/upload/v1774563936/titulo_bycrju.png"
+             alt="BappSearch" class="h-[16px] sm:h-[22px] lg:h-[30px] object-contain">
+      </div>
+       
+      <!-- Nav links desktop -->
+      <div class="hidden md:flex items-center gap-6 text-sm text-text-secondary">
+        <a href="#categorias" class="hover:text-text-primary transition-colors cursor-pointer">Categorías</a>
+        <a href="#como-funciona" class="hover:text-text-primary transition-colors cursor-pointer">Cómo funciona</a>
+        <a href="#faq" class="hover:text-text-primary transition-colors cursor-pointer">FAQ</a>
+      </div>
+      <!-- CTA -->
+      <a routerLink="/auth/register-provider"
+         class="bg-primary-500 text-surface-base font-bold text-sm px-5 py-2.5 rounded-full hover:bg-primary-400 active:scale-95 transition-all duration-150 shadow-lg shadow-primary-500/20 whitespace-nowrap">
+        Registrarme Gratis →
+      </a>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════════════
+       HERO
+  ══════════════════════════════════════════════════════════ -->
+  <section class="relative min-h-screen flex items-center pt-24 pb-16 overflow-hidden">
+    <!-- Background blobs -->
+    <div class="absolute inset-0 pointer-events-none select-none">
+      <div class="absolute -top-40 -right-40 w-[700px] h-[700px] rounded-full bg-primary-500/10 blur-[140px]"></div>
+      <div class="absolute bottom-0 -left-40 w-[500px] h-[500px] rounded-full bg-accent-500/8 blur-[120px]"></div>
+      <!-- Grid subtle -->
+      <div class="absolute inset-0 opacity-[0.025]"
+           style="background-image: linear-gradient(rgba(255,255,255,.4) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.4) 1px, transparent 1px); background-size: 48px 48px;"></div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 relative z-10 w-full">
+      <div class="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+
+        <!-- Left: Copy -->
+        <div class="space-y-8">
+          <!-- Badge -->
+          <div class="inline-flex items-center gap-2 bg-primary-500/10 border border-primary-500/30 rounded-full px-4 py-1.5 text-sm font-medium text-primary-500">
+            <span class="w-2 h-2 rounded-full bg-primary-500 animate-pulse flex-shrink-0"></span>
+            Nuevos registros cada semana · Chile
+          </div>
+
+          <!-- Headline -->
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-text-primary leading-[1.05] tracking-tight">
+            Consigue clientes<br>
+            <span class="text-primary-500">cerca de ti</span><br>
+            y publica hasta 2<br>
+            <span class="text-primary-500">servicios gratis<br>para siempre.</span>
+          </h1>
+
+          <!-- Subheadline -->
+          <p class="text-lg sm:text-xl text-text-secondary leading-relaxed max-w-xl">
+            Regístrate gratis, aparece en el mapa de tu zona y comienza a recibir solicitudes.
+            <strong class="text-text-primary font-semibold">Conserva el 100% de tus ganancias</strong>
+            y publica tus primeros 2 servicios sin costo.
+          </p>
+
+          <!-- Benefit pills -->
+          <div class="flex flex-wrap gap-2">
+            @for (pill of heroPills; track pill.label) {
+              <div class="flex items-center gap-1.5 bg-surface-card border border-border rounded-full px-3 py-1.5 text-sm font-medium text-text-secondary">
+                <svg class="w-3.5 h-3.5 text-primary-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                <span>{{ pill.label }}</span>
+              </div>
+            }
+          </div>
+
+          <!-- CTA buttons -->
+          <div class="flex flex-col sm:flex-row gap-3">
+            <a routerLink="/auth/register-provider"
+               class="inline-flex items-center justify-center gap-2 bg-primary-500 text-surface-base font-bold text-lg px-8 py-4 rounded-2xl hover:bg-primary-400 active:scale-[0.98] transition-all duration-150 shadow-2xl shadow-primary-500/25">
+              Registrarme Gratis
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+              </svg>
+            </a>
+            <a href="#como-funciona"
+               class="inline-flex items-center justify-center gap-2 bg-surface-card border border-border text-text-secondary font-semibold text-base px-8 py-4 rounded-2xl hover:border-border-medium hover:text-text-primary transition-all duration-150 cursor-pointer">
+              Ver cómo funciona
+            </a>
+          </div>
+
+          <!-- Trust signal -->
+          <p class="text-sm text-text-tertiary flex items-center gap-2">
+            <svg class="w-4 h-4 text-success flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+            Sin tarjeta de crédito · Sin fecha de vencimiento · Cancela cuando quieras
+          </p>
+        </div>
+
+        <!-- Right: App mockup visual -->
+        <div class="relative hidden lg:flex justify-center items-center">
+          <img
+            src="https://res.cloudinary.com/dghwotofx/image/upload/v1782025913/bapptel_pkivzq.png"
+            alt="Vista de la app BappSearch"
+            class="w-full max-w-[560px] h-auto object-contain drop-shadow-2xl"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       TRUST BAR
+  ══════════════════════════════════════════════════════════ -->
+  <div class="border-y border-border bg-surface-card py-6">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6">
+      <div class="grid grid-cols-3 gap-4 md:gap-8">
+        <div class="text-center">
+          <p class="text-3xl sm:text-4xl font-black text-primary-500">19</p>
+          <p class="text-sm text-text-tertiary mt-1">Categorías disponibles</p>
+        </div>
+        <div class="text-center border-x border-border">
+          <p class="text-3xl sm:text-4xl font-black text-primary-500">0%</p>
+          <p class="text-sm text-text-tertiary mt-1">De comisión</p>
+        </div>
+        <div class="text-center">
+          <p class="text-3xl sm:text-4xl font-black text-primary-500">100%</p>
+          <p class="text-sm text-text-tertiary mt-1">De tus ganancias</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       BLOQUE DE DOLOR
+  ══════════════════════════════════════════════════════════ -->
+  <section class="py-20 sm:py-28 relative overflow-hidden">
+    <div class="absolute inset-0 pointer-events-none">
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] rounded-full bg-danger/5 blur-[120px]"></div>
+    </div>
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
+      <div class="text-center mb-14">
+        <p class="text-sm font-semibold text-danger uppercase tracking-widest mb-3">El problema</p>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-text-primary">
+          ¿Te cuesta conseguir<br>
+          <span class="text-danger/80">nuevos clientes?</span>
+        </h2>
+        <p class="text-text-secondary mt-4 text-lg max-w-xl mx-auto">
+          Miles de profesionales independientes en Chile enfrentan el mismo problema.
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-surface-card border border-border rounded-2xl p-5 hover:border-border-medium transition-colors">
+          <div class="w-10 h-10 rounded-xl bg-danger/10 flex items-center justify-center text-xl mb-4">😤</div>
+          <h3 class="font-bold text-text-primary text-base mb-2">Dependes del boca a boca</h3>
+          <p class="text-sm text-text-secondary leading-relaxed">Sin recomendaciones, no entran clientes. Una racha mala y te quedas sin trabajo.</p>
+        </div>
+        <div class="bg-surface-card border border-border rounded-2xl p-5 hover:border-border-medium transition-colors">
+          <div class="w-10 h-10 rounded-xl bg-warning/10 flex items-center justify-center text-xl mb-4">💸</div>
+          <h3 class="font-bold text-text-primary text-base mb-2">Gastas en publicidad</h3>
+          <p class="text-sm text-text-secondary leading-relaxed">Pagas en Facebook, Google o apps y no siempre obtienes resultados concretos.</p>
+        </div>
+        <div class="bg-surface-card border border-border rounded-2xl p-5 hover:border-border-medium transition-colors">
+          <div class="w-10 h-10 rounded-xl bg-danger/10 flex items-center justify-center text-xl mb-4">🌐</div>
+          <h3 class="font-bold text-text-primary text-base mb-2">No tienes presencia digital</h3>
+          <p class="text-sm text-text-secondary leading-relaxed">Crear una web, gestionar redes y atender mensajes consume tiempo que no tienes.</p>
+        </div>
+        <div class="bg-surface-card border border-border rounded-2xl p-5 hover:border-border-medium transition-colors">
+          <div class="w-10 h-10 rounded-xl bg-warning/10 flex items-center justify-center text-xl mb-4">📉</div>
+          <h3 class="font-bold text-text-primary text-base mb-2">Temporadas sin trabajo</h3>
+          <p class="text-sm text-text-secondary leading-relaxed">Los meses bajos son difíciles cuando no tienes un canal estable de nuevos clientes.</p>
+        </div>
+      </div>
+      <div class="mt-12 text-center">
+        <p class="text-xl sm:text-2xl font-bold text-text-primary">
+          BApp Search resuelve todo esto con un perfil gratuito
+          <span class="text-primary-500"> verificado y geolocalizad.</span>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       CATEGORÍAS
+  ══════════════════════════════════════════════════════════ -->
+  <section id="categorias" class="py-20 sm:py-28 bg-surface-card">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-14">
+        <p class="text-sm font-semibold text-accent-500 uppercase tracking-widest mb-3">Tu categoría está aquí</p>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-text-primary">
+          19 categorías de servicios
+        </h2>
+        <p class="text-text-secondary mt-4 text-lg max-w-xl mx-auto">
+          Desde electricistas hasta peluqueras, profesores y cuidadores. Hay espacio para ti.
+        </p>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+        @for (cat of categories; track cat.name) {
+          <div class="group bg-surface-base border border-border rounded-2xl p-4 flex flex-col items-center gap-2 text-center hover:border-primary-500/50 hover:bg-primary-500/5 transition-all duration-200 cursor-default">
+            <span class="text-3xl group-hover:scale-110 transition-transform duration-200">{{ cat.icon }}</span>
+            <span class="text-xs font-medium text-text-secondary group-hover:text-text-primary leading-tight transition-colors">{{ cat.name }}</span>
+          </div>
+        }
+      </div>
+      <div class="mt-10 text-center">
+        <a routerLink="/auth/register-provider"
+           class="inline-flex items-center gap-2 bg-primary-500 text-surface-base font-bold px-8 py-3.5 rounded-full hover:bg-primary-400 transition-colors shadow-lg shadow-primary-500/20">
+          Registrarme en mi categoría
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       BENEFICIOS
+  ══════════════════════════════════════════════════════════ -->
+  <section id="beneficios" class="py-20 sm:py-28">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-14">
+        <p class="text-sm font-semibold text-primary-500 uppercase tracking-widest mb-3">Lo que obtienes</p>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-text-primary">
+          Todo lo que necesitas<br>
+          para conseguir clientes
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        @for (benefit of benefits; track benefit.title) {
+          <div class="bg-surface-card border border-border rounded-2xl p-6 hover:border-primary-500/30 hover:bg-primary-500/5 transition-all duration-200 group">
+            <div class="w-12 h-12 rounded-2xl bg-primary-500/10 border border-primary-500/20 flex items-center justify-center text-2xl mb-5 group-hover:bg-primary-500/20 transition-colors">
+              {{ benefit.icon }}
+            </div>
+            <h3 class="font-bold text-text-primary text-lg mb-2">{{ benefit.title }}</h3>
+            <p class="text-text-secondary text-sm leading-relaxed">{{ benefit.desc }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       CÓMO FUNCIONA
+  ══════════════════════════════════════════════════════════ -->
+  <section id="como-funciona" class="py-20 sm:py-28 bg-surface-card">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-14">
+        <p class="text-sm font-semibold text-accent-500 uppercase tracking-widest mb-3">El proceso</p>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-text-primary">
+          Cómo funciona
+        </h2>
+        <p class="text-text-secondary mt-4 text-lg max-w-xl mx-auto">
+          Del registro a tu primer cliente en minutos.
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        @for (step of steps; track step.number) {
+          <div class="relative bg-surface-base border border-border rounded-2xl p-6 hover:border-accent-500/30 transition-all duration-200 group">
+            <!-- Step number -->
+            <div class="w-12 h-12 rounded-2xl bg-accent-500/10 border border-accent-500/20 flex items-center justify-center mb-5 group-hover:bg-accent-500/20 transition-colors">
+              <span class="text-sm font-black text-accent-500">{{ step.number }}</span>
+            </div>
+            <h3 class="font-bold text-text-primary text-base mb-2">{{ step.title }}</h3>
+            <p class="text-text-secondary text-sm leading-relaxed">{{ step.desc }}</p>
+            <!-- Connector -->
+            @if ($index < steps.length - 1) {
+              <div class="hidden lg:block absolute top-9 -right-3 w-5 h-0.5 bg-border"></div>
+            }
+          </div>
+        }
+      </div>
+      <div class="mt-12 text-center">
+        <a routerLink="/auth/register-provider"
+           class="inline-flex items-center gap-2 bg-primary-500 text-surface-base font-bold text-lg px-10 py-4 rounded-2xl hover:bg-primary-400 active:scale-[0.98] transition-all duration-150 shadow-2xl shadow-primary-500/25">
+          Empezar ahora, es gratis
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       TESTIMONIOS
+  ══════════════════════════════════════════════════════════ -->
+  <section id="testimonios" class="py-20 sm:py-28">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-14">
+        <p class="text-sm font-semibold text-primary-500 uppercase tracking-widest mb-3">Casos reales</p>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-text-primary">
+          Lo que dicen los<br>
+          proveedores de BApp
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-5">
+        @for (testimonial of testimonials; track testimonial.name) {
+          <div class="bg-surface-card border border-border rounded-2xl p-6 hover:border-border-medium transition-all duration-200">
+            <!-- Stars -->
+            <div class="flex items-center gap-0.5 mb-4">
+              @for (star of stars; track star) {
+                <svg class="w-4 h-4 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                </svg>
+              }
+            </div>
+            <!-- Quote -->
+            <p class="text-text-primary text-base leading-relaxed mb-5">
+              "{{ testimonial.text }}"
+            </p>
+            <!-- Author -->
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-primary-500/20 border border-primary-500/30 flex items-center justify-center text-sm font-bold text-primary-500 flex-shrink-0">
+                {{ testimonial.name.charAt(0) }}
+              </div>
+              <div>
+                <p class="font-semibold text-text-primary text-sm">{{ testimonial.name }}</p>
+                <p class="text-xs text-text-tertiary">{{ testimonial.role }} · {{ testimonial.location }}</p>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       COMPARATIVA
+  ══════════════════════════════════════════════════════════ -->
+  <section class="py-20 sm:py-28 bg-surface-card">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-14">
+        <p class="text-sm font-semibold text-primary-500 uppercase tracking-widest mb-3">Por qué elegirnos</p>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-text-primary">
+          BApp vs. otras opciones
+        </h2>
+      </div>
+      <div class="bg-surface-base border border-border rounded-2xl overflow-hidden">
+        <!-- Table header -->
+        <div class="grid grid-cols-3 bg-surface-raised">
+          <div class="px-5 py-4 text-sm text-text-tertiary font-medium">Característica</div>
+          <div class="px-5 py-4 text-center">
+            <span class="text-sm font-black text-primary-500">BApp Search</span>
+          </div>
+          <div class="px-5 py-4 text-center">
+            <span class="text-sm text-text-tertiary font-medium">Otras alternativas</span>
+          </div>
+        </div>
+        <!-- Rows -->
+        <div class="divide-y divide-border">
+          @for (row of comparisonRows; track row.label) {
+            <div class="grid grid-cols-3 hover:bg-surface-card/50 transition-colors">
+              <div class="px-5 py-4 text-sm text-text-secondary font-medium">{{ row.label }}</div>
+              <div class="px-5 py-4 text-center">
+                @if (row.bapp) {
+                  <svg class="w-5 h-5 text-success mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                  </svg>
+                } @else {
+                  <svg class="w-5 h-5 text-danger mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                  </svg>
+                }
+              </div>
+              <div class="px-5 py-4 text-center">
+                @if (row.others) {
+                  <svg class="w-5 h-5 text-success mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                  </svg>
+                } @else {
+                  <svg class="w-5 h-5 text-danger mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                  </svg>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SOCIAL PROOF
+  ══════════════════════════════════════════════════════════ -->
+  <section class="py-16 sm:py-20 relative overflow-hidden">
+    <div class="absolute inset-0 pointer-events-none">
+      <div class="absolute inset-0 bg-gradient-to-br from-primary-500/10 via-transparent to-accent-500/5"></div>
+    </div>
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
+      <div class="text-center space-y-6">
+        <div class="inline-flex items-center gap-2 bg-surface-card border border-border rounded-full px-4 py-1.5 text-sm font-medium text-text-secondary">
+          <span class="w-2 h-2 rounded-full bg-success animate-pulse"></span>
+          Proveedores activos en todo Chile
+        </div>
+        <h2 class="text-3xl sm:text-5xl font-black text-text-primary">
+          +19 categorías disponibles.<br>
+          <span class="text-primary-500">Nuevos registros cada semana.</span>
+        </h2>
+        <p class="text-lg text-text-secondary max-w-2xl mx-auto">
+          Proveedores de todo Chile ya están en el mapa y recibiendo solicitudes.
+          Cuanto antes te registres, antes apareces tú primero en tu zona.
+        </p>
+        <a routerLink="/auth/register-provider"
+           class="inline-flex items-center gap-2 bg-primary-500 text-surface-base font-bold text-lg px-10 py-4 rounded-2xl hover:bg-primary-400 active:scale-[0.98] transition-all duration-150 shadow-2xl shadow-primary-500/25">
+          Quiero estar en el mapa
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       FAQ
+  ══════════════════════════════════════════════════════════ -->
+  <section id="faq" class="py-20 sm:py-28 bg-surface-card">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-14">
+        <p class="text-sm font-semibold text-accent-500 uppercase tracking-widest mb-3">Tus dudas</p>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-text-primary">
+          Preguntas frecuentes
+        </h2>
+      </div>
+      <div class="space-y-3">
+        @for (faq of faqs; track $index) {
+          <div class="bg-surface-base border rounded-2xl overflow-hidden transition-all duration-200"
+               [class.border-accent-500]="activeFaqIndex() === $index"
+               [class.border-border]="activeFaqIndex() !== $index">
+            <button
+              class="w-full flex items-center justify-between gap-4 px-6 py-5 text-left hover:bg-surface-raised transition-colors"
+              (click)="toggleFaq($index)">
+              <span class="font-semibold text-text-primary text-base">{{ faq.question }}</span>
+              <div class="flex-shrink-0 w-8 h-8 rounded-full bg-surface-raised flex items-center justify-center transition-transform duration-200"
+                   [class.rotate-180]="activeFaqIndex() === $index">
+                <svg class="w-4 h-4 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </div>
+            </button>
+            @if (activeFaqIndex() === $index) {
+              <div class="px-6 pb-5">
+                <p class="text-text-secondary leading-relaxed">{{ faq.answer }}</p>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       CTA FINAL
+  ══════════════════════════════════════════════════════════ -->
+  <section id="registro" class="py-20 sm:py-28 relative overflow-hidden">
+    <div class="absolute inset-0 pointer-events-none">
+      <div class="absolute -top-32 -right-32 w-[600px] h-[600px] rounded-full bg-primary-500/15 blur-[120px]"></div>
+      <div class="absolute -bottom-32 -left-32 w-[500px] h-[500px] rounded-full bg-accent-500/10 blur-[100px]"></div>
+    </div>
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 relative z-10 text-center space-y-8">
+      <div class="inline-flex items-center gap-2 bg-primary-500/10 border border-primary-500/30 rounded-full px-4 py-1.5 text-sm font-medium text-primary-500">
+        <span class="w-2 h-2 rounded-full bg-primary-500 animate-pulse"></span>
+        Tus próximos clientes podrían estar buscándote ahora mismo
+      </div>
+      <h2 class="text-4xl sm:text-5xl lg:text-6xl font-black text-text-primary leading-[1.05]">
+        Regístrate hoy y publica<br>
+        tus primeros 2 servicios<br>
+        <span class="text-primary-500">completamente gratis.</span>
+      </h2>
+      <p class="text-xl text-text-secondary max-w-2xl mx-auto leading-relaxed">
+        Publicar 2 servicios gratis para siempre, conseguir clientes cerca de ti
+        y conservar el <strong class="text-text-primary">100% de tus ganancias.</strong>
+        Eso es lo que ganas si te registras hoy.
+      </p>
+      <!-- Value props inline -->
+      <div class="flex flex-wrap justify-center gap-3">
+        <div class="flex items-center gap-2 bg-surface-card border border-border rounded-full px-4 py-2 text-sm">
+          <svg class="w-4 h-4 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+          </svg>
+          <span class="text-text-secondary font-medium">2 servicios gratis para siempre</span>
+        </div>
+        <div class="flex items-center gap-2 bg-surface-card border border-border rounded-full px-4 py-2 text-sm">
+          <svg class="w-4 h-4 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+          </svg>
+          <span class="text-text-secondary font-medium">0% comisión</span>
+        </div>
+        <div class="flex items-center gap-2 bg-surface-card border border-border rounded-full px-4 py-2 text-sm">
+          <svg class="w-4 h-4 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+          </svg>
+          <span class="text-text-secondary font-medium">Clientes cercanos</span>
+        </div>
+        <div class="flex items-center gap-2 bg-surface-card border border-border rounded-full px-4 py-2 text-sm">
+          <svg class="w-4 h-4 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+          </svg>
+          <span class="text-text-secondary font-medium">Perfil verificado</span>
+        </div>
+      </div>
+      <!-- Main CTA -->
+      <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <a routerLink="/auth/register-provider"
+           class="inline-flex items-center justify-center gap-2 bg-primary-500 text-surface-base font-black text-xl px-12 py-5 rounded-2xl hover:bg-primary-400 active:scale-[0.98] transition-all duration-150 shadow-2xl shadow-primary-500/30 w-full sm:w-auto">
+          Registrarme Gratis Ahora
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+          </svg>
+        </a>
+      </div>
+      <p class="text-sm text-text-tertiary">
+        Sin tarjeta de crédito · Sin contrato · Sin comisiones
+      </p>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════════════════════ -->
+  <footer class="border-t border-border bg-surface-card">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-6">
+        <!-- Brand -->
+        <div class="flex items-center gap-1.5">
+          <span class="text-xl font-black text-primary-500">BApp</span>
+          <span class="text-[10px] font-semibold text-text-tertiary uppercase tracking-[0.2em] mt-0.5">Search</span>
+        </div>
+        <!-- Links -->
+        <div class="flex items-center gap-6 text-sm text-text-tertiary">
+          <a routerLink="/terms" class="hover:text-text-primary transition-colors">Términos</a>
+          <a routerLink="/privacy" class="hover:text-text-primary transition-colors">Privacidad</a>
+          <a routerLink="/auth/register-provider" class="text-primary-500 font-semibold hover:text-primary-400 transition-colors">Registrarme Gratis</a>
+        </div>
+        <!-- Copyright -->
+        <p class="text-xs text-text-tertiary text-center sm:text-right">
+          © 2025 BApp Search · Chile<br>
+          Hecho con ❤️ para profesionales independientes
+        </p>
+      </div>
+    </div>
+  </footer>
+
+</div>

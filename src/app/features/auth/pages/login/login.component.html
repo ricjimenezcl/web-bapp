@@ -38,7 +38,7 @@
           Iniciar Sesión
         </button>
         <button 
-          (click)="showAuthModal('register')"
+          (click)="showAuthModal('register', 'client')"
           class="hidden lg:block bg-crypgo-primary text-crypgo-darkmode hover:bg-transparent hover:text-crypgo-primary border border-crypgo-primary px-4 py-2 rounded-lg transition-all">
           Registrarse
         </button>
@@ -67,7 +67,7 @@
         <button (click)="showAuthModal('login'); toggleMobileMenu()" class="bg-transparent text-crypgo-primary border border-crypgo-primary px-4 py-2 rounded-lg">
           Iniciar Sesión
         </button>
-        <button (click)="showAuthModal('register'); toggleMobileMenu()" class="bg-crypgo-primary text-crypgo-darkmode px-4 py-2 rounded-lg">
+        <button (click)="showAuthModal('register', 'client'); toggleMobileMenu()" class="bg-crypgo-primary text-crypgo-darkmode px-4 py-2 rounded-lg">
           Registrarse
         </button>
       </nav>
@@ -85,17 +85,17 @@
             <article class="hero-idea-slide">
               <span class="hero-idea-chip">Activa ingresos hoy</span>
               <h3>Si quieres más ingresos, este es tu canal: crea tu perfil gratis, publícate en minutos y empieza a recibir clientes cerca de ti.</h3>
-              <button type="button" class="hero-idea-cta" (click)="showAuthModal('register')" aria-label="Comenzar gratis ahora">Comenzar gratis ahora</button>
+              <button type="button" class="hero-idea-cta" (click)="showAuthModal('register', 'provider')" aria-label="Comenzar gratis ahora">Comenzar gratis ahora</button>
             </article>
             <article class="hero-idea-slide">
               <span class="hero-idea-chip">Resuelve más rápido</span>
               <h3>Encuentra profesionales verificados en tu zona para resolver cualquier necesidad del hogar sin esperas eternas ni vueltas.</h3>
-              <button type="button" class="hero-idea-cta" (click)="showAuthModal('register')" aria-label="Encontrar profesionales hoy">Encontrar profesionales hoy</button>
+              <button type="button" class="hero-idea-cta" (click)="showAuthModal('register', 'client')" aria-label="Encontrar profesionales hoy">Encontrar profesionales hoy</button>
             </article>
             <article class="hero-idea-slide">
               <span class="hero-idea-chip">Cero comisión</span>
               <h3>Conectamos oferta y demanda con match inteligente: tú cierras el trabajo, tú te quedas con la ganancia, nosotros impulsamos la conexión.</h3>
-              <button type="button" class="hero-idea-cta" (click)="showAuthModal('register')" aria-label="Publicar servicio y vender hoy">Publicar servicio y vender hoy</button>
+              <button type="button" class="hero-idea-cta" (click)="showAuthModal('register', 'provider')" aria-label="Publicar servicio y vender hoy">Publicar servicio y vender hoy</button>
             </article>
           </div>
         </div>
@@ -469,7 +469,7 @@
                   <h3 class="text-3xl font-extrabold text-white mb-4 leading-tight">{{ step.title }}</h3>
                   <p class="text-gray-400 text-base leading-relaxed mb-8">{{ step.description }}</p>
                   
-                  <button type="button" (click)="showAuthModal('register')" class="bg-white/10 hover:bg-white text-white hover:text-black border border-white/20 font-bold px-6 py-3 rounded-xl transition-colors">
+                  <button type="button" (click)="showAuthModal('register', 'client')" class="bg-white/10 hover:bg-white text-white hover:text-black border border-white/20 font-bold px-6 py-3 rounded-xl transition-colors">
                     Comenzar Ahora
                   </button>
                 </div>
@@ -516,7 +516,7 @@
                   <h3 class="text-3xl font-extrabold text-white mb-4 leading-tight">{{ step.title }}</h3>
                   <p class="text-gray-400 text-base leading-relaxed mb-8">{{ step.description }}</p>
                   
-                  <button type="button" (click)="showAuthModal('register')" class="bg-white/10 hover:bg-white text-white hover:text-black border border-white/20 font-bold px-6 py-3 rounded-xl transition-colors">
+                  <button type="button" (click)="showAuthModal('register', 'provider')" class="bg-white/10 hover:bg-white text-white hover:text-black border border-white/20 font-bold px-6 py-3 rounded-xl transition-colors">
                     Registrarme
                   </button>
                 </div>
@@ -1084,7 +1084,7 @@
             <button 
               type="button"
               (click)="loginWithGoogle()"
-              class="flex items-center justify-center gap-3 bg-white text-gray-800 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-all">
+              class="flex items-center justify-center gap-3 bg-white text-white py-3 rounded-lg font-semibold hover:bg-gray-100 transition-all">
               <svg class="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -1181,6 +1181,24 @@
               <span class="text-crypgo-error text-sm mt-1 block">{{ getRegisterPhoneError() }}</span>
             }
           </div>
+
+          @if (registerRole() === 'provider') {
+            <div>
+              <label for="register-rut" class="text-white text-sm block mb-2">RUT (Cédula de Identidad)</label>
+              <input 
+                id="register-rut"
+                type="text"
+                formControlName="run"
+                placeholder="12.345.678-9"
+                class="w-full bg-crypgo-darkmode border border-crypgo-dark_border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-crypgo-primary transition-colors"
+                [class.border-crypgo-error]="getRegisterRUTError() !== ''"
+                (input)="onRegisterRUTInput($event)"
+              />
+              @if (getRegisterRUTError() !== '') {
+                <span class="text-crypgo-error text-sm mt-1 block">{{ getRegisterRUTError() }}</span>
+              }
+            </div>
+          }
           <div>
             <label for="register-password" class="text-white text-sm block mb-2">Contraseña</label>
             <div class="relative">
@@ -1283,7 +1301,7 @@
             <button 
               type="button"
               (click)="loginWithGoogle()"
-              class="flex items-center justify-center gap-3 bg-white text-gray-800 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-all">
+              class="flex items-center justify-center gap-3 bg-white text-white py-3 rounded-lg font-semibold hover:bg-gray-100 transition-all">
               <svg class="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>

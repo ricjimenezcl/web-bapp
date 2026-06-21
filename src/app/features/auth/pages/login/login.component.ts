@@ -8,7 +8,7 @@ import { MainCategory, ServiceCategory } from '../../../../core/models/provider.
 import { Device3dLoginComponent } from '../../../../shared/components/device-3d-login/device-3d-login.component';
 import { BappieChatbotComponent } from '../../../../shared/components/bappie-chatbot/bappie-chatbot.component';
 import { CustomValidators } from '../../../../shared/validators/custom-validators';
-import { formatChileanPhone } from '../../../../shared/utils/form-formatters';
+import { formatChileanPhone, formatChileanRUT } from '../../../../shared/utils/form-formatters';
 
 @Component({
   selector: 'app-login',
@@ -89,14 +89,25 @@ export class LoginComponent implements OnInit, OnDestroy {
   registerForm = this.fb.group({
     name:            ['', Validators.required],
     email:           ['', [Validators.required, Validators.email]],
+    run:             [''], // Se validará dinámicamente o por el validador Custom
     phone:           ['', [Validators.required, CustomValidators.phone()]],
     password:        ['', [Validators.required, Validators.minLength(8), CustomValidators.passwordComplexity()]],
     confirmPassword: ['', Validators.required],
     terms_accepted:  [false, Validators.requiredTrue],
   }, { validators: (ctrl: AbstractControl): ValidationErrors | null => {
-    const p = ctrl.get('password'), c = ctrl.get('confirmPassword');
-    if (!p || !c || !c.value) return null;
-    return p.value === c.value ? null : { passwordMismatch: true };
+    const p = ctrl.get('password'), c = ctrl.get('confirmPassword'), r = ctrl.get('run');
+    
+    // Validar contraseña
+    const mismatch = (p && c && c.value && p.value !== c.value) ? { passwordMismatch: true } : null;
+    
+    // Validar RUT si es proveedor
+    const rutRequired = this.registerRole() === 'provider' && !r?.value;
+    const rutInvalid = this.registerRole() === 'provider' && r?.value && CustomValidators.rut()(r);
+    
+    if (rutRequired) return { ...mismatch, rutRequired: true };
+    if (rutInvalid) return { ...mismatch, ...rutInvalid };
+    
+    return mismatch;
   }});
 
   // ── FormGroup contacto ───────────────────────────────────────────
@@ -390,12 +401,13 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.error.set('');
     this.success.set('');
 
-    const { name, email, phone, password, terms_accepted } = this.registerForm.value;
+    const { name, email, phone, run, password, terms_accepted } = this.registerForm.value;
     const payload = {
       email: email!, 
       password: password!, 
       full_name: name!,
       phone: phone!,
+      run: run!,
       terms_accepted: terms_accepted!
     };
 
@@ -429,6 +441,21 @@ export class LoginComponent implements OnInit, OnDestroy {
     return 'Teléfono inválido';
   }
 
+  getRegisterRUTError(): string {
+    const control = this.rf['run'];
+    const formErrors = this.registerForm.errors;
+    
+    if (!control.touched && !formErrors) return '';
+    
+    // El RUT solo es obligatorio para proveedores
+    if (this.registerRole() === 'provider') {
+      if (formErrors?.['rutRequired'] && control.touched) return 'El RUT es obligatorio para proveedores';
+      if (formErrors?.['invalidRut'] && control.value) return 'El RUT ingresado no es válido';
+    }
+    
+    return '';
+  }
+
   getRegisterPasswordError(): string {
     const control = this.rf['password'];
     if (!control.touched || !control.errors) return '';
@@ -451,17 +478,34 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.registerForm.get('phone')?.setValue(formatted, { emitEvent: false });
   }
 
+  onRegisterRUTInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const formatted = formatChileanRUT(input.value);
+    input.value = formatted;
+    this.registerForm.get('run')?.setValue(formatted, { emitEvent: false });
+  }
+
   private getApiErrorMessage(err: any, fallback: string): string {
     const response = err?.error;
-    if (typeof response?.detail === 'string' && response.detail.trim()) {
-      return response.detail;
+    const detail = response?.detail;
+
+    if (typeof detail === 'string' && detail.trim()) {
+      // Mapeo de errores conocidos del backend
+      if (detail === 'Email already registered') return 'Este correo ya se encuentra registrado';
+      if (detail === 'RUN already registered') return 'Este RUT ya se encuentra registrado';
+      if (detail === 'Phone already registered') return 'Este teléfono ya se encuentra registrado';
+      
+      return detail;
     }
-    if (Array.isArray(response?.detail) && response.detail.length > 0) {
-      return response.detail[0]?.msg ?? fallback;
+    
+    if (Array.isArray(detail) && detail.length > 0) {
+      return detail[0]?.msg ?? fallback;
     }
+    
     if (Array.isArray(response?.errors) && response.errors.length > 0) {
       return response.errors[0]?.message ?? fallback;
     }
+    
     return fallback;
   }
 
@@ -483,8 +527,11 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   // ── Métodos landing page ─────────────────────────────────────────
-  showAuthModal(tab: 'login' | 'register'): void {
+  showAuthModal(tab: 'login' | 'register', role?: 'client' | 'provider'): void {
     this.activeTab.set(tab);
+    if (tab === 'register' && role) {
+      this.registerRole.set(role);
+    }
     this.showModal.set(true);
     this.error.set('');
     this.success.set('');

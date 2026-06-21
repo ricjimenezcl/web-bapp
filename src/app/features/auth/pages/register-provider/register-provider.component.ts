@@ -33,7 +33,7 @@ export class RegisterProviderComponent {
     full_name:       ['', [Validators.required, Validators.minLength(3)]],
     email:           ['', [Validators.required, Validators.email]],
     phone:           ['', [Validators.required, CustomValidators.phone()]],
-    run:             ['', CustomValidators.rut()],
+    run:             ['', [Validators.required, CustomValidators.rut()]],
     password:        ['', [Validators.required, Validators.minLength(8), CustomValidators.passwordComplexity()]],
     confirmPassword: ['', Validators.required],
     terms_accepted:  [false, Validators.requiredTrue],

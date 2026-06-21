@@ -61,14 +61,16 @@
               }
             </div>
             <div class="form-group">
-              <label for="run" class="form-label">RUT <span class="text-text-tertiary font-normal">(opcional)</span></label>
+              <label for="run" class="form-label">RUT</label>
               <input id="run" type="text" formControlName="run" class="form-input"
                 [class.error]="f['run'].invalid && f['run'].touched"
                 placeholder="12.345.678-9"
                 maxlength="12"
                 (input)="onRutInput($event)">
               @if (f['run'].invalid && f['run'].touched) {
-                <span class="form-error">RUT inválido. Ej: 12.345.678-9</span>
+                <span class="form-error">
+                  {{ f['run'].errors?.['required'] ? 'El RUT es obligatorio' : 'RUT inválido. Ej: 12.345.678-9' }}
+                </span>
               }
             </div>
           </div>

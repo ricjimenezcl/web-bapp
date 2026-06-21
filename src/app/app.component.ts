@@ -211,6 +211,10 @@ export class AppComponent implements OnInit {
 
     if (currentUrl.startsWith('/auth/') && currentUrl !== '/auth/login') return;
 
+    // Rutas públicas que no requieren autenticación
+    const publicRoutes = ['/registro-proveedores', '/proveedores', '/terms', '/privacy'];
+    if (publicRoutes.some(r => currentUrl.startsWith(r))) return;
+
     // Si hay credenciales guardadas pero el browser fue cerrado y reabierto
     // (sessionStorage vacío), se fuerza el re-login
     if (isAuthenticated && !this.storage.isBrowserSessionActive()) {

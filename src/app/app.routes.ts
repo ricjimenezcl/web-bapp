@@ -189,6 +189,15 @@ export const routes: Routes = [
     loadComponent: () => import('./features/notifications/notifications.component').then(m => m.NotificationsComponent)
   },
   {
+    path: 'registro-proveedores',
+    loadComponent: () => import('./features/provider-landing/provider-landing.component').then(m => m.ProviderLandingComponent)
+  },
+  {
+    path: 'proveedores',
+    redirectTo: 'registro-proveedores',
+    pathMatch: 'full'
+  },
+  {
     path: 'terms',
     loadComponent: () => import('./shared/pages/terms/terms.component').then(m => m.TermsComponent)
   },

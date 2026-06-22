@@ -5,7 +5,8 @@ export const environment = {
   appName: 'BappSearch',
   version: '1.0.0',
   // ✅ geoapifyApiKey: Migrada al backend (/api/v1/geocoding/*)
-  googleClientId: '181446851130-fc2b6ppn6qpgume9guj49kieu6ac7fet.apps.googleusercontent.com',
+  googleClientId: '713984511036-kvn0om47d75dq5gqdpokgj2up7eim6jq.apps.googleusercontent.com',
+  
   facebookAppId: '864227603333716',
   cloudinaryCloudName: '',
   cloudinaryUploadPreset: 'ml_default',

@@ -34,13 +34,16 @@ export class AuthService {
     );
   }
 
-  loginWithGoogle(idToken: string): Observable<TokenResponse> {
-    return this.http.post<TokenResponse>(`${this.api}/auth/google`, { id_token: idToken })
+  loginWithGoogle(idToken: string, role: string = 'CLIENT'): Observable<TokenResponse> {
+    return this.http.post<TokenResponse>(`${this.api}/auth/oauth/google`, { 
+      id_token: idToken,
+      role: role 
+    })
       .pipe(tap(res => this._storeSession(res)));
   }
 
   loginWithFacebook(accessToken: string): Observable<TokenResponse> {
-    return this.http.post<TokenResponse>(`${this.api}/auth/facebook`, { access_token: accessToken })
+    return this.http.post<TokenResponse>(`${this.api}/auth/oauth/facebook`, { access_token: accessToken })
       .pipe(tap(res => this._storeSession(res)));
   }
 

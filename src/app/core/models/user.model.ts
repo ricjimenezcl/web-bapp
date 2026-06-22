@@ -57,6 +57,10 @@ export interface TokenResponse {
   status: UserStatus;
   provider_id?: number;
   client_id?: number;
+  email?: string;
+  name?: string;
+  avatar_url?: string;
+  terms_accepted?: boolean;
 }
 
 export interface ClientRegister {

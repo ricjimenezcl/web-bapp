@@ -1,7 +1,8 @@
 import { Component, inject, signal, OnInit, OnDestroy, HostListener, ViewChild, ElementRef, Renderer2, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
+import { SocialAuthService, GoogleLoginProvider, FacebookLoginProvider, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
 import { AuthService } from '../../../../core/services/auth.service';
 import { CategoryService } from '../../../../core/services/category.service';
 import { MainCategory, ServiceCategory } from '../../../../core/models/provider.model';
@@ -13,7 +14,7 @@ import { formatChileanPhone, formatChileanRUT } from '../../../../shared/utils/f
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, Device3dLoginComponent, BappieChatbotComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, Device3dLoginComponent, BappieChatbotComponent, GoogleSigninButtonModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -21,6 +22,8 @@ import { formatChileanPhone, formatChileanRUT } from '../../../../shared/utils/f
 export class LoginComponent implements OnInit, OnDestroy {
   private readonly fb   = inject(FormBuilder);
   private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly socialAuth = inject(SocialAuthService);
   private readonly renderer = inject(Renderer2);
   private readonly categorySvc = inject(CategoryService);
   private carouselInterval: ReturnType<typeof setInterval> | null = null;
@@ -187,6 +190,27 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.startStatCarousel();
     // Iniciar reveal después de que Angular termine de renderizar
     setTimeout(() => this.initScrollReveal(), 100);
+
+    // Escuchar cambios en la autenticación social (necesario para el nuevo botón de Google)
+    this.socialAuth.authState.subscribe((socialUser) => {
+      if (socialUser && socialUser.provider === GoogleLoginProvider.PROVIDER_ID) {
+        this.loading.set(true);
+        // Si estamos en la pestaña de registro, usamos el rol seleccionado en el toggle (client/provider)
+        // Si estamos en login, el backend ya conoce el rol del usuario existente o asignará CLIENT por defecto.
+        const roleToAssign = this.activeTab() === 'register' ? this.registerRole().toUpperCase() : 'CLIENT';
+        
+        this.auth.loginWithGoogle(socialUser.idToken, roleToAssign).subscribe({
+          next: (res) => {
+            this.loading.set(false);
+            this.handleOAuthNavigation(res.role, res.terms_accepted);
+          },
+          error: (err) => {
+            this.loading.set(false);
+            this.error.set(err.error?.detail || 'Error en autenticación con Google');
+          }
+        });
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -511,19 +535,47 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   // ── Social Login ──────────────────────────────────────────────────
   loginWithGoogle(): void {
-    console.log('🔵 Login con Google iniciado');
-    // TODO: Implementar autenticación con Google OAuth
-    this.error.set('');
-    // Aquí se implementará la integración con Google OAuth
-    alert('La autenticación con Google estará disponible próximamente');
+    // Este método ya no inicia el popup directamente para Google debido a las nuevas políticas de seguridad (GIS).
+    // El inicio de sesión se maneja a través del componente <asl-google-signin-button> 
+    // y la suscripción en ngOnInit.
+    console.log('🔵 Google Sign-In debe ser iniciado mediante el botón oficial');
   }
 
   loginWithFacebook(): void {
     console.log('🔵 Login con Facebook iniciado');
-    // TODO: Implementar autenticación con Facebook OAuth
+    this.loading.set(true);
     this.error.set('');
-    // Aquí se implementará la integración con Facebook OAuth
-    alert('La autenticación con Facebook estará disponible próximamente');
+
+    this.socialAuth.signIn(FacebookLoginProvider.PROVIDER_ID)
+      .then(user => {
+        this.auth.loginWithFacebook(user.authToken).subscribe({
+          next: (res) => {
+            this.loading.set(false);
+            this.handleOAuthNavigation(res.role, res.terms_accepted);
+          },
+          error: (err) => {
+            this.loading.set(false);
+            this.error.set(err.error?.detail || 'Error en autenticación con Facebook');
+          }
+        });
+      })
+      .catch(err => {
+        this.loading.set(false);
+        if (err?.error !== 'popup_closed_by_user') {
+          console.error('Facebook Auth Error:', err);
+          this.error.set('No se pudo completar el inicio de sesión con Facebook');
+        }
+      });
+  }
+
+  private handleOAuthNavigation(role?: string, termsAccepted?: boolean): void {
+    if (!termsAccepted) {
+      this.router.navigate(['/auth/terms-acceptance']);
+    } else {
+      const target = role === 'provider' ? '/provider/dashboard' : '/client/home';
+      this.router.navigate([target]);
+    }
+    this.showModal.set(false);
   }
 
   // ── Métodos landing page ─────────────────────────────────────────

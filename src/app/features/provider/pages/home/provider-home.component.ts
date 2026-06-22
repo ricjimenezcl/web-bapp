@@ -30,6 +30,8 @@ export class ProviderHomeComponent implements OnInit, OnDestroy {
   loading = signal(true);
   showVerificationAlert = signal(false);
   verificationMessage = signal('');
+  isProfileIncomplete = signal(false);
+  missingFields = signal<string[]>([]);
   showViewers = signal(false);
 
   reviews         = signal<Review[]>([]);
@@ -49,6 +51,7 @@ export class ProviderHomeComponent implements OnInit, OnDestroy {
     this.providerSvc.getMyProfile().pipe(takeUntil(this.destroy$)).subscribe({
       next: (p) => {
         this.profile.set(p);
+        this.checkProfileCompletion(p);
         this.loadStats();
         this.checkValidationStatus();
         this.loadReviews(p.id);
@@ -57,6 +60,15 @@ export class ProviderHomeComponent implements OnInit, OnDestroy {
         this.loading.set(false);
       }
     });
+  }
+
+  private checkProfileCompletion(profile: ProviderProfile): void {
+    const missing: string[] = [];
+    if (!profile.run) missing.push('RUN (RUT)');
+    if (!profile.phone) missing.push('Teléfono');
+    
+    this.missingFields.set(missing);
+    this.isProfileIncomplete.set(missing.length > 0);
   }
 
   private loadStats(): void {
@@ -96,6 +108,10 @@ export class ProviderHomeComponent implements OnInit, OnDestroy {
   goToVerifyIdentity(): void {
     this.showVerificationAlert.set(false);
     this.router.navigate(['/auth/verify-identity']);
+  }
+
+  goToCompleteProfile(): void {
+    this.router.navigate(['/provider/account-info']);
   }
 
   dismissVerificationAlert(): void {

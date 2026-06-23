@@ -11,11 +11,7 @@
       <!-- Overlay Guides -->
       <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
         <!-- Selfie Oval (Adaptive) -->
-        <div *ngIf="activeCapture() === 'selfie'" 
-             class="w-64 h-80 border-4 rounded-[100%] shadow-[0_0_0_9999px_rgba(0,0,0,0.6)] transition-all duration-300"
-             [style.transform]="'translate(' + ovalOffsetX() + 'px, ' + ovalOffsetY() + 'px) scale(' + ovalScale() + ')'"
-             [class.border-green-500]="faceDetected()"
-             [class.border-white/50]="!faceDetected()">
+        <div *ngIf="activeCapture() === 'selfie'" class="w-64 h-80 border-4 rounded-[100%] shadow-[0_0_0_9999px_rgba(0,0,0,0.6)] transition-all duration-300" [style.transform]="'translate(' + ovalOffsetX() + 'px, ' + ovalOffsetY() + 'px) scale(' + ovalScale() + ')'" [class.border-green-500]="faceDetected()" [class.border-white]="!faceDetected()">
              
              <!-- Feedback Liveness -->
              <div *ngIf="faceDetected()" class="absolute -bottom-12 left-0 right-0 text-center">
@@ -26,8 +22,7 @@
         </div>
 
         <!-- Document Frame -->
-        <div *ngIf="activeCapture() === 'document'" 
-             class="w-[85vw] aspect-[1.6/1] max-w-md border-2 border-white/50 rounded-lg shadow-[0_0_0_9999px_rgba(0,0,0,0.5)]">
+        <div *ngIf="activeCapture() === 'document'" class="w-[85vw] aspect-[1.6/1] max-w-md border-2 border-white/50 rounded-lg shadow-[0_0_0_9999px_rgba(0,0,0,0.5)]">
              <div class="absolute -top-10 left-0 right-0 text-center text-white text-sm font-medium">
                Alinea el frente de tu documento
              </div>

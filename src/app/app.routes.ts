@@ -113,7 +113,6 @@ export const routes: Routes = [
     children: [
       {
         path: 'tabs',
-        canActivate: [providerVerificationGuard],
         loadComponent: () => import('./features/provider/pages/tabs/provider-tabs.component').then(m => m.ProviderTabsComponent),
         children: [
           { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -123,14 +122,17 @@ export const routes: Routes = [
           },
           {
             path: 'my-services',
+            canActivate: [providerVerificationGuard],
             loadComponent: () => import('./features/provider/pages/my-services/my-services.component').then(m => m.MyServicesComponent)
           },
           {
             path: 'bookings',
+            canActivate: [providerVerificationGuard],
             loadComponent: () => import('./features/provider/pages/bookings/provider-bookings.component').then(m => m.ProviderBookingsComponent)
           },
           {
             path: 'inbox',
+            canActivate: [providerVerificationGuard],
             loadComponent: () => import('./features/provider/pages/inbox/provider-inbox.component').then(m => m.ProviderInboxComponent)
           },
           {

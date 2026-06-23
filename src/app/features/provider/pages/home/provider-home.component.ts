@@ -48,6 +48,7 @@ export class ProviderHomeComponent implements OnInit, OnDestroy {
   }
 
   private loadProfileAndStats(): void {
+    // Intentar cargar el perfil
     this.providerSvc.getMyProfile().pipe(takeUntil(this.destroy$)).subscribe({
       next: (p) => {
         this.profile.set(p);
@@ -57,6 +58,10 @@ export class ProviderHomeComponent implements OnInit, OnDestroy {
         this.loadReviews(p.id);
       },
       error: (error) => {
+        // Si el perfil no existe (404), igual intentamos cargar estado de verificación
+        // ya que el usuario ya es role=PROVIDER
+        this.checkValidationStatus();
+        
         if (error.status === 404) {
           this.handleIncompleteProfile();
         } else {

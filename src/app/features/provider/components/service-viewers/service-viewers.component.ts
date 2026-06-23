@@ -71,9 +71,15 @@ export class ServiceViewersComponent implements OnInit {
         if (s.total_viewers > 0) this.total.set(s.total_viewers);
         this.loadClients();
       },
-      error: () => {
-        this.state.set('error');
-        this.errorMsg.set('No se pudo cargar el estado. Intenta más tarde.');
+      error: (err) => {
+        if (err.status === 404) {
+          // Si es 404, asumimos que no está desbloqueado o no hay datos aún
+          this.state.set('locked');
+          this.total.set(0);
+        } else {
+          this.state.set('error');
+          this.errorMsg.set('No se pudo cargar el estado. Intenta más tarde.');
+        }
       }
     });
   }

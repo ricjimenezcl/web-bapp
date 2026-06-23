@@ -77,13 +77,17 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
     // Verificar status fresco desde la API
     this.http.get<any>(`${this.api}/providers/me`).subscribe({
       next: (profile) => {
-        if (profile.status === 'ACTIVE') {
+        if (profile.status === 'ACTIVE' || profile.validation_status === 'approved') {
           const u = this.storage.user()!;
           this.storage.setUser({ ...u, status: 'ACTIVE' });
           this.router.navigate(['/provider/tabs'], { replaceUrl: true });
         }
       },
-      error: () => {}
+      error: (err) => {
+        if (err.status === 404) {
+          this.error.set('No se encontró tu perfil de socio. Por favor completa tu información básica primero.');
+        }
+      }
     });
   }
 

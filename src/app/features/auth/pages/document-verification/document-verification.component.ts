@@ -221,11 +221,12 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
       this.ovalOffsetY.update(v => v + (targetY - v) * 0.3);
 
       // Adaptar tamaño basado en el área detectada (estimación simple)
-      // Si el rostro está muy cerca, aumentar escala
       if (face.area) {
-        const idealArea = (canvas.width * canvas.height) * 0.15;
+        // Reducimos el área ideal para que el factor de escala sea mayor y cubra más rostro
+        const idealArea = (canvas.width * canvas.height) * 0.10;
         const scale = Math.sqrt(face.area / idealArea);
-        this.ovalScale.set(Math.max(0.8, Math.min(1.2, scale)));
+        // Permitimos que el óvalo crezca más para tomar desde la frente hasta la pera
+        this.ovalScale.set(Math.max(1.0, Math.min(1.6, scale)));
       }
 
       this.processLivenessSteps(delta);
@@ -248,24 +249,6 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
       if (remaining > 0) {
         this.livenessInstruction.set(`Mantente quieto... ${remaining}s`);
       } else {
-        this.initialFaceX = this.ovalOffsetX();
-        this.livenessStep.set('TURN_RIGHT');
-        this.faceStableTime = 0;
-        this.livenessInstruction.set('👉 Gira un poco la cabeza a la DERECHA');
-      }
-    } 
-    else if (currentStep === 'TURN_RIGHT') {
-      const displacement = this.ovalOffsetX() - (this.initialFaceX || 0);
-      // En modo espejo, girar a la derecha física mueve el rostro a la IZQUIERDA en el video
-      if (displacement < -40) {
-        this.headTurnDetected = true;
-        this.livenessStep.set('TURN_LEFT');
-        this.livenessInstruction.set('👈 Ahora gira a la IZQUIERDA');
-      }
-    }
-    else if (currentStep === 'TURN_LEFT') {
-      const displacement = this.ovalOffsetX() - (this.initialFaceX || 0);
-      if (displacement > 40) {
         this.livenessStep.set('COMPLETE');
         this.livenessInstruction.set('¡Perfecto! Capturando...');
         setTimeout(() => this.capturePhoto(), 500);

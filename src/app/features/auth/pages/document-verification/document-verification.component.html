@@ -1,4 +1,51 @@
 <div class="min-h-screen bg-surface-page flex items-center justify-center p-4">
+  <!-- Camera Overlay -->
+  <div *ngIf="isCameraActive()" class="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center">
+    <div class="relative w-full h-full max-w-2xl bg-black flex items-center justify-center overflow-hidden">
+      <video #videoElement 
+             autoplay 
+             playsinline 
+             class="w-full h-full object-cover"
+             [style.transform]="cameraMode() === 'user' ? 'scaleX(-1)' : 'none'"></video>
+      
+      <!-- Overlay Guides -->
+      <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div *ngIf="activeCapture() === 'selfie'" 
+             class="w-64 h-80 border-2 border-white/50 rounded-[100%] shadow-[0_0_0_9999px_rgba(0,0,0,0.5)]">
+        </div>
+        <div *ngIf="activeCapture() === 'document'" 
+             class="w-[85vw] aspect-[1.6/1] max-w-md border-2 border-white/50 rounded-lg shadow-[0_0_0_9999px_rgba(0,0,0,0.5)]">
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="absolute bottom-10 left-0 right-0 flex justify-center items-center gap-8">
+        <button (click)="stopCamera()" 
+                class="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+        
+        <button (click)="capturePhoto()" 
+                class="w-20 h-20 rounded-full bg-white border-4 border-primary flex items-center justify-center text-primary active:scale-95 transition-transform">
+          <div class="w-16 h-16 rounded-full border-2 border-primary/20"></div>
+        </button>
+
+        <div class="w-14 h-14"></div>
+      </div>
+
+      <div class="absolute top-10 text-white text-center px-6">
+        <h3 class="text-xl font-bold mb-2">
+          {{ activeCapture() === 'selfie' ? 'Tómate una selfie' : 'Captura tu documento' }}
+        </h3>
+        <p class="text-sm opacity-80">
+          {{ activeCapture() === 'selfie' ? 'Asegúrate que tu rostro esté bien iluminado dentro del óvalo' : 'Centra el anverso de tu cédula en el recuadro' }}
+        </p>
+      </div>
+
+      <canvas #canvasElement class="hidden"></canvas>
+    </div>
+  </div>
+
   <div class="w-full max-w-2xl animate-fade-in">
 
     <!-- Header -->
@@ -56,7 +103,7 @@
             @if (state.selfieUrl) {
               <div class="relative">
                 <img [src]="state.selfieUrl" alt="Selfie" class="w-full h-40 object-cover rounded-xl border border-border">
-                <button (click)="state.selfieUrl = null"
+                <button (click)="state.selfieUrl = null; state.selfieDocumentId = null"
                   type="button"
                   class="absolute top-2 right-2 w-7 h-7 bg-surface-card border border-border rounded-full shadow flex items-center justify-center text-text-tertiary hover:text-danger transition-colors">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -65,15 +112,15 @@
                 </button>
               </div>
             } @else {
-              <label class="flex flex-col items-center justify-center h-40 border-2 border-dashed border-border rounded-xl cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors">
+              <button (click)="startCamera('selfie')" 
+                      class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-border rounded-xl cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors">
                 <svg class="w-6 h-6 text-text-tertiary mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
-                <span class="text-xs text-text-secondary">Selfie</span>
-                <input type="file" class="hidden" accept="image/*" capture="user" (change)="onSelfieSelect($event)">
-              </label>
+                <span class="text-xs text-text-secondary">Abrir Cámara para Selfie</span>
+              </button>
             }
           </div>
 
@@ -83,7 +130,7 @@
             @if (state.idDocumentUrl) {
               <div class="relative">
                 <img [src]="state.idDocumentUrl" alt="Documento" class="w-full h-40 object-cover rounded-xl border border-border">
-                <button (click)="state.idDocumentUrl = null"
+                <button (click)="state.idDocumentUrl = null; state.idDocumentId = null"
                   type="button"
                   class="absolute top-2 right-2 w-7 h-7 bg-surface-card border border-border rounded-full shadow flex items-center justify-center text-text-tertiary hover:text-danger transition-colors">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -92,14 +139,14 @@
                 </button>
               </div>
             } @else {
-              <label class="flex flex-col items-center justify-center h-40 border-2 border-dashed border-border rounded-xl cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors">
+              <button (click)="startCamera('document')" 
+                      class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-border rounded-xl cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors">
                 <svg class="w-6 h-6 text-text-tertiary mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                 </svg>
-                <span class="text-xs text-text-secondary">Documento</span>
-                <input type="file" class="hidden" accept="image/*" (change)="onDocumentSelect($event)">
-              </label>
+                <span class="text-xs text-text-secondary">Capturar Documento</span>
+              </button>
             }
           </div>
         </div>

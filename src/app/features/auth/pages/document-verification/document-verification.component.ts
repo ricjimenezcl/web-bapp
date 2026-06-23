@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -35,6 +35,9 @@ interface VerificationState {
   templateUrl: './document-verification.component.html',
 })
 export class DocumentVerificationComponent implements OnInit, OnDestroy {
+  @ViewChild('videoElement') videoElement!: ElementRef<HTMLVideoElement>;
+  @ViewChild('canvasElement') canvasElement!: ElementRef<HTMLCanvasElement>;
+
   private http    = inject(HttpClient);
   private auth    = inject(AuthService);
   private storage = inject(StorageService);
@@ -47,6 +50,12 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
   step      = signal<'upload' | 'preview' | 'verifying' | 'approved' | 'rejected'>('upload');
   loading   = signal(false);
   error     = signal('');
+  
+  // Camera state
+  isCameraActive = signal(false);
+  cameraMode     = signal<'user' | 'environment'>('user'); // user=selfie, environment=document
+  activeCapture  = signal<'selfie' | 'document' | null>(null);
+  stream: MediaStream | null = null;
 
   state: VerificationState = {
     selfieUrl: null,
@@ -98,10 +107,80 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.stopCamera();
     this.destroy$.next();
     this.destroy$.complete();
     if (this.statusCheckTimeout) {
       clearTimeout(this.statusCheckTimeout);
+    }
+  }
+
+  async startCamera(type: 'selfie' | 'document') {
+    this.activeCapture.set(type);
+    this.cameraMode.set(type === 'selfie' ? 'user' : 'environment');
+    this.isCameraActive.set(true);
+    this.error.set('');
+
+    try {
+      this.stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: this.cameraMode(),
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        },
+        audio: false
+      });
+
+      // Pequeño delay para asegurar que el ViewChild esté disponible si se acaba de mostrar
+      setTimeout(() => {
+        if (this.videoElement) {
+          this.videoElement.nativeElement.srcObject = this.stream;
+          this.videoElement.nativeElement.play();
+        }
+      }, 100);
+    } catch (err: any) {
+      console.error('Error accessing camera:', err);
+      this.error.set('No se pudo acceder a la cámara. Por favor verifica los permisos.');
+      this.isCameraActive.set(false);
+    }
+  }
+
+  stopCamera() {
+    if (this.stream) {
+      this.stream.getTracks().forEach(track => track.stop());
+      this.stream = null;
+    }
+    this.isCameraActive.set(false);
+    this.activeCapture.set(null);
+  }
+
+  capturePhoto() {
+    if (!this.videoElement || !this.canvasElement) return;
+
+    const video = this.videoElement.nativeElement;
+    const canvas = this.canvasElement.nativeElement;
+    const context = canvas.getContext('2d');
+
+    if (context) {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const file = new File([blob], `${this.activeCapture()}_${Date.now()}.jpg`, { type: 'image/jpeg' });
+          if (this.activeCapture() === 'selfie') {
+            this.selfieFile = file;
+            this.state.selfieUrl = URL.createObjectURL(file);
+            this.uploadSelfie();
+          } else {
+            this.docFile = file;
+            this.state.idDocumentUrl = URL.createObjectURL(file);
+            this.uploadIdDocument();
+          }
+          this.stopCamera();
+        }
+      }, 'image/jpeg', 0.8);
     }
   }
 

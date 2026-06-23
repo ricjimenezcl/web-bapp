@@ -52,20 +52,19 @@ export class ProviderHomeComponent implements OnInit, OnDestroy {
     this.providerSvc.getMyProfile().pipe(takeUntil(this.destroy$)).subscribe({
       next: (p) => {
         this.profile.set(p);
+        this.isProfileIncomplete.set(false);
         this.checkProfileCompletion(p);
         this.loadStats();
         this.checkValidationStatus();
         this.loadReviews(p.id);
       },
       error: (error) => {
-        // Si el perfil no existe (404), igual intentamos cargar estado de verificación
-        // ya que el usuario ya es role=PROVIDER
-        this.checkValidationStatus();
-        
         if (error.status === 404) {
           this.handleIncompleteProfile();
         } else {
           this.loading.set(false);
+          // Incluso si hay error, si no es 404 intentamos ver validación
+          this.checkValidationStatus();
         }
       }
     });
@@ -74,10 +73,12 @@ export class ProviderHomeComponent implements OnInit, OnDestroy {
   private handleIncompleteProfile(): void {
     this.loading.set(false);
     this.isProfileIncomplete.set(true);
-    this.missingFields.set(['RUN (RUT)', 'Teléfono', 'Configuración de servicios']);
+    this.profile.set(null);
+    this.missingFields.set(['Información básica del perfil', 'RUN (RUT)', 'Teléfono', 'Configuración de servicios']);
     
-    // Si no tiene perfil, forzamos alerta de verificación
-    this.verificationMessage.set('Debes completar tu información de socio y verificar tu identidad para activar tu perfil.');
+    // Si no tiene perfil, la verificación es obligatoria y prioritaria
+    this.validationStatus.set('not_submitted');
+    this.verificationMessage.set('Para comenzar a recibir clientes, primero debes completar tu perfil y verificar tu identidad.');
     this.showVerificationAlert.set(true);
   }
 
@@ -103,22 +104,33 @@ export class ProviderHomeComponent implements OnInit, OnDestroy {
         this.validationStatus.set(v.status);
         if (v.status !== 'approved') {
           this.showVerificationWarning(v.status);
+        } else {
+          this.showVerificationAlert.set(false);
         }
       },
-      error: () => {}
+      error: (err) => {
+        // Si no hay perfil, el endpoint de validación podría dar 404 también
+        if (err.status === 404) {
+          this.validationStatus.set('not_submitted');
+        }
+      }
     });
   }
 
   private showVerificationWarning(status: string): void {
-    let message = 'Debes realizar la verificación de identidad para poder agregar servicios.';
+    let message = 'Debes realizar la verificación de identidad para poder publicar servicios.';
     
     if (status === 'pending') {
-      message = 'Debes realizar la verificación de identidad para poder agregar servicios.';
+      message = 'Tu identidad está en revisión. Te avisaremos cuando sea aprobada.';
     } else if (status === 'rejected') {
-      message = 'Tu verificación fue rechazada. No podrás agregar servicios hasta verificar tu identidad nuevamente.';
+      message = 'Tu verificación fue rechazada. Por favor, revisa tus documentos y reintenta.';
     } else if (status === 'not_submitted') {
-      message = 'Debes realizar la verificación de identidad para poder agregar servicios.';
+      message = 'Verifica tu identidad para poder recibir clientes y pagos.';
     }
+
+    this.verificationMessage.set(message);
+    this.showVerificationAlert.set(true);
+  }
 
     this.verificationMessage.set(message);
     this.showVerificationAlert.set(true);

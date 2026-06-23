@@ -198,43 +198,143 @@
   gap: 24px;
 }
 
-/* ══ VERIFICATION BANNER ════════════════════════════════════════ */
-.ph-verification-banner {
-  background: linear-gradient(145deg, #161616, #000);
-  border: 1px solid rgba(253,230,138,0.2);
+/* ══ MEGA VERIFICATION CARD ══════════════════════════════════════ */
+.ph-mega-verification-card {
+  background: linear-gradient(135deg, #1e1e1e 0%, #121212 100%);
+  border: 1px solid rgba(253, 215, 53, 0.2);
   border-radius: 20px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  padding: 24px;
+  margin-bottom: 4px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: hidden;
 
-  &--incomplete {
-    border-color: rgba(253,230,138,0.4);
-    background: linear-gradient(145deg, #1a1a10, #000);
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(253, 215, 53, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  &.mode-pending {
+    border-color: rgba(96, 165, 250, 0.3);
+    &::before { background: radial-gradient(circle, rgba(96, 165, 250, 0.1) 0%, transparent 70%); }
+    .ph-mvc-badge { background: rgba(96, 165, 250, 0.15); color: #60A5FA; }
+  }
+
+  &.mode-rejected {
+    border-color: rgba(248, 113, 113, 0.3);
+    &::before { background: radial-gradient(circle, rgba(248, 113, 113, 0.1) 0%, transparent 70%); }
+    .ph-mvc-badge { background: rgba(248, 113, 113, 0.15); color: #F87171; }
   }
 }
-.ph-vb-icon {
-  width: 44px; height: 44px;
-  border-radius: 14px;
-  background: rgba(253,230,138,0.1);
-  display: flex;
+
+.ph-mvc-header {
+  margin-bottom: 20px;
+}
+
+.ph-mvc-badge {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  svg { width: 22px; height: 22px; color: var(--bw-accent, #FDE68A); }
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 30px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: rgba(253, 215, 53, 0.15);
+  color: var(--bw-accent, #FDD735);
+  i { font-size: 13px; }
+}
 
-  &--incomplete {
-    background: rgba(253,230,138,0.2);
+.ph-mvc-body {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
   }
 }
-.ph-vb-content {
-  h4 { font-size: 16px; font-weight: 700; color: var(--bw-text-p, #F9FAFB); margin: 0 0 4px; }
-  p  { font-size: 13px; color: var(--bw-text-s, #94A3B8); margin: 0; line-height: 1.5; }
+
+.ph-mvc-icon-area {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 18px;
+  padding: 12px;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
 }
-.ph-vb-actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+
+.ph-mvc-text {
+  flex: 1;
+  h3 {
+    font-size: 18px;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 8px;
+    letter-spacing: -0.3px;
+  }
+  p {
+    font-size: 14px;
+    color: #94A3B8;
+    line-height: 1.5;
+    margin: 0;
+  }
 }
+
+.ph-mvc-missing {
+  margin-top: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 12px 16px;
+  border-radius: 12px;
+  text-align: left;
+  span {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748B;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  ul {
+    margin: 0;
+    padding: 0 0 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    li {
+      font-size: 13px;
+      color: #CBD5E1;
+      font-weight: 500;
+      &::marker { color: var(--bw-accent, #FDD735); }
+    }
+  }
+}
+
+.ph-mvc-footer {
+  .ph-pending-note {
+    font-size: 13px;
+    color: #64748B;
+    font-style: italic;
+    margin: 0;
+    text-align: center;
+  }
+}
+
 .ph-btn-primary {
   background: var(--bw-accent, #FDE68A);
   color: #000;
@@ -244,8 +344,22 @@
   font-size: 13px;
   font-weight: 800;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: opacity 0.2s, transform 0.2s;
   &:hover { opacity: 0.9; }
+  &:active { transform: scale(0.98); }
+
+  &.mega {
+    width: 100%;
+    padding: 16px;
+    font-size: 15px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 4px 12px rgba(253, 215, 53, 0.3);
+    i { font-size: 18px; }
+  }
 }
 .ph-btn-ghost {
   background: transparent;

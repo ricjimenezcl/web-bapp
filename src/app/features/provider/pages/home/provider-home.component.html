@@ -125,84 +125,51 @@
 
       } @else {
 
-        <!-- ── Banner perfil incompleto ──────────────────────────── -->
-        @if (isProfileIncomplete()) {
-          <div class="ph-verification-banner ph-verification-banner--incomplete">
-            <div class="ph-vb-icon ph-vb-icon--incomplete">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-              </svg>
-            </div>
-            <div class="ph-vb-content">
-              <h4>Perfil incompleto</h4>
-              <p>
-                Te falta registrar tu <strong>{{ missingFields().join(' y ') }}</strong>. 
-                Debes completar estos datos para poder publicar tus servicios.
-              </p>
-            </div>
-            <div class="ph-vb-actions">
-              <button class="ph-btn-primary" type="button" (click)="goToCompleteProfile()">
-                Completar ahora
-              </button>
-            </div>
-          </div>
-        }
-
-        <!-- ── BANNER PERMANENTE DE VERIFICACIÓN (Si no está aprobado) ── -->
+        <!-- ── BANNER DE VERIFICACIÓN PRIORITARIO ──────────────────────────── -->
         @if (validationStatus() !== 'approved') {
-          <div class="ph-section">
-            <h2 class="ph-section-title">Seguridad y Confianza</h2>
-            <div class="ph-pending-alert" 
-                 [class.ph-pending-alert--pending]="validationStatus() === 'pending'"
-                 (click)="goToVerifyIdentity()" style="cursor: pointer;">
-              <div class="ph-pa-icon">
+          <div class="ph-mega-verification-card" [class]="'mode-' + (validationStatus() || 'not_submitted')">
+            <div class="ph-mvc-header">
+              <div class="ph-mvc-badge">
                 @if (validationStatus() === 'pending') {
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                  </svg>
+                  <i class="fa-solid fa-clock-rotate-left"></i> En Revisión
+                } @else if (validationStatus() === 'rejected') {
+                  <i class="fa-solid fa-circle-xmark"></i> Rechazada
                 } @else {
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                  </svg>
+                  <i class="fa-solid fa-shield-halved"></i> Verificación Requerida
                 }
               </div>
-              <div class="ph-pa-text">
-                @if (validationStatus() === 'pending') {
-                  Tu identidad está <strong>en revisión</strong>. Pronto podrás publicar servicios.
-                } @else if (validationStatus() === 'rejected') {
-                  Tu verificación fue <strong>rechazada</strong>. Haz clic para reintentar.
+            </div>
+
+            <div class="ph-mvc-body">
+              <div class="ph-mvc-icon-area">
+                @if (validationStatus() === 'rejected') {
+                  <img src="https://cdn-icons-png.flaticon.com/512/1008/1008927.png" alt="Rechazado" />
+                } @else if (validationStatus() === 'pending') {
+                  <img src="https://cdn-icons-png.flaticon.com/512/3592/3592850.png" alt="Revisión" />
                 } @else {
-                  <strong>Verifica tu identidad</strong> para poder publicar servicios y recibir pagos.
+                  <img src="https://cdn-icons-png.flaticon.com/512/1062/1062002.png" alt="Verificar" />
                 }
+              </div>
+              
+              <div class="ph-mvc-text">
+                <h3>{{ 
+                  validationStatus() === 'rejected' ? 'Acción requerida: Revisión Rechazada' :
+                  validationStatus() === 'pending' ? 'Estamos revisando tus documentos' :
+                  'Tu seguridad es nuestra prioridad' 
+                }}</h3>
+                <p>
+                  @if (validationStatus() === 'pending') {
+                    Tu identidad está <strong>en revisión</strong>. Pronto podrás publicar servicios.
+                  } @else if (validationStatus() === 'rejected') {
+                    Tu verificación fue <strong>rechazada</strong>. Haz clic para reintentar.
+                  } @else {
+                    <strong>Verifica tu identidad</strong> para poder publicar servicios y recibir pagos.
+                  }
+                </p>
               </div>
               <svg class="ph-pa-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
               </svg>
-            </div>
-          </div>
-        }
-
-        <!-- ── Banner verificaci\xf3n pendiente ────────────────────── -->
-        @if (showVerificationAlert() && !isProfileIncomplete() && false) {
-          <div class="ph-verification-banner">
-            <div class="ph-vb-icon">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-              </svg>
-            </div>
-            <div class="ph-vb-content">
-              <h4>Verificación de identidad</h4>
-              <p>{{ verificationMessage() }}</p>
-            </div>
-            <div class="ph-vb-actions">
-              <button class="ph-btn-primary" type="button" (click)="goToVerifyIdentity()">
-                Verificar ahora
-              </button>
-              <button class="ph-btn-ghost" type="button" (click)="dismissVerificationAlert()">
-                Más tarde
-              </button>
             </div>
           </div>
         }

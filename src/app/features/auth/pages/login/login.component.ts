@@ -497,7 +497,6 @@ export class LoginComponent implements OnInit, OnDestroy {
           this.error.set(msg);
         }
       }
-      }
     });
   }
 

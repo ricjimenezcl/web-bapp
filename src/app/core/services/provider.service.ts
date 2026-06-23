@@ -121,17 +121,21 @@ export class ProviderService {
     );
   }
 
-  deleteService(serviceId: number): Observable<void> {
-    return this.http.delete<void>(`${this.api}/providers/services/${serviceId}`).pipe(
+  deleteService(serviceId: number, providerId?: number): Observable<void> {
+    const pid = providerId || this._profile()?.id;
+    if (!pid) {
+      console.warn('⚠️ No providerId found for deleteService, using fallback legacy endpoint');
+      return this.http.delete<void>(`${this.api}/providers/services/${serviceId}`).pipe(
+        tap(() => this._services.update(list => list.filter(s => s.id !== serviceId)))
+      );
+    }
+    return this.http.delete<void>(`${this.api}/providers/${pid}/services/${serviceId}`).pipe(
       tap(() => this._services.update(list => list.filter(s => s.id !== serviceId)))
     );
   }
 
   getMyStats(): Observable<ProviderStats> {
-    return this.http.get<ProviderProfile>(`${this.api}/providers/me`).pipe(
-      switchMap(profile => 
-        this.http.get<ProviderStats>(`${this.api}/providers/${profile.id}/stats`)
-      ),
+    return this.http.get<ProviderStats>(`${this.api}/providers/stats`).pipe(
       tap(s => this._stats.set(s))
     );
   }

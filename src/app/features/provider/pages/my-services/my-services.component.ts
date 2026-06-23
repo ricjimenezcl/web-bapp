@@ -37,9 +37,10 @@ export class MyServicesComponent implements OnInit {
   }
 
   async delete(id: number): Promise<void> {
+    const service = this.services().find(s => s.id === id);
     const confirmed = await this.modal.confirm('¿Eliminar este servicio?', 'Confirmar eliminación', 'Eliminar');
     if (!confirmed) return;
-    this.providerSvc.deleteService(id).subscribe({
+    this.providerSvc.deleteService(id, service?.provider_id).subscribe({
       next: () => this.services.update(list => list.filter(s => s.id !== id))
     });
   }

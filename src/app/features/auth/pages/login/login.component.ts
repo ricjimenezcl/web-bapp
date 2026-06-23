@@ -201,16 +201,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.auth.loginWithGoogle(socialUser.idToken, roleToAssign).subscribe({
           next: (res) => {
             this.loading.set(false);
-            
-            if (wasRegistering && !res.is_new_user) {
-              this.success.set('Ya tienes una cuenta con este correo. Hemos iniciado sesión por ti.');
-              // Pequeña espera para que vean el mensaje antes de navegar
-              setTimeout(() => {
-                this.navigateBasedOnResponse(res);
-              }, 2000);
-            } else {
-              this.navigateBasedOnResponse(res);
-            }
+            this.handleSocialLoginSuccess(res, wasRegistering);
           },
           error: (err) => {
             this.loading.set(false);
@@ -219,6 +210,28 @@ export class LoginComponent implements OnInit, OnDestroy {
         });
       }
     });
+  }
+
+  private handleSocialLoginSuccess(res: any, wasRegistering: boolean): void {
+    const isNewUser = res.is_new_user === true;
+    const isProviderPath = wasRegistering && this.registerRole().toUpperCase() === 'PROVIDER';
+
+    // FIX: Si el usuario ya existía y NO es PROVIDER, pero intentaba registrarse como PROVIDER
+    if (isProviderPath && !isNewUser && res.role !== 'PROVIDER') {
+      this.error.set('Este correo ya está registrado como Cliente. Por favor usa otro correo para tu cuenta de Socio.');
+      this.auth.logout(); // Limpiar sesión si se creó (ya que el backend lo loguea)
+      return;
+    }
+
+    if (wasRegistering && !isNewUser) {
+      this.success.set('Ya tienes una cuenta con este correo. Hemos iniciado sesión por ti.');
+      // Pequeña espera para que vean el mensaje antes de navegar
+      setTimeout(() => {
+        this.navigateBasedOnResponse(res);
+      }, 2000);
+    } else {
+      this.navigateBasedOnResponse(res);
+    }
   }
 
   private navigateBasedOnResponse(res: any): void {
@@ -467,7 +480,16 @@ export class LoginComponent implements OnInit, OnDestroy {
       },
       error: (err: any) => {
         this.loading.set(false);
-        this.error.set(this.getApiErrorMessage(err, 'Error al crear la cuenta. Inténtalo de nuevo.'));
+        const msg = this.getApiErrorMessage(err, 'Error al crear la cuenta. Inténtalo de nuevo.');
+        this.error.set(msg);
+
+        // FIX: Si el correo ya existe, facilitar el login (Sincronizado con fix móvil)
+        if (msg === 'Este correo ya se encuentra registrado' || msg.includes('ya se encuentra registrado')) {
+          this.activeTab.set('login');
+          this.form.patchValue({ email });
+          this.success.set('Este correo ya está registrado. Por favor, ingresa tus credenciales.');
+          this.error.set('');
+        }
       }
     });
   }
@@ -572,12 +594,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.auth.loginWithFacebook(user.authToken, roleToAssign).subscribe({
           next: (res) => {
             this.loading.set(false);
-            if (wasRegistering && !res.is_new_user) {
-              this.success.set('Ya tienes una cuenta con este correo. Hemos iniciado sesión por ti.');
-              setTimeout(() => this.navigateBasedOnResponse(res), 2000);
-            } else {
-              this.navigateBasedOnResponse(res);
-            }
+            this.handleSocialLoginSuccess(res, wasRegistering);
           },
           error: (err) => {
             this.loading.set(false);

@@ -56,10 +56,24 @@ export class ProviderHomeComponent implements OnInit, OnDestroy {
         this.checkValidationStatus();
         this.loadReviews(p.id);
       },
-      error: () => {
-        this.loading.set(false);
+      error: (error) => {
+        if (error.status === 404) {
+          this.handleIncompleteProfile();
+        } else {
+          this.loading.set(false);
+        }
       }
     });
+  }
+
+  private handleIncompleteProfile(): void {
+    this.loading.set(false);
+    this.isProfileIncomplete.set(true);
+    this.missingFields.set(['RUN (RUT)', 'Teléfono', 'Configuración de servicios']);
+    
+    // Si no tiene perfil, forzamos alerta de verificación
+    this.verificationMessage.set('Debes completar tu información de socio y verificar tu identidad para activar tu perfil.');
+    this.showVerificationAlert.set(true);
   }
 
   private checkProfileCompletion(profile: ProviderProfile): void {

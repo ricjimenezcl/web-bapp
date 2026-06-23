@@ -489,15 +489,14 @@ export class LoginComponent implements OnInit, OnDestroy {
       error: (err: any) => {
         this.loading.set(false);
         const msg = this.getApiErrorMessage(err, 'Error al crear la cuenta. Inténtalo de nuevo.');
-        this.error.set(msg);
-
-        // FIX: Si el correo ya existe, facilitar el login (Sincronizado con fix móvil)
+        
+        // Si el correo ya existe, mostramos error específico y NO sugerimos login silencioso
         if (msg === 'Este correo ya se encuentra registrado' || msg.includes('ya se encuentra registrado')) {
-          this.activeTab.set('login');
-          this.form.patchValue({ email });
-          this.success.set('Este correo ya está registrado. Por favor, ingresa tus credenciales.');
-          this.error.set('');
+          this.error.set('Este correo ya está registrado en el sistema. Si quieres usar este mismo correo con un rol distinto, por favor contacta a soporte.');
+        } else {
+          this.error.set(msg);
         }
+      }
       }
     });
   }

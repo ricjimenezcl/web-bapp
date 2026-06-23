@@ -69,15 +69,20 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
   private selfieFile: File | null = null;
 
   ngOnInit(): void {
-    // Si ya está ACTIVE en storage, ir directo a tabs
-    if (this.storage.user()?.status === 'ACTIVE') {
-      this.router.navigate(['/provider/tabs'], { replaceUrl: true });
+    const user = this.storage.user();
+    
+    // Solo redirigir automáticamente si ya es ACTIVE y NO es proveedor (o si es proveedor ya aprobado)
+    // Los proveedores que necesitan verificar deben poder entrar aquí incluso si su user.status es ACTIVE
+    if (user?.status === 'ACTIVE' && user?.role !== 'PROVIDER') {
+      const target = user.role === 'CLIENT' ? '/client/tabs' : '/provider/tabs';
+      this.router.navigate([target], { replaceUrl: true });
       return;
     }
+
     // Verificar status fresco desde la API
     this.http.get<any>(`${this.api}/providers/me`).subscribe({
       next: (profile) => {
-        if (profile.status === 'ACTIVE' || profile.validation_status === 'approved') {
+        if (profile.validation_status === 'approved') {
           const u = this.storage.user()!;
           this.storage.setUser({ ...u, status: 'ACTIVE' });
           this.router.navigate(['/provider/tabs'], { replaceUrl: true });
@@ -85,7 +90,8 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         if (err.status === 404) {
-          this.error.set('No se encontró tu perfil de socio. Por favor completa tu información básica primero.');
+          // Si es un socio nuevo sin perfil, permitimos que verifique igual
+          console.log('Provider profile not found, allowing document verification');
         }
       }
     });

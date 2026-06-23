@@ -129,7 +129,7 @@
         @if (validationStatus() !== 'approved') {
           <div class="ph-mega-verification-card" 
                [class]="'mode-' + (validationStatus() || 'not_submitted')"
-               (click)="goToVerifyIdentity()"
+               routerLink="/auth/verify-identity"
                style="cursor: pointer;">
             <div class="ph-mvc-header">
               <div class="ph-mvc-badge">

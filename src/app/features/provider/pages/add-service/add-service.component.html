@@ -28,7 +28,7 @@
         </div>
         <h2 class="as-gate-title">Verificación de identidad requerida</h2>
         <p class="as-gate-desc">{{ identityMessage() }}</p>
-        <button type="button" class="as-btn as-btn--primary as-btn--block" (click)="goToVerifyIdentity()">
+        <button type="button" class="as-btn as-btn--primary as-btn--block" routerLink="/auth/verify-identity">
           Verificar identidad
         </button>
         <a routerLink="/provider/tabs/my-services" class="as-gate-link">

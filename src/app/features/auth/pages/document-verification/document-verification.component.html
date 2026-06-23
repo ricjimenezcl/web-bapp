@@ -10,22 +10,40 @@
       
       <!-- Overlay Guides -->
       <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <!-- Selfie Oval (Adaptive) -->
         <div *ngIf="activeCapture() === 'selfie'" 
-             class="w-64 h-80 border-2 border-white/50 rounded-[100%] shadow-[0_0_0_9999px_rgba(0,0,0,0.5)]">
+             class="w-64 h-80 border-4 rounded-[100%] shadow-[0_0_0_9999px_rgba(0,0,0,0.6)] transition-all duration-300"
+             [style.transform]="'translate(' + ovalOffsetX() + 'px, ' + ovalOffsetY() + 'px) scale(' + ovalScale() + ')'"
+             [class.border-green-500]="faceDetected()"
+             [class.border-white/50]="!faceDetected()">
+             
+             <!-- Feedback Liveness -->
+             <div *ngIf="faceDetected()" class="absolute -bottom-12 left-0 right-0 text-center">
+                <span class="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full animate-bounce">
+                  Rostro Detectado
+                </span>
+             </div>
         </div>
+
+        <!-- Document Frame -->
         <div *ngIf="activeCapture() === 'document'" 
              class="w-[85vw] aspect-[1.6/1] max-w-md border-2 border-white/50 rounded-lg shadow-[0_0_0_9999px_rgba(0,0,0,0.5)]">
+             <div class="absolute -top-10 left-0 right-0 text-center text-white text-sm font-medium">
+               Alinea el frente de tu documento
+             </div>
         </div>
       </div>
 
       <!-- Controls -->
       <div class="absolute bottom-10 left-0 right-0 flex justify-center items-center gap-8">
         <button (click)="stopCamera()" 
-                class="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
+                class="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/30 transition-colors">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
         
-        <button (click)="capturePhoto()" 
+        <!-- Only show manual capture for documents -->
+        <button *ngIf="activeCapture() === 'document'"
+                (click)="capturePhoto()" 
                 class="w-20 h-20 rounded-full bg-white border-4 border-primary flex items-center justify-center text-primary active:scale-95 transition-transform">
           <div class="w-16 h-16 rounded-full border-2 border-primary/20"></div>
         </button>
@@ -33,12 +51,12 @@
         <div class="w-14 h-14"></div>
       </div>
 
-      <div class="absolute top-10 text-white text-center px-6">
+      <div class="absolute top-10 text-white text-center px-6 w-full">
         <h3 class="text-xl font-bold mb-2">
-          {{ activeCapture() === 'selfie' ? 'Tómate una selfie' : 'Captura tu documento' }}
+          {{ activeCapture() === 'selfie' ? 'Validación en vivo' : 'Captura tu documento' }}
         </h3>
-        <p class="text-sm opacity-80">
-          {{ activeCapture() === 'selfie' ? 'Asegúrate que tu rostro esté bien iluminado dentro del óvalo' : 'Centra el anverso de tu cédula en el recuadro' }}
+        <p class="text-lg font-medium bg-black/40 backdrop-blur-sm rounded-lg py-2 px-4 inline-block">
+          {{ activeCapture() === 'selfie' ? livenessInstruction() : 'Asegúrate de que el documento sea legible' }}
         </p>
       </div>
 

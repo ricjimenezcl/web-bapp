@@ -51,11 +51,26 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
   loading   = signal(false);
   error     = signal('');
   
-  // Camera state
+  // Camera and Liveness state
   isCameraActive = signal(false);
   cameraMode     = signal<'user' | 'environment'>('user'); // user=selfie, environment=document
   activeCapture  = signal<'selfie' | 'document' | null>(null);
   stream: MediaStream | null = null;
+
+  // Liveness Logic
+  livenessStep = signal<'READY' | 'CENTER' | 'TURN_RIGHT' | 'TURN_LEFT' | 'PROCESSING' | 'COMPLETE'>('READY');
+  livenessInstruction = signal('Centra tu rostro en el óvalo');
+  faceDetected = signal(false);
+  faceStableTime = 0;
+  requiredStableTime = 2000; // 2 segundos para captura
+  ovalOffsetX = signal(0);
+  ovalOffsetY = signal(0);
+  ovalScale = signal(1); // Para adaptar el tamaño si es necesario
+  initialFaceX: number | null = null;
+  headTurnDetected = false;
+  
+  private faceDetectionInterval?: any;
+  private lastCheckTime = 0;
 
   state: VerificationState = {
     selfieUrl: null,
@@ -120,6 +135,9 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
     this.cameraMode.set(type === 'selfie' ? 'user' : 'environment');
     this.isCameraActive.set(true);
     this.error.set('');
+    this.faceStableTime = 0;
+    this.headTurnDetected = false;
+    this.initialFaceX = null;
 
     try {
       this.stream = await navigator.mediaDevices.getUserMedia({
@@ -136,6 +154,10 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
         if (this.videoElement) {
           this.videoElement.nativeElement.srcObject = this.stream;
           this.videoElement.nativeElement.play();
+          
+          if (type === 'selfie') {
+            this.startLivenessDetection();
+          }
         }
       }, 100);
     } catch (err: any) {
@@ -146,12 +168,143 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
   }
 
   stopCamera() {
+    this.stopLivenessDetection();
     if (this.stream) {
       this.stream.getTracks().forEach(track => track.stop());
       this.stream = null;
     }
     this.isCameraActive.set(false);
     this.activeCapture.set(null);
+  }
+
+  private startLivenessDetection() {
+    this.livenessStep.set('CENTER');
+    this.livenessInstruction.set('Coloca tu rostro dentro del óvalo');
+    this.lastCheckTime = Date.now();
+    
+    this.faceDetectionInterval = setInterval(() => {
+      this.performDetectionCycle();
+    }, 150);
+  }
+
+  private stopLivenessDetection() {
+    if (this.faceDetectionInterval) {
+      clearInterval(this.faceDetectionInterval);
+      this.faceDetectionInterval = undefined;
+    }
+  }
+
+  private performDetectionCycle() {
+    const video = this.videoElement?.nativeElement;
+    const canvas = this.canvasElement?.nativeElement;
+    if (!video || !canvas || video.paused) return;
+
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return;
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const face = this.findFaceRegion(ctx, canvas.width, canvas.height);
+    const now = Date.now();
+    const delta = now - this.lastCheckTime;
+    this.lastCheckTime = now;
+
+    if (face && face.confidence > 0.3) {
+      this.faceDetected.set(true);
+      
+      // Suavizado de movimiento del óvalo
+      const targetX = face.centerX - canvas.width / 2;
+      const targetY = face.centerY - canvas.height / 2;
+      this.ovalOffsetX.update(v => v + (targetX - v) * 0.3);
+      this.ovalOffsetY.update(v => v + (targetY - v) * 0.3);
+
+      // Adaptar tamaño basado en el área detectada (estimación simple)
+      // Si el rostro está muy cerca, aumentar escala
+      if (face.area) {
+        const idealArea = (canvas.width * canvas.height) * 0.15;
+        const scale = Math.sqrt(face.area / idealArea);
+        this.ovalScale.set(Math.max(0.8, Math.min(1.2, scale)));
+      }
+
+      this.processLivenessSteps(delta);
+    } else {
+      this.faceDetected.set(false);
+      this.faceStableTime = 0;
+      if (this.livenessStep() !== 'COMPLETE') {
+        this.livenessInstruction.set('No se detecta tu rostro. Asegúrate de tener buena luz.');
+      }
+    }
+  }
+
+  private processLivenessSteps(delta: number) {
+    const currentStep = this.livenessStep();
+
+    if (currentStep === 'CENTER') {
+      this.faceStableTime += delta;
+      const remaining = Math.ceil((this.requiredStableTime - this.faceStableTime) / 1000);
+      
+      if (remaining > 0) {
+        this.livenessInstruction.set(`Mantente quieto... ${remaining}s`);
+      } else {
+        this.initialFaceX = this.ovalOffsetX();
+        this.livenessStep.set('TURN_RIGHT');
+        this.faceStableTime = 0;
+        this.livenessInstruction.set('👉 Gira un poco la cabeza a la DERECHA');
+      }
+    } 
+    else if (currentStep === 'TURN_RIGHT') {
+      const displacement = this.ovalOffsetX() - (this.initialFaceX || 0);
+      // En modo espejo, girar a la derecha física mueve el rostro a la IZQUIERDA en el video
+      if (displacement < -40) {
+        this.headTurnDetected = true;
+        this.livenessStep.set('TURN_LEFT');
+        this.livenessInstruction.set('👈 Ahora gira a la IZQUIERDA');
+      }
+    }
+    else if (currentStep === 'TURN_LEFT') {
+      const displacement = this.ovalOffsetX() - (this.initialFaceX || 0);
+      if (displacement > 40) {
+        this.livenessStep.set('COMPLETE');
+        this.livenessInstruction.set('¡Perfecto! Capturando...');
+        setTimeout(() => this.capturePhoto(), 500);
+      }
+    }
+  }
+
+  private findFaceRegion(ctx: CanvasRenderingContext2D, width: number, height: number) {
+    // Escaneo simplificado: buscamos tonos de piel en una rejilla
+    const step = 40;
+    let totalX = 0, totalY = 0, count = 0;
+    let minX = width, maxX = 0, minY = height, maxY = 0;
+
+    for (let y = height * 0.2; y < height * 0.8; y += step) {
+      for (let x = width * 0.2; x < width * 0.8; x += step) {
+        const pixel = ctx.getImageData(x, y, 1, 1).data;
+        const r = pixel[0], g = pixel[1], b = pixel[2];
+        
+        // Regla básica de tono de piel
+        if (r > 95 && g > 40 && b > 20 && r > g && r > b && Math.abs(r - g) > 15) {
+          totalX += x;
+          totalY += y;
+          count++;
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+        }
+      }
+    }
+
+    if (count < 10) return null;
+
+    return {
+      centerX: totalX / count,
+      centerY: totalY / count,
+      confidence: count / 100,
+      area: (maxX - minX) * (maxY - minY)
+    };
   }
 
   capturePhoto() {
@@ -165,6 +318,25 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Verificación básica de calidad para documentos
+      if (this.activeCapture() === 'document') {
+        const imageData = context.getImageData(0, 0, canvas.width, canvas.height).data;
+        let brightness = 0;
+        for (let i = 0; i < imageData.length; i += 40) { // Muestreo rápido
+          brightness += (imageData[i] + imageData[i+1] + imageData[i+2]) / 3;
+        }
+        const avgBrightness = brightness / (imageData.length / 40);
+        
+        if (avgBrightness < 30) {
+          this.error.set('La imagen está demasiado oscura. Busca un lugar con mejor iluminación.');
+          return;
+        }
+        if (avgBrightness > 230) {
+          this.error.set('La imagen tiene demasiado brillo o reflejo. Intenta otro ángulo.');
+          return;
+        }
+      }
 
       canvas.toBlob((blob) => {
         if (blob) {
@@ -180,7 +352,7 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
           }
           this.stopCamera();
         }
-      }, 'image/jpeg', 0.8);
+      }, 'image/jpeg', 0.9);
     }
   }
 
@@ -207,7 +379,7 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
    */
   async uploadSelfie(): Promise<void> {
     if (!this.selfieFile) {
-      this.error.set('Selecciona una selfie.');
+      this.error.set('Primero captura tu selfie.');
       return;
     }
 
@@ -220,10 +392,10 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
       );
       
       this.state.selfieDocumentId = result.id;
-      console.log('✅ Selfie uploaded successfully:', result.id);
+      console.log('✅ Selfie subida con éxito:', result.id);
     } catch (err: any) {
       console.error('Selfie upload failed:', err);
-      this.error.set(err?.error?.detail || err?.message || 'Error al subir selfie');
+      this.error.set('No pudimos identificar un rostro válido en la selfie. Asegúrate de mirar de frente a la cámara.');
     } finally {
       this.state.uploading = false;
     }
@@ -234,7 +406,7 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
    */
   async uploadIdDocument(): Promise<void> {
     if (!this.docFile) {
-      this.error.set('Selecciona tu documento de identidad.');
+      this.error.set('Primero captura tu documento de identidad.');
       return;
     }
 
@@ -247,7 +419,7 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
       );
       
       this.state.idDocumentId = result.id;
-      console.log('✅ ID document uploaded successfully:', result.id);
+      console.log('✅ Documento subido con éxito:', result.id);
 
       // Si ambos documentos están listos, cargar preview
       if (this.state.selfieDocumentId && this.state.idDocumentId) {
@@ -255,7 +427,7 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
       }
     } catch (err: any) {
       console.error('ID document upload failed:', err);
-      this.error.set(err?.error?.detail || err?.message || 'Error al subir documento');
+      this.error.set('No se reconoció el documento de identidad. Asegúrate de capturar el frente de tu cédula de forma legible.');
     } finally {
       this.state.uploading = false;
     }

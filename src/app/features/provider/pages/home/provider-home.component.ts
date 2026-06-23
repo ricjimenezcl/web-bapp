@@ -132,10 +132,6 @@ export class ProviderHomeComponent implements OnInit, OnDestroy {
     this.showVerificationAlert.set(true);
   }
 
-    this.verificationMessage.set(message);
-    this.showVerificationAlert.set(true);
-  }
-
   goToVerifyIdentity(): void {
     this.showVerificationAlert.set(false);
     this.router.navigate(['/auth/verify-identity']);

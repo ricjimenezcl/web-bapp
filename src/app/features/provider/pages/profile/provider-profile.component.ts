@@ -200,7 +200,9 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
   }
 
   logout(): void { this.auth.logout(); }
-
+  goToVerifyIdentity(): void {
+    this.router.navigate(['/auth/verify-identity']);
+  }
   goToPayment(productType: ProviderProductType = 'PROVIDER_PREMIUM_MONTHLY'): void {
     this.router.navigate(['/payment'], {
       queryParams: {

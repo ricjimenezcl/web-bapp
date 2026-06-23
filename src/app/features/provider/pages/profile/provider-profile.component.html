@@ -174,7 +174,7 @@
             </div>
           </div>
           @if (provider()?.validation_status !== 'approved') {
-            <a routerLink="/auth/verify-identity" class="btn-primary">Verificar ahora</a>
+            <button (click)="goToVerifyIdentity()" class="btn-primary" type="button">Verificar ahora</button>
           }
         </div>
 

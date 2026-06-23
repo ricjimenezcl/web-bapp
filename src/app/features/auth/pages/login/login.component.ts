@@ -195,14 +195,22 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.socialAuth.authState.subscribe((socialUser) => {
       if (socialUser && socialUser.provider === GoogleLoginProvider.PROVIDER_ID) {
         this.loading.set(true);
-        // Si estamos en la pestaña de registro, usamos el rol seleccionado en el toggle (client/provider)
-        // Si estamos en login, el backend ya conoce el rol del usuario existente o asignará CLIENT por defecto.
-        const roleToAssign = this.activeTab() === 'register' ? this.registerRole().toUpperCase() : 'CLIENT';
+        const wasRegistering = this.activeTab() === 'register';
+        const roleToAssign = wasRegistering ? this.registerRole().toUpperCase() : 'CLIENT';
         
         this.auth.loginWithGoogle(socialUser.idToken, roleToAssign).subscribe({
           next: (res) => {
             this.loading.set(false);
-            this.handleOAuthNavigation(res.role, res.terms_accepted);
+            
+            if (wasRegistering && !res.is_new_user) {
+              this.success.set('Ya tienes una cuenta con este correo. Hemos iniciado sesión por ti.');
+              // Pequeña espera para que vean el mensaje antes de navegar
+              setTimeout(() => {
+                this.navigateBasedOnResponse(res);
+              }, 2000);
+            } else {
+              this.navigateBasedOnResponse(res);
+            }
           },
           error: (err) => {
             this.loading.set(false);
@@ -211,6 +219,16 @@ export class LoginComponent implements OnInit, OnDestroy {
         });
       }
     });
+  }
+
+  private navigateBasedOnResponse(res: any): void {
+    if (!res.terms_accepted) {
+      this.router.navigate(['/auth/terms-acceptance']);
+      this.showModal.set(false);
+    } else {
+      this.auth.navigateAfterLogin(res.role, res.status);
+      this.showModal.set(false);
+    }
   }
 
   ngOnDestroy(): void {
@@ -546,12 +564,20 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.loading.set(true);
     this.error.set('');
 
+    const wasRegistering = this.activeTab() === 'register';
+    const roleToAssign = wasRegistering ? this.registerRole().toUpperCase() : 'CLIENT';
+
     this.socialAuth.signIn(FacebookLoginProvider.PROVIDER_ID)
       .then(user => {
-        this.auth.loginWithFacebook(user.authToken).subscribe({
+        this.auth.loginWithFacebook(user.authToken, roleToAssign).subscribe({
           next: (res) => {
             this.loading.set(false);
-            this.handleOAuthNavigation(res.role, res.terms_accepted);
+            if (wasRegistering && !res.is_new_user) {
+              this.success.set('Ya tienes una cuenta con este correo. Hemos iniciado sesión por ti.');
+              setTimeout(() => this.navigateBasedOnResponse(res), 2000);
+            } else {
+              this.navigateBasedOnResponse(res);
+            }
           },
           error: (err) => {
             this.loading.set(false);
@@ -566,16 +592,6 @@ export class LoginComponent implements OnInit, OnDestroy {
           this.error.set('No se pudo completar el inicio de sesión con Facebook');
         }
       });
-  }
-
-  private handleOAuthNavigation(role?: string, termsAccepted?: boolean): void {
-    if (!termsAccepted) {
-      this.router.navigate(['/auth/terms-acceptance']);
-    } else {
-      const target = role === 'provider' ? '/provider/dashboard' : '/client/home';
-      this.router.navigate([target]);
-    }
-    this.showModal.set(false);
   }
 
   // ── Métodos landing page ─────────────────────────────────────────

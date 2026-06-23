@@ -61,6 +61,7 @@ export interface TokenResponse {
   name?: string;
   avatar_url?: string;
   terms_accepted?: boolean;
+  is_new_user?: boolean;
 }
 
 export interface ClientRegister {

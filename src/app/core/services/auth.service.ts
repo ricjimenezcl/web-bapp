@@ -42,8 +42,11 @@ export class AuthService {
       .pipe(tap(res => this._storeSession(res)));
   }
 
-  loginWithFacebook(accessToken: string): Observable<TokenResponse> {
-    return this.http.post<TokenResponse>(`${this.api}/auth/oauth/facebook`, { access_token: accessToken })
+  loginWithFacebook(accessToken: string, role: string = 'CLIENT'): Observable<TokenResponse> {
+    return this.http.post<TokenResponse>(`${this.api}/auth/oauth/facebook`, { 
+      access_token: accessToken,
+      role: role
+    })
       .pipe(tap(res => this._storeSession(res)));
   }
 

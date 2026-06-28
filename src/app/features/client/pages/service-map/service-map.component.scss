@@ -156,6 +156,26 @@
   }
 }
 
+// ── Tamaño responsivo de iconos en mobile ─────────────────────────────────
+// Leaflet aplica iconSize como inline style; se necesita !important para sobreescribir.
+// NO usar transform: scale() — desplaza el marker a coordenada 0,0.
+@media (max-width: 640px) {
+  .provider-location-icon {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .user-location-icon {
+    width: 24px !important;
+    height: 24px !important;
+
+    &::before {
+      width: 32px;
+      height: 32px;
+    }
+  }
+}
+
 // Animación de glow pulsante — NO usa transform, solo filter
 @keyframes markerGlow {
   from {

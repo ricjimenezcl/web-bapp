@@ -1,5 +1,6 @@
 import { Component, signal, OnDestroy, inject, ElementRef, ViewChild, AfterViewInit, Input, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { ProviderService } from '../../../../core/services/provider.service';
 import { ServiceProvider } from '../../../../core/models/provider.model';
 import { SearchStateService } from '../../../../core/services/search-state.service';
@@ -23,6 +24,9 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
   private readonly searchState = inject(SearchStateService);
   private readonly locationSvc = inject(LocationService);
   private readonly modal = inject(ModalService);
+  private readonly router = inject(Router);
+
+  private popupClickListener: ((e: MouseEvent) => void) | null = null;
 
   nearbyProviders = signal<ServiceProvider[]>([]);
   loading         = signal(true);
@@ -130,6 +134,17 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
         zoomToBoundsOnClick: false,
       });
       this.map.addLayer(this.markerClusterGroup);
+
+      // Event delegation: interceptar clics en links de popup para usar Angular Router
+      this.popupClickListener = (e: MouseEvent) => {
+        const target = (e.target as HTMLElement).closest('[data-provider-id]') as HTMLElement | null;
+        if (target) {
+          e.preventDefault();
+          const id = target.dataset['providerId'];
+          if (id) this.router.navigate(['/client/provider-info', id]);
+        }
+      };
+      this.mapContainer.nativeElement.addEventListener('click', this.popupClickListener);
 
       // FIX: El marcador del usuario NO debe moverse al hacer click
       // Eliminamos la lógica que actualizaba el marker al hacer click en el mapa
@@ -413,7 +428,7 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
           <p class="distance">📍 ${distance}</p>
           <p class="rate">💰 ${hourlyRate}/hr</p>
         </div>
-        ${isLocked ? '<p class="locked-msg">⭐ Premium para acceder</p>' : `<a href="/client/provider-info/${provider.provider_id || provider.id}" class="popup-link">Ver perfil →</a>`}
+        ${isLocked ? '<p class="locked-msg">⭐ Premium para acceder</p>' : `<a data-provider-id="${provider.provider_id || provider.id}" class="popup-link">Ver perfil →</a>`}
       </div>
     `;
   }
@@ -482,6 +497,10 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy(): void {
+    if (this.popupClickListener) {
+      this.mapContainer?.nativeElement?.removeEventListener('click', this.popupClickListener);
+      this.popupClickListener = null;
+    }
     if (this.map) {
       this.map.remove();
       this.map = null;

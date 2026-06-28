@@ -470,7 +470,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       password: password!, 
       full_name: name!,
       phone: phone!,
-      run: run!,
+      run: run ? run.replace(/\./g, '') : run!,
       terms_accepted: terms_accepted!
     };
 
@@ -556,6 +556,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   private getApiErrorMessage(err: any, fallback: string): string {
+    if (err?.status === 429) {
+      return 'Demasiados intentos fallidos. Por favor espera antes de volver a intentarlo.';
+    }
     const response = err?.error;
     const detail = response?.detail;
 

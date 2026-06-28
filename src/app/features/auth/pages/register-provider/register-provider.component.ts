@@ -51,7 +51,7 @@ export class RegisterProviderComponent {
       phone:          v.phone!,
       password:       v.password!,
       terms_accepted: !!v.terms_accepted,
-      run:            v.run || undefined,
+      run:            v.run ? v.run.replace(/\./g, '') : undefined,
     }).subscribe({
       next: () => {
         this.loading.set(false);
@@ -79,6 +79,9 @@ export class RegisterProviderComponent {
   }
 
   private getApiErrorMessage(err: any, fallback: string): string {
+    if (err?.status === 429) {
+      return 'Demasiados intentos fallidos. Por favor espera antes de volver a intentarlo.';
+    }
     const response = err?.error;
     if (typeof response?.detail === 'string' && response.detail.trim()) {
       return response.detail;

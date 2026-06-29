@@ -5,6 +5,7 @@ import { Observable, tap, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { StorageService } from './storage.service';
 import { SessionService } from './session.service';
+import { ProfileCompletionService } from './profile-completion.service';
 import {
   User, UserProfile, StoredUser, LoginRequest, TokenResponse,
   ClientRegister, ProviderRegister
@@ -16,6 +17,7 @@ export class AuthService {
   private readonly router  = inject(Router);
   private readonly storage = inject(StorageService);
   private readonly session = inject(SessionService);
+  private readonly profileCompletion = inject(ProfileCompletionService);
 
   private readonly api = environment.apiUrl;
 
@@ -102,6 +104,7 @@ export class AuthService {
     if (token) {
       this.http.post(`${this.api}/auth/logout`, {}).subscribe({ error: () => {} });
     }
+    this.profileCompletion.reset();
     this.storage.clearSession();
     this.router.navigate(['/auth/login']);
   }

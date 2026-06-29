@@ -10,7 +10,6 @@ import { Device3dLoginComponent } from '../../../../shared/components/device-3d-
 import { BappieChatbotComponent } from '../../../../shared/components/bappie-chatbot/bappie-chatbot.component';
 import { CustomValidators } from '../../../../shared/validators/custom-validators';
 import { formatChileanPhone, formatChileanRUT } from '../../../../shared/utils/form-formatters';
-import { ProfileCompletionService } from '../../../../core/services/profile-completion.service';
 
 @Component({
   selector: 'app-login',
@@ -27,7 +26,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   private readonly socialAuth = inject(SocialAuthService);
   private readonly renderer = inject(Renderer2);
   private readonly categorySvc = inject(CategoryService);
-  private readonly profileCompletion = inject(ProfileCompletionService);
   private carouselInterval: ReturnType<typeof setInterval> | null = null;
   private scrollObserver?: IntersectionObserver;
 
@@ -251,17 +249,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     } else {
       this.auth.navigateAfterLogin(res.role, res.status);
       this.showModal.set(false);
-      // Verificar si el perfil está incompleto (OAuth sin teléfono/RUT)
-      this.auth.fetchProfile().subscribe({
-        next: (profile) => {
-          const missingPhone = !profile.phone;
-          const missingRut   = res.role === 'PROVIDER' && !profile.run;
-          if (missingPhone || missingRut) {
-            this.profileCompletion.require(res.role as 'CLIENT' | 'PROVIDER');
-          }
-        },
-        error: () => { /* silenciar: el usuario puede completar desde su perfil */ }
-      });
     }
   }
 

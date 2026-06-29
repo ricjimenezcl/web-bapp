@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import {
   authGuard, noAuthGuard, clientGuard, providerGuard, providerVerificationGuard
 } from './core/guards/auth.guard';
+import { profileCompletionGuard } from './core/guards/profile-completion.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'auth/login', pathMatch: 'full' },
@@ -53,7 +54,7 @@ export const routes: Routes = [
   // CLIENT
   {
     path: 'client',
-    canActivate: [authGuard, clientGuard],
+    canActivate: [authGuard, clientGuard, profileCompletionGuard],
     children: [
       {
         path: 'tabs',
@@ -109,7 +110,7 @@ export const routes: Routes = [
   // PROVIDER
   {
     path: 'provider',
-    canActivate: [authGuard, providerGuard],
+    canActivate: [authGuard, providerGuard, profileCompletionGuard],
     children: [
       {
         path: 'tabs',

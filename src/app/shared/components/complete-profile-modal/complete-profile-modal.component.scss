@@ -1,0 +1,213 @@
+// ═══════════════════════════════════════════════════════════
+//  COMPLETE PROFILE MODAL — Blocking overlay
+// ═══════════════════════════════════════════════════════════
+
+.cpm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 5, 16, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: cpmFadeIn 0.35s ease;
+}
+
+@keyframes cpmFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.cpm-card {
+  width: 100%;
+  max-width: 420px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 249, 196, 0.18);
+  background:
+    radial-gradient(circle at 20% 10%, rgba(255, 249, 196, 0.10) 0%, transparent 50%),
+    linear-gradient(160deg, rgba(15, 17, 26, 0.98) 0%, rgba(9, 12, 20, 0.99) 100%);
+  box-shadow:
+    0 32px 80px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 249, 196, 0.06) inset;
+  padding: 32px 28px 24px;
+  animation: cpmSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  @media (max-width: 480px) {
+    padding: 24px 20px 20px;
+    border-radius: 20px;
+  }
+}
+
+@keyframes cpmSlideUp {
+  from { opacity: 0; transform: translateY(24px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+// ── Header ──────────────────────────────────────────────────
+.cpm-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.cpm-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(255, 249, 196, 0.08);
+  border: 1px solid rgba(255, 249, 196, 0.20);
+  margin-bottom: 16px;
+}
+
+.cpm-title {
+  font-size: clamp(1.2rem, 3vw, 1.5rem);
+  font-weight: 800;
+  color: #FFF9C4;
+  margin: 0 0 8px;
+  letter-spacing: -0.02em;
+}
+
+.cpm-subtitle {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.5;
+  margin: 0;
+}
+
+// ── Form ────────────────────────────────────────────────────
+.cpm-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.cpm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cpm-label {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: rgba(255, 249, 196, 0.85);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.cpm-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cpm-input-icon {
+  position: absolute;
+  left: 14px;
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+.cpm-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 14px 0 44px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 249, 196, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  color: #ffffff;
+  font-size: 1rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+  }
+
+  &:focus {
+    border-color: rgba(255, 249, 196, 0.55);
+    box-shadow: 0 0 0 3px rgba(255, 249, 196, 0.10);
+  }
+}
+
+.cpm-error {
+  font-size: 0.75rem;
+  color: #F87171;
+  padding-left: 4px;
+}
+
+.cpm-alert {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.30);
+  color: #FCA5A5;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+// ── Submit button ────────────────────────────────────────────
+.cpm-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 50px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #FFF9C4 0%, #FFF176 100%);
+  color: #0f1114;
+  font-size: 0.9375rem;
+  font-weight: 800;
+  font-family: inherit;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+  box-shadow: 0 4px 20px rgba(255, 249, 196, 0.25);
+  margin-top: 4px;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(255, 249, 196, 0.35);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  &--loading {
+    pointer-events: none;
+  }
+}
+
+.cpm-spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(15, 17, 20, 0.3);
+  border-top-color: #0f1114;
+  border-radius: 50%;
+  animation: cpmSpin 0.7s linear infinite;
+}
+
+@keyframes cpmSpin {
+  to { transform: rotate(360deg); }
+}
+
+// ── Legal note ───────────────────────────────────────────────
+.cpm-legal {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.28);
+  line-height: 1.4;
+}

@@ -6,10 +6,12 @@ import { SessionService } from './core/services/session.service';
 import { filter } from 'rxjs';
 import { AppFooterComponent } from './shared/components/app-footer/app-footer.component';
 import { GlobalModalComponent } from './shared/components/global-modal/global-modal.component';
+import { CompleteProfileModalComponent } from './shared/components/complete-profile-modal/complete-profile-modal.component';
+import { ProfileCompletionService } from './core/services/profile-completion.service';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, AppFooterComponent, GlobalModalComponent],
+  imports: [RouterOutlet, CommonModule, AppFooterComponent, GlobalModalComponent, CompleteProfileModalComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <div class="app-layout">
@@ -25,6 +27,11 @@ import { GlobalModalComponent } from './shared/components/global-modal/global-mo
     </div>
 
     <app-global-modal />
+
+    <!-- Modal completar perfil OAuth -->
+    @if (profileCompletion.show()) {
+      <app-complete-profile-modal />
+    }
 
     <!-- Modal sesión expirada -->
     @if (session.isExpired()) {
@@ -166,7 +173,8 @@ import { GlobalModalComponent } from './shared/components/global-modal/global-mo
 export class AppComponent implements OnInit {
   private readonly router  = inject(Router);
   private readonly storage = inject(StorageService);
-  readonly session         = inject(SessionService);
+  readonly session          = inject(SessionService);
+  readonly profileCompletion = inject(ProfileCompletionService);
 
   readonly showFooter = signal(false);
   readonly compactFooter = signal(false);
@@ -214,14 +222,6 @@ export class AppComponent implements OnInit {
     // Rutas públicas que no requieren autenticación
     const publicRoutes = ['/registro-proveedores', '/proveedores', '/terms', '/privacy'];
     if (publicRoutes.some(r => currentUrl.startsWith(r))) return;
-
-    // Si hay credenciales guardadas pero el browser fue cerrado y reabierto
-    // (sessionStorage vacío), se fuerza el re-login
-    if (isAuthenticated && !this.storage.isBrowserSessionActive()) {
-      this.storage.clearSession();
-      this.router.navigate(['/auth/login']);
-      return;
-    }
 
     if (!isAuthenticated) {
       if (currentUrl !== '/auth/login') this.router.navigate(['/auth/login']);

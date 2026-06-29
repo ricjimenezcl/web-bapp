@@ -942,6 +942,7 @@
 
 .cat-btn-search {
   flex: 1;
+  min-width: 0;
   background: var(--cream);
   color: #050505;
   border: none;
@@ -955,6 +956,9 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 15px rgba(253, 230, 138, 0.15);
 

@@ -844,6 +844,25 @@
   :host { padding: 20px 16px; }
   .dashboard-container { flex-direction: column; gap: 24px; }
   .sidebar { width: 100%; position: static; }
+  .nav-group {
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 8px;
+    gap: 8px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+  }
+  .nav-label { display: none; }
+  .nav-item {
+    white-space: nowrap;
+    flex-shrink: 0;
+    width: auto;
+    min-height: 44px;
+    padding: 10px 16px;
+    font-size: 13px;
+  }
   .main-content { padding: 28px 20px; }
   .stats-grid { grid-template-columns: 1fr 1fr; }
   .form-grid  { grid-template-columns: 1fr; }

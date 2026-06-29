@@ -1,0 +1,98 @@
+<div class="cpm-backdrop" role="dialog" aria-modal="true" aria-labelledby="cpm-title">
+  <div class="cpm-card">
+
+    <!-- Cabecera -->
+    <div class="cpm-header">
+      <div class="cpm-logo">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <circle cx="16" cy="16" r="16" fill="#FFF9C4" fill-opacity="0.15"/>
+          <path d="M16 8a5 5 0 1 1 0 10A5 5 0 0 1 16 8zm0 12c-5.33 0-8 2.67-8 4v1h16v-1c0-1.33-2.67-4-8-4z" fill="#FFF9C4"/>
+        </svg>
+      </div>
+      <h2 id="cpm-title" class="cpm-title">Completa tu perfil</h2>
+      <p class="cpm-subtitle">
+        Para usar BappSearch necesitamos un par de datos adicionales que no se incluyen en tu cuenta social.
+      </p>
+    </div>
+
+    <!-- Formulario -->
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="cpm-form" autocomplete="off">
+
+      <!-- Teléfono -->
+      <div class="cpm-field">
+        <label for="cpm-phone" class="cpm-label">Número de teléfono</label>
+        <div class="cpm-input-wrap">
+          <svg class="cpm-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6.62 10.79A15.05 15.05 0 0 0 13.21 17.38l2.27-2.27a1 1 0 0 1 1.02-.24 11.36 11.36 0 0 0 3.55.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.36 11.36 0 0 0 .57 3.55 1 1 0 0 1-.25 1.02L6.62 10.79z" stroke="#FFF9C4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <input
+            id="cpm-phone"
+            type="tel"
+            formControlName="phone"
+            placeholder="+56 9 XXXX XXXX"
+            class="cpm-input"
+            inputmode="tel"
+            autocomplete="tel"
+            (input)="onPhoneInput($event)"
+          />
+        </div>
+        @if (form.get('phone')?.invalid && form.get('phone')?.touched) {
+          <span class="cpm-error">Ingresa un teléfono celular chileno válido (+56 9 XXXX XXXX)</span>
+        }
+      </div>
+
+      <!-- RUT — solo para proveedores -->
+      @if (needsRut()) {
+        <div class="cpm-field">
+          <label for="cpm-rut" class="cpm-label">RUT</label>
+          <div class="cpm-input-wrap">
+            <svg class="cpm-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="16" rx="2" stroke="#FFF9C4" stroke-width="1.5"/>
+              <path d="M8 10h8M8 14h5" stroke="#FFF9C4" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <input
+              id="cpm-rut"
+              type="text"
+              formControlName="run"
+              placeholder="12.345.678-9"
+              class="cpm-input"
+              inputmode="text"
+              autocomplete="off"
+              (input)="onRutInput($event)"
+            />
+          </div>
+          @if (form.get('run')?.invalid && form.get('run')?.touched) {
+            <span class="cpm-error">Ingresa un RUT chileno válido (ej: 12.345.678-9)</span>
+          }
+        </div>
+      }
+
+      <!-- Error general -->
+      @if (error()) {
+        <div class="cpm-alert" role="alert">{{ error() }}</div>
+      }
+
+      <!-- Botón -->
+      <button
+        type="submit"
+        class="cpm-btn"
+        [disabled]="form.invalid || loading()"
+        [class.cpm-btn--loading]="loading()"
+      >
+        @if (loading()) {
+          <span class="cpm-spinner" aria-hidden="true"></span>
+          Guardando…
+        } @else {
+          Continuar a BappSearch
+        }
+      </button>
+
+    </form>
+
+    <!-- Nota legal -->
+    <p class="cpm-legal">
+      Tus datos están protegidos y solo se usan para brindarte el servicio.
+    </p>
+
+  </div>
+</div>

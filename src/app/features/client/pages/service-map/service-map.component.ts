@@ -249,7 +249,7 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
     
     // Crear ícono de ubicación actual con imagen personalizada (PNG para mejor compatibilidad)
     const userIcon = this.L.icon({
-      iconUrl: 'https://res.cloudinary.com/dghwotofx/image/upload/f_png,w_64,h_64/v1774631660/ubicacion_nbo2mo',
+      iconUrl: 'https://res.cloudinary.com/dghwotofx/image/upload/v1782705912/ubi_cli_2_nlnxac.svg',
       iconSize: [32, 32],
       iconAnchor: [16, 32],
       popupAnchor: [0, -32],
@@ -313,7 +313,7 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
 
         // Crear ícono de proveedor con imagen personalizada (PNG para mejor compatibilidad)
         const providerIcon = this.L.icon({
-          iconUrl: 'https://res.cloudinary.com/dghwotofx/image/upload/f_png,w_56,h_56/v1774631660/proveedor_y6k7il',
+          iconUrl: 'https://res.cloudinary.com/dghwotofx/image/upload/v1782705912/ubi_prov_1_o7rzel.svg',
           iconSize: [28, 28],
           iconAnchor: [14, 28],
           popupAnchor: [0, -28],

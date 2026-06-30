@@ -6,26 +6,58 @@
       <p class="text-text-secondary">Verificando tu correo...</p>
 
     } @else if (success()) {
-      <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-success/10 flex items-center justify-center">
-        <svg class="w-7 h-7 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+      <!-- Ícono éxito -->
+      <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-success/10 flex items-center justify-center">
+        <svg class="w-8 h-8 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
       </div>
-      <h3 class="text-xl font-semibold text-text-primary">¡Correo verificado!</h3>
-      <p class="text-text-secondary mt-2 text-sm">Tu cuenta ha sido verificada exitosamente.</p>
-      <a routerLink="/auth/login" class="btn btn-primary btn-block mt-6">Iniciar sesión</a>
+      <h3 class="text-2xl font-bold text-text-primary">¡Correo verificado!</h3>
+      <p class="text-text-secondary mt-2 text-sm">
+        Tu cuenta ha sido verificada exitosamente. ¡Ya puedes usar BAPP Search!
+      </p>
+
+      @if (isMobile()) {
+        <!-- En mobile: ofrecer abrir la app -->
+        <button (click)="openApp()" class="btn btn-primary btn-block mt-6">
+          Abrir BappSearch
+        </button>
+        <a routerLink="/auth/login" class="btn btn-secondary btn-block mt-3">
+          Continuar en el navegador
+        </a>
+      } @else {
+        <!-- En desktop: ir al login -->
+        <a routerLink="/auth/login" class="btn btn-primary btn-block mt-6">Iniciar sesión</a>
+      }
+
+    } @else if (expired()) {
+      <!-- Enlace expirado -->
+      <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-warning/10 flex items-center justify-center">
+        <svg class="w-8 h-8 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 8v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        </svg>
+      </div>
+      <h3 class="text-xl font-semibold text-text-primary">Enlace expirado</h3>
+      <p class="text-text-secondary mt-2 text-sm">
+        El enlace de verificación ha caducado (validez de 24 horas).<br>
+        Inicia sesión y solicita un nuevo correo de verificación desde tu perfil.
+      </p>
+      <a routerLink="/auth/login" class="btn btn-secondary btn-block mt-6">Ir al inicio de sesión</a>
 
     } @else {
-      <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-danger/10 flex items-center justify-center">
-        <svg class="w-7 h-7 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <!-- Error genérico -->
+      <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-danger/10 flex items-center justify-center">
+        <svg class="w-8 h-8 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
       </div>
       <h3 class="text-xl font-semibold text-text-primary">Error de verificación</h3>
       <p class="text-text-secondary mt-2 text-sm">{{ error() }}</p>
       <a routerLink="/auth/login" class="btn btn-secondary btn-block mt-6">Ir al inicio</a>
     }
+
   </div>
 </div>

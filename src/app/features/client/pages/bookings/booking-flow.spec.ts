@@ -10,15 +10,24 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../../../environments/environment';
 
-import { BookingService } from '../../core/services/booking.service';
+import { BookingService } from '../../../../core/services/booking.service';
 import {
   BookingStatus,
   BookingResponse,
   BOOKING_STATUS_LABELS,
   BOOKING_STATUS_COLORS,
-} from '../../core/models/booking.model';
+} from '../../../../core/models/booking.model';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Constantes de estado (BookingStatus es un type union, no un enum)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const ALL_STATUSES: BookingStatus[] = [
+  'PENDING', 'APPROVED', 'REJECTED', 'COMPLETED',
+  'CONFIRMED', 'IN_PROGRESS', 'CANCELLED', 'NOSHOW',
+];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Factory
@@ -30,7 +39,7 @@ function makeBooking(overrides: Partial<BookingResponse> = {}): BookingResponse 
     client_id: 10,
     provider_id: 20,
     service_category: 'Plomería',
-    status: BookingStatus.PENDING,
+    status: 'PENDING',
     scheduled_date: '2026-07-01',
     scheduled_time: '14:00:00',
     duration: 60,
@@ -42,38 +51,29 @@ function makeBooking(overrides: Partial<BookingResponse> = {}): BookingResponse 
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// GRUPO 1 — Modelo: BookingStatus enum
+// GRUPO 1 — Modelo: BOOKING_STATUS_LABELS
 // ─────────────────────────────────────────────────────────────────────────────
 
-describe('BookingStatus enum', () => {
-  it('debe tener los 4 estados principales', () => {
-    expect(BookingStatus.PENDING).toBe('PENDING');
-    expect(BookingStatus.APPROVED).toBe('APPROVED');
-    expect(BookingStatus.REJECTED).toBe('REJECTED');
-    expect(BookingStatus.COMPLETED).toBe('COMPLETED');
-  });
-
-  it('debe preservar los estados legacy', () => {
-    expect(BookingStatus.CONFIRMED).toBe('CONFIRMED');
-    expect(BookingStatus.IN_PROGRESS).toBe('IN_PROGRESS');
-    expect(BookingStatus.CANCELLED).toBe('CANCELLED');
-    expect(BookingStatus.NOSHOW).toBe('NOSHOW');
-  });
-});
-
 describe('BOOKING_STATUS_LABELS', () => {
+  it('debe tener etiqueta en español para PENDING', () => {
+    expect(BOOKING_STATUS_LABELS['PENDING']).toBe('Pendiente');
+  });
+
   it('debe tener etiqueta en español para APPROVED', () => {
-    expect(BOOKING_STATUS_LABELS[BookingStatus.APPROVED]).toBe('Aprobado');
+    expect(BOOKING_STATUS_LABELS['APPROVED']).toBe('Aprobado');
   });
 
   it('debe tener etiqueta en español para REJECTED', () => {
-    expect(BOOKING_STATUS_LABELS[BookingStatus.REJECTED]).toBe('Rechazado');
+    expect(BOOKING_STATUS_LABELS['REJECTED']).toBe('Rechazado');
   });
 
-  it('debe cubrir todos los estados del enum', () => {
-    const statuses = Object.values(BookingStatus);
-    statuses.forEach(s => {
-      expect(BOOKING_STATUS_LABELS[s as BookingStatus])
+  it('debe tener etiqueta en español para COMPLETED', () => {
+    expect(BOOKING_STATUS_LABELS['COMPLETED']).toBe('Completado');
+  });
+
+  it('debe cubrir todos los estados', () => {
+    ALL_STATUSES.forEach(s => {
+      expect(BOOKING_STATUS_LABELS[s])
         .withContext(`falta label para ${s}`)
         .toBeTruthy();
     });
@@ -81,16 +81,24 @@ describe('BOOKING_STATUS_LABELS', () => {
 });
 
 describe('BOOKING_STATUS_COLORS', () => {
-  it('APPROVED debe tener color de éxito', () => {
-    expect(BOOKING_STATUS_COLORS[BookingStatus.APPROVED]).toBe('badge-success');
+  it('APPROVED debe tener badge-success', () => {
+    expect(BOOKING_STATUS_COLORS['APPROVED']).toBe('badge-success');
   });
 
-  it('REJECTED debe tener color de peligro', () => {
-    expect(BOOKING_STATUS_COLORS[BookingStatus.REJECTED]).toBe('badge-danger');
+  it('REJECTED debe tener badge-danger', () => {
+    expect(BOOKING_STATUS_COLORS['REJECTED']).toBe('badge-danger');
   });
 
-  it('COMPLETED debe tener color de info/acento', () => {
-    expect(BOOKING_STATUS_COLORS[BookingStatus.COMPLETED]).toBeTruthy();
+  it('PENDING debe tener badge-warning', () => {
+    expect(BOOKING_STATUS_COLORS['PENDING']).toBe('badge-warning');
+  });
+
+  it('debe cubrir todos los estados', () => {
+    ALL_STATUSES.forEach(s => {
+      expect(BOOKING_STATUS_COLORS[s])
+        .withContext(`falta color para ${s}`)
+        .toBeTruthy();
+    });
   });
 });
 
@@ -115,27 +123,19 @@ describe('BookingService — endpoints', () => {
     httpMock.verify();
   });
 
-  it('confirmBooking debe llamar POST /approve', () => {
-    const mockBooking = makeBooking({ status: BookingStatus.APPROVED });
+  it('confirmBooking debe llamar POST /confirm', () => {
     service.confirmBooking(1).subscribe();
-
-    const req = httpMock.expectOne(`${base}/1/approve`);
+    const req = httpMock.expectOne(`${base}/1/confirm`);
     expect(req.request.method).toBe('POST');
-    req.flush(mockBooking);
+    req.flush(makeBooking({ status: 'APPROVED' }));
   });
 
-  it('rejectBooking debe llamar PATCH /reject', () => {
+  it('rejectBooking debe llamar PUT /status con REJECTED', () => {
     service.rejectBooking(1).subscribe();
-
-    const req = httpMock.expectOne(`${base}/1/reject`);
-    expect(req.request.method).toBe('PATCH');
+    const req = httpMock.expectOne(`${base}/1/status`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body.status).toBe('REJECTED');
     req.flush({});
-  });
-
-  it('rejectBooking no debe llamar /cancel', () => {
-    service.rejectBooking(1).subscribe();
-    httpMock.expectOne(`${base}/1/reject`).flush({});
-    httpMock.expectNone(`${base}/1/cancel`);
   });
 
   it('cancelBooking (cliente) debe llamar POST /cancel con CLIENT_REQUEST', () => {
@@ -156,11 +156,10 @@ describe('BookingService — endpoints', () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// GRUPO 3 — (omitido: BookingService web no expone canX helpers)
-// Los tests de canX se cubren en el mobile (frontend-bapp).
+// GRUPO 3 — BookingService: sanity
 // ─────────────────────────────────────────────────────────────────────────────
 
-describe('BookingService web — sanity', () => {
+describe('BookingService — sanity', () => {
   let service: BookingService;
 
   beforeEach(() => {
@@ -185,6 +184,10 @@ describe('BookingService web — sanity', () => {
   it('completeBooking debe existir', () => {
     expect(service.completeBooking).toBeDefined();
   });
+
+  it('cancelBooking debe existir', () => {
+    expect(service.cancelBooking).toBeDefined();
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -192,21 +195,17 @@ describe('BookingService web — sanity', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe('client-bookings getters', () => {
-  /**
-   * Simulamos los mismos getters que existen en ClientBookingsComponent
-   * sin instanciar el componente completo.
-   */
   const bookings: BookingResponse[] = [
-    makeBooking({ id: 1, status: BookingStatus.PENDING }),
-    makeBooking({ id: 2, status: BookingStatus.APPROVED }),
-    makeBooking({ id: 3, status: BookingStatus.COMPLETED }),
-    makeBooking({ id: 4, status: BookingStatus.REJECTED }),
-    makeBooking({ id: 5, status: BookingStatus.CANCELLED }),
+    makeBooking({ id: 1, status: 'PENDING' }),
+    makeBooking({ id: 2, status: 'APPROVED' }),
+    makeBooking({ id: 3, status: 'COMPLETED' }),
+    makeBooking({ id: 4, status: 'REJECTED' }),
+    makeBooking({ id: 5, status: 'CANCELLED' }),
   ];
 
-  const upcomingStatuses = new Set<BookingStatus>([BookingStatus.PENDING, BookingStatus.APPROVED, BookingStatus.CONFIRMED, BookingStatus.IN_PROGRESS]);
-  const cancelledStatuses = new Set<BookingStatus>([BookingStatus.REJECTED, BookingStatus.CANCELLED, BookingStatus.NOSHOW]);
-  const historyStatuses   = new Set<BookingStatus>([BookingStatus.COMPLETED]);
+  const upcomingStatuses = new Set<BookingStatus>(['PENDING', 'APPROVED', 'CONFIRMED', 'IN_PROGRESS']);
+  const cancelledStatuses = new Set<BookingStatus>(['REJECTED', 'CANCELLED', 'NOSHOW']);
+  const historyStatuses   = new Set<BookingStatus>(['COMPLETED']);
 
   it('PENDING aparece en próximas', () => {
     const upcoming = bookings.filter(b => upcomingStatuses.has(b.status as BookingStatus));
@@ -245,14 +244,14 @@ describe('client-bookings getters', () => {
 
 describe('provider-bookings getters', () => {
   const bookings: BookingResponse[] = [
-    makeBooking({ id: 1, status: BookingStatus.PENDING }),
-    makeBooking({ id: 2, status: BookingStatus.APPROVED }),
-    makeBooking({ id: 3, status: BookingStatus.COMPLETED }),
-    makeBooking({ id: 4, status: BookingStatus.REJECTED }),
+    makeBooking({ id: 1, status: 'PENDING' }),
+    makeBooking({ id: 2, status: 'APPROVED' }),
+    makeBooking({ id: 3, status: 'COMPLETED' }),
+    makeBooking({ id: 4, status: 'REJECTED' }),
   ];
 
-  const activeStatuses  = new Set<BookingStatus>([BookingStatus.APPROVED, BookingStatus.CONFIRMED, BookingStatus.IN_PROGRESS]);
-  const historyStatuses = new Set<BookingStatus>([BookingStatus.COMPLETED, BookingStatus.REJECTED, BookingStatus.CANCELLED, BookingStatus.NOSHOW]);
+  const activeStatuses  = new Set<BookingStatus>(['APPROVED', 'CONFIRMED', 'IN_PROGRESS']);
+  const historyStatuses = new Set<BookingStatus>(['COMPLETED', 'REJECTED', 'CANCELLED', 'NOSHOW']);
 
   it('APPROVED aparece en activas', () => {
     const active = bookings.filter(b => activeStatuses.has(b.status as BookingStatus));

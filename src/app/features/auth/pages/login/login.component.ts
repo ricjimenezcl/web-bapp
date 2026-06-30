@@ -844,6 +844,19 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   // ── Hero Carousel Controls ───────────────────────────────────────
+  private _heroTouchStartX = 0;
+
+  onHeroTouchStart(e: TouchEvent): void {
+    this._heroTouchStartX = e.changedTouches[0].screenX;
+  }
+
+  onHeroTouchEnd(e: TouchEvent): void {
+    const dx = e.changedTouches[0].screenX - this._heroTouchStartX;
+    if (Math.abs(dx) > 48) {
+      dx < 0 ? this.nextSlide() : this.prevSlide();
+    }
+  }
+
   prevSlide(): void {
     this.pauseAndResumeCarousel();
     const current = this.currentSlide();

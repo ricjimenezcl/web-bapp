@@ -80,23 +80,39 @@
   <div class="container mx-auto lg:max-w-screen-xl px-4">
     <div class="grid grid-cols-12 gap-8 items-center">
       <div class="lg:col-span-6 col-span-12 flex flex-col justify-center">
-        <div class="hero-ideas-carousel animate-fade-in" style="animation-delay: 0.2s" aria-label="Carrusel de beneficios BappSearch">
+        <div class="hero-ideas-carousel animate-fade-in" style="animation-delay: 0.2s" aria-label="Carrusel de beneficios BappSearch"
+             (touchstart)="onHeroTouchStart($event)"
+             (touchend)="onHeroTouchEnd($event)">
           <div class="hero-ideas-track">
-            <article class="hero-idea-slide">
+            <article class="hero-idea-slide" [class.hero-idea-slide--active]="currentSlide() === 0">
               <span class="hero-idea-chip">Activa ingresos hoy</span>
               <h3>Si quieres más ingresos, este es tu canal: crea tu perfil gratis, publícate en minutos y empieza a recibir clientes cerca de ti.</h3>
               <button type="button" class="hero-idea-cta" (click)="showAuthModal('register', 'provider')" aria-label="Comenzar gratis ahora">Comenzar gratis ahora</button>
             </article>
-            <article class="hero-idea-slide">
+            <article class="hero-idea-slide" [class.hero-idea-slide--active]="currentSlide() === 1">
               <span class="hero-idea-chip">Resuelve más rápido</span>
               <h3>Encuentra profesionales verificados en tu zona para resolver cualquier necesidad del hogar sin esperas eternas ni vueltas.</h3>
               <button type="button" class="hero-idea-cta" (click)="showAuthModal('register', 'client')" aria-label="Encontrar profesionales hoy">Encontrar profesionales hoy</button>
             </article>
-            <article class="hero-idea-slide">
+            <article class="hero-idea-slide" [class.hero-idea-slide--active]="currentSlide() === 2">
               <span class="hero-idea-chip">Cero comisión</span>
               <h3>Conectamos oferta y demanda con match inteligente: tú cierras el trabajo, tú te quedas con la ganancia, nosotros impulsamos la conexión.</h3>
               <button type="button" class="hero-idea-cta" (click)="showAuthModal('register', 'provider')" aria-label="Publicar servicio y vender hoy">Publicar servicio y vender hoy</button>
             </article>
+          </div>
+
+          <!-- Dots de navegación -->
+          <div class="hero-dots" role="tablist" aria-label="Navegar entre slides">
+            @for (i of [0, 1, 2]; track i) {
+              <button type="button"
+                      class="hero-dot"
+                      role="tab"
+                      [class.hero-dot--active]="currentSlide() === i"
+                      (click)="goToSlide(i)"
+                      [attr.aria-label]="'Ir a slide ' + (i + 1)"
+                      [attr.aria-selected]="currentSlide() === i">
+              </button>
+            }
           </div>
         </div>
 
@@ -971,8 +987,8 @@
 
 <!-- AUTH MODAL -->
 @if (showModal()) {
-  <div class="modal-backdrop fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-50 py-4" (click)="closeModal()" (keydown.escape)="closeModal()" role="dialog" aria-modal="true">
-    <div class="modal-content glass-effect relative w-full max-w-md mx-4 max-h-[92vh] overflow-y-auto rounded-lg px-8 pt-10 pb-8 text-center border border-crypgo-dark_border" 
+  <div class="modal-backdrop fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-50 py-2 sm:py-4" (click)="closeModal()" (keydown.escape)="closeModal()" role="dialog" aria-modal="true">
+    <div class="modal-content glass-effect relative w-full max-w-md mx-3 sm:mx-4 max-h-[94vh] sm:max-h-[92vh] overflow-y-auto rounded-lg px-4 sm:px-8 pt-6 sm:pt-10 pb-5 sm:pb-8 text-center border border-crypgo-dark_border" 
          (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
       <button 
         (click)="closeModal()"
@@ -1031,7 +1047,7 @@
 
       <!-- Login Form -->
       @if (activeTab() === 'login') {
-        <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4 text-left">
+        <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-3 sm:space-y-4 text-left">
           <div>
             <label class="text-white text-sm block mb-2">Correo Electrónico</label>
             <input 
@@ -1100,7 +1116,7 @@
 
       <!-- Register Form -->
       @if (activeTab() === 'register') {
-        <form [formGroup]="registerForm" (ngSubmit)="submitRegister()" class="space-y-4 text-left">
+        <form [formGroup]="registerForm" (ngSubmit)="submitRegister()" class="space-y-3 sm:space-y-4 text-left">
           <div>
             <label class="text-white text-sm block mb-2">Tipo de cuenta</label>
             <div class="grid grid-cols-2 gap-2">

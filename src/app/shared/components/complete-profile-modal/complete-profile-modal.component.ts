@@ -85,6 +85,9 @@ export class CompleteProfileModalComponent {
         if (current) {
           this.storage.setProfile({ ...current, phone: cleanPhone, run: payload['run'] });
         }
+        // Persistir en localStorage: no volver a preguntar en próximos logins
+        const userId = this.storage.user()?.id;
+        if (userId) localStorage.setItem(`bapp_profile_ok_${userId}`, '1');
         this.completion.dismiss();
       },
       error: (err) => {

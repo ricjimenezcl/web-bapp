@@ -951,6 +951,33 @@ html {
   animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+// ── Compactar formulario modal en mobile ────────────────────
+@media (max-width: 640px) {
+  .modal-content {
+    input[type="email"],
+    input[type="text"],
+    input[type="password"],
+    input[type="tel"] {
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    // Label más compacto
+    label { margin-bottom: 0.25rem !important; }
+
+    // Separador "O continúa con" con menos margen
+    .mt-6 { margin-top: 0.875rem !important; }
+    .mt-4 { margin-top: 0.625rem !important; }
+
+    // Botón submit: altura mínima adaptada
+    button[type="submit"] {
+      padding-top: 0.625rem;
+      padding-bottom: 0.625rem;
+    }
+  }
+}
+
 // ═══════════════════════════════════════════════════════════
 //  GUIDE TABS — Modern 3D Effects
 // ═══════════════════════════════════════════════════════════
@@ -2855,6 +2882,7 @@ html {
   min-height: 280px;
 }
 
+/* Barra de progreso — base track */
 .hero-ideas-track::after {
   content: '';
   position: absolute;
@@ -2867,30 +2895,26 @@ html {
   overflow: hidden;
 }
 
-.hero-ideas-track::before {
-  content: '';
-  position: absolute;
-  left: 1rem;
-  bottom: 0.8rem;
-  height: 3px;
-  width: 0;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #fff3b0, #38bdf8);
-  z-index: 2;
-  animation: heroTrackProgress 18s linear infinite;
-}
-
+/* Slide base: oculto, listo para transición */
 .hero-idea-slide {
   position: absolute;
   inset: 0;
-  padding: 1.7rem 1.7rem 2.4rem;
+  padding: 1.7rem 1.7rem 2.8rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 1rem;
   opacity: 0;
-  transform: translateY(10px);
-  animation: heroIdeaFade 18s infinite;
+  transform: translateY(12px);
+  pointer-events: none;
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+/* Slide activo — signal-driven via [class.hero-idea-slide--active] */
+.hero-idea-slide--active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
 .hero-idea-slide h3 {
@@ -2939,36 +2963,35 @@ html {
   letter-spacing: 0.05em;
 }
 
-.hero-idea-slide:nth-child(1) { animation-delay: 0s; }
-.hero-idea-slide:nth-child(2) { animation-delay: 6s; }
-.hero-idea-slide:nth-child(3) { animation-delay: 12s; }
-
-@keyframes heroIdeaFade {
-  0% {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  8% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  26% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  33% {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
+/* ── Dots de navegación ─────────────────────────────────────── */
+.hero-dots {
+  position: absolute;
+  bottom: 0.7rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 3;
 }
 
-@keyframes heroTrackProgress {
-  from { width: 0; }
-  to { width: calc(100% - 2rem); }
+.hero-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.3s, width 0.3s;
+  flex-shrink: 0;
+
+  &:hover { background: rgba(255, 255, 255, 0.5); }
+}
+
+.hero-dot--active {
+  width: 22px;
+  background: linear-gradient(90deg, #fff3b0, #38bdf8);
 }
 
 @media (max-width: 1024px) {

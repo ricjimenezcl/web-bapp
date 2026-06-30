@@ -1143,23 +1143,3 @@
 body.modal-open #bappie-widget-container {
   display: none !important;
 }
-
-// ════════════════════════════════════════════════════════════════════
-// BOTONES — Prevenir desbordamiento de texto en mobile
-// ════════════════════════════════════════════════════════════════════
-@media (max-width: 640px) {
-  button, .btn, [class*="btn-"] {
-    min-width: 0;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  // Botones que SÍ deben envolver texto (formularios, cards)
-  .btn-block, .cat-btn-search, .cat-btn-location,
-  .btn-primary, .btn-secondary, .help-contact-btn {
-    white-space: normal;
-    word-break: break-word;
-    text-overflow: unset;
-  }
-}

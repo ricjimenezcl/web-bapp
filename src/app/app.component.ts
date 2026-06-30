@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
+import { RouterOutlet, Router, NavigationEnd, NavigationError } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { StorageService } from './core/services/storage.service';
 import { SessionService } from './core/services/session.service';
@@ -184,6 +184,20 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     // Detectar expiración proactiva al recargar la página
     this.session.watchExpiry(this.storage.token());
+
+    // Manejar errores de chunk loading (lazy modules) causados por deploys
+    // mientras el usuario tiene una versión anterior cacheada por el SW
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationError)
+    ).subscribe((event: NavigationError) => {
+      const isChunkError = /Failed to fetch dynamically imported|Loading chunk|Importing a module script failed/i.test(
+        event.error?.message ?? ''
+      );
+      if (isChunkError) {
+        // Hard reload a la URL destino — bypassa la caché del SW
+        window.location.href = event.url;
+      }
+    });
 
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)

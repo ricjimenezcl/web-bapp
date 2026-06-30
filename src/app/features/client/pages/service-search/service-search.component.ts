@@ -264,7 +264,8 @@ export class ServiceSearchComponent implements OnInit {
           throw err;
         }
         // Endpoint unificado no disponible (ej. aún no desplegado) → fallback individual
-        console.warn('Endpoint unificado no disponible, usando fallback individual', err?.status);
+        const detail = (err as HttpErrorResponse)?.error?.detail;
+        console.warn('Endpoint unificado no disponible, usando fallback individual', err?.status, detail);
         const requests = serviceIds.map(id =>
           this.providerSvc.getNearbyProvidersByServiceId(lat, lng, radius, id, 0, 20)
         );

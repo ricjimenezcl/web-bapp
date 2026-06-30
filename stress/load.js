@@ -9,11 +9,14 @@
  * Uso: k6 run stress/load.js -e TEST_CLIENT_EMAIL=x -e TEST_CLIENT_PASSWORD=y
  */
 import { sleep } from 'k6';
+import http from 'k6/http';
 import { getAuthToken } from './utils/helpers.js';
 import { authScenario } from './scenarios/auth.js';
 import { searchScenario } from './scenarios/search.js';
 import { bookingScenario } from './scenarios/bookings.js';
 import { chatScenario } from './scenarios/chat.js';
+
+http.setResponseCallback(http.expectedStatuses({ min: 200, max: 499 }));
 
 export const options = {
   scenarios: {

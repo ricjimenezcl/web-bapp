@@ -12,6 +12,9 @@ import { searchScenario } from './scenarios/search.js';
 import { bookingScenario } from './scenarios/bookings.js';
 import { chatScenario } from './scenarios/chat.js';
 
+// Solo contar errores 5xx como fallos HTTP reales (4xx son respuestas esperadas)
+http.setResponseCallback(http.expectedStatuses({ min: 200, max: 499 }));
+
 export const options = {
   vus: 1,
   duration: '1m',

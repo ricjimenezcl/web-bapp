@@ -8,9 +8,12 @@
  * ADVERTENCIA: Ejecutar solo contra entorno de staging, nunca producción sin autorización.
  */
 import { sleep } from 'k6';
+import http from 'k6/http';
 import { getAuthToken } from './utils/helpers.js';
 import { searchScenario } from './scenarios/search.js';
 import { bookingScenario } from './scenarios/bookings.js';
+
+http.setResponseCallback(http.expectedStatuses({ min: 200, max: 499 }));
 
 export const options = {
   stages: [

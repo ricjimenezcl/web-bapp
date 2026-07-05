@@ -117,6 +117,7 @@
   text-decoration: none;
   cursor: pointer;
   white-space: nowrap;
+  line-height: 1.2;
   box-shadow: 0 4px 16px rgba(253, 230, 138, 0.18);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   flex-shrink: 0;
@@ -146,6 +147,7 @@
   font-size: 12px;
   font-weight: 700;
   font-family: inherit;
+  line-height: 1.2;
   cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease;
 
@@ -474,6 +476,7 @@
   font-size: 12px;
   font-weight: 700;
   font-family: inherit;
+  line-height: 1.2;
   cursor: pointer;
   text-decoration: none;
   transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
@@ -564,11 +567,37 @@
   font-weight: 700;
   font-size: 13px;
   font-family: inherit;
+  line-height: 1.2;
   cursor: pointer;
   transition: background 0.2s ease;
 
   svg { width: 15px; height: 15px; }
   &:hover { background: rgba(255, 255, 255, 0.09); }
+}
+
+@media (max-width: 430px) {
+  .ms-btn-add,
+  .ms-btn-upgrade,
+  .ms-action-btn,
+  .ms-btn-retry {
+    white-space: normal;
+    text-align: center;
+    justify-content: center;
+    min-height: 42px;
+  }
+
+  .ms-btn-add,
+  .ms-btn-retry {
+    width: 100%;
+  }
+
+  .ms-card-actions {
+    flex-wrap: wrap;
+  }
+
+  .ms-action-btn {
+    flex: 1 1 100%;
+  }
 }
 
 // ════════════════════════════════════════════════════════════════════

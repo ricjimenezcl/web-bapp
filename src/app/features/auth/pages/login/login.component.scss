@@ -662,6 +662,8 @@
 .btn-primary-crypgo {
   background: linear-gradient(135deg, #FFF9C4 0%, #FFF176 100%);
   box-shadow: 0 4px 24px rgba(255, 249, 196, 0.3);
+  line-height: 1.2;
+  min-height: 42px;
   
   &:hover {
     box-shadow: 0 8px 32px rgba(255, 249, 196, 0.5);
@@ -673,6 +675,8 @@
 .btn-ghost-crypgo {
   background: transparent;
   border: 2px solid #FFF9C4;
+  line-height: 1.2;
+  min-height: 42px;
   
   &:hover {
     background: rgba(255, 249, 196, 0.1);
@@ -985,6 +989,7 @@ html {
 .guide-tab-btn {
   color: rgba(255, 255, 255, 0.6);
   position: relative;
+  line-height: 1.2;
   
   &::before {
     content: '';
@@ -2572,12 +2577,38 @@ html {
   padding: 10px 20px;
   font-weight: 700;
   font-size: 14px;
+  line-height: 1.2;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   cursor: pointer;
   transition: color 0.3s;
+}
+
+@media (max-width: 430px) {
+  .btn-primary-crypgo,
+  .btn-ghost-crypgo,
+  .guide-tab-btn {
+    white-space: normal;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .toggle-track {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .toggle-pill,
+  .toggle-btn {
+    width: 136px;
+  }
+
+  .toggle-btn {
+    padding: 9px 10px;
+    font-size: 12px;
+  }
 }
 
 // Motor del Acordeón
@@ -2854,7 +2885,9 @@ html {
 .hero-ideas-carousel {
   position: relative;
   width: 100%;
-  min-height: 280px;
+  max-width: 100%;
+  min-height: clamp(270px, 34vw, 340px);
+  box-sizing: border-box;
   border-radius: 24px;
   border: 1px solid rgba(255, 249, 196, 0.22);
   background:
@@ -2879,7 +2912,30 @@ html {
 
 .hero-ideas-track {
   position: relative;
-  min-height: 280px;
+  width: 100%;
+  min-height: clamp(270px, 34vw, 340px);
+}
+
+.hero-store-badges {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: min(100%, 420px);
+  margin-inline: auto;
+  justify-items: center;
+  align-items: center;
+  column-gap: 0.75rem;
+  row-gap: 0.6rem;
+}
+
+.hero-store-badge {
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.hero-store-badge-img {
+  width: clamp(122px, 37vw, 180px);
+  max-width: 180px;
 }
 
 /* Barra de progreso — base track */
@@ -2899,11 +2955,12 @@ html {
 .hero-idea-slide {
   position: absolute;
   inset: 0;
-  padding: 1.7rem 1.7rem 2.8rem;
+  padding: clamp(0.9rem, 2.8vw, 1.7rem) clamp(0.75rem, 2.8vw, 1.7rem) clamp(2.1rem, 5vw, 2.8rem);
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 1rem;
+  gap: clamp(0.45rem, 1.8vw, 1rem);
+  min-width: 0;
   opacity: 0;
   transform: translateY(12px);
   pointer-events: none;
@@ -2919,11 +2976,13 @@ html {
 
 .hero-idea-slide h3 {
   color: #ffffff;
-  font-size: clamp(1.16rem, 1.45vw, 1.56rem);
+  font-size: clamp(0.82rem, 3vw, 1.56rem);
   line-height: 1.45;
   font-weight: 800;
   margin: 0;
   text-wrap: balance;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 .hero-idea-cta {
@@ -2939,6 +2998,7 @@ html {
   letter-spacing: 0.02em;
   text-transform: uppercase;
   text-decoration: none;
+  max-width: 100%;
   transition: transform 220ms ease, box-shadow 220ms ease, filter 220ms ease;
   box-shadow: 0 10px 24px rgba(190, 32, 46, 0.34);
 }
@@ -3021,6 +3081,32 @@ html {
   .hero-idea-chip { align-self: center; font-size: 0.68rem; }
 }
 
+@media (min-width: 768px) {
+  .hero-store-badges {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 3rem;
+    width: auto;
+    margin-inline: 0;
+  }
+
+  .hero-store-badge-img {
+    width: 180px;
+  }
+}
+
+/* ── 430 px: móviles grandes (iPhone Pro Max, Galaxy Plus) ── */
+@media (max-width: 430px) {
+  .hero-ideas-carousel,
+  .hero-ideas-track {
+    min-height: 312px;
+  }
+
+  .hero-idea-slide h3 {
+    font-size: clamp(0.85rem, 3.75vw, 0.98rem);
+  }
+}
+
 /* ── 480 px: teléfonos medianos ── */
 @media (max-width: 480px) {
   .hero-ideas-carousel { border-radius: 14px; min-height: 300px; }
@@ -3044,5 +3130,95 @@ html {
     padding: 0.38rem 0.75rem;
     white-space: normal;
     text-align: center;
+  }
+
+  .hero-store-badges {
+    width: min(100%, 340px);
+    column-gap: 0.45rem;
+  }
+
+  .hero-store-badge-img {
+    width: min(43vw, 146px);
+  }
+}
+
+/* ── 360 px: ajuste fino Samsung S8/S9 ── */
+@media (max-width: 360px) {
+  .hero-ideas-carousel { min-height: 334px; }
+  .hero-ideas-track    { min-height: 334px; }
+
+  .hero-idea-slide {
+    padding: 0.85rem 0.72rem 2.1rem;
+    gap: 0.45rem;
+  }
+
+  .hero-idea-slide h3 {
+    font-size: 0.82rem;
+    line-height: 1.42;
+  }
+
+  .hero-idea-cta {
+    max-width: 100%;
+    font-size: 0.65rem;
+    padding: 0.36rem 0.68rem;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .hero-idea-chip {
+    font-size: 0.6rem;
+    padding: 0.22rem 0.5rem;
+  }
+
+  .hero-store-badges {
+    width: 100%;
+    justify-content: center;
+    column-gap: 0.5rem;
+    row-gap: 0.5rem;
+  }
+
+  .hero-store-badge {
+    flex: 1 1 calc(50% - 0.5rem);
+    min-width: 0;
+    display: flex;
+    justify-content: center;
+  }
+
+  .hero-store-badge-img {
+    width: min(42vw, 148px);
+  }
+}
+
+/* ── 320 px: equipos compactos antiguos ── */
+@media (max-width: 320px) {
+  .hero-ideas-carousel,
+  .hero-ideas-track {
+    min-height: 348px;
+  }
+
+  .hero-idea-slide {
+    padding: 0.72rem 0.62rem 2rem;
+  }
+
+  .hero-idea-slide h3 {
+    font-size: 0.78rem;
+    line-height: 1.38;
+  }
+
+  .hero-idea-chip {
+    font-size: 0.56rem;
+  }
+
+  .hero-idea-cta {
+    font-size: 0.62rem;
+    padding: 0.34rem 0.6rem;
+  }
+}
+
+/* ── Pantallas bajas (landscape móvil) ── */
+@media (max-height: 740px) and (max-width: 900px) {
+  .hero-ideas-carousel,
+  .hero-ideas-track {
+    min-height: 272px;
   }
 }

@@ -54,15 +54,17 @@
               id="cpm-rut"
               type="text"
               formControlName="run"
-              placeholder="12.345.678-9"
+              placeholder="12345678-9"
               class="cpm-input"
               inputmode="text"
+              maxlength="10"
               autocomplete="off"
+              (keydown)="onRutKeydown($event)"
               (input)="onRutInput($event)"
             />
           </div>
           @if (form.get('run')?.invalid && form.get('run')?.touched) {
-            <span class="cpm-error">Ingresa un RUT chileno válido (ej: 12.345.678-9)</span>
+            <span class="cpm-error">Ingresa un RUT chileno válido (ej: 12345678-9)</span>
           }
         </div>
       }

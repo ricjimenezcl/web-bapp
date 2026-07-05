@@ -24,7 +24,8 @@
   from { opacity: 0; transform: translateY(8px) scale(0.98); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
-
+  line-height: 1.2;
+  min-height: 40px;
 .gm-header {
   padding: 14px 18px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -32,6 +33,14 @@
   h3 {
     margin: 0;
     font-size: 16px;
+  @media (max-width: 430px) {
+    .gm-btn {
+      width: 100%;
+      white-space: normal;
+      text-align: center;
+      justify-content: center;
+    }
+  }
     font-weight: 800;
     color: #f9fafb;
   }
@@ -95,6 +104,8 @@
   padding: 10px 14px;
   font-size: 13px;
   font-weight: 700;
+  line-height: 1.2;
+  min-height: 40px;
   cursor: pointer;
 }
 
@@ -106,6 +117,15 @@
 .gm-btn--solid {
   background: #fde68a;
   color: #111827;
+}
+
+@media (max-width: 430px) {
+  .gm-btn {
+    width: 100%;
+    white-space: normal;
+    text-align: center;
+    justify-content: center;
+  }
 }
 
 @media (max-width: 360px) {

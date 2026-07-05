@@ -148,6 +148,9 @@
 .btn-chip {
     white-space: nowrap; background: var(--surface); border: 1px solid var(--border); color: var(--text-muted);
     padding: 8px 14px; border-radius: 16px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;
+    max-width: min(72vw, 260px);
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .btn-chip:hover { background: var(--chat-indigo); color: var(--bg-obsidian); border-color: var(--chat-indigo); }
 .btn-chip:disabled { opacity: 0.4; cursor: not-allowed; }

@@ -8,6 +8,7 @@ import { MainCategory, ServiceCategory } from '../../../../core/models/provider.
 import { MapPickerComponent } from '../../../../shared/components/map-picker/map-picker.component';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ProductType } from '../../../../core/services/payment.service';
+import { ModalService } from '../../../../core/services/modal.service';
 
 @Component({
   selector: 'app-categories',
@@ -23,6 +24,7 @@ export class CategoriesComponent implements OnInit {
   private readonly categorySvc = inject(CategoryService);
   private readonly locationSvc = inject(LocationService);
   private readonly auth        = inject(AuthService);
+  private readonly modal       = inject(ModalService);
 
   categories = signal<MainCategory[]>([]);
   allCategories = signal<ServiceCategory[]>([]);
@@ -308,6 +310,19 @@ export class CategoriesComponent implements OnInit {
     this.selectedMainCategory.set(null);
     this.selectedServices.set([]);
     this.page.set(1);
+  }
+
+  async cancelSearch(): Promise<void> {
+    const confirmed = await this.modal.confirm(
+      '¿Está seguro de cancelar búsqueda?',
+      'Cancelar búsqueda',
+      'Sí',
+      'No'
+    );
+
+    if (confirmed) {
+      await this.router.navigate(['/client/tabs/profile']);
+    }
   }
 
   previousPage(): void {

@@ -419,13 +419,6 @@
   font-weight: 500;
 }
 
-.as-hint {
-  font-size: 13px;
-  color: var(--bw-text-muted);
-  font-style: italic;
-  margin: 0;
-}
-
 // Prefix $
 .as-input-prefix {
   position: relative;
@@ -690,6 +683,10 @@
   cursor: pointer;
   border: none;
   transition: transform 0.2s, box-shadow 0.2s, opacity 0.15s, background 0.2s;
+  line-height: 1.2;
+  min-height: 42px;
+  text-align: center;
+  overflow-wrap: anywhere;
 
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 

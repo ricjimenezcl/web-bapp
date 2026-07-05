@@ -1046,6 +1046,8 @@
   cursor: pointer;
   transition: all 0.25s ease;
   white-space: nowrap;
+  min-width: 0;
+  line-height: 1.2;
 
   svg { width: 12px; height: 12px; flex-shrink: 0; }
 
@@ -1060,6 +1062,27 @@
     color: var(--accent);
     border: 1px solid rgba(253, 230, 138, 0.3);
     box-shadow: 0 2px 8px rgba(253, 230, 138, 0.08);
+  }
+}
+
+@media (max-width: 430px) {
+  .ref-segmented-control {
+    flex-wrap: wrap;
+  }
+
+  .ref-segment-btn {
+    flex: 1 1 calc(50% - 4px);
+    min-height: 40px;
+    white-space: normal;
+    text-align: center;
+    justify-content: center;
+    padding: 8px 10px;
+  }
+
+  .provider-locked-btn {
+    line-height: 1.25;
+    white-space: normal;
+    text-align: center;
   }
 }
 

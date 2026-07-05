@@ -684,6 +684,8 @@
   font-size: 14px;
   font-weight: 700;
   font-family: inherit;
+  line-height: 1.2;
+  min-height: 42px;
   cursor: pointer;
   border: none;
   transition: transform 0.2s, box-shadow 0.2s, opacity 0.15s, background 0.2s;
@@ -738,6 +740,8 @@
   color: var(--bw-accent);
   font-size: 14px;
   font-weight: 600;
+  line-height: 1.2;
+  min-height: 44px;
   cursor: pointer;
   transition: all 0.2s;
 
@@ -755,6 +759,19 @@
   &--disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+}
+
+@media (max-width: 430px) {
+  .es-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .es-btn,
+  .es-file-upload-btn {
+    white-space: normal;
+    text-align: center;
+    justify-content: center;
   }
 }
 

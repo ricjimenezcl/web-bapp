@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { ProfileCompletionService } from '../../../core/services/profile-completion.service';
 import { StorageService } from '../../../core/services/storage.service';
 import { CustomValidators } from '../../validators/custom-validators';
-import { formatChileanPhone, formatChileanRUT } from '../../utils/form-formatters';
+import { formatChileanPhone, formatChileanRUT, normalizeChileanRUTForBackend } from '../../utils/form-formatters';
 import { environment } from '../../../../environments/environment';
 
 @Component({
@@ -54,6 +54,12 @@ export class CompleteProfileModalComponent {
     input.value = formatted;
   }
 
+  onRutKeydown(event: KeyboardEvent): void {
+    if (event.key === '.' || event.key === ' ') {
+      event.preventDefault();
+    }
+  }
+
   submit(): void {
     this.form.markAllAsTouched();
     if (this.form.invalid || this.loading()) return;
@@ -69,8 +75,8 @@ export class CompleteProfileModalComponent {
     const payload: Record<string, string> = { phone: cleanPhone };
 
     if (this.needsRut()) {
-      // El backend espera RUT sin puntos: "12345678-9"
-      payload['run'] = (v.run ?? '').replace(/\./g, '');
+      // El backend espera RUT canónico: "12345678-9"
+      payload['run'] = normalizeChileanRUTForBackend(v.run ?? '');
     }
 
     const endpoint = this.needsRut()

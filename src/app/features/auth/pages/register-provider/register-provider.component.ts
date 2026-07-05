@@ -4,7 +4,7 @@ import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, Validati
 import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { CustomValidators } from '../../../../shared/validators/custom-validators';
-import { formatChileanPhone, formatChileanRUT } from '../../../../shared/utils/form-formatters';
+import { formatChileanPhone, formatChileanRUT, normalizeChileanRUTForBackend } from '../../../../shared/utils/form-formatters';
 
 function passwordMatch(ctrl: AbstractControl): ValidationErrors | null {
   const p = ctrl.get('password'), c = ctrl.get('confirmPassword');
@@ -45,13 +45,14 @@ export class RegisterProviderComponent {
     this.error.set('');
 
     const v = this.form.value;
+    const normalizedRun = normalizeChileanRUTForBackend(v.run ?? '');
     this.auth.registerProvider({
       full_name:      v.full_name!,
       email:          v.email!,
       phone:          v.phone!,
       password:       v.password!,
       terms_accepted: !!v.terms_accepted,
-      run:            v.run ? v.run.replace(/\./g, '') : undefined,
+      run:            normalizedRun || undefined,
     }).subscribe({
       next: () => {
         this.loading.set(false);
@@ -107,5 +108,11 @@ export class RegisterProviderComponent {
     const formatted = formatChileanRUT(input.value);
     input.value = formatted;
     this.form.get('run')?.setValue(formatted, { emitEvent: false });
+  }
+
+  onRutKeydown(event: KeyboardEvent): void {
+    if (event.key === '.' || event.key === ' ') {
+      event.preventDefault();
+    }
   }
 }

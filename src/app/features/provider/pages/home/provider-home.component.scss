@@ -343,6 +343,8 @@
   padding: 12px 22px;
   font-size: 13px;
   font-weight: 800;
+  line-height: 1.2;
+  min-height: 42px;
   cursor: pointer;
   transition: opacity 0.2s, transform 0.2s;
   &:hover { opacity: 0.9; }
@@ -369,9 +371,24 @@
   padding: 12px 18px;
   font-size: 13px;
   font-weight: 600;
+  line-height: 1.2;
+  min-height: 42px;
   cursor: pointer;
   transition: color 0.2s, border-color 0.2s;
   &:hover { color: var(--bw-text-p, #F9FAFB); border-color: rgba(255,255,255,0.2); }
+}
+
+@media (max-width: 430px) {
+  .ph-btn-primary,
+  .ph-btn-ghost {
+    white-space: normal;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .ph-btn-primary.mega {
+    width: 100%;
+  }
 }
 
 /* ══ PENDING ALERT ══════════════════════════════════════════════ */

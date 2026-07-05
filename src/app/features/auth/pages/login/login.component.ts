@@ -9,7 +9,7 @@ import { MainCategory, ServiceCategory } from '../../../../core/models/provider.
 import { Device3dLoginComponent } from '../../../../shared/components/device-3d-login/device-3d-login.component';
 import { BappieChatbotComponent } from '../../../../shared/components/bappie-chatbot/bappie-chatbot.component';
 import { CustomValidators } from '../../../../shared/validators/custom-validators';
-import { formatChileanPhone, formatChileanRUT } from '../../../../shared/utils/form-formatters';
+import { formatChileanPhone, formatChileanRUT, normalizeChileanRUTForBackend } from '../../../../shared/utils/form-formatters';
 
 @Component({
   selector: 'app-login',
@@ -465,12 +465,13 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.success.set('');
 
     const { name, email, phone, run, password, terms_accepted } = this.registerForm.value;
+    const normalizedRun = normalizeChileanRUTForBackend(run ?? '');
     const payload = {
       email: email!, 
       password: password!, 
       full_name: name!,
       phone: phone!,
-      run: run ? run.replace(/\./g, '') : run!,
+      run: normalizedRun || undefined,
       terms_accepted: terms_accepted!
     };
 
@@ -553,6 +554,12 @@ export class LoginComponent implements OnInit, OnDestroy {
     const formatted = formatChileanRUT(input.value);
     input.value = formatted;
     this.registerForm.get('run')?.setValue(formatted, { emitEvent: false });
+  }
+
+  onRegisterRUTKeydown(event: KeyboardEvent): void {
+    if (event.key === '.' || event.key === ' ') {
+      event.preventDefault();
+    }
   }
 
   private getApiErrorMessage(err: any, fallback: string): string {

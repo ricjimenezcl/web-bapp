@@ -236,6 +236,9 @@
   cursor: pointer;
   box-shadow: 0 4px 15px var(--bw-accent-dim);
   white-space: nowrap;
+  line-height: 1.2;
+  text-align: center;
+  max-width: 100%;
   transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.15s ease;
 
   &:hover:not(:disabled) {
@@ -262,6 +265,16 @@
   transition: background 0.2s ease;
 
   &:hover { background: var(--bw-surface-hover); }
+}
+
+@media (max-width: 430px) {
+  .btn-primary,
+  .btn-secondary,
+  .btn-logout {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.2;
+  }
 }
 
 // Alerts

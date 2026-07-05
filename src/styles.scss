@@ -22,6 +22,8 @@
     height: 100%;
     min-height: 100dvh;
     width: 100%;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
     scroll-behavior: smooth;
     scroll-padding-top: 112px;
   }
@@ -42,6 +44,11 @@
     display: block;
     width: 100%;
     min-height: 100dvh;
+  }
+
+  // Evita overflow horizontal en hijos de layouts flex/grid compartidos.
+  :where(.search-shell, .page-shell, .payment-layout, .footer-inner, .footer-bottom, .cat-grid, .results-list) > * {
+    min-width: 0;
   }
 
   // Capa global para evitar recortes/desbordes en contenedores de páginas y módulos.
@@ -66,6 +73,11 @@
   a, button, [role="button"], input, select, textarea, label {
     touch-action: manipulation;
   }
+  button {
+    font: inherit;
+    max-width: 100%;
+    min-width: 0;
+  }
   input, select, textarea { font-family: inherit; }
 }
 
@@ -77,6 +89,12 @@
            font-semibold text-sm transition-all duration-150
            focus:outline-none focus:ring-2 focus:ring-offset-2
            disabled:opacity-50 disabled:cursor-not-allowed;
+    line-height: 1.25;
+    min-height: 42px;
+    max-width: 100%;
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
   // Primary: amarillo marca BAPP (#FDD735) con texto oscuro
   // Equivale a ion-button color="primary" en Ionic
@@ -558,10 +576,48 @@
   .text-balance { text-wrap: balance; }
   .safe-bottom      { padding-bottom: env(safe-area-inset-bottom, 0); }
   .safe-top         { padding-top:    env(safe-area-inset-top, 0); }
+  .safe-x           {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+  }
   // Safe-area bottom with minimum — for action bars that need at least 16px
   .safe-bottom-bar  { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
   // Auto-sizing textarea (modern browsers)
   .textarea-auto-size { field-sizing: content; }
+
+  // Estándar para listas/carruseles horizontales táctiles.
+  .horizontal-scroller {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .horizontal-scroller > * {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    flex-shrink: 0;
+  }
+}
+
+// Capa extra para pantallas ultra-compactas (320–374px).
+@media (max-width: 374px) {
+  .search-shell,
+  .page-shell {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .search-shell-list,
+  .search-panel-list {
+    width: 100% !important;
+  }
+
+  .footer-inner,
+  .footer-bottom {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
 }
 
 // ── Dark theme: overrides for hardcoded Tailwind light classes in templates ───

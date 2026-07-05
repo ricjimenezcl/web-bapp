@@ -166,6 +166,7 @@
   color: #0f1114;
   font-size: 0.9375rem;
   font-weight: 800;
+  line-height: 1.2;
   font-family: inherit;
   letter-spacing: -0.01em;
   cursor: pointer;
@@ -186,6 +187,16 @@
 
   &--loading {
     pointer-events: none;
+  }
+}
+
+@media (max-width: 430px) {
+  .cpm-btn {
+    min-height: 46px;
+    white-space: normal;
+    text-align: center;
+    justify-content: center;
+    padding: 10px 12px;
   }
 }
 

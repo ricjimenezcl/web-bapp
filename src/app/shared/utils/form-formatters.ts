@@ -13,7 +13,7 @@
  * @returns Valor formateado, o '' si el input está vacío
  */
 export function formatChileanPhone(rawValue: string): string {
-  // 1. Quitar todo lo que no sea dígito
+  // 1. Quitar caracteres no numéricos
   let digits = rawValue.replace(/\D/g, '');
 
   // 2. Quitar prefijo 56 si ya viene con él (p.ej. al pegar "+56 9 1234 5678")
@@ -40,7 +40,7 @@ export function formatChileanPhone(rawValue: string): string {
  * Formatea un RUT chileno al escribir en un input.
  *
  * Acepta: dígitos y K sueltos, con o sin puntos/guión.
- * Salida:  "12.345.678-9"  (solo cuando hay suficientes dígitos)
+ * Salida:  "12345678-9"  (formato canónico backend, sin puntos)
  *
  * @param rawValue Valor crudo del input
  * @returns Valor formateado
@@ -58,13 +58,15 @@ export function formatChileanRUT(rawValue: string): string {
   const body = cleaned.slice(0, -1);
   const dv   = cleaned.slice(-1);
 
-  // 4. Insertar puntos en el cuerpo cada 3 dígitos desde la derecha
-  let bodyFormatted = '';
-  const reversed = body.split('').reverse().join('');
-  for (let i = 0; i < reversed.length; i++) {
-    if (i > 0 && i % 3 === 0) bodyFormatted = '.' + bodyFormatted;
-    bodyFormatted = reversed[i] + bodyFormatted;
-  }
+  return `${body}-${dv}`;
+}
 
-  return `${bodyFormatted}-${dv}`;
+/**
+ * Normaliza un RUT chileno al formato de backend: "12345678-9".
+ * Elimina puntos/espacios/símbolos, conserva K en mayúscula y agrega guión.
+ */
+export function normalizeChileanRUTForBackend(rawValue: string): string {
+  const cleaned = rawValue.toUpperCase().replace(/[^0-9K]/g, '').substring(0, 9);
+  if (cleaned.length < 2) return cleaned;
+  return `${cleaned.slice(0, -1)}-${cleaned.slice(-1)}`;
 }

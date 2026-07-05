@@ -215,6 +215,7 @@
   text-align: left;
   transition: border-color 0.2s ease, background 0.2s ease;
   width: 100%;
+  min-height: 56px;
 
   &:hover {
     border-color: rgba(255, 255, 255, 0.16);
@@ -263,12 +264,14 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 
 .method-name {
   font-size: 14px;
   font-weight: 600;
   color: #F9FAFB;
+  overflow-wrap: anywhere;
 }
 
 .method-desc {
@@ -404,6 +407,10 @@
   gap: 10px;
   box-shadow: 0 4px 20px rgba(253, 230, 138, 0.2);
   transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.15s ease;
+  line-height: 1.2;
+  min-height: 48px;
+  text-align: center;
+  overflow-wrap: anywhere;
 
   svg { width: 18px; height: 18px; }
 

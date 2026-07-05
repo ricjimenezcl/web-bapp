@@ -79,7 +79,7 @@
 <section class="relative md:pt-40 md:pb-28 py-20 overflow-hidden z-1 bg-crypgo-darkmode" id="main-banner">
   <div class="container mx-auto lg:max-w-screen-xl px-4">
     <div class="grid grid-cols-12 gap-8 items-center">
-      <div class="lg:col-span-6 col-span-12 flex flex-col justify-center">
+      <div class="lg:col-span-6 col-span-12 flex flex-col justify-center min-w-0">
         <div class="hero-ideas-carousel animate-fade-in" style="animation-delay: 0.2s" aria-label="Carrusel de beneficios BappSearch"
              (touchstart)="onHeroTouchStart($event)"
              (touchend)="onHeroTouchEnd($event)">
@@ -116,18 +116,18 @@
           </div>
         </div>
 
-        <div class="flex items-center md:justify-start justify-center gap-12 mt-6 animate-fade-in" style="animation-delay: 0.4s">
-          <a href="#" (click)="$event.preventDefault()" class="hover:scale-110 duration-300 transition-all">
+        <div class="hero-store-badges flex items-center md:justify-start justify-center mt-6 animate-fade-in" style="animation-delay: 0.4s">
+          <a href="#" (click)="$event.preventDefault()" class="hero-store-badge hover:scale-110 duration-300 transition-all">
             <img
               src="https://res.cloudinary.com/dghwotofx/image/upload/v1779935705/playstore_wv06bw.png"
               alt="Google Play Store"
-              class="w-[180px] h-auto object-contain">
+              class="hero-store-badge-img h-auto object-contain">
           </a>
-          <a href="#" (click)="$event.preventDefault()" class="hover:scale-110 duration-300 transition-all">
+          <a href="#" (click)="$event.preventDefault()" class="hero-store-badge hover:scale-110 duration-300 transition-all">
             <img
               src="https://res.cloudinary.com/dghwotofx/image/upload/v1779935705/applestore_lwwmhy.png"
               alt="Apple App Store"
-              class="w-[180px] h-auto object-contain">
+              class="hero-store-badge-img h-auto object-contain">
           </a>
         </div>
       </div>
@@ -1197,9 +1197,11 @@
                 id="register-rut"
                 type="text"
                 formControlName="run"
-                placeholder="12.345.678-9"
+                placeholder="12345678-9"
                 class="w-full bg-crypgo-darkmode border border-crypgo-dark_border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-crypgo-primary transition-colors"
                 [class.border-crypgo-error]="getRegisterRUTError() !== ''"
+                maxlength="10"
+                (keydown)="onRegisterRUTKeydown($event)"
                 (input)="onRegisterRUTInput($event)"
               />
               @if (getRegisterRUTError() !== '') {

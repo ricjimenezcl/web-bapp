@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, HostListener, inject, OnInit, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd, NavigationError } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { StorageService } from './core/services/storage.service';
@@ -182,6 +182,18 @@ export class AppComponent implements OnInit {
   private hasNavigatedOnInit = false;
 
   ngOnInit(): void {
+    const navEntry = globalThis.performance
+      .getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
+
+    // Mantener sesión en recargas explícitas; en navegación back/forward o nueva,
+    // se aplicará el cierre por ausencia de marca de sesión de pestaña.
+    if (navEntry?.type === 'reload' && this.storage.isAuthenticated()) {
+      this.storage.markSessionActive();
+    }
+
+    // Si la app volvió sin sesión de pestaña activa, forzar cierre local.
+    this.storage.enforceBrowserSession();
+
     // Detectar expiración proactiva al recargar la página
     this.session.watchExpiry(this.storage.token());
 
@@ -195,7 +207,7 @@ export class AppComponent implements OnInit {
       );
       if (isChunkError) {
         // Hard reload a la URL destino — bypassa la caché del SW
-        window.location.href = event.url;
+        globalThis.location.href = event.url;
       }
     });
 
@@ -224,6 +236,13 @@ export class AppComponent implements OnInit {
   goToLogin(): void {
     this.session.reset();
     this.router.navigate(['/auth/login']);
+  }
+
+  @HostListener('window:pagehide')
+  onPageHide(): void {
+    // Al abandonar la SPA (cerrar, retroceder o cambiar de sitio),
+    // invalidamos la marca de sesión de pestaña.
+    this.storage.clearBrowserSessionFlag();
   }
 
   private handleInitialNavigation(): void {

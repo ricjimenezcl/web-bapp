@@ -11,9 +11,9 @@ const SESSION_FLAG = 'bapp_session_active';
 
 @Injectable({ providedIn: 'root' })
 export class StorageService {
-  private _token   = signal<string | null>(localStorage.getItem(KEYS.TOKEN));
-  private _user    = signal<StoredUser | null>(this._parseJson(localStorage.getItem(KEYS.USER)));
-  private _profile = signal<UserProfile | null>(this._parseJson(localStorage.getItem(KEYS.PROFILE)));
+  private readonly _token   = signal<string | null>(localStorage.getItem(KEYS.TOKEN));
+  private readonly _user    = signal<StoredUser | null>(this._parseJson(localStorage.getItem(KEYS.USER)));
+  private readonly _profile = signal<UserProfile | null>(this._parseJson(localStorage.getItem(KEYS.PROFILE)));
 
   readonly token          = this._token.asReadonly();
   readonly user           = this._user.asReadonly();
@@ -51,6 +51,25 @@ export class StorageService {
   /** Devuelve true si el usuario inició sesión en esta ventana del browser. */
   isBrowserSessionActive(): boolean {
     return sessionStorage.getItem(SESSION_FLAG) === '1';
+  }
+
+  /**
+   * Invalida la marca de sesión de esta pestaña.
+   * Se usa al abandonar la página para forzar relogin al volver.
+   */
+  clearBrowserSessionFlag(): void {
+    sessionStorage.removeItem(SESSION_FLAG);
+  }
+
+  /**
+   * Si hay credenciales persistidas pero no existe marca de sesión activa
+   * para la pestaña actual, limpia la sesión por seguridad.
+   */
+  enforceBrowserSession(): void {
+    const hasPersistedAuth = !!this._token() && !!this._user();
+    if (hasPersistedAuth && !this.isBrowserSessionActive()) {
+      this.clearSession();
+    }
   }
 
   clearSession(): void {

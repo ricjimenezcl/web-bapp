@@ -59,6 +59,11 @@ export class ServiceSearchComponent implements OnInit {
   /** true en dispositivos táctiles/móvil (sin hover fino) */
   readonly isMobile = signal(!globalThis.matchMedia?.('(hover: hover) and (pointer: fine)').matches);
 
+  /** true cuando se accede desde /guest/service-search (sin autenticación) */
+  readonly isGuestMode = signal(false);
+  /** Controla el modal de registro que se levanta cuando un invitado toca una card de proveedor */
+  readonly showGuestRegisterModal = signal(false);
+
   /** service_id dominante de la búsqueda actual (primero de la lista) */
   readonly currentServiceId = computed(() => this.serviceIds()[0] ?? 0);
 
@@ -110,6 +115,9 @@ export class ServiceSearchComponent implements OnInit {
   searchControl = this.fb.control('');
 
   ngOnInit(): void {
+    // Detectar modo invitado según la URL actual
+    this.isGuestMode.set(this.router.url.startsWith('/guest'));
+
     // Restaurar estado previo de búsqueda
     if (this.searchState.hasSearched()) {
       const filters = this.searchState.filters();
@@ -307,7 +315,8 @@ export class ServiceSearchComponent implements OnInit {
     const httpErr = err as HttpErrorResponse | undefined;
     const code = httpErr?.error?.detail?.code;
     if (code === 'DAILY_SEARCH_LIMIT_REACHED' || code === 'FREE_SERVICE_SELECTION_LIMIT') {
-      this.router.navigate(['/client/tabs/categories'], {
+      const categoriesPath = this.isGuestMode() ? '/guest/categories' : '/client/tabs/categories';
+      this.router.navigate([categoriesPath], {
         queryParams: { premium_reason: code },
         replaceUrl: true,
       });
@@ -397,19 +406,52 @@ export class ServiceSearchComponent implements OnInit {
    * En touch (móvil): primer tap destaca el pin en el mapa (visible detrás del sidebar).
    * Segundo tap sobre la card ya activa navega al perfil (routerLink actúa normal).
    * En desktop con hover real no interceptamos nada.
+   * En modo invitado: siempre muestra modal de registro.
    */
   onCardClick(event: Event, providerId: number): void {
+    // Modo invitado: bloquear navegación y mostrar modal de registro
+    if (this.isGuestMode()) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.showGuestRegisterModal.set(true);
+      return;
+    }
+
     // Highlight del pin en el mapa independientemente del dispositivo
     this.hoveredProviderId.set(
       this.hoveredProviderId() === providerId ? null : providerId
     );
   }
 
+  closeGuestRegisterModal(): void {
+    this.showGuestRegisterModal.set(false);
+  }
+
+  navigateToRegister(): void {
+    this.router.navigate(['/auth/login'], { queryParams: { tab: 'register' } });
+  }
+
+  navigateToLogin(): void {
+    this.router.navigate(['/auth/login'], { queryParams: { tab: 'login' } });
+  }
+
   goToPremium(): void {
+    const filters = this.searchState.filters();
+    let returnPath = '/client/tabs/service-search';
+
+    // Incluir los params de búsqueda activos para reconstruir la búsqueda al volver
+    if (filters.service_ids?.length) {
+      const ids = filters.service_ids.join(',');
+      const names = (filters.service_names ?? []).map(s => s.name).join(',');
+      const params = new URLSearchParams({ service_ids: ids });
+      if (names) params.set('service_names', names);
+      returnPath += '?' + params.toString();
+    }
+
     this.router.navigate(['/payment'], {
       queryParams: {
         product_type: 'CLIENT_UNLOCK_7',
-        returnTo: '/client/tabs/service-search'
+        returnTo: returnPath
       }
     });
   }

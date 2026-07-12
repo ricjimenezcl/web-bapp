@@ -1,4 +1,4 @@
-import { Component, signal, OnDestroy, inject, ElementRef, ViewChild, AfterViewInit, Input, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, signal, OnDestroy, inject, ElementRef, ViewChild, AfterViewInit, Input, Output, EventEmitter, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ProviderService } from '../../../../core/services/provider.service';
@@ -36,6 +36,12 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
 
   /** Cuando se usa embebido dentro de service-search */
   @Input() embedded = false;
+
+  /** true cuando el mapa se muestra en el flujo invitado (sin autenticación) */
+  @Input() guestMode = false;
+
+  /** Emite cuando un invitado hace click en "Ver perfil" dentro del popup */
+  @Output() guestProviderClick = new EventEmitter<void>();
 
   /** Proveedores inyectados desde el padre (service-search fused view) */
   @Input()
@@ -140,6 +146,11 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
         const target = (e.target as HTMLElement).closest('[data-provider-id]') as HTMLElement | null;
         if (target) {
           e.preventDefault();
+          if (this.guestMode) {
+            // En modo invitado: mostrar modal de registro en lugar de navegar
+            this.guestProviderClick.emit();
+            return;
+          }
           const id = target.dataset['providerId'];
           if (id) this.router.navigate(['/client/provider-info', id]);
         }
@@ -337,12 +348,8 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
           }
         });
 
-        // Desktop: hover abre/cierra popup
+        // Desktop: hover abre popup — no se cierra al salir, solo al abrir otro
         marker.on('mouseover', () => marker.openPopup());
-        marker.on('mouseout',  () => {
-          // No cerrar si es un provider bloqueado (el modal lo gestiona)
-          if (!isLocked) marker.closePopup();
-        });
 
         // Click / tap (funciona en desktop y móvil touch)
         marker.on('click', () => {

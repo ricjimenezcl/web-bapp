@@ -10,12 +10,21 @@
   <div class="bap-canvas">
 
     <!-- Tooltip flotante -->
-    <div class="bap-tooltip bap-tooltip--float">
-      ¡Hola!<br>
-      <span class="bap-tooltip-sub">
-        Selecciona un servicio y te conectaré con la red élite.
-      </span>
-    </div>
+        <!-- Hint banner (solo cuando no hay búsqueda activa y no hay subcategorías) -->
+    @if (searchQuery().length < 2 && !showSubcategories()) {
+      <div class="cat-hint-banner">
+        <div class="cat-hint-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"/>
+          </svg>
+        </div>
+        <div class="cat-hint-text">
+          <h4>Toca una categoría</h4>
+          <p>Para ver los servicios disponibles en tu zona</p>
+        </div>
+      </div>
+    }
 
     <!-- SVG Bappie con animaciones CSS puras -->
     <svg viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg"
@@ -107,7 +116,8 @@
 
   <!-- Texto inferior -->
   <div class="bap-footer">
-    <h1 class="bap-brand">BAPPSEARCH</h1>
+    <h1 class="bap-brand">        <img src="https://res.cloudinary.com/dghwotofx/image/upload/v1774563936/titulo_bycrju.png"
+             alt="BappSearch" class="h-[16px] sm:h-[22px] lg:h-[30px] object-contain"></h1>
     <div class="bap-status">
       <span class="bap-status-dot"></span>
       Radar de Servicios Activo
@@ -126,19 +136,6 @@
   ══════════════════════════════════════════════════════════════════ -->
   <header class="cat-header">
 
-    <!-- Title row -->
-    <div class="cat-title-row">
-      <h1 class="cat-title">Buscar servicio</h1>
-      <button class="cat-map-btn" (click)="openMapPicker()" type="button" aria-label="Ver mapa">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0
-                   011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1
-                   1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0
-                   0L9 7"/>
-        </svg>
-      </button>
-    </div>
 
     <!-- Location / map picker button -->
     <button class="cat-btn-location" (click)="openMapPicker()" type="button">
@@ -167,21 +164,7 @@
         autocomplete="off" />
     </div>
 
-    <!-- Hint banner (solo cuando no hay búsqueda activa y no hay subcategorías) -->
-    @if (searchQuery().length < 2 && !showSubcategories()) {
-      <div class="cat-hint-banner">
-        <div class="cat-hint-icon">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"/>
-          </svg>
-        </div>
-        <div class="cat-hint-text">
-          <h4>Toca una categoría</h4>
-          <p>Para ver los servicios disponibles en tu zona</p>
-        </div>
-      </div>
-    }
+
 
     @if (!hasPremium()) {
       <div class="cat-limit-banner">

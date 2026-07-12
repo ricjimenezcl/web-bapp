@@ -10,7 +10,7 @@
         [class.backdrop-blur-md]="sticky()" 
         [class.bg-opacity-95]="sticky()">
   <div class="py-0 pointer-events-auto">
-    <div class="container lg:max-w-screen-xl md:max-w-screen-md flex items-center justify-between pr-4">
+    <div class="container lg:max-w-screen-xl md:max-w-screen-md flex items-center px-4">
       <!-- Logo -->
       <div class="flex items-center gap-2 sm:gap-3">
         <div class="w-[44px] h-[68px] sm:w-[56px] sm:h-[86px] lg:w-[70px] lg:h-[108px] rounded-xl flex overflow-hidden">
@@ -21,32 +21,32 @@
              alt="BappSearch" class="h-[16px] sm:h-[22px] lg:h-[30px] object-contain">
       </div>
 
-      <!-- Desktop Nav -->
-      <nav class="hidden lg:flex flex-grow items-end gap-4 justify-center" aria-label="Navegación principal">
-        <a href="#main-banner" (click)="scrollToSection('main-banner', $event)" class="text-white hover:text-crypgo-primary transition-colors">Inicio</a>
-        <a href="#how-it-works" (click)="scrollToSection('how-it-works', $event)" class="text-white hover:text-crypgo-primary transition-colors">Cómo Funciona</a>
-        <a href="#services" (click)="scrollToSection('services', $event)" class="text-white hover:text-crypgo-primary transition-colors">Servicios</a>
-        <a href="#testimonials" (click)="scrollToSection('testimonials', $event)" class="text-white hover:text-crypgo-primary transition-colors">Testimonios</a>
-        <a href="#contact" (click)="scrollToSection('contact', $event)" class="text-white hover:text-crypgo-primary transition-colors">Contacto</a>
-      </nav>
-
-      <!-- Auth Buttons -->
-      <div class="flex items-center gap-4">
+      <!-- Desktop Nav + Auth Buttons -->
+      <div class="hidden lg:flex items-center gap-3 xl:gap-6 ml-auto">
+        <nav class="flex items-center gap-2 xl:gap-5" aria-label="Navegación principal">
+          <a href="#main-banner" (click)="scrollToSection('main-banner', $event)" class="text-white hover:text-crypgo-primary transition-colors text-sm xl:text-base whitespace-nowrap">Inicio</a>
+          <a href="#how-it-works" (click)="scrollToSection('how-it-works', $event)" class="text-white hover:text-crypgo-primary transition-colors text-sm xl:text-base whitespace-nowrap">Cómo Funciona</a>
+          <a href="#services" (click)="scrollToSection('services', $event)" class="text-white hover:text-crypgo-primary transition-colors text-sm xl:text-base whitespace-nowrap">Servicios</a>
+          <a href="#testimonials" (click)="scrollToSection('testimonials', $event)" class="text-white hover:text-crypgo-primary transition-colors text-sm xl:text-base whitespace-nowrap">Testimonios</a>
+          <a href="#contact" (click)="scrollToSection('contact', $event)" class="text-white hover:text-crypgo-primary transition-colors text-sm xl:text-base whitespace-nowrap">Contacto</a>
+        </nav>
         <button 
           (click)="showAuthModal('login')"
-          class="hidden lg:block bg-transparent text-crypgo-primary border hover:bg-crypgo-primary border-crypgo-primary hover:text-crypgo-darkmode px-4 py-2 rounded-lg transition-all">
+          class="bg-transparent text-crypgo-primary border hover:bg-crypgo-primary border-crypgo-primary hover:text-crypgo-darkmode px-4 py-2 rounded-lg transition-all text-sm xl:text-base whitespace-nowrap">
           Iniciar Sesión
         </button>
         <button 
           (click)="showAuthModal('register', 'client')"
-          class="hidden lg:block bg-crypgo-primary text-crypgo-darkmode hover:bg-transparent hover:text-crypgo-primary border border-crypgo-primary px-4 py-2 rounded-lg transition-all">
+          class="bg-crypgo-primary text-crypgo-darkmode hover:bg-transparent hover:text-crypgo-primary border border-crypgo-primary px-4 py-2 rounded-lg transition-all text-sm xl:text-base whitespace-nowrap">
           Registrarse
         </button>
-        
-        <!-- Mobile Menu Button -->
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <div class="lg:hidden ml-auto">
         <button 
           (click)="toggleMobileMenu()"
-          class="lg:hidden text-white">
+          class="text-white">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
           </svg>
@@ -79,7 +79,7 @@
 <section class="relative md:pt-40 md:pb-28 py-20 overflow-hidden z-1 bg-crypgo-darkmode" id="main-banner">
   <div class="container mx-auto lg:max-w-screen-xl px-4">
     <div class="grid grid-cols-12 gap-8 items-center">
-      <div class="lg:col-span-6 col-span-12 flex flex-col justify-center min-w-0">
+      <div class="lg:col-span-6 col-span-12 flex flex-col justify-center">
         <div class="hero-ideas-carousel animate-fade-in" style="animation-delay: 0.2s" aria-label="Carrusel de beneficios BappSearch"
              (touchstart)="onHeroTouchStart($event)"
              (touchend)="onHeroTouchEnd($event)">
@@ -116,23 +116,41 @@
           </div>
         </div>
 
-        <div class="hero-store-badges flex items-center md:justify-start justify-center mt-6 animate-fade-in" style="animation-delay: 0.4s">
-          <a href="#" (click)="$event.preventDefault()" class="hero-store-badge hover:scale-110 duration-300 transition-all">
+        <!-- Botón acceso rápido invitado -->
+        <div class="flex md:justify-start justify-center mt-5 animate-fade-in" style="animation-delay: 0.3s">
+          <button
+            type="button"
+            (click)="startGuestSearch()"
+            class="flex items-center gap-2 bg-transparent border border-crypgo-primary/60 hover:border-crypgo-primary text-crypgo-primary hover:bg-crypgo-primary/10 px-5 py-3 rounded-xl transition-all duration-300 text-sm font-semibold group"
+            aria-label="Iniciar búsqueda de servicios sin registro">
+            <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            Iniciar búsqueda de servicios
+            <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="flex items-center md:justify-start justify-center gap-12 mt-6 animate-fade-in" style="animation-delay: 0.4s">
+          <a href="#" (click)="$event.preventDefault()" class="hover:scale-110 duration-300 transition-all">
             <img
               src="https://res.cloudinary.com/dghwotofx/image/upload/v1779935705/playstore_wv06bw.png"
               alt="Google Play Store"
-              class="hero-store-badge-img h-auto object-contain">
+              class="w-[180px] h-auto object-contain">
           </a>
-          <a href="#" (click)="$event.preventDefault()" class="hero-store-badge hover:scale-110 duration-300 transition-all">
+          <a href="#" (click)="$event.preventDefault()" class="hover:scale-110 duration-300 transition-all">
             <img
               src="https://res.cloudinary.com/dghwotofx/image/upload/v1779935705/applestore_lwwmhy.png"
               alt="Apple App Store"
-              class="hero-store-badge-img h-auto object-contain">
+              class="w-[180px] h-auto object-contain">
           </a>
         </div>
       </div>
 
-      <div class="col-span-6 lg:block hidden">
+      <div class="col-span-12 lg:col-span-6 lg:block relative z-50 flex justify-center">
         <div class="scene-hologram">
           <div class="scale-wrapper">
             <div class="hologram-wrapper" id="holoWrapper" #holoWrapper>
@@ -222,7 +240,7 @@
     </div>
 
     <!-- Stats Carousel (arrows + dots) -->
-    <div class="stats-slider mt-24 animate-slide-up" style="animation-delay: 0.5s" aria-label="Indicadores principales BappSearch">
+    <div class="stats-slider animate-slide-up mt-20 lg:mt-64" style="animation-delay: 0.5s" aria-label="Indicadores principales BappSearch">
       <div class="stats-slider-window">
         <div class="stats-slider-track"
              [class.stats-track-no-transition]="statLoopingReset()"
@@ -269,13 +287,14 @@
       </div>
     </div>
   </div>
+  
 
   <!-- Gradient Orb Effect -->
   <div class="gradient-orb gradient-orb-teal gradient-orb-animate absolute w-[800px] h-[800px] -top-64 -right-14 -z-1"></div>
 </section>
 
 <!-- 3D INTERACTIVE ARCHITECTURE SECTION -->
-<section class="py-20 bg-crypgo-darkmode relative overflow-hidden min-h-screen flex items-center justify-center" style="perspective: 1200px;">
+<section class="py-20 bg-crypgo-darkmode relative overflow-hidden min-h-screen flex items-center justify-center z-10" style="perspective: 1200px;">
   <main class="scene-container reveal reveal--fade" id="sceneContainer" #sceneContainer>
     
     <div class="bg-rings">
@@ -572,7 +591,25 @@
   <div class="container mx-auto lg:max-w-screen-xl px-4 relative z-10">
     <div class="text-center mb-16">
       <p class="text-crypgo-primary text-lg mb-4 reveal reveal--up">Categorías Populares</p>
-      <h2 class="text-44 md:text-54 font-bold text-white mb-4 reveal reveal--up reveal-d1">Servicios Disponibles</h2>
+      <h2 class="text-44 md:text-54 font-bold text-white mb-6 reveal reveal--up reveal-d1">Servicios Disponibles</h2>
+
+      <!-- Botón acceso rápido invitado -->
+      <div class="flex justify-center mt-2 reveal reveal--up reveal-d2">
+        <button
+          type="button"
+          (click)="startGuestSearch()"
+          class="flex items-center gap-2 bg-transparent border border-crypgo-primary/60 hover:border-crypgo-primary text-crypgo-primary hover:bg-crypgo-primary/10 px-5 py-3 rounded-xl transition-all duration-300 text-sm font-semibold group"
+          aria-label="Iniciar búsqueda de servicios sin registro">
+          <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          Iniciar búsqueda de servicios
+          <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </div>
     </div>
 
     <!-- Loading skeleton -->
@@ -778,17 +815,17 @@
               ></textarea>
             </div>
 
-            <div class="flex items-center justify-between">
-              <div class="text-sm text-gray-400">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div class="text-sm text-gray-400 w-full sm:w-auto">
                 <p>También puedes escribirnos a:</p>
-                <a href="mailto:contacto@bappsearch.com" class="text-crypgo-primary hover:underline">
+                <a href="mailto:contacto@bappsearch.com" class="text-crypgo-primary hover:underline break-all sm:break-normal">
                   contacto&#64;bappsearch.com
                 </a>
               </div>
               <button 
                 type="submit"
                 [disabled]="contactLoading()"
-                class="bg-crypgo-primary text-crypgo-darkmode px-8 py-3 rounded-lg font-semibold hover:bg-transparent hover:text-crypgo-primary border border-crypgo-primary transition-all disabled:opacity-50">
+                class="w-full sm:w-auto text-center bg-crypgo-primary text-crypgo-darkmode px-6 sm:px-8 py-3 rounded-lg font-semibold hover:bg-transparent hover:text-crypgo-primary border border-crypgo-primary transition-all disabled:opacity-50 whitespace-normal">
                 {{ contactLoading() ? 'Enviando...' : 'Enviar Mensaje' }}
               </button>
             </div>

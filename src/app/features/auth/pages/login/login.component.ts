@@ -1,7 +1,7 @@
 import { Component, inject, signal, OnInit, OnDestroy, HostListener, ViewChild, ElementRef, Renderer2, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
-import { RouterLink, Router } from '@angular/router';
+import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { SocialAuthService, GoogleLoginProvider, FacebookLoginProvider, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
 import { AuthService } from '../../../../core/services/auth.service';
 import { CategoryService } from '../../../../core/services/category.service';
@@ -23,6 +23,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   private readonly fb   = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly route  = inject(ActivatedRoute);
   private readonly socialAuth = inject(SocialAuthService);
   private readonly renderer = inject(Renderer2);
   private readonly categorySvc = inject(CategoryService);
@@ -190,6 +191,14 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.startStatCarousel();
     // Iniciar reveal después de que Angular termine de renderizar
     setTimeout(() => this.initScrollReveal(), 100);
+
+    // Abrir modal automáticamente si viene desde el flujo invitado
+    const tab = this.route.snapshot.queryParamMap.get('tab');
+    if (tab === 'register') {
+      this.showAuthModal('register', 'client');
+    } else if (tab === 'login') {
+      this.showAuthModal('login');
+    }
 
     // Escuchar cambios en la autenticación social (necesario para el nuevo botón de Google)
     this.socialAuth.authState.subscribe((socialUser) => {
@@ -996,4 +1005,10 @@ export class LoginComponent implements OnInit, OnDestroy {
     console.log('🎯 Servicio seleccionado:', service.name);
     this.closeServicesModal();
     this.showAuthModal('register');
-  }}
+  }
+
+  // ── Acceso rápido de invitado a búsqueda ─────────────────────────
+  startGuestSearch(): void {
+    this.router.navigate(['/guest/categories']);
+  }
+}

@@ -26,6 +26,9 @@ export class CategoriesComponent implements OnInit {
   private readonly auth        = inject(AuthService);
   private readonly modal       = inject(ModalService);
 
+  /** true cuando se accede desde /guest/categories (sin autenticación) */
+  readonly isGuestMode = signal(false);
+
   categories = signal<MainCategory[]>([]);
   allCategories = signal<ServiceCategory[]>([]);
   loading    = signal(true);
@@ -115,6 +118,9 @@ export class CategoriesComponent implements OnInit {
   ngOnInit(): void {
     console.log('🎯 CategoriesComponent - ngOnInit');
 
+    // Detectar modo invitado según la URL actual
+    this.isGuestMode.set(this.router.url.startsWith('/guest'));
+
     const premiumReason = this.route.snapshot.queryParamMap.get('premium_reason');
     if (!this.hasPremium() && (premiumReason === 'DAILY_SEARCH_LIMIT_REACHED' || premiumReason === 'FREE_SERVICE_SELECTION_LIMIT')) {
       this.openPremiumModal(premiumReason);
@@ -158,8 +164,9 @@ export class CategoriesComponent implements OnInit {
   selectServiceCategory(cat: ServiceCategory): void {
     console.log('✅ Servicio seleccionado desde autocomplete:', cat.name);
     this.searchQuery.set('');
+    const targetPath = this.isGuestMode() ? '/guest/service-search' : '/client/tabs/service-search';
     // Navegar directamente a búsqueda con este servicio
-    this.router.navigate(['/client/tabs/service-search'], {
+    this.router.navigate([targetPath], {
       queryParams: { service_ids: cat.id.toString(), service_names: cat.name },
       replaceUrl: true
     });
@@ -313,6 +320,10 @@ export class CategoriesComponent implements OnInit {
   }
 
   async cancelSearch(): Promise<void> {
+    if (this.isGuestMode()) {
+      await this.router.navigate(['/auth/login']);
+      return;
+    }
     const confirmed = await this.modal.confirm(
       '¿Está seguro de cancelar búsqueda?',
       'Cancelar búsqueda',
@@ -363,18 +374,20 @@ export class CategoriesComponent implements OnInit {
       return;
     }
 
+    const targetPath = this.isGuestMode() ? '/guest/service-search' : '/client/tabs/service-search';
     // Navegar con los IDs y nombres de servicios seleccionados
     const serviceIds   = selected.map(s => s.id).join(',');
     const serviceNames = selected.map(s => s.name).join(',');
     console.log('🧭 Navegando a service-search con IDs:', serviceIds);
-    this.router.navigate(['/client/tabs/service-search'], {
+    this.router.navigate([targetPath], {
       queryParams: { service_ids: serviceIds, service_names: serviceNames },
       replaceUrl: true
     });
   }
 
   skip(): void {
-    this.router.navigate(['/client/tabs/service-search'], { replaceUrl: true });
+    const targetPath = this.isGuestMode() ? '/guest/service-search' : '/client/tabs/service-search';
+    this.router.navigate([targetPath], { replaceUrl: true });
   }
 
   openPremiumModal(reason: 'DAILY_SEARCH_LIMIT_REACHED' | 'FREE_SERVICE_SELECTION_LIMIT' | null = null): void {
@@ -387,10 +400,12 @@ export class CategoriesComponent implements OnInit {
   }
   choosePremiumPlan(productType: ProductType): void {
     this.closePremiumModal();
+    // returnTo apunta de vuelta a categories para mantener el contexto de selección
+    const targetCategories = this.isGuestMode() ? '/guest/categories' : '/client/tabs/categories';
     this.router.navigate(['/payment'], {
       queryParams: {
         product_type: productType,
-        returnTo: '/client/tabs/categories'
+        returnTo: targetCategories
       }
     });
   }

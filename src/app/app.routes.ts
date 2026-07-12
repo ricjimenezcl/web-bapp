@@ -209,6 +209,22 @@ export const routes: Routes = [
     loadComponent: () => import('./shared/pages/privacy/privacy.component').then(m => m.PrivacyComponent)
   },
 
+  // GUEST FLOW — acceso sin registro para explorar categorías y resultados
+  {
+    path: 'guest',
+    children: [
+      {
+        path: 'categories',
+        loadComponent: () => import('./features/client/pages/categories/categories.component').then(m => m.CategoriesComponent)
+      },
+      {
+        path: 'service-search',
+        loadComponent: () => import('./features/client/pages/service-search/service-search.component').then(m => m.ServiceSearchComponent)
+      },
+      { path: '', redirectTo: 'categories', pathMatch: 'full' },
+    ]
+  },
+
   // FALLBACK
   { path: '**', redirectTo: 'auth/login' },
 ];

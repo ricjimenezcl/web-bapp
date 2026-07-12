@@ -36,7 +36,9 @@
     <app-service-map
       [embedded]="true"
       [embeddedProviders]="filteredProviders()"
-      [highlightedProviderId]="hoveredProviderId()">
+      [highlightedProviderId]="hoveredProviderId()"
+      [guestMode]="isGuestMode()"
+      (guestProviderClick)="showGuestRegisterModal.set(true)">
     </app-service-map>
   </div>
 
@@ -209,8 +211,8 @@
           <!-- Cada card es un link completo — igual que la referencia -->
           <a class="pro-card-floating"
              [class.pro-card-floating--active]="hoveredProviderId() === provider.provider_id"
-             [class.pro-card-floating--locked]="provider.locked"
-             [routerLink]="provider.locked ? null : ['/client/provider-info', provider.provider_id]"
+             [class.pro-card-floating--locked]="provider.locked || isGuestMode()"
+             [routerLink]="(provider.locked || isGuestMode()) ? null : ['/client/provider-info', provider.provider_id]"
              (mouseenter)="hoveredProviderId.set(provider.provider_id)"
              (mouseleave)="hoveredProviderId.set(null)"
              (click)="onCardClick($event, provider.provider_id)">
@@ -346,3 +348,51 @@
   </aside>
 
 </div>
+
+<!-- ══════════════════════════════════════════════════════════
+     MODAL DE REGISTRO — solo visible en modo invitado
+══════════════════════════════════════════════════════════ -->
+@if (showGuestRegisterModal()) {
+  <button
+    type="button"
+    class="guest-modal-backdrop"
+    (click)="closeGuestRegisterModal()"
+    aria-label="Cerrar modal">
+  </button>
+  <dialog open class="guest-modal" aria-modal="true" aria-label="Crear cuenta para ver proveedores">
+    <!-- Icono decorativo -->
+    <div class="guest-modal__icon">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+      </svg>
+    </div>
+
+    <!-- Título -->
+    <h3 class="guest-modal__title">Regístrate para ver el perfil</h3>
+    <p class="guest-modal__sub">
+      Crea tu cuenta gratis y accede a los datos de contacto, reseñas y toda la información de los profesionales disponibles.
+    </p>
+
+    <!-- Acciones -->
+    <div class="guest-modal__actions">
+      <button type="button" class="guest-modal__btn-primary" (click)="navigateToRegister()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+        </svg>
+        Crear cuenta gratis
+      </button>
+      <button type="button" class="guest-modal__btn-secondary" (click)="navigateToLogin()">
+        Ya tengo cuenta — Iniciar Sesión
+      </button>
+    </div>
+
+    <!-- Botón cerrar -->
+    <button type="button" class="guest-modal__close" (click)="closeGuestRegisterModal()" aria-label="Cerrar">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+  </dialog>
+}

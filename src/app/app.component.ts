@@ -185,6 +185,15 @@ export class AppComponent implements OnInit {
     const navEntry = globalThis.performance
       .getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
 
+    // Retorno desde un flujo de pago externo (Webpay): restaurar la sesión
+    // de la pestaña antes de que enforceBrowserSession() pueda invalidarla.
+    if (this.storage.isPaymentRedirectPending()) {
+      this.storage.clearPaymentRedirectPending();
+      if (this.storage.isAuthenticated()) {
+        this.storage.markSessionActive();
+      }
+    }
+
     // Mantener sesión en recargas explícitas; en navegación back/forward o nueva,
     // se aplicará el cierre por ausencia de marca de sesión de pestaña.
     if (navEntry?.type === 'reload' && this.storage.isAuthenticated()) {
@@ -240,6 +249,10 @@ export class AppComponent implements OnInit {
 
   @HostListener('window:pagehide')
   onPageHide(): void {
+    // Si vamos a un flujo de pago externo (Webpay) del cual se espera retorno,
+    // no invalidar la sesión de la pestaña.
+    if (this.storage.isPaymentRedirectPending()) return;
+
     // Al abandonar la SPA (cerrar, retroceder o cambiar de sitio),
     // invalidamos la marca de sesión de pestaña.
     this.storage.clearBrowserSessionFlag();

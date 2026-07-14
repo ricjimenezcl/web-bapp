@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { PaymentService, ProductType } from '../../core/services/payment.service';
+import { StorageService } from '../../core/services/storage.service';
 
 export type PayMethod = 'transbank' | 'mercadopago' | 'transferencia';
 
@@ -99,6 +100,7 @@ export class PaymentComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly auth = inject(AuthService);
   private readonly paymentSvc = inject(PaymentService);
+  private readonly storage = inject(StorageService);
 
   readonly user     = this.auth.currentProfile;
   readonly userRole = this.auth.currentUser()?.role ?? 'CLIENT';
@@ -251,6 +253,10 @@ export class PaymentComponent implements OnInit {
   }
 
   private redirectToWebpay(url: string, token: string): void {
+    // Marcar que se espera un retorno de Webpay para que la SPA no invalide
+    // la sesión de la pestaña al navegar fuera del dominio.
+    this.storage.markPaymentRedirectPending();
+
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = url;

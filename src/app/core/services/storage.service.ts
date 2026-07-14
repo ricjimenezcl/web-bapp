@@ -8,6 +8,7 @@ const KEYS = {
 } as const;
 
 const SESSION_FLAG = 'bapp_session_active';
+const PAYMENT_REDIRECT_FLAG = 'bapp_payment_redirect_pending';
 
 @Injectable({ providedIn: 'root' })
 export class StorageService {
@@ -19,6 +20,19 @@ export class StorageService {
   readonly user           = this._user.asReadonly();
   readonly profile        = this._profile.asReadonly();
   readonly isAuthenticated = computed(() => !!this._token() && !!this._user());
+
+  constructor() {
+    // Retorno desde un flujo de pago externo (Webpay): restaurar la marca
+    // de sesión de la pestaña antes de que cualquier guard evalúe
+    // isAuthenticated(), independientemente del orden de inicialización
+    // entre el Router y AppComponent.
+    if (sessionStorage.getItem(PAYMENT_REDIRECT_FLAG) === '1') {
+      sessionStorage.removeItem(PAYMENT_REDIRECT_FLAG);
+      if (this._token() && this._user()) {
+        sessionStorage.setItem(SESSION_FLAG, '1');
+      }
+    }
+  }
 
   setToken(token: string): void {
     localStorage.setItem(KEYS.TOKEN, token);
@@ -59,6 +73,25 @@ export class StorageService {
    */
   clearBrowserSessionFlag(): void {
     sessionStorage.removeItem(SESSION_FLAG);
+  }
+
+  /**
+   * Marca que la pestaña está a punto de redirigir a un flujo externo
+   * (ej. Webpay) del cual se espera un retorno. Evita que el listener
+   * de pagehide invalide la sesión durante esa navegación externa.
+   */
+  markPaymentRedirectPending(): void {
+    sessionStorage.setItem(PAYMENT_REDIRECT_FLAG, '1');
+  }
+
+  /** Devuelve true si hay un retorno de pago externo (Webpay) pendiente. */
+  isPaymentRedirectPending(): boolean {
+    return sessionStorage.getItem(PAYMENT_REDIRECT_FLAG) === '1';
+  }
+
+  /** Limpia la marca de retorno de pago pendiente. */
+  clearPaymentRedirectPending(): void {
+    sessionStorage.removeItem(PAYMENT_REDIRECT_FLAG);
   }
 
   /**

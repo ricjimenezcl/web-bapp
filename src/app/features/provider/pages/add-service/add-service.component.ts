@@ -87,15 +87,11 @@ export class AddServiceComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.checkIdentityStatus();
 
-    // Check service count gate
-    this.providerSvc.getMyServices().pipe(takeUntil(this.destroy$)).subscribe({
-      next: (services) => {
-        if (services.length >= 2) {
-          this.showPaymentGate.set(true);
-        }
-      },
-      error: () => {}
-    });
+    // Nota: ya NO bloqueamos el formulario aquí solo por tener >=2 servicios.
+    // El backend valida si existe un slot de pago activo (provider_service_slots)
+    // al momento de crear el servicio: si no hay slot, responde 402 y recién ahí
+    // se muestra el payment gate (ver catch en submit()). Bloquear antes impedía
+    // que un proveedor que ya pagó pudiera siquiera ver el formulario.
 
     // Load main categories
     this.categorySvc.getMainCategories().pipe(takeUntil(this.destroy$)).subscribe({

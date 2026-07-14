@@ -253,12 +253,16 @@ export class PaymentComponent implements OnInit {
         this.committing.set(false);
         if (res.success) {
           this.success.set(true);
-          // Redirigir al perfil del usuario con mensaje de éxito
-          const profileRoute = this.userRole === 'PROVIDER' 
-            ? '/provider/tabs/profile' 
-            : '/client/tabs/profile';
-          
-          this.router.navigate([profileRoute], {
+          // Si el flujo indicó a dónde volver (returnTo), respetarlo
+          // (p.ej. /provider/add-service tras desbloquear el 3er servicio).
+          // Si no, caer al perfil del usuario como destino por defecto.
+          const target = this.returnTo() ?? (
+            this.userRole === 'PROVIDER'
+              ? '/provider/tabs/profile'
+              : '/client/tabs/profile'
+          );
+
+          this.router.navigate([target], {
             queryParams: {
               paymentSuccess: 'true',
             },

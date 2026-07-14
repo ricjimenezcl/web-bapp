@@ -228,11 +228,14 @@ export class PaymentComponent implements OnInit {
         this.committing.set(false);
         if (res.success) {
           this.success.set(true);
-          this.router.navigate([], {
-            relativeTo: this.route,
+          // Redirigir al perfil del usuario con mensaje de éxito
+          const profileRoute = this.userRole === 'PROVIDER' 
+            ? '/provider/tabs/profile' 
+            : '/client/tabs/profile';
+          
+          this.router.navigate([profileRoute], {
             queryParams: {
-              product_type: this.selectedProductType(),
-              returnTo: this.returnTo() ?? undefined,
+              paymentSuccess: 'true',
             },
             replaceUrl: true,
           });

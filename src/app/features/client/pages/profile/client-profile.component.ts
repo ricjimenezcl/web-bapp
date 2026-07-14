@@ -1,7 +1,7 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ProfileService } from '../../../../core/services/profile.service';
 import { UserProfile } from '../../../../core/models/user.model';
@@ -23,6 +23,7 @@ export class ClientProfileComponent implements OnInit {
   private readonly auth    = inject(AuthService);
   private readonly profile = inject(ProfileService);
   private readonly router  = inject(Router);
+  private readonly route   = inject(ActivatedRoute);
   private readonly fb      = inject(FormBuilder);
   private readonly modal   = inject(ModalService);
 
@@ -37,6 +38,7 @@ export class ClientProfileComponent implements OnInit {
   editLoading  = signal(false);
   editError    = signal('');
   editSuccess  = signal(false);
+  paymentSuccess = signal(false);
   avatarPreview = signal<string | null>(null);
   private avatarFile: File | null = null;
 
@@ -61,6 +63,22 @@ export class ClientProfileComponent implements OnInit {
 
   // ──────────────────────────────────────────────────────────────────
   ngOnInit(): void {
+    // Detectar si el pago fue exitoso
+    this.route.queryParamMap.subscribe(params => {
+      if (params.has('paymentSuccess')) {
+        this.paymentSuccess.set(true);
+        // Limpiar el queryParam después de 5 segundos
+        setTimeout(() => this.paymentSuccess.set(false), 5000);
+        // Remover el queryParam de la URL
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: { paymentSuccess: null },
+          queryParamsHandling: 'merge',
+          replaceUrl: true,
+        }).catch(() => {}); // Ignorar errores de navegación
+      }
+    });
+
     const stored = this.auth.currentProfile();
     if (stored) {
       this.user.set(stored);

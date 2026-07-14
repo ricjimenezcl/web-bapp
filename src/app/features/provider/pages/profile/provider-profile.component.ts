@@ -1,6 +1,6 @@
 import { Component, inject, signal, computed, OnInit, OnDestroy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, Router, NavigationEnd } from '@angular/router';
+import { RouterLink, Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Subscription, filter } from 'rxjs';
@@ -42,6 +42,7 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
   private readonly profileSvc  = inject(ProfileService);
   private readonly http        = inject(HttpClient);
   private readonly router      = inject(Router);
+  private readonly route       = inject(ActivatedRoute);
   private readonly fb          = inject(FormBuilder);
   private sub?: Subscription;
 
@@ -51,6 +52,7 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
   saveLoading = signal(false);
   error       = signal('');
   success     = signal(false);
+  paymentSuccess = signal(false);
   avatarPreview = signal<string | null>(null);
 
   transactions        = signal<ServiceTransaction[]>([]);
@@ -97,6 +99,22 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Detectar si el pago fue exitoso
+    this.route.queryParamMap.subscribe(params => {
+      if (params.has('paymentSuccess')) {
+        this.paymentSuccess.set(true);
+        // Limpiar el queryParam después de 5 segundos
+        setTimeout(() => this.paymentSuccess.set(false), 5000);
+        // Remover el queryParam de la URL
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: { paymentSuccess: null },
+          queryParamsHandling: 'merge',
+          replaceUrl: true,
+        }).catch(() => {}); // Ignorar errores de navegación
+      }
+    });
+
     this.loadProfile();
     this.loadTransactions();
     this.sub = this.router.events.pipe(

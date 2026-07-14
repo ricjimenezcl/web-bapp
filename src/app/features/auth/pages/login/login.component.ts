@@ -474,12 +474,13 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.success.set('');
 
     const { name, email, phone, run, password, terms_accepted } = this.registerForm.value;
+    const normalizedEmail = (email ?? '').trim().toLowerCase();
     const normalizedRun = normalizeChileanRUTForBackend(run ?? '');
     const payload = {
-      email: email!, 
+      email: normalizedEmail,
       password: password!, 
-      full_name: name!,
-      phone: phone!,
+      full_name: (name ?? '').trim(),
+      phone: (phone ?? '').trim(),
       run: normalizedRun || undefined,
       terms_accepted: terms_accepted!
     };
@@ -494,18 +495,12 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.success.set('Cuenta creada con éxito. Ahora inicia sesión con tus credenciales.');
         this.activeTab.set('login');
         // Prellenar login para facilitar acceso
-        this.form.patchValue({ email, password });
+        this.form.patchValue({ email: normalizedEmail, password });
       },
       error: (err: any) => {
         this.loading.set(false);
         const msg = this.getApiErrorMessage(err, 'Error al crear la cuenta. Inténtalo de nuevo.');
-        
-        // Si el correo ya existe, mostramos error específico y NO sugerimos login silencioso
-        if (msg === 'Este correo ya se encuentra registrado' || msg.includes('ya se encuentra registrado')) {
-          this.error.set('Este correo ya está registrado en el sistema. Si quieres usar este mismo correo con un rol distinto, por favor contacta a soporte.');
-        } else {
-          this.error.set(msg);
-        }
+        this.error.set(msg);
       }
     });
   }
@@ -583,6 +578,11 @@ export class LoginComponent implements OnInit, OnDestroy {
       if (detail === 'Email already registered') return 'Este correo ya se encuentra registrado';
       if (detail === 'RUN already registered') return 'Este RUT ya se encuentra registrado';
       if (detail === 'Phone already registered') return 'Este teléfono ya se encuentra registrado';
+
+      const loweredDetail = detail.toLowerCase();
+      if (loweredDetail.includes('sqlalchemy') || loweredDetail.includes('insert into') || loweredDetail.includes('asyncpg')) {
+        return 'Error interno al crear la cuenta. Inténtalo nuevamente en unos minutos.';
+      }
       
       return detail;
     }
@@ -600,10 +600,13 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   // ── Social Login ──────────────────────────────────────────────────
   loginWithGoogle(): void {
-    // Este método ya no inicia el popup directamente para Google debido a las nuevas políticas de seguridad (GIS).
-    // El inicio de sesión se maneja a través del componente <asl-google-signin-button> 
-    // y la suscripción en ngOnInit.
-    console.log('🔵 Google Sign-In debe ser iniciado mediante el botón oficial');
+    this.error.set('');
+    this.socialAuth.signIn(GoogleLoginProvider.PROVIDER_ID)
+      .catch(err => {
+        if (err?.error !== 'popup_closed_by_user') {
+          this.error.set('No se pudo completar el inicio de sesión con Google');
+        }
+      });
   }
 
   loginWithFacebook(): void {

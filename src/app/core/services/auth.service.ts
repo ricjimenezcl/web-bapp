@@ -136,13 +136,9 @@ export class AuthService {
   navigateAfterLogin(role: string, status: string): void {
     console.log('🚀 navigateAfterLogin - Role:', role, 'Status:', status);
     if (role === 'PROVIDER') {
-      if (status !== 'ACTIVE') {
-        console.log('📍 Navegando a: /auth/verify-identity');
-        this.router.navigate(['/auth/verify-identity'], { replaceUrl: true });
-      } else {
-        console.log('📍 Navegando a: /provider/tabs');
-        this.router.navigate(['/provider/tabs'], { replaceUrl: true });
-      }
+      // Siempre entra al dashboard; providerVerificationGuard bloquea rutas que requieren identidad validada
+      console.log('📍 Navegando a: /provider/tabs');
+      this.router.navigate(['/provider/tabs'], { replaceUrl: true });
     } else {
       console.log('📍 Navegando a: /client/categories');
       this.router.navigate(['/client/categories'], { replaceUrl: true });

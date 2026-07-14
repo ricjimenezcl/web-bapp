@@ -275,6 +275,30 @@
   @media (max-width: 767px)  { padding: 10px 20px !important; }
 }
 
+// Evita que el texto de tabs se salga en mobile (override a _bapp-web.scss)
+.pi-tabs-nav .ref-segment-btn {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: center;
+  line-height: 1.15;
+  padding: 10px 6px;
+}
+
+@media (max-width: 767px) {
+  .pi-tabs-nav .ref-segment-btn {
+    font-size: 11px;
+    gap: 4px;
+    padding: 9px 4px;
+  }
+
+  .pi-tabs-nav .ref-segment-btn svg {
+    width: 11px;
+    height: 11px;
+    flex-shrink: 0;
+  }
+}
+
 // Tab activo: fondo amarillo sólido
 .pi-tabs-nav .ref-segment-btn.active {
   background: var(--accent) !important;
@@ -549,6 +573,10 @@
   font-family: inherit;
   line-height: 1.2;
   min-height: 40px;
+  width: 100%;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
   cursor: pointer;
   transition: background 0.2s ease;
 
@@ -770,6 +798,7 @@
 
 .pi-btn-secondary {
   width: 100%;
+  max-width: 100%;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--border);
   color: var(--text-p);
@@ -785,6 +814,8 @@
   gap: 10px;
   line-height: 1.2;
   min-height: 44px;
+  white-space: normal;
+  overflow-wrap: anywhere;
   transition: background 0.3s ease, border-color 0.3s ease;
 
   svg { width: 16px; height: 16px; flex-shrink: 0; }
@@ -799,6 +830,7 @@
 
 .pi-btn-primary {
   width: 100%;
+  max-width: 100%;
   background: var(--accent);
   border: none;
   color: #000000;
@@ -814,6 +846,8 @@
   gap: 10px;
   line-height: 1.2;
   min-height: 44px;
+  white-space: normal;
+  overflow-wrap: anywhere;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   box-shadow: 0 5px 15px rgba(253, 230, 138, 0.2);
 
@@ -1014,7 +1048,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 8px;
+
+  span {
+    min-width: 0;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: center;
+    padding-right: 86px;
+  }
 
   svg { width: 16px; height: 16px; }
 
@@ -1050,6 +1094,18 @@
   svg {
     width: 12px;
     height: 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .pi-svc-reserve-btn--locked span {
+    padding-right: 0;
+  }
+
+  .pi-premium-badge {
+    position: static;
+    transform: none;
+    margin-top: 2px;
   }
 }
 
@@ -1119,6 +1175,7 @@
 
 .pi-btn-report {
   width: 100%;
+  max-width: 100%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1133,6 +1190,8 @@
   font-family: inherit;
   line-height: 1.2;
   min-height: 42px;
+  white-space: normal;
+  overflow-wrap: anywhere;
   cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 

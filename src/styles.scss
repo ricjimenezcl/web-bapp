@@ -516,22 +516,30 @@
   // Altura 36px = --bapp-button-h-sm; pill border = --bapp-radius-full
   .btn-booking-chat {
     @apply flex-1 inline-flex items-center justify-center gap-1.5
-           h-9 px-3 rounded-full text-xs font-semibold
+           min-h-9 px-3 py-2 rounded-full text-xs font-semibold
            transition-all duration-fast active:scale-95
            disabled:opacity-50 disabled:cursor-not-allowed;
     background: rgba(253,215,53,0.10);
     border: 1.5px solid rgba(253,215,53,0.35);
     color: #FDD735;
+    white-space: nowrap;
+    text-align: center;
+    line-height: 1.2;
+    overflow-wrap: normal;
 
     &:hover:not(:disabled) { background: rgba(253,215,53,0.18); }
   }
   .btn-booking-cancel {
     @apply flex-1 inline-flex items-center justify-center gap-1.5
-           h-9 px-3 rounded-full text-xs font-semibold
+           min-h-9 px-3 py-2 rounded-full text-xs font-semibold
            transition-all duration-fast active:scale-95;
     background: rgba(239,68,68,0.10);
     border: 1.5px solid rgba(239,68,68,0.32);
     color: #F87171;
+    white-space: nowrap;
+    text-align: center;
+    line-height: 1.2;
+    overflow-wrap: normal;
 
     &:hover { background: rgba(239,68,68,0.18); }
   }

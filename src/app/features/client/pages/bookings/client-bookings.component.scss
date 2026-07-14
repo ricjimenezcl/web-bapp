@@ -673,6 +673,15 @@ svg[width="14"] { width: 14px !important; height: 14px !important; }
   }
 }
 
+.bookings-tabs-override .ref-segment-btn {
+  flex: 0 0 auto;
+  min-width: 86px;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  text-align: center;
+  line-height: 1.2;
+}
+
 @media (max-width: 430px) {
   .ref-segment-btn {
     white-space: normal;
@@ -692,6 +701,7 @@ svg[width="14"] { width: 14px !important; height: 14px !important; }
     white-space: normal;
     text-align: center;
     justify-content: center;
+    overflow-wrap: anywhere;
   }
 
   .cancel-modal-btn,
@@ -719,6 +729,12 @@ svg[width="14"] { width: 14px !important; height: 14px !important; }
   border-top: none;
   padding: 8px 20px 16px;
   background: rgba(5, 5, 5, 0.6);
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   @media (max-width: 639px) {
     padding: 8px 12px 14px;
@@ -783,6 +799,10 @@ svg[width="14"] { width: 14px !important; height: 14px !important; }
 
     &:hover { background: rgba(74, 222, 128, 0.1); }
   }
+  white-space: normal;
+  text-align: center;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 // ── Review modal extras ────────────────────────────────────────
@@ -817,6 +837,7 @@ svg[width="14"] { width: 14px !important; height: 14px !important; }
   align-items: center;
   gap: 6px;
   padding: 9px 18px;
+  overflow-wrap: anywhere;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;

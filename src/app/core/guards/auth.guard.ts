@@ -15,9 +15,8 @@ export const noAuthGuard: CanActivateFn = () => {
   if (!storage.isAuthenticated()) return true;
   const user = storage.user();
   if (user?.role === 'PROVIDER') {
-    return user.status !== 'ACTIVE'
-      ? router.createUrlTree(['/auth/verify-identity'])
-      : router.createUrlTree(['/provider/tabs']);
+    // Siempre redirige al dashboard; providerVerificationGuard bloquea rutas que requieren identidad validada
+    return router.createUrlTree(['/provider/tabs']);
   }
   return router.createUrlTree(['/client/tabs']);
 };

@@ -123,6 +123,15 @@
   &::-webkit-scrollbar { display: none; }
 }
 
+.pb-tabs-override .ref-segment-btn {
+  flex: 0 0 auto;
+  min-width: 96px;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  text-align: center;
+  line-height: 1.2;
+}
+
 // ── Content scrollable ─────────────────────────────────────────────
 
 .pb-content {
@@ -322,7 +331,11 @@
   cursor: pointer;
   border: 1px solid;
   transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: center;
+  justify-content: center;
+  line-height: 1.2;
   text-decoration: none;
   min-height: 40px;
 
@@ -368,7 +381,6 @@
 
 @media (max-width: 480px) {
   .pb-btn {
-    white-space: normal;
     line-height: 1.2;
     text-align: center;
     justify-content: center;

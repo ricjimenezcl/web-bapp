@@ -121,11 +121,24 @@ export class PaymentComponent implements OnInit {
   readonly activePlan = computed(() => PLAN_CATALOG[this.selectedProductType()]);
 
   ngOnInit(): void {
+    // product_type/returnTo llegan preferentemente via router state (no
+    // quedan expuestos en la URL). Se mantiene fallback a queryParams por
+    // compatibilidad con el bridge de la app móvil (/app-payment).
+    const navState = (globalThis.history?.state ?? {}) as { product_type?: ProductType; returnTo?: string };
+
     this.route.queryParamMap.subscribe(params => {
-      const productType = params.get('product_type') as ProductType | null;
+      const productType = (navState.product_type ?? params.get('product_type')) as ProductType | null;
+      const returnTo = navState.returnTo ?? params.get('returnTo');
+
+      // Contrato del bridge backend /payments/transbank/return: redirige con
+      // status=success|cancelled y buy_order (nunca expone token_ws en la URL).
+      const status = params.get('status');
+      const buyOrder = params.get('buy_order');
+
+      // Fallback legacy por si queda algún enlace/caché apuntando al flujo
+      // anterior (token_ws directo en query).
       const tokenWs = params.get('token_ws');
       const tbkToken = params.get('TBK_TOKEN');
-      const returnTo = params.get('returnTo');
 
       if (returnTo) this.returnTo.set(returnTo);
 
@@ -140,13 +153,23 @@ export class PaymentComponent implements OnInit {
         this.selectedProductType.set(rolePlans[0].productType);
       }
 
-      // Flujo normal de retorno Webpay (pago autorizado)
-      if (tokenWs) {
-        this.commit(tokenWs);
+      // Flujo normal de retorno Webpay (pago autorizado) vía bridge backend
+      if (status === 'success' && buyOrder) {
+        this.commit({ buy_order: buyOrder });
         return;
       }
 
-      // Flujo cancelado/abortado en Webpay
+      if (status === 'cancelled') {
+        this.error.set('El pago fue cancelado o expiró en Webpay. Puedes intentarlo nuevamente.');
+        return;
+      }
+
+      // Fallback legacy
+      if (tokenWs) {
+        this.commit({ token: tokenWs });
+        return;
+      }
+
       if (tbkToken) {
         this.error.set('El pago fue cancelado o expiró en Webpay. Puedes intentarlo nuevamente.');
       }
@@ -221,11 +244,11 @@ export class PaymentComponent implements OnInit {
     return 'Método no disponible todavía';
   }
 
-  private commit(token: string): void {
+  private commit(params: { token?: string; buy_order?: string }): void {
     this.committing.set(true);
     this.error.set('');
 
-    this.paymentSvc.commitTransaction(token).subscribe({
+    this.paymentSvc.commitTransaction(params).subscribe({
       next: (res) => {
         this.committing.set(false);
         if (res.success) {

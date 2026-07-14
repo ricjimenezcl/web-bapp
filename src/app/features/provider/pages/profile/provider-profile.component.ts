@@ -234,7 +234,7 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
   }
   goToPayment(productType: ProviderProductType = 'PROVIDER_PREMIUM_MONTHLY'): void {
     this.router.navigate(['/payment'], {
-      queryParams: {
+      state: {
         product_type: productType,
         returnTo: '/provider/tabs/profile'
       }

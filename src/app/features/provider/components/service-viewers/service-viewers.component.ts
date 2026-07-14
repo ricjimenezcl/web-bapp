@@ -108,7 +108,7 @@ export class ServiceViewersComponent implements OnInit {
 
   startUnlock(): void {
     this.router.navigate(['/payment'], {
-      queryParams: {
+      state: {
         product_type: 'PROVIDER_LEADS_7',
         returnTo: '/provider/tabs/home'
       }

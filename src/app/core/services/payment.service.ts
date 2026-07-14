@@ -58,8 +58,8 @@ export class PaymentService {
     return this.http.post<CreateTransactionResponse>(`${this.api}/payments/transbank/create`, payload);
   }
 
-  commitTransaction(token: string): Observable<CommitTransactionResponse> {
-    return this.http.post<CommitTransactionResponse>(`${this.api}/payments/transbank/commit`, { token });
+  commitTransaction(params: { token?: string; buy_order?: string }): Observable<CommitTransactionResponse> {
+    return this.http.post<CommitTransactionResponse>(`${this.api}/payments/transbank/commit`, params);
   }
 
   getTransactionStatus(buyOrder: string): Observable<TransactionStatusResponse> {

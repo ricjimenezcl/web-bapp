@@ -69,7 +69,7 @@ export class MyServicesComponent implements OnInit {
 
   goToExtraServicePlan(): void {
     this.router.navigate(['/payment'], {
-      queryParams: {
+      state: {
         product_type: 'PROVIDER_SERVICE_30',
         returnTo: '/provider/tabs/my-services'
       }

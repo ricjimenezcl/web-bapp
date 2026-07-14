@@ -455,7 +455,7 @@ export class ServiceSearchComponent implements OnInit {
     }
 
     this.router.navigate(['/payment'], {
-      queryParams: {
+      state: {
         product_type: 'CLIENT_UNLOCK_7',
         returnTo: returnPath
       }

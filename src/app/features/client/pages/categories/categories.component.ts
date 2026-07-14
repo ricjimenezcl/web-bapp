@@ -403,7 +403,7 @@ export class CategoriesComponent implements OnInit {
     // returnTo apunta de vuelta a categories para mantener el contexto de selección
     const targetCategories = this.isGuestMode() ? '/guest/categories' : '/client/tabs/categories';
     this.router.navigate(['/payment'], {
-      queryParams: {
+      state: {
         product_type: productType,
         returnTo: targetCategories
       }

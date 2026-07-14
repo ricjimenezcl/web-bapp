@@ -179,7 +179,7 @@ export class ClientProfileComponent implements OnInit {
   // ── External ───────────────────────────────────────────────────────
   goToPayment(productType: ProductType = 'CLIENT_UNLOCK_30'): void {
     this.router.navigate(['/payment'], {
-      queryParams: {
+      state: {
         product_type: productType,
         returnTo: '/client/tabs/profile'
       }

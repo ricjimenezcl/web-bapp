@@ -196,6 +196,7 @@ export class PaymentComponent implements OnInit {
     this.paymentSvc.createTransaction({
       product_type: plan.productType,
       amount: plan.price,
+      return_url: window.location.origin,
     }).subscribe({
       next: (res) => {
         this.processing.set(false);

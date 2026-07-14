@@ -15,6 +15,7 @@ export type ProductType =
 export interface CreateTransactionRequest {
   product_type: ProductType;
   amount: number;
+  return_url?: string;
 }
 
 export interface CreateTransactionResponse {

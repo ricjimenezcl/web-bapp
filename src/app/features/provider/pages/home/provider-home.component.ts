@@ -1,7 +1,7 @@
 import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, Router } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
+import { RouterLink, Router, NavigationEnd } from '@angular/router';
+import { Subject, filter, takeUntil } from 'rxjs';
 import { ProviderService } from '../../../../core/services/provider.service';
 import { ProviderProfile, ProviderStats } from '../../../../core/models/provider.model';
 import { Review } from '../../../../core/models/review.model';
@@ -18,11 +18,19 @@ import { ServiceViewersComponent } from '../../components/service-viewers/servic
   styleUrl: './provider-home.component.scss',
 })
 export class ProviderHomeComponent implements OnInit, OnDestroy {
-  private providerSvc = inject(ProviderService);
-  private reviewSvc   = inject(ReviewService);
-  private http = inject(HttpClient);
-  private router = inject(Router);
-  private destroy$ = new Subject<void>();
+  private readonly providerSvc = inject(ProviderService);
+  private readonly reviewSvc   = inject(ReviewService);
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
+  private readonly destroy$ = new Subject<void>();
+  private readonly onWindowFocus = (): void => {
+    this.refreshDashboardStats();
+  };
+  private readonly onVisibilityChange = (): void => {
+    if (document.visibilityState === 'visible') {
+      this.refreshDashboardStats();
+    }
+  };
 
   stats = signal<ProviderStats | null>(null);
   profile = signal<ProviderProfile | null>(null);
@@ -40,11 +48,35 @@ export class ProviderHomeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadProfileAndStats();
+    this.setupStatsRefresh();
   }
 
   ngOnDestroy(): void {
+    window.removeEventListener('focus', this.onWindowFocus);
+    document.removeEventListener('visibilitychange', this.onVisibilityChange);
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  private setupStatsRefresh(): void {
+    this.router.events
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((event) => {
+        if (event.urlAfterRedirects.includes('/provider/tabs/home')) {
+          this.refreshDashboardStats();
+        }
+      });
+
+    window.addEventListener('focus', this.onWindowFocus);
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
+  }
+
+  private refreshDashboardStats(): void {
+    if (!this.profile()) return;
+    this.loadStats();
   }
 
   private loadProfileAndStats(): void {
@@ -146,6 +178,7 @@ export class ProviderHomeComponent implements OnInit, OnDestroy {
   }
 
   openServiceViewers(): void {
+    this.refreshDashboardStats();
     this.showViewers.set(true);
   }
 

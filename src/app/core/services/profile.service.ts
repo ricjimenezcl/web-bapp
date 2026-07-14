@@ -33,8 +33,14 @@ export class ProfileService {
 
   uploadAvatar(file: File): Observable<{ avatar_url: string }> {
     const formData = new FormData();
-    formData.append('avatar', file);
-    return this.http.post<{ avatar_url: string }>(`${this.api}/profile/upload-avatar`, formData);
+    formData.append('file', file);
+
+    const role = this.storage.user()?.role;
+    const endpoint = role === 'PROVIDER'
+      ? `${this.api}/provider/images/avatar`
+      : `${this.api}/client/images/avatar`;
+
+    return this.http.post<{ avatar_url: string }>(endpoint, formData);
   }
 
   updateClientProfile(data: Partial<UserProfile>): Observable<UserProfile> {

@@ -182,7 +182,18 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
       });
     };
     if (this.avatarFile) {
-      this.profileSvc.uploadAvatar(this.avatarFile).subscribe({ next: save, error: save });
+      this.profileSvc.uploadAvatar(this.avatarFile).subscribe({
+        next: (res) => {
+          if (res?.avatar_url) {
+            this.avatarPreview.set(res.avatar_url);
+          }
+          save();
+        },
+        error: (err: any) => {
+          this.saveLoading.set(false);
+          this.error.set(err?.error?.detail ?? 'Error al subir avatar.');
+        }
+      });
     } else { save(); }
   }
 

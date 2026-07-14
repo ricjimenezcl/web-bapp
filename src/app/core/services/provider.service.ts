@@ -19,6 +19,54 @@ export class ProviderService {
   readonly stats    = this._stats.asReadonly();
   readonly loading  = this._loading.asReadonly();
 
+  private normalizeAvatar(value: unknown): string | undefined {
+    if (typeof value !== 'string') return undefined;
+
+    const trimmed = value.trim();
+    if (!trimmed) return undefined;
+
+    if (/^https?:\/\//i.test(trimmed) || /^data:image\//i.test(trimmed) || trimmed.startsWith('/')) {
+      return trimmed;
+    }
+
+    if (/^[A-Za-z0-9+/=]+$/.test(trimmed) && trimmed.length > 80) {
+      return `data:image/jpeg;base64,${trimmed}`;
+    }
+
+    return trimmed;
+  }
+
+  private mapServiceProvider(item: any): ServiceProvider {
+    const avatar = this.normalizeAvatar(
+      item.provider?.avatar ??
+      item.provider?.avatar_url ??
+      item.provider_avatar ??
+      item.avatar_url ??
+      item.avatar
+    );
+
+    return {
+      ...item,
+      avatar,
+      full_name: item.provider?.full_name || item.provider?.name || item.provider_name || item.full_name,
+      is_available: item.is_available ?? true,
+      rating_avg: item.rating_avg != null ? Number(item.rating_avg) : undefined,
+      total_reviews: item.total_reviews != null ? Number(item.total_reviews) : undefined,
+      hourly_rate: item.hourly_rate != null ? Number(item.hourly_rate) : undefined,
+      service_category: item.service_category ?? (item.service_category_name ? {
+        id: item.service_id,
+        name: item.service_category_name,
+        icon: item.service_icon ?? null
+      } : undefined),
+      distance_km: item.distance != null
+        ? Number(item.distance)
+        : item.distance_km != null
+          ? Number(item.distance_km)
+          : undefined,
+      description: item.description ?? undefined
+    } as ServiceProvider;
+  }
+
   getMyProfile(): Observable<ProviderProfile> {
     return this.http.get<ProviderProfile>(`${this.api}/providers/me`).pipe(
       tap(p => this._profile.set(p))
@@ -48,14 +96,7 @@ export class ProviderService {
     return this.http.get<ProviderProfile>(`${this.api}/providers/me`).pipe(
       switchMap(profile => 
         this.http.get<any[]>(`${this.api}/providers/services/${profile.id}`).pipe(
-          map(items => items.map(item => ({
-            ...item,
-            avatar: item.provider?.avatar || item.avatar,
-            full_name: item.provider?.full_name || item.full_name,
-            rating_avg: item.rating_avg != null ? Number(item.rating_avg) : undefined,
-            total_reviews: item.total_reviews != null ? Number(item.total_reviews) : undefined,
-            hourly_rate: item.hourly_rate != null ? Number(item.hourly_rate) : undefined
-          } as ServiceProvider))),
+          map(items => items.map(item => this.mapServiceProvider(item))),
           tap(s => this._services.set(s))
         )
       ),
@@ -68,14 +109,7 @@ export class ProviderService {
 
   getProviderServices(id: number): Observable<ServiceProvider[]> {
     return this.http.get<any[]>(`${this.api}/providers/services/${id}`).pipe(
-      map(items => items.map(item => ({
-        ...item,
-        avatar: item.provider?.avatar || item.avatar,
-        full_name: item.provider?.full_name || item.full_name,
-        rating_avg: item.rating_avg != null ? Number(item.rating_avg) : undefined,
-        total_reviews: item.total_reviews != null ? Number(item.total_reviews) : undefined,
-        hourly_rate: item.hourly_rate != null ? Number(item.hourly_rate) : undefined
-      } as ServiceProvider)))
+      map(items => items.map(item => this.mapServiceProvider(item)))
     );
   }
 
@@ -144,11 +178,7 @@ export class ProviderService {
     return this.http.get<any[]>(`${this.api}/providers/nearby`, {
       params: { lat: String(lat), lng: String(lng), radius: String(radius) }
     }).pipe(
-      map(items => items.map(item => ({
-        ...item,
-        avatar: item.provider?.avatar || item.avatar,
-        full_name: item.provider?.full_name || item.full_name
-      } as ServiceProvider)))
+      map(items => items.map(item => this.mapServiceProvider(item)))
     );
   }
 
@@ -172,27 +202,7 @@ export class ProviderService {
         }
       }
     ).pipe(
-      map(items => items.map(item => ({
-        ...item,
-        // Aplanar avatar y full_name del objeto provider anidado al nivel superior
-        avatar: item.provider?.avatar || item.avatar,
-        full_name: item.provider?.full_name || item.full_name,
-        // Incluir campo de disponibilidad (conectado/desconectado)
-        is_available: item.is_available ?? true,
-        // Incluir rating, reviews e hourly_rate - convertir a números
-        rating_avg: item.rating_avg != null ? Number(item.rating_avg) : undefined,
-        total_reviews: item.total_reviews != null ? Number(item.total_reviews) : undefined,
-        hourly_rate: item.hourly_rate != null ? Number(item.hourly_rate) : undefined,
-        // El backend retorna campos planos; construir objeto service_category
-        service_category: item.service_category ?? (item.service_category_name ? {
-          id: item.service_id,
-          name: item.service_category_name,
-          icon: item.service_icon ?? null
-        } : undefined),
-        distance_km: item.distance ?? item.distance_km,
-        // Incluir descripción si está disponible
-        description: item.description ?? undefined
-      } as ServiceProvider))),
+      map(items => items.map(item => this.mapServiceProvider(item))),
       catchError(err => {
         console.error('Error fetching nearby providers by service:', err);
         return of([]);
@@ -222,22 +232,7 @@ export class ProviderService {
         }
       }
     ).pipe(
-      map(items => items.map(item => ({
-        ...item,
-        avatar: item.provider?.avatar || item.avatar,
-        full_name: item.provider?.full_name || item.full_name,
-        is_available: item.is_available ?? true,
-        rating_avg: item.rating_avg != null ? Number(item.rating_avg) : undefined,
-        total_reviews: item.total_reviews != null ? Number(item.total_reviews) : undefined,
-        hourly_rate: item.hourly_rate != null ? Number(item.hourly_rate) : undefined,
-        service_category: item.service_category ?? (item.service_category_name ? {
-          id: item.service_id,
-          name: item.service_category_name,
-          icon: item.service_icon ?? null
-        } : undefined),
-        distance_km: item.distance ?? item.distance_km,
-        description: item.description ?? undefined
-      } as ServiceProvider)))
+      map(items => items.map(item => this.mapServiceProvider(item)))
       // Sin catchError: los errores propagan al componente para manejo contextual
     );
   }
@@ -249,27 +244,7 @@ export class ProviderService {
     // Validación: mínimo 2 caracteres (backend requiere min_length=2)
     if (!params.query || params.query.length < 2) return of([]);
     return this.http.get<any[]>(`${this.api}/providers/text-search`, { params: { q: params.query } }).pipe(
-      map(items => items.map(item => ({
-        ...item,
-        // Aplanar avatar y full_name del objeto provider anidado
-        avatar: item.provider?.avatar || item.avatar,
-        full_name: item.provider?.full_name || item.full_name,
-        // Incluir campo de disponibilidad (conectado/desconectado)
-        is_available: item.is_available ?? true,
-        // Incluir rating, reviews e hourly_rate - convertir a números
-        rating_avg: item.rating_avg != null ? Number(item.rating_avg) : undefined,
-        total_reviews: item.total_reviews != null ? Number(item.total_reviews) : undefined,
-        hourly_rate: item.hourly_rate != null ? Number(item.hourly_rate) : undefined,
-        // Construir objeto service_category si no viene estructura
-        service_category: item.service_category ?? (item.service_category_name ? {
-          id: item.service_id,
-          name: item.service_category_name,
-          icon: item.service_icon ?? null
-        } : undefined),
-        // Incluir distancia y descripción
-        distance_km: item.distance ?? item.distance_km,
-        description: item.description ?? undefined
-      } as ServiceProvider))),
+      map(items => items.map(item => this.mapServiceProvider(item))),
       catchError(err => {
         console.error('Error searching providers:', err);
         return of([]);

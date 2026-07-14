@@ -61,16 +61,29 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
   livenessStep = signal<'READY' | 'CENTER' | 'TURN_RIGHT' | 'TURN_LEFT' | 'PROCESSING' | 'COMPLETE'>('READY');
   livenessInstruction = signal('Centra tu rostro en el óvalo');
   faceDetected = signal(false);
+  faceQualityGood = signal(false); // Nuevo: indica si el rostro es de buena calidad
   faceStableTime = 0;
-  requiredStableTime = 2000; // 2 segundos para captura
+  requiredStableTime = 5000; // Aumentado a 5 segundos para mejor detección
+  requiredStableTimeGood = 3000; // 3 segundos de buena calidad para captura manual
   ovalOffsetX = signal(0);
   ovalOffsetY = signal(0);
   ovalScale = signal(1); // Para adaptar el tamaño si es necesario
   initialFaceX: number | null = null;
   headTurnDetected = false;
+  lastFaceArea = 0; // Guardar área anterior para suavizado
+  lastFaceConfidence = 0; // Guardar confianza anterior
+  
+  // Document detection
+  documentAligned = signal(false); // Nuevo: indica si el documento está alineado
+  documentQuality = signal<'poor' | 'fair' | 'good'>('fair');
+  
+  // Últimas detecciones para captura
+  lastFaceDetection: any = null;
+  lastDocumentBounds: any = null;
   
   private faceDetectionInterval?: any;
   private lastCheckTime = 0;
+  private stableQualityTime = 0; // Contador para captura manual
 
   state: VerificationState = {
     selfieUrl: null,
@@ -91,6 +104,8 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
 
   private docFile: File | null   = null;
   private selfieFile: File | null = null;
+  private rawSelfieDataUrl: string | null = null;
+  private selfieFallbackTried = false;
 
   ngOnInit(): void {
     const user = this.storage.user();
@@ -138,6 +153,10 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
     this.faceStableTime = 0;
     this.headTurnDetected = false;
     this.initialFaceX = null;
+    
+    // Reset document detection
+    this.documentAligned.set(false);
+    this.documentQuality.set('fair');
 
     try {
       this.stream = await navigator.mediaDevices.getUserMedia({
@@ -157,6 +176,9 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
           
           if (type === 'selfie') {
             this.startLivenessDetection();
+          } else {
+            // Para documentos, también iniciar detección
+            this.startDocumentDetection();
           }
         }
       }, 100);
@@ -165,6 +187,16 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
       this.error.set('No se pudo acceder a la cámara. Por favor verifica los permisos.');
       this.isCameraActive.set(false);
     }
+  }
+
+  private startDocumentDetection() {
+    this.livenessStep.set('CENTER');
+    this.livenessInstruction.set('Alinea el frente de tu documento');
+    this.lastCheckTime = Date.now();
+    
+    this.faceDetectionInterval = setInterval(() => {
+      this.performDetectionCycle();
+    }, 150);
   }
 
   stopCamera() {
@@ -206,49 +238,203 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
     canvas.height = video.videoHeight;
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    const face = this.findFaceRegion(ctx, canvas.width, canvas.height);
     const now = Date.now();
     const delta = now - this.lastCheckTime;
     this.lastCheckTime = now;
 
-    if (face && face.confidence > 0.3) {
-      this.faceDetected.set(true);
-      
-      // Suavizado de movimiento del óvalo
-      const targetX = face.centerX - canvas.width / 2;
-      const targetY = face.centerY - canvas.height / 2;
-      this.ovalOffsetX.update(v => v + (targetX - v) * 0.3);
-      this.ovalOffsetY.update(v => v + (targetY - v) * 0.3);
+    if (this.activeCapture() === 'selfie') {
+      // Selfie detection
+      const face = this.findFaceRegionImproved(ctx, canvas.width, canvas.height);
 
-      // Adaptar tamaño basado en el área detectada (estimación simple)
-      if (face.area) {
-        // Reducimos el área ideal para que el factor de escala sea mayor y cubra más rostro
-        const idealArea = (canvas.width * canvas.height) * 0.10;
-        const scale = Math.sqrt(face.area / idealArea);
-        // Permitimos que el óvalo crezca más para tomar desde la frente hasta la pera
-        this.ovalScale.set(Math.max(1.0, Math.min(1.6, scale)));
+      if (face && face.confidence > 0.4) {
+        // Calcular posición del óvalo en canvas
+        const ovalCenterX = canvas.width / 2 + this.ovalOffsetX();
+        const ovalCenterY = canvas.height / 2 + this.ovalOffsetY();
+        
+        // Verificar si el rostro está dentro del óvalo
+        const isWithinOval = this.isPointWithinOval(
+          face.centerX,
+          face.centerY,
+          ovalCenterX,
+          ovalCenterY,
+          256 * this.ovalScale(), // ancho del óvalo (w-64)
+          384 * this.ovalScale()  // alto del óvalo (h-96)
+        );
+        
+        if (isWithinOval) {
+          this.faceDetected.set(true);
+          
+          // Guardar la detección para uso en captura
+          this.lastFaceDetection = face;
+          
+          // Calcular posición del rostro respecto al centro del canvas
+          const targetX = face.centerX - canvas.width / 2;
+          const targetY = face.centerY - canvas.height / 2;
+          
+          // CORRECCIÓN: Negar los valores para mover el óvalo HACIA el rostro
+          this.ovalOffsetX.update(v => v + (-targetX - v) * 0.15);
+          this.ovalOffsetY.update(v => v + (-targetY - v) * 0.15);
+
+          // Adaptar tamaño basado en características detectadas
+          if (face.width && face.height) {
+            const faceWidth = Math.max(face.width, face.height);
+            const screenWidth = Math.min(canvas.width * 0.6, 300);
+            const targetScale = (faceWidth / screenWidth) * 1.2;
+            this.ovalScale.update(v => v + (targetScale - v) * 0.1);
+            this.ovalScale.set(Math.max(0.8, Math.min(1.8, this.ovalScale())));
+          }
+
+          // Evaluar calidad del rostro
+          const qualityScore = (face.eyesDetected ? 25 : 0) +
+                              (face.mouthDetected ? 25 : 0) +
+                              (face.confidence * 50);
+          
+          this.faceQualityGood.set(qualityScore > 50);
+
+          this.processLivenessSteps(delta, face);
+        } else {
+          // Rostro detectado pero fuera del óvalo
+          this.faceDetected.set(false);
+          this.faceQualityGood.set(false);
+          this.faceStableTime = 0;
+          this.stableQualityTime = 0;
+          this.livenessInstruction.set('⬆️ Coloca tu rostro DENTRO del óvalo');
+        }
+      } else {
+        this.faceDetected.set(false);
+        this.faceQualityGood.set(false);
+        this.faceStableTime = 0;
+        this.stableQualityTime = 0;
+        if (this.livenessStep() !== 'COMPLETE') {
+          this.livenessInstruction.set('No se detecta tu rostro. Asegúrate de tener buena luz.');
+        }
       }
-
-      this.processLivenessSteps(delta);
     } else {
-      this.faceDetected.set(false);
-      this.faceStableTime = 0;
-      if (this.livenessStep() !== 'COMPLETE') {
-        this.livenessInstruction.set('No se detecta tu rostro. Asegúrate de tener buena luz.');
-      }
+      // Document detection
+      this.performDocumentDetection(ctx, canvas.width, canvas.height);
     }
   }
 
-  private processLivenessSteps(delta: number) {
+  /**
+   * Verifica si un punto está dentro de una elipse
+   */
+  private isPointWithinOval(
+    pointX: number,
+    pointY: number,
+    ovalCenterX: number,
+    ovalCenterY: number,
+    ovalWidth: number,
+    ovalHeight: number
+  ): boolean {
+    // Calcular posición relativa del punto respecto al centro del óvalo
+    const relX = pointX - ovalCenterX;
+    const relY = pointY - ovalCenterY;
+    
+    // Semi-ejes del óvalo
+    const a = ovalWidth / 2;
+    const b = ovalHeight / 2;
+    
+    // Fórmula de elipse: (x/a)² + (y/b)² <= 1
+    const ellipseValue = (relX * relX) / (a * a) + (relY * relY) / (b * b);
+    
+    // Agregar pequeño margen para ser más tolerante (0.95 en lugar de 1)
+    return ellipseValue <= 0.95;
+  }
+
+  private performDocumentDetection(ctx: CanvasRenderingContext2D, width: number, height: number) {
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const data = imageData.data;
+    
+    // Detectar bordes del documento
+    let minX = width, maxX = 0, minY = height, maxY = 0;
+    let edgePixels = 0;
+    
+    // Buscar bordes oscuros (que típicamente son los límites de la cédula)
+    for (let y = Math.floor(height * 0.2); y < Math.floor(height * 0.8); y += 10) {
+      for (let x = Math.floor(width * 0.1); x < Math.floor(width * 0.9); x += 10) {
+        const index = (y * width + x) * 4;
+        const r = data[index];
+        const g = data[index + 1];
+        const b = data[index + 2];
+        
+        // Detectar píxeles oscuros (bordes del documento)
+        if (r < 100 && g < 100 && b < 100) {
+          edgePixels++;
+          minX = Math.min(minX, x);
+          maxX = Math.max(maxX, x);
+          minY = Math.min(minY, y);
+          maxY = Math.max(maxY, y);
+        }
+      }
+    }
+    
+    // Calcular brillo promedio
+    let brightness = 0;
+    for (let i = 0; i < data.length; i += 40) {
+      brightness += (data[i] + data[i+1] + data[i+2]) / 3;
+    }
+    const avgBrightness = brightness / (data.length / 40);
+    
+    // Evaluar calidad del documento
+    const hasGoodEdges = edgePixels > 100;
+    const hasGoodBrightness = avgBrightness > 50 && avgBrightness < 220;
+    const hasContrast = edgePixels > data.length / 2400; // Relación de píxeles oscuros
+    
+    // Guardar bounds del documento detectado si hay bordes
+    if (hasGoodEdges && maxX > minX && maxY > minY) {
+      // Calcular área con padding
+      const padding = Math.min(width, height) * 0.1;
+      this.lastDocumentBounds = {
+        left: Math.max(0, minX - padding),
+        top: Math.max(0, minY - padding),
+        width: Math.min(width, maxX - minX + padding * 2),
+        height: Math.min(height, maxY - minY + padding * 2)
+      };
+    }
+    
+    // Determinar alineación y calidad
+    if (hasGoodEdges && hasGoodBrightness && hasContrast) {
+      this.documentAligned.set(true);
+      this.documentQuality.set('good');
+      this.livenessInstruction.set('✓ Documento bien alineado. Toca capturar.');
+    } else if (hasGoodBrightness) {
+      this.documentAligned.set(false);
+      this.documentQuality.set('fair');
+      if (avgBrightness < 50) {
+        this.livenessInstruction.set('⚠ Demasiado oscuro. Mejora la iluminación.');
+      } else if (avgBrightness > 220) {
+        this.livenessInstruction.set('⚠ Demasiado brillo. Evita el reflejo.');
+      } else {
+        this.livenessInstruction.set('Alinea mejor el documento dentro del marco');
+      }
+    } else {
+      this.documentAligned.set(false);
+      this.documentQuality.set('poor');
+      this.livenessInstruction.set('❌ Iluminación insuficiente o documento no visible');
+    }
+  }
+
+  private processLivenessSteps(delta: number, face: any) {
     const currentStep = this.livenessStep();
 
     if (currentStep === 'CENTER') {
-      this.faceStableTime += delta;
-      const remaining = Math.ceil((this.requiredStableTime - this.faceStableTime) / 1000);
-      
-      if (remaining > 0) {
-        this.livenessInstruction.set(`Mantente quieto... ${remaining}s`);
+      if (this.faceQualityGood()) {
+        // Contar tiempo con buena calidad
+        this.stableQualityTime += delta;
+        const remainingGood = Math.ceil((this.requiredStableTimeGood - this.stableQualityTime) / 1000);
+        
+        if (remainingGood > 0) {
+          this.livenessInstruction.set(`✓ Rostro válido detectado. Mantente quieto... ${remainingGood}s`);
+        }
       } else {
+        // Resetear si no está de buena calidad
+        this.stableQualityTime = 0;
+        this.livenessInstruction.set('Coloca tu rostro dentro del óvalo');
+      }
+      
+      // Auto-captura solo después de mucho más tiempo como fallback
+      this.faceStableTime += delta;
+      if (this.faceStableTime > this.requiredStableTime && this.faceQualityGood()) {
         this.livenessStep.set('COMPLETE');
         this.livenessInstruction.set('¡Perfecto! Capturando...');
         setTimeout(() => this.capturePhoto(), 500);
@@ -256,38 +442,94 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
     }
   }
 
-  private findFaceRegion(ctx: CanvasRenderingContext2D, width: number, height: number) {
-    // Escaneo simplificado: buscamos tonos de piel en una rejilla
-    const step = 40;
-    let totalX = 0, totalY = 0, count = 0;
-    let minX = width, maxX = 0, minY = height, maxY = 0;
-
-    for (let y = height * 0.2; y < height * 0.8; y += step) {
-      for (let x = width * 0.2; x < width * 0.8; x += step) {
-        const pixel = ctx.getImageData(x, y, 1, 1).data;
-        const r = pixel[0], g = pixel[1], b = pixel[2];
+  private findFaceRegionImproved(ctx: CanvasRenderingContext2D, width: number, height: number) {
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const data = imageData.data;
+    
+    // Escanear por píxeles para detectar características
+    let skinPixels: Array<{x: number, y: number}> = [];
+    let darkPixels: Array<{x: number, y: number}> = [];
+    
+    const step = 15;
+    for (let y = height * 0.15; y < height * 0.85; y += step) {
+      for (let x = width * 0.15; x < width * 0.85; x += step) {
+        const index = (Math.floor(y) * width + Math.floor(x)) * 4;
+        const r = data[index];
+        const g = data[index + 1];
+        const b = data[index + 2];
         
-        // Regla básica de tono de piel
-        if (r > 95 && g > 40 && b > 20 && r > g && r > b && Math.abs(r - g) > 15) {
-          totalX += x;
-          totalY += y;
-          count++;
-          if (x < minX) minX = x;
-          if (x > maxX) maxX = x;
-          if (y < minY) minY = y;
-          if (y > maxY) maxY = y;
+        // Detección mejorada de tono de piel
+        if (this.isSkinTone(r, g, b)) {
+          skinPixels.push({x, y});
+        }
+        
+        // Detectar píxeles oscuros (ojos, sombras)
+        if (this.isDarkPixel(r, g, b)) {
+          darkPixels.push({x, y});
         }
       }
     }
-
-    if (count < 10) return null;
-
+    
+    if (skinPixels.length < 15) return null;
+    
+    // Calcular bounding box del rostro
+    let minX = width, maxX = 0, minY = height, maxY = 0;
+    for (const pixel of skinPixels) {
+      minX = Math.min(minX, pixel.x);
+      maxX = Math.max(maxX, pixel.x);
+      minY = Math.min(minY, pixel.y);
+      maxY = Math.max(maxY, pixel.y);
+    }
+    
+    const faceWidth = maxX - minX;
+    const faceHeight = maxY - minY;
+    const faceArea = faceWidth * faceHeight;
+    
+    // Verificar que el rostro ocupe un tamaño razonable
+    const screenArea = width * height;
+    if (faceArea < screenArea * 0.03 || faceArea > screenArea * 0.5) {
+      return null;
+    }
+    
+    // Centro del rostro
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
+    
+    // Detectar características (ojos)
+    const eyesDetected = darkPixels.length > skinPixels.length * 0.15;
+    
+    // Detección simple de boca (píxeles de color diferente en la parte inferior)
+    let mouthDetected = false;
+    const mouthRegionY = minY + faceHeight * 0.65;
+    const mouthCount = darkPixels.filter(p => p.y > mouthRegionY).length;
+    mouthDetected = mouthCount > darkPixels.length * 0.1;
+    
+    const confidence = (skinPixels.length / 100) * (eyesDetected ? 1.3 : 0.8);
+    
     return {
-      centerX: totalX / count,
-      centerY: totalY / count,
-      confidence: count / 100,
-      area: (maxX - minX) * (maxY - minY)
+      centerX,
+      centerY,
+      width: faceWidth,
+      height: faceHeight,
+      area: faceArea,
+      confidence: Math.min(1, confidence),
+      eyesDetected,
+      mouthDetected
     };
+  }
+  
+  private isSkinTone(r: number, g: number, b: number): boolean {
+    // Mejorado: detección más precisa de tonos de piel
+    return r > 95 && g > 40 && b > 20 && 
+           r > g && r > b && 
+           Math.abs(r - g) > 15 &&
+           (r - b) > 15;
+  }
+  
+  private isDarkPixel(r: number, g: number, b: number): boolean {
+    // Detectar píxeles oscuros (para ojos)
+    const brightness = (r + g + b) / 3;
+    return brightness < 100;
   }
 
   capturePhoto() {
@@ -301,6 +543,21 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Crop según el tipo de captura
+      let croppedCanvas = canvas;
+      
+      if (this.activeCapture() === 'selfie') {
+        // Guardar frame completo para reintento si el backend rechaza el crop.
+        this.rawSelfieDataUrl = canvas.toDataURL('image/jpeg', 0.92);
+        this.selfieFallbackTried = false;
+
+        // Para selfies: usar el área del óvalo para evitar recortes demasiado agresivos.
+        croppedCanvas = this.cropToSelfieOvalRegion(canvas);
+      } else if (this.activeCapture() === 'document' && this.lastDocumentBounds) {
+        // Para documentos: crop del documento
+        croppedCanvas = this.cropToDocumentRegion(canvas, this.lastDocumentBounds);
+      }
 
       // Verificación básica de calidad para documentos
       if (this.activeCapture() === 'document') {
@@ -321,7 +578,7 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
         }
       }
 
-      canvas.toBlob((blob) => {
+      croppedCanvas.toBlob((blob) => {
         if (blob) {
           const file = new File([blob], `${this.activeCapture()}_${Date.now()}.jpg`, { type: 'image/jpeg' });
           if (this.activeCapture() === 'selfie') {
@@ -337,6 +594,100 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
         }
       }, 'image/jpeg', 0.9);
     }
+  }
+
+  /**
+   * Hace crop basado en el óvalo de selfie mostrado en pantalla.
+   */
+  private cropToSelfieOvalRegion(canvas: HTMLCanvasElement): HTMLCanvasElement {
+    const scale = this.ovalScale();
+    const ovalWidth = 256 * scale;
+    const ovalHeight = 384 * scale;
+    const horizontalPadding = ovalWidth * 0.18;
+    const topPadding = ovalHeight * 0.24;
+    const bottomPadding = ovalHeight * 0.30;
+
+    const centerX = canvas.width / 2 + this.ovalOffsetX();
+    const centerY = canvas.height / 2 + this.ovalOffsetY();
+
+    const left = Math.max(0, centerX - ovalWidth / 2 - horizontalPadding);
+    const top = Math.max(0, centerY - ovalHeight / 2 - topPadding);
+    const width = Math.min(canvas.width - left, ovalWidth + horizontalPadding * 2);
+    const height = Math.min(canvas.height - top, ovalHeight + topPadding + bottomPadding);
+
+    const cropCanvas = document.createElement('canvas');
+    cropCanvas.width = Math.max(1, Math.floor(width));
+    cropCanvas.height = Math.max(1, Math.floor(height));
+
+    const ctx = cropCanvas.getContext('2d');
+    if (ctx) {
+      ctx.drawImage(
+        canvas,
+        left,
+        top,
+        width,
+        height,
+        0,
+        0,
+        cropCanvas.width,
+        cropCanvas.height
+      );
+    }
+
+    return cropCanvas;
+  }
+
+  /**
+   * Hace crop de la región del rostro desde el canvas
+   */
+  private cropToFaceRegion(canvas: HTMLCanvasElement, face: any): HTMLCanvasElement {
+    // Padding alrededor del rostro
+    const padding = Math.max(face.width, face.height) * 0.3; // 30% de padding
+    
+    // Calcular región a capturar
+    const left = Math.max(0, face.centerX - face.width / 2 - padding);
+    const top = Math.max(0, face.centerY - face.height / 2 - padding);
+    const width = Math.min(canvas.width - left, face.width + padding * 2);
+    const height = Math.min(canvas.height - top, face.height + padding * 2);
+    
+    // Crear canvas de crop
+    const cropCanvas = document.createElement('canvas');
+    cropCanvas.width = width;
+    cropCanvas.height = height;
+    
+    const ctx = cropCanvas.getContext('2d');
+    if (ctx) {
+      // Obtener solo la región del rostro
+      const imageData = canvas
+        .getContext('2d')!
+        .getImageData(left, top, width, height);
+      ctx.putImageData(imageData, 0, 0);
+    }
+    
+    return cropCanvas;
+  }
+
+  /**
+   * Hace crop de la región del documento desde el canvas
+   */
+  private cropToDocumentRegion(canvas: HTMLCanvasElement, bounds: any): HTMLCanvasElement {
+    const { left, top, width, height } = bounds;
+    
+    // Crear canvas de crop
+    const cropCanvas = document.createElement('canvas');
+    cropCanvas.width = width;
+    cropCanvas.height = height;
+    
+    const ctx = cropCanvas.getContext('2d');
+    if (ctx) {
+      // Obtener solo la región del documento
+      const imageData = canvas
+        .getContext('2d')!
+        .getImageData(left, top, width, height);
+      ctx.putImageData(imageData, 0, 0);
+    }
+    
+    return cropCanvas;
   }
 
   onDocumentSelect(event: Event): void {
@@ -378,10 +729,82 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
       console.log('✅ Selfie subida con éxito:', result.id);
     } catch (err: any) {
       console.error('Selfie upload failed:', err);
-      this.error.set('No pudimos identificar un rostro válido en la selfie. Asegúrate de mirar de frente a la cámara.');
+
+      // Caso clave: backend exige rol PROVIDER para subir documentos.
+      if (this.isProviderPermissionError(err)) {
+        const userRole = this.storage.user()?.role;
+
+        if (userRole !== 'PROVIDER') {
+          this.error.set('Tu sesión actual no tiene rol de proveedor. Cierra sesión e ingresa como proveedor para continuar.');
+          return;
+        }
+
+        const refreshed = await this.retryUploadAfterRefresh(this.selfieFile, 'SELFIE');
+        if (refreshed?.id) {
+          this.state.selfieDocumentId = refreshed.id;
+          console.log('✅ Selfie subida tras refresh de token:', refreshed.id);
+          return;
+        }
+      }
+
+      // Fallback de una sola vez: intentar con el frame completo sin crop.
+      if (!this.selfieFallbackTried && this.rawSelfieDataUrl) {
+        try {
+          this.selfieFallbackTried = true;
+          this.selfieFile = await this.dataUrlToFile(this.rawSelfieDataUrl, `selfie_full_${Date.now()}.jpg`);
+
+          const retryResult = await firstValueFrom(
+            this.uploadService.uploadDocument(this.selfieFile, 'SELFIE')
+          );
+
+          this.state.selfieDocumentId = retryResult.id;
+          console.log('✅ Selfie subida con fallback (frame completo):', retryResult.id);
+          return;
+        } catch (retryErr: any) {
+          console.error('Selfie fallback upload failed:', retryErr);
+          this.error.set(this.extractBackendErrorMessage(retryErr, 'No pudimos identificar un rostro válido en la selfie.'));
+          return;
+        }
+      }
+
+      this.error.set(this.extractBackendErrorMessage(err, 'No pudimos identificar un rostro válido en la selfie.'));
     } finally {
       this.state.uploading = false;
     }
+  }
+
+  private extractBackendErrorMessage(err: any, fallback: string): string {
+    const status = err?.status ? `HTTP ${err.status}` : 'HTTP n/a';
+    const payload = err?.error;
+
+    const details: string[] = [];
+    if (typeof payload === 'string') {
+      details.push(payload);
+    } else if (payload) {
+      if (payload.message) details.push(payload.message);
+      if (payload.error) details.push(payload.error);
+      if (payload.detail) {
+        if (Array.isArray(payload.detail)) {
+          details.push(payload.detail.map((d: any) => d?.msg || JSON.stringify(d)).join(' | '));
+        } else {
+          details.push(typeof payload.detail === 'string' ? payload.detail : JSON.stringify(payload.detail));
+        }
+      }
+      if (payload.code) details.push(`code=${payload.code}`);
+    }
+
+    const detailsText = details.filter(Boolean).join(' | ');
+    console.error('[SELFIE][BACKEND]', { status, payload, detailsText });
+
+    return detailsText
+      ? `${fallback} ${status}. Detalle backend: ${detailsText}`
+      : `${fallback} ${status}.`;
+  }
+
+  private async dataUrlToFile(dataUrl: string, fileName: string): Promise<File> {
+    const response = await fetch(dataUrl);
+    const blob = await response.blob();
+    return new File([blob], fileName, { type: 'image/jpeg' });
   }
 
   /**
@@ -410,9 +833,50 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
       }
     } catch (err: any) {
       console.error('ID document upload failed:', err);
-      this.error.set('No se reconoció el documento de identidad. Asegúrate de capturar el frente de tu cédula de forma legible.');
+
+      if (this.isProviderPermissionError(err)) {
+        const userRole = this.storage.user()?.role;
+
+        if (userRole !== 'PROVIDER') {
+          this.error.set('Tu sesión actual no tiene rol de proveedor. Cierra sesión e ingresa como proveedor para continuar.');
+          return;
+        }
+
+        const refreshed = await this.retryUploadAfterRefresh(this.docFile, 'IDENTITY_DOCUMENT');
+        if (refreshed?.id) {
+          this.state.idDocumentId = refreshed.id;
+          console.log('✅ Documento subido tras refresh de token:', refreshed.id);
+          if (this.state.selfieDocumentId && this.state.idDocumentId) {
+            await this.loadFacePreview();
+          }
+          return;
+        }
+      }
+
+      this.error.set(this.extractBackendErrorMessage(err, 'No se reconoció el documento de identidad.'));
     } finally {
       this.state.uploading = false;
+    }
+  }
+
+  private isProviderPermissionError(err: any): boolean {
+    const status = err?.status;
+    const msg = (err?.error?.detail || err?.error?.message || err?.error || '').toString().toLowerCase();
+    return status === 403 && msg.includes('only providers can upload documents');
+  }
+
+  private async retryUploadAfterRefresh(
+    file: File | null,
+    documentType: 'SELFIE' | 'IDENTITY_DOCUMENT'
+  ): Promise<any | null> {
+    if (!file) return null;
+
+    try {
+      await firstValueFrom(this.auth.refreshToken());
+      return await firstValueFrom(this.uploadService.uploadDocument(file, documentType));
+    } catch (refreshErr) {
+      console.error(`[${documentType}] Upload failed after token refresh:`, refreshErr);
+      return null;
     }
   }
 
@@ -677,6 +1141,8 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
     
     this.docFile = null;
     this.selfieFile = null;
+    this.rawSelfieDataUrl = null;
+    this.selfieFallbackTried = false;
     this.step.set('upload');
     this.error.set('');
   }

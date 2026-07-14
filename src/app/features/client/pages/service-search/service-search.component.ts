@@ -395,11 +395,17 @@ export class ServiceSearchComponent implements OnInit {
 
   onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
-    const fallback = img.nextElementSibling as HTMLElement;
-    if (img && fallback) {
+    if (!img) return;
+
+    if (img.dataset['fallbackApplied'] === 'true') {
+      const fallback = img.closest('.provider-avatar-wrap')?.querySelector('.card-img--fallback') as HTMLElement | null;
       img.style.display = 'none';
-      fallback.style.display = 'flex';
+      if (fallback) fallback.style.display = 'flex';
+      return;
     }
+
+    img.dataset['fallbackApplied'] = 'true';
+    img.src = '/assets/images/default-avatar.png';
   }
 
   /**

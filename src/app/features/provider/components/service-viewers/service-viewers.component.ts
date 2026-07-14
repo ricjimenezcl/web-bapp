@@ -1,5 +1,5 @@
 import {
-  Component, inject, signal, Output, EventEmitter, OnInit, Input
+  Component, inject, signal, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, Input
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -60,7 +60,15 @@ export class ServiceViewersComponent implements OnInit {
   errorMsg       = signal('');
 
   ngOnInit(): void {
-    this.loadStatus();
+    if (this.isOpen) {
+      this.loadStatus();
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['isOpen']?.currentValue === true) {
+      this.loadStatus();
+    }
   }
 
   loadStatus(): void {

@@ -951,33 +951,13 @@
 
         <!-- Services list -->
         @else if (categoryServices().length > 0) {
-          <div class="services-grid">
+          <div class="space-y-2">
             @for (service of categoryServices(); track service.id) {
-              <button 
-                class="service-card-3d"
+              <button
+                type="button"
                 (click)="selectService(service)"
-                type="button">
-                <div class="service-card-inner">
-                  <div class="service-card-glow"></div>
-                  <div class="service-card-content">
-                    <div class="service-card-icon-container">
-                      @if (isImageUrl(service.icon)) {
-                        <img [src]="service.icon" [alt]="service.name" class="service-card-icon-img" />
-                      } @else {
-                        <span class="service-card-emoji">{{ getCategoryEmoji(service.name, service.icon) }}</span>
-                      }
-                    </div>
-                    <h3 class="service-card-name">{{ service.name }}</h3>
-                    @if (service.description) {
-                      <p class="service-card-desc">{{ service.description }}</p>
-                    }
-                  </div>
-                  <div class="service-card-arrow">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                    </svg>
-                  </div>
-                </div>
+                class="w-full text-left rounded-xl border border-crypgo-dark_border bg-crypgo-deepSlate px-4 py-3 text-sm font-medium text-white hover:border-crypgo-primary/40 hover:bg-crypgo-darkmode transition-colors">
+                {{ service.name }}
               </button>
             }
           </div>

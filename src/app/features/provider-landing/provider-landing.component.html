@@ -22,15 +22,16 @@
        
       <!-- Nav links desktop -->
       <div class="hidden md:flex items-center gap-6 text-sm text-text-secondary">
-        <a href="#categorias" class="hover:text-text-primary transition-colors cursor-pointer">Categorías</a>
-        <a href="#como-funciona" class="hover:text-text-primary transition-colors cursor-pointer">Cómo funciona</a>
-        <a href="#faq" class="hover:text-text-primary transition-colors cursor-pointer">FAQ</a>
+        <a routerLink="." fragment="categorias" class="hover:text-text-primary transition-colors cursor-pointer">Categorías</a>
+        <a routerLink="." fragment="como-funciona" class="hover:text-text-primary transition-colors cursor-pointer">Cómo funciona</a>
+        <a routerLink="." fragment="faq" class="hover:text-text-primary transition-colors cursor-pointer">FAQ</a>
       </div>
       <!-- CTA -->
-      <a routerLink="/auth/register-provider"
+      <button type="button"
+         (click)="openRegisterModal()"
          class="bg-primary-500 text-surface-base font-bold text-sm px-5 py-2.5 rounded-full hover:bg-primary-400 active:scale-95 transition-all duration-150 shadow-lg shadow-primary-500/20 whitespace-nowrap">
         Registrarme Gratis →
-      </a>
+      </button>
     </div>
   </nav>
 
@@ -58,13 +59,29 @@
             Nuevos registros cada semana · Chile
           </div>
 
-          <!-- Headline -->
-          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-text-primary leading-[1.05] tracking-tight">
-            Consigue clientes<br>
-            <span class="text-primary-500">cerca de ti</span><br>
-            y publica hasta 2<br>
-            <span class="text-primary-500">servicios gratis<br>para siempre.</span>
+          <!-- Headline slider -->
+          <h1 class="hero-headline text-4xl sm:text-5xl lg:text-6xl font-black text-text-primary leading-[1.05] tracking-tight"
+              aria-live="polite">
+            <span class="hero-slide" [class.hero-slide--active]="heroSlide() === 0" [class.hero-slide--exit]="heroSlide() === 1">
+              Consigue clientes<br>
+              <span class="text-primary-500">justo donde te buscan: en tu barrio y en tu zona</span>
+            </span>
+            <span class="hero-slide" [class.hero-slide--active]="heroSlide() === 1" [class.hero-slide--exit]="heroSlide() === 0">
+              Publica hasta 2<br>
+              <span class="text-primary-500">servicios gratis<br>para siempre</span>
+            </span>
           </h1>
+          <!-- Slide dots -->
+          <div class="flex items-center gap-2 -mt-2">
+            @for (i of [0, 1]; track i) {
+              <button type="button"
+                      (click)="setHeroSlide(i)"
+                      class="hero-dot"
+                      [class.hero-dot--active]="heroSlide() === i"
+                      [attr.aria-label]="'Slide ' + (i + 1)">
+              </button>
+            }
+          </div>
 
           <!-- Subheadline -->
           <p class="text-lg sm:text-xl text-text-secondary leading-relaxed max-w-xl">
@@ -87,14 +104,15 @@
 
           <!-- CTA buttons -->
           <div class="flex flex-col sm:flex-row gap-3">
-            <a routerLink="/auth/register-provider"
+            <button type="button"
+               (click)="openRegisterModal()"
                class="inline-flex items-center justify-center gap-2 bg-primary-500 text-surface-base font-bold text-lg px-8 py-4 rounded-2xl hover:bg-primary-400 active:scale-[0.98] transition-all duration-150 shadow-2xl shadow-primary-500/25">
               Registrarme Gratis
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
               </svg>
-            </a>
-            <a href="#como-funciona"
+            </button>
+            <a routerLink="." fragment="como-funciona"
                class="inline-flex items-center justify-center gap-2 bg-surface-card border border-border text-text-secondary font-semibold text-base px-8 py-4 rounded-2xl hover:border-border-medium hover:text-text-primary transition-all duration-150 cursor-pointer">
               Ver cómo funciona
             </a>
@@ -111,13 +129,84 @@
 
         <!-- Right: App mockup visual -->
         <div class="relative hidden lg:flex justify-center items-center">
-          <img
-            src="https://res.cloudinary.com/dghwotofx/image/upload/v1782025913/bapptel_pkivzq.png"
-            alt="Vista de la app BappSearch"
-            class="w-full max-w-[560px] h-auto object-contain drop-shadow-2xl"
-            loading="lazy"
-            decoding="async"
-          />
+          <div class="phone-mockup">
+            <div class="phone-buttons"></div>
+            <div class="phone-notch"></div>
+            
+            <div class="app-screen">
+              <div class="map-bg"></div>
+
+              <div class="map-switch-tabs" role="tablist" aria-label="Modo mapa">
+                <div class="map-switch-tab map-switch-tab-active">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+                  Mapa
+                </div>
+                <div class="map-switch-tab">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"></path></svg>
+                  Proveedores <span class="provider-badge">3</span>
+                </div>
+              </div>
+
+              <div class="map-mode-tabs">
+                <div class="mode-tab">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line><line x1="8" y1="4" x2="8" y2="20"></line><line x1="16" y1="4" x2="16" y2="20"></line></svg>
+                  Calles
+                </div>
+                <div class="mode-tab">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><line x1="12" y1="2" x2="12" y2="4"></line><line x1="12" y1="20" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"></line><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"></line></svg>
+                  Claro
+                </div>
+                <div class="mode-tab mode-tab-active">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path></svg>
+                  Oscuro
+                </div>
+              </div>
+
+              <div class="user-avatar-marker" aria-hidden="true">
+                <svg viewBox="0 0 24 32" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 1C6.48 1 2 5.48 2 11c0 7.3 10 20 10 20s10-12.7 10-20C22 5.48 17.52 1 12 1z" fill="#BE202E" stroke="#FFFFFF" stroke-width="1.5"/>
+                  <circle cx="12" cy="11" r="4.2" fill="#FFFFFF"/>
+                  <circle cx="12" cy="11" r="2.1" fill="#1F2937"/>
+                </svg>
+              </div>
+
+              <svg class="bapp-map-pin pin-1" viewBox="0 0 200 180" xmlns="http://www.w3.org/2000/svg">
+                <defs><mask id="pin-mask-1"><rect width="100%" height="100%" fill="white" /><circle cx="120" cy="80" r="45" fill="black" /><line x1="20" y1="180" x2="100" y2="100" stroke="black" stroke-width="24" stroke-linecap="round" /></mask></defs>
+                <path d="M 60,80 A 60,60 0 0,1 180,80 L 180,150 L 90,150 A 60,60 0 0,1 50,110 Z" fill="#BE202E" mask="url(#pin-mask-1)" />
+                <circle cx="120" cy="80" r="35" stroke="#ffffff" stroke-width="14" fill="none" />
+                <line x1="30" y1="170" x2="95" y2="105" stroke="#ffffff" stroke-width="16" stroke-linecap="round" />
+              </svg>
+
+              <svg class="bapp-map-pin pin-2" viewBox="0 0 200 180" xmlns="http://www.w3.org/2000/svg">
+                <defs><mask id="pin-mask-2"><rect width="100%" height="100%" fill="white" /><circle cx="120" cy="80" r="45" fill="black" /><line x1="20" y1="180" x2="100" y2="100" stroke="black" stroke-width="24" stroke-linecap="round" /></mask></defs>
+                <path d="M 60,80 A 60,60 0 0,1 180,80 L 180,150 L 90,150 A 60,60 0 0,1 50,110 Z" fill="#BE202E" mask="url(#pin-mask-2)" />
+                <circle cx="120" cy="80" r="35" stroke="#ffffff" stroke-width="14" fill="none" />
+                <line x1="30" y1="170" x2="95" y2="105" stroke="#ffffff" stroke-width="16" stroke-linecap="round" />
+              </svg>
+
+              <svg class="bapp-map-pin pin-3" viewBox="0 0 200 180" xmlns="http://www.w3.org/2000/svg">
+                <defs><mask id="pin-mask-3"><rect width="100%" height="100%" fill="white" /><circle cx="120" cy="80" r="45" fill="black" /><line x1="20" y1="180" x2="100" y2="100" stroke="black" stroke-width="24" stroke-linecap="round" /></mask></defs>
+                <path d="M 60,80 A 60,60 0 0,1 180,80 L 180,150 L 90,150 A 60,60 0 0,1 50,110 Z" fill="#BE202E" mask="url(#pin-mask-3)" />
+                <circle cx="120" cy="80" r="35" stroke="#ffffff" stroke-width="14" fill="none" />
+                <line x1="30" y1="170" x2="95" y2="105" stroke="#ffffff" stroke-width="16" stroke-linecap="round" />
+              </svg>
+
+              <svg class="bapp-map-pin pin-4" viewBox="0 0 200 180" xmlns="http://www.w3.org/2000/svg">
+                <defs><mask id="pin-mask-4"><rect width="100%" height="100%" fill="white" /><circle cx="120" cy="80" r="45" fill="black" /><line x1="20" y1="180" x2="100" y2="100" stroke="black" stroke-width="24" stroke-linecap="round" /></mask></defs>
+                <path d="M 60,80 A 60,60 0 0,1 180,80 L 180,150 L 90,150 A 60,60 0 0,1 50,110 Z" fill="#BE202E" mask="url(#pin-mask-4)" />
+                <circle cx="120" cy="80" r="35" stroke="#ffffff" stroke-width="14" fill="none" />
+                <line x1="30" y1="170" x2="95" y2="105" stroke="#ffffff" stroke-width="16" stroke-linecap="round" />
+              </svg>
+
+              <div class="map-promo-pill">
+                <span>3 proveedores •</span>
+                <strong>Primeros 5 gratis</strong>
+              </div>
+
+              <div class="map-attribution">Leaflet | © CARTO, © OpenStreetMap contributors</div>
+              <div class="map-bottom-line" aria-hidden="true"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -208,19 +297,55 @@
           Desde electricistas hasta peluqueras, profesores y cuidadores. Hay espacio para ti.
         </p>
       </div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-        @for (cat of categories; track cat.name) {
-          <div class="group bg-surface-base border border-border rounded-2xl p-4 flex flex-col items-center gap-2 text-center hover:border-primary-500/50 hover:bg-primary-500/5 transition-all duration-200 cursor-default">
-            <span class="text-3xl group-hover:scale-110 transition-transform duration-200">{{ cat.icon }}</span>
-            <span class="text-xs font-medium text-text-secondary group-hover:text-text-primary leading-tight transition-colors">{{ cat.name }}</span>
-          </div>
-        }
-      </div>
+      <!-- Loading skeleton -->
+      @if (loadingCategories()) {
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          @for (i of [1,2,3,4,5,6,7,8]; track i) {
+            <div class="glass-card bg-crypgo-deepSlate border border-crypgo-dark_border rounded-xl p-6">
+              <div class="w-12 h-12 rounded-lg bg-crypgo-primary/10 animate-pulse mb-4 mx-auto"></div>
+              <div class="h-5 bg-crypgo-primary/10 animate-pulse rounded mx-auto" style="width: 60%;"></div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Categories grid from DB -->
+      @else if (dbCategories().length > 0) {
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          @for (category of dbCategories(); track category.id; let i = $index) {
+            <button
+              (click)="openServicesModal(category)"
+              class="glass-card card-hover-effect bg-crypgo-deepSlate border border-crypgo-dark_border rounded-xl p-6 group reveal reveal--up"
+              [style.transition-delay]="(i % 4) * 80 + 'ms'">
+              <div class="w-12 h-12 rounded-lg bg-crypgo-primary/20 flex items-center justify-center mb-4 mx-auto icon-glow">
+                @if (isImageUrl(getCategoryIconUrl(category))) {
+                  <img [src]="getCategoryIconUrl(category)" [alt]="category.name" class="w-8 h-8 object-contain" />
+                } @else {
+                  <span class="text-2xl">{{ getCategoryEmoji(category.name, category.icon) }}</span>
+                }
+              </div>
+              <h3 class="text-white font-semibold text-center">{{ category.name }}</h3>
+            </button>
+          }
+        </div>
+      }
+
+      <!-- Empty state -->
+      @else {
+        <div class="text-center py-12">
+          <svg class="w-16 h-16 mx-auto mb-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+          </svg>
+          <p class="text-gray-400 text-lg">No hay categorías disponibles</p>
+        </div>
+      }
       <div class="mt-10 text-center">
-        <a routerLink="/auth/register-provider"
+        <button type="button"
+           (click)="openRegisterModal()"
            class="inline-flex items-center gap-2 bg-primary-500 text-surface-base font-bold px-8 py-3.5 rounded-full hover:bg-primary-400 transition-colors shadow-lg shadow-primary-500/20">
           Registrarme en mi categoría
-        </a>
+        </button>
       </div>
     </div>
   </section>
@@ -282,13 +407,14 @@
         }
       </div>
       <div class="mt-12 text-center">
-        <a routerLink="/auth/register-provider"
+        <button type="button"
+           (click)="openRegisterModal()"
            class="inline-flex items-center gap-2 bg-primary-500 text-surface-base font-bold text-lg px-10 py-4 rounded-2xl hover:bg-primary-400 active:scale-[0.98] transition-all duration-150 shadow-2xl shadow-primary-500/25">
           Empezar ahora, es gratis
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
           </svg>
-        </a>
+        </button>
       </div>
     </div>
   </section>
@@ -413,14 +539,15 @@
           Proveedores de todo Chile ya están en el mapa y recibiendo solicitudes.
           Cuanto antes te registres, antes apareces tú primero en tu zona.
         </p>
-        <a routerLink="/auth/register-provider"
+        <button type="button"
+           (click)="openRegisterModal()"
            class="inline-flex items-center gap-2 bg-primary-500 text-surface-base font-bold text-lg px-10 py-4 rounded-2xl hover:bg-primary-400 active:scale-[0.98] transition-all duration-150 shadow-2xl shadow-primary-500/25">
           Quiero estar en el mapa
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
           </svg>
-        </a>
+        </button>
       </div>
     </div>
   </section>
@@ -515,19 +642,295 @@
       </div>
       <!-- Main CTA -->
       <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-        <a routerLink="/auth/register-provider"
+        <button type="button"
+           (click)="openRegisterModal()"
            class="inline-flex items-center justify-center gap-2 bg-primary-500 text-surface-base font-black text-xl px-12 py-5 rounded-2xl hover:bg-primary-400 active:scale-[0.98] transition-all duration-150 shadow-2xl shadow-primary-500/30 w-full sm:w-auto">
           Registrarme Gratis Ahora
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
           </svg>
-        </a>
+        </button>
       </div>
       <p class="text-sm text-text-tertiary">
         Sin tarjeta de crédito · Sin contrato · Sin comisiones
       </p>
     </div>
   </section>
+
+  @if (showServicesModal()) {
+    <div class="services-modal-backdrop"
+         (click)="closeServicesModal()"
+         (keydown.escape)="closeServicesModal()"
+         role="dialog"
+         aria-modal="true"
+         tabindex="-1">
+      <div class="services-modal-container"
+           (click)="$event.stopPropagation()"
+           (keydown)="$event.stopPropagation()">
+
+        <button class="services-modal-close" (click)="closeServicesModal()" type="button" aria-label="Cerrar">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+
+        <div class="services-modal-header">
+          <div class="services-header-glow"></div>
+          <div class="services-header-content">
+            @if (isImageUrl(getCategoryIconUrl(selectedCategory()))) {
+              <img [src]="getCategoryIconUrl(selectedCategory())" [alt]="selectedCategory()?.name" class="services-header-icon-img" />
+            } @else {
+              <span class="services-header-icon">{{ getCategoryEmoji(selectedCategory()?.name || '', selectedCategory()?.icon) }}</span>
+            }
+            <h2 class="services-modal-title">{{ selectedCategory()?.name }}</h2>
+            <p class="services-modal-subtitle">Selecciona un servicio para continuar</p>
+          </div>
+        </div>
+
+        <div class="services-modal-body">
+          @if (loadingServices()) {
+            <div class="services-grid">
+              @for (i of [1,2,3,4,5,6]; track i) {
+                <div class="service-card-skeleton">
+                  <div class="service-skel-icon animate-pulse"></div>
+                  <div class="service-skel-line animate-pulse"></div>
+                  <div class="service-skel-line-short animate-pulse"></div>
+                </div>
+              }
+            </div>
+          }
+
+          @else if (categoryServices().length > 0) {
+            <div class="space-y-2">
+              @for (service of categoryServices(); track service.id) {
+                <button
+                  type="button"
+                  (click)="selectService(service)"
+                  class="w-full text-left rounded-xl border border-border bg-surface-card px-4 py-3 text-sm font-medium text-text-primary hover:border-primary-500/40 hover:bg-surface-raised transition-colors">
+                  {{ service.name }}
+                </button>
+              }
+            </div>
+          }
+
+          @else {
+            <div class="services-empty">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                      d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+              </svg>
+              <p>No hay servicios disponibles en esta categoría</p>
+            </div>
+          }
+        </div>
+
+        <div class="services-modal-orb services-modal-orb-1"></div>
+        <div class="services-modal-orb services-modal-orb-2"></div>
+
+      </div>
+    </div>
+  }
+
+  @if (showRegisterModal()) {
+    <div class="fixed inset-0 z-[100] bg-black/65 backdrop-blur-sm flex items-center justify-center p-4"
+         (click)="closeRegisterModal()"
+         (keydown.escape)="closeRegisterModal()"
+         role="dialog"
+         aria-modal="true"
+         tabindex="-1">
+      <div class="w-full max-w-md rounded-3xl border border-border bg-surface-base shadow-2xl shadow-black/40 overflow-hidden"
+           (click)="$event.stopPropagation()"
+           (keydown)="$event.stopPropagation()">
+
+        <div class="px-6 pt-6 pb-4 border-b border-border flex items-center justify-between">
+          <div>
+            <h3 class="text-xl font-black text-text-primary">Regístrate como Proveedor</h3>
+            <p class="text-sm text-text-secondary mt-1">Publica servicios y recibe clientes cerca de ti</p>
+          </div>
+          <button type="button"
+                  (click)="closeRegisterModal()"
+                  class="w-9 h-9 rounded-xl bg-surface-card border border-border text-text-secondary hover:text-text-primary hover:border-border-medium transition-colors flex items-center justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="px-6 py-5 max-h-[78vh] overflow-y-auto">
+          <div class="grid grid-cols-2 gap-3 mb-4">
+            <button type="button"
+                    (click)="loginWithGoogle()"
+                    [disabled]="loadingRegister()"
+                    class="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-card px-3 py-2.5 text-sm font-semibold text-text-primary hover:border-border-medium disabled:opacity-60">
+              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-4 h-4" />
+              Google
+            </button>
+            <button type="button"
+                    (click)="loginWithFacebook()"
+                    [disabled]="loadingRegister()"
+                    class="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-card px-3 py-2.5 text-sm font-semibold text-text-primary hover:border-border-medium disabled:opacity-60">
+              <svg class="w-4 h-4 text-[#1877F2]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073c0 6.019 4.388 11.01 10.125 11.927V15.563H7.078v-3.49h3.047V9.413c0-3.007 1.792-4.669 4.533-4.669 1.313 0 2.686.235 2.686.235v2.953H15.83c-1.49 0-1.955.927-1.955 1.877v2.264h3.328l-.532 3.49h-2.796V24C19.612 23.083 24 18.092 24 12.073z"/>
+              </svg>
+              Facebook
+            </button>
+          </div>
+
+          <div class="relative text-center mb-4">
+            <span class="absolute left-0 right-0 top-1/2 h-px bg-border"></span>
+            <span class="relative inline-block bg-surface-base px-3 text-xs font-semibold uppercase tracking-widest text-text-tertiary">o con email</span>
+          </div>
+
+          @if (errorRegister()) {
+            <div class="mb-4 rounded-xl border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
+              {{ errorRegister() }}
+            </div>
+          }
+
+          @if (successRegister()) {
+            <div class="mb-4 rounded-xl border border-success/30 bg-success/10 px-3 py-2 text-sm text-success">
+              {{ successRegister() }}
+            </div>
+          }
+
+          <form [formGroup]="registerForm" (ngSubmit)="submitRegister()" class="space-y-3">
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wide text-text-tertiary mb-1.5">Nombre completo</label>
+              <input type="text"
+                     formControlName="name"
+                     placeholder="Ej: Juan Pérez"
+                     class="w-full rounded-xl border border-border bg-surface-card px-3 py-2.5 text-sm text-text-primary placeholder:text-text-tertiary outline-none focus:border-primary-500" />
+              @if (rf['name'].touched && rf['name'].errors?.['required']) {
+                <p class="mt-1 text-xs text-danger">El nombre es requerido</p>
+              }
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wide text-text-tertiary mb-1.5">Correo electrónico</label>
+              <input type="email"
+                     formControlName="email"
+                     placeholder="nombre@correo.com"
+                     class="w-full rounded-xl border border-border bg-surface-card px-3 py-2.5 text-sm text-text-primary placeholder:text-text-tertiary outline-none focus:border-primary-500" />
+              @if (rf['email'].touched && rf['email'].errors?.['required']) {
+                <p class="mt-1 text-xs text-danger">El correo es requerido</p>
+              }
+              @if (rf['email'].touched && rf['email'].errors?.['email']) {
+                <p class="mt-1 text-xs text-danger">Ingresa un correo válido</p>
+              }
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-wide text-text-tertiary mb-1.5">RUT</label>
+                <input type="text"
+                       formControlName="run"
+                       inputmode="text"
+                       placeholder="12.345.678-9"
+                       (input)="onRegisterRUTInput($event)"
+                       (keydown)="onRegisterRUTKeydown($event)"
+                       class="w-full rounded-xl border border-border bg-surface-card px-3 py-2.5 text-sm text-text-primary placeholder:text-text-tertiary outline-none focus:border-primary-500" />
+                @if (getRegisterRUTError()) {
+                  <p class="mt-1 text-xs text-danger">{{ getRegisterRUTError() }}</p>
+                }
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-wide text-text-tertiary mb-1.5">Teléfono</label>
+                <input type="tel"
+                       formControlName="phone"
+                       inputmode="numeric"
+                       placeholder="+56 9 1234 5678"
+                       (input)="onRegisterPhoneInput($event)"
+                       class="w-full rounded-xl border border-border bg-surface-card px-3 py-2.5 text-sm text-text-primary placeholder:text-text-tertiary outline-none focus:border-primary-500" />
+                @if (getRegisterPhoneError()) {
+                  <p class="mt-1 text-xs text-danger">{{ getRegisterPhoneError() }}</p>
+                }
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wide text-text-tertiary mb-1.5">Contraseña</label>
+              <div class="relative">
+                <input [type]="showModalPass() ? 'text' : 'password'"
+                       formControlName="password"
+                       placeholder="Mínimo 8 caracteres"
+                       class="w-full rounded-xl border border-border bg-surface-card px-3 py-2.5 pr-10 text-sm text-text-primary placeholder:text-text-tertiary outline-none focus:border-primary-500" />
+                <button type="button"
+                        (click)="showModalPass.set(!showModalPass())"
+                        class="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-md text-text-tertiary hover:text-text-primary flex items-center justify-center">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    @if (!showModalPass()) {
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    } @else {
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.956 9.956 0 012.223-3.592M6.228 6.228A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.97 9.97 0 01-4.132 5.411M3 3l18 18"/>
+                    }
+                  </svg>
+                </button>
+              </div>
+              @if (getRegisterPasswordError()) {
+                <p class="mt-1 text-xs text-danger">{{ getRegisterPasswordError() }}</p>
+              }
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wide text-text-tertiary mb-1.5">Confirmar contraseña</label>
+              <div class="relative">
+                <input [type]="showModalConfirmPass() ? 'text' : 'password'"
+                       formControlName="confirmPassword"
+                       placeholder="Repite tu contraseña"
+                       class="w-full rounded-xl border border-border bg-surface-card px-3 py-2.5 pr-10 text-sm text-text-primary placeholder:text-text-tertiary outline-none focus:border-primary-500" />
+                <button type="button"
+                        (click)="showModalConfirmPass.set(!showModalConfirmPass())"
+                        class="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-md text-text-tertiary hover:text-text-primary flex items-center justify-center">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    @if (!showModalConfirmPass()) {
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    } @else {
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.956 9.956 0 012.223-3.592M6.228 6.228A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.97 9.97 0 01-4.132 5.411M3 3l18 18"/>
+                    }
+                  </svg>
+                </button>
+              </div>
+              @if (registerPasswordMismatch) {
+                <p class="mt-1 text-xs text-danger">Las contraseñas no coinciden</p>
+              }
+            </div>
+
+            <label class="flex items-start gap-2 rounded-xl border border-border bg-surface-card px-3 py-2.5">
+              <input type="checkbox"
+                     formControlName="terms_accepted"
+                     class="mt-0.5 rounded border-border bg-surface-base text-primary-500 focus:ring-primary-500/40" />
+              <span class="text-xs text-text-secondary leading-relaxed">
+                Acepto los
+                <a routerLink="/terms" class="text-primary-500 hover:text-primary-400">Términos y Condiciones</a>
+                y la
+                <a routerLink="/privacy" class="text-primary-500 hover:text-primary-400">Política de Privacidad</a>.
+              </span>
+            </label>
+            @if (rf['terms_accepted'].touched && rf['terms_accepted'].errors?.['required']) {
+              <p class="-mt-2 text-xs text-danger">Debes aceptar los términos para continuar</p>
+            }
+
+            <button type="submit"
+                    [disabled]="loadingRegister()"
+                    class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary-500 px-4 py-3 font-bold text-surface-base hover:bg-primary-400 disabled:opacity-60 disabled:cursor-not-allowed transition-colors">
+              @if (loadingRegister()) {
+                <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                </svg>
+                Procesando...
+              } @else {
+                Crear cuenta de proveedor
+              }
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  }
 
   <!-- ══════════════════════════════════════════════════════════
        FOOTER
@@ -544,7 +947,7 @@
         <div class="flex items-center gap-6 text-sm text-text-tertiary">
           <a routerLink="/terms" class="hover:text-text-primary transition-colors">Términos</a>
           <a routerLink="/privacy" class="hover:text-text-primary transition-colors">Privacidad</a>
-          <a routerLink="/auth/register-provider" class="text-primary-500 font-semibold hover:text-primary-400 transition-colors">Registrarme Gratis</a>
+          <button type="button" (click)="openRegisterModal()" class="text-primary-500 font-semibold hover:text-primary-400 transition-colors">Registrarme Gratis</button>
         </div>
         <!-- Copyright -->
         <p class="text-xs text-text-tertiary text-center sm:text-right">

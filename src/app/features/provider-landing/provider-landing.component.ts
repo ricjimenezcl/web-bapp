@@ -1,7 +1,15 @@
-import { Component, OnInit, OnDestroy, signal, PLATFORM_ID, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, PLATFORM_ID, Inject, inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
+import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { SocialAuthService, GoogleLoginProvider, FacebookLoginProvider } from '@abacritt/angularx-social-login';
+import { Subscription } from 'rxjs';
+import { CategoryService } from '../../core/services/category.service';
+import { AuthService } from '../../core/services/auth.service';
+import { MainCategory, ServiceCategory } from '../../core/models/provider.model';
+import { CustomValidators } from '../../shared/validators/custom-validators';
+import { formatChileanPhone, formatChileanRUT, normalizeChileanRUTForBackend } from '../../shared/utils/form-formatters';
 
 interface Category {
   name: string;
@@ -52,12 +60,72 @@ interface ComparisonRow {
 @Component({
   selector: 'app-provider-landing',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule],
   templateUrl: './provider-landing.component.html',
+  styleUrls: ['./provider-landing.component.scss'],
 })
 export class ProviderLandingComponent implements OnInit, OnDestroy {
+  private readonly fb = inject(FormBuilder);
+  private readonly auth = inject(AuthService);
+  private readonly socialAuth = inject(SocialAuthService);
+
   scrolled = signal(false);
   activeFaqIndex = signal<number | null>(null);
+  heroSlide = signal(0);
+  loadingCategories = signal(false);
+  loadingRegister = signal(false);
+  errorRegister = signal('');
+  successRegister = signal('');
+  showRegisterModal = signal(false);
+  showModalPass = signal(false);
+  showModalConfirmPass = signal(false);
+  dbCategories = signal<MainCategory[]>([]);
+  showServicesModal = signal(false);
+  selectedCategory = signal<MainCategory | null>(null);
+  categoryServices = signal<ServiceCategory[]>([]);
+  loadingServices = signal(false);
+
+  registerForm = this.fb.group({
+    name: ['', Validators.required],
+    email: ['', [Validators.required, Validators.email]],
+    run: ['', Validators.required],
+    phone: ['', [Validators.required, CustomValidators.phone()]],
+    password: ['', [Validators.required, Validators.minLength(8), CustomValidators.passwordComplexity()]],
+    confirmPassword: ['', Validators.required],
+    terms_accepted: [false, Validators.requiredTrue],
+  }, {
+    validators: (ctrl: AbstractControl): ValidationErrors | null => {
+      const p = ctrl.get('password');
+      const c = ctrl.get('confirmPassword');
+      const r = ctrl.get('run');
+      const errors: ValidationErrors = {};
+
+      if (p && c && c.value && p.value !== c.value) {
+        errors['passwordMismatch'] = true;
+      }
+
+      const rutInvalid = r?.value ? CustomValidators.rut()(r) : { rutRequired: true };
+      if (rutInvalid) {
+        Object.assign(errors, rutInvalid);
+      }
+
+      return Object.keys(errors).length ? errors : null;
+    },
+  });
+
+  private readonly emojiMap: Record<string, string> = {
+    'construccion': '🏗️', 'plomeria': '🚿', 'fontaneria': '🚿',
+    'electricidad': '⚡', 'carpinteria': '🪵', 'jardineria': '🌿',
+    'limpieza': '🧹', 'mascotas': '🐾', 'reparaciones': '🔧',
+    'belleza': '💇', 'salud': '💊', 'educacion': '📚',
+    'transporte': '🚗', 'eventos': '🎉', 'tecnologia': '💻',
+    'alimentos': '🍽️', 'cuidado': '🤝',
+    'hammer': '🔨', 'construct': '🏗️', 'build': '🔧',
+    'water': '🚿', 'flash': '⚡', 'leaf': '🌿',
+    'sparkles': '✨', 'paw': '🐾', 'cut': '✂️',
+    'medkit': '💊', 'school': '📚', 'car': '🚗',
+    'calendar': '📅', 'laptop': '💻', 'restaurant': '🍽️',
+  };
 
   readonly heroPills: Pill[] = [
     { label: 'Registro gratuito' },
@@ -183,11 +251,14 @@ export class ProviderLandingComponent implements OnInit, OnDestroy {
   readonly stars = [1, 2, 3, 4, 5];
 
   private scrollListener!: () => void;
+  private socialAuthSub?: Subscription;
+  private heroSlideInterval?: ReturnType<typeof setInterval>;
 
   constructor(
     private readonly meta: Meta,
     private readonly title: Title,
     private readonly router: Router,
+    private readonly categorySvc: CategoryService,
     @Inject(PLATFORM_ID) private readonly platformId: object,
   ) {}
 
@@ -196,11 +267,31 @@ export class ProviderLandingComponent implements OnInit, OnDestroy {
     this.meta.updateTag({ name: 'description', content: 'Consigue clientes cerca de ti. Publica hasta 2 servicios gratis para siempre. Sin comisiones y con perfil verificado.' });
     this.meta.updateTag({ property: 'og:title', content: 'Proveedores de Servicios en Chile | Regístrate Gratis en BApp Search' });
     this.meta.updateTag({ property: 'og:description', content: 'Consigue clientes cerca de ti. Publica hasta 2 servicios gratis para siempre. Sin comisiones y con perfil verificado.' });
+    this.loadCategories();
 
     if (isPlatformBrowser(this.platformId)) {
       this.scrollListener = () => this.scrolled.set(window.scrollY > 20);
       window.addEventListener('scroll', this.scrollListener, { passive: true });
+      this.heroSlideInterval = setInterval(() => {
+        this.heroSlide.update(s => (s + 1) % 2);
+      }, 4000);
     }
+
+    this.socialAuthSub = this.socialAuth.authState.subscribe((socialUser) => {
+      if (!socialUser) return;
+      if (socialUser.provider !== GoogleLoginProvider.PROVIDER_ID) return;
+      this.loadingRegister.set(true);
+      this.auth.loginWithGoogle(socialUser.idToken, 'PROVIDER').subscribe({
+        next: (res) => {
+          this.loadingRegister.set(false);
+          this.handleSocialLoginSuccess(res);
+        },
+        error: (err) => {
+          this.loadingRegister.set(false);
+          this.errorRegister.set(err.error?.detail || 'Error en autenticación con Google');
+        },
+      });
+    });
   }
 
   ngOnDestroy(): void {
@@ -211,13 +302,329 @@ export class ProviderLandingComponent implements OnInit, OnDestroy {
     if (isPlatformBrowser(this.platformId) && this.scrollListener) {
       window.removeEventListener('scroll', this.scrollListener);
     }
+
+    if (this.heroSlideInterval) {
+      clearInterval(this.heroSlideInterval);
+    }
+
+    this.socialAuthSub?.unsubscribe();
   }
 
   toggleFaq(index: number): void {
     this.activeFaqIndex.set(this.activeFaqIndex() === index ? null : index);
   }
 
+  setHeroSlide(index: number): void {
+    this.heroSlide.set(index);
+    if (this.heroSlideInterval) {
+      clearInterval(this.heroSlideInterval);
+    }
+    if (isPlatformBrowser(this.platformId)) {
+      this.heroSlideInterval = setInterval(() => {
+        this.heroSlide.update(s => (s + 1) % 2);
+      }, 4000);
+    }
+  }
+
+  private loadCategories(): void {
+    this.loadingCategories.set(true);
+    this.categorySvc.getMainCategories().subscribe({
+      next: (categories) => {
+        this.dbCategories.set(categories);
+        this.loadingCategories.set(false);
+      },
+      error: () => {
+        this.dbCategories.set([]);
+        this.loadingCategories.set(false);
+      },
+    });
+  }
+
+  openServicesModal(category: MainCategory): void {
+    this.selectedCategory.set(category);
+    this.showServicesModal.set(true);
+    this.loadingServices.set(true);
+
+    this.categorySvc.getCategoryWithServices(category.id).subscribe({
+      next: (categoryWithServices: MainCategory) => {
+        this.categoryServices.set(categoryWithServices.services || []);
+        this.loadingServices.set(false);
+      },
+      error: () => {
+        this.categorySvc.getServices({ category_id: category.id }).subscribe({
+          next: (services: ServiceCategory[]) => {
+            this.categoryServices.set(services);
+            this.loadingServices.set(false);
+          },
+          error: () => {
+            this.categoryServices.set([]);
+            this.loadingServices.set(false);
+          },
+        });
+      },
+    });
+  }
+
+  closeServicesModal(): void {
+    this.showServicesModal.set(false);
+    this.selectedCategory.set(null);
+    this.categoryServices.set([]);
+  }
+
+  selectService(_service: ServiceCategory): void {
+    this.closeServicesModal();
+    this.openRegisterModal();
+  }
+
+  openRegisterModal(): void {
+    this.showRegisterModal.set(true);
+    this.errorRegister.set('');
+    this.successRegister.set('');
+  }
+
+  closeRegisterModal(): void {
+    this.showRegisterModal.set(false);
+    this.errorRegister.set('');
+    this.successRegister.set('');
+  }
+
+  submitRegister(): void {
+    if (this.registerForm.invalid) {
+      this.registerForm.markAllAsTouched();
+      return;
+    }
+
+    this.loadingRegister.set(true);
+    this.errorRegister.set('');
+    this.successRegister.set('');
+
+    const { name, email, phone, run, password, terms_accepted } = this.registerForm.value;
+    const normalizedEmail = (email ?? '').trim().toLowerCase();
+    const normalizedRun = normalizeChileanRUTForBackend(run ?? '');
+    const payload = {
+      email: normalizedEmail,
+      password: password!,
+      full_name: (name ?? '').trim(),
+      phone: (phone ?? '').trim(),
+      run: normalizedRun || undefined,
+      terms_accepted: terms_accepted!,
+    };
+
+    this.auth.registerProvider(payload).subscribe({
+      next: () => {
+        this.loadingRegister.set(false);
+        this.successRegister.set('Cuenta creada con éxito. Iniciaremos sesión para continuar.');
+        this.auth.login({ username: normalizedEmail, password: password! }).subscribe({
+          next: (res) => {
+            this.closeRegisterModal();
+            this.auth.navigateAfterLogin(res.role, res.status);
+          },
+          error: () => {
+            this.successRegister.set('Cuenta creada con éxito. Ahora inicia sesión con tus credenciales.');
+          },
+        });
+      },
+      error: (err: any) => {
+        this.loadingRegister.set(false);
+        this.errorRegister.set(this.getApiErrorMessage(err, 'Error al crear la cuenta. Inténtalo de nuevo.'));
+      },
+    });
+  }
+
+  loginWithGoogle(): void {
+    this.errorRegister.set('');
+    this.socialAuth.signIn(GoogleLoginProvider.PROVIDER_ID).catch((err) => {
+      if (err?.error !== 'popup_closed_by_user') {
+        this.errorRegister.set('No se pudo completar el inicio de sesión con Google');
+      }
+    });
+  }
+
+  loginWithFacebook(): void {
+    this.loadingRegister.set(true);
+    this.errorRegister.set('');
+
+    this.socialAuth.signIn(FacebookLoginProvider.PROVIDER_ID)
+      .then((user) => {
+        this.auth.loginWithFacebook(user.authToken, 'PROVIDER').subscribe({
+          next: (res) => {
+            this.loadingRegister.set(false);
+            this.handleSocialLoginSuccess(res);
+          },
+          error: (err) => {
+            this.loadingRegister.set(false);
+            this.errorRegister.set(err.error?.detail || 'Error en autenticación con Facebook');
+          },
+        });
+      })
+      .catch((err) => {
+        this.loadingRegister.set(false);
+        if (err?.error !== 'popup_closed_by_user') {
+          this.errorRegister.set('No se pudo completar el inicio de sesión con Facebook');
+        }
+      });
+  }
+
+  private handleSocialLoginSuccess(res: any): void {
+    const isNewUser = res.is_new_user === true;
+
+    if (!isNewUser && res.role === 'CLIENT') {
+      this.errorRegister.set('Este correo ya está registrado como Cliente. Para registrarte como proveedor, usa otro correo o contacta soporte.');
+      this.auth.logout();
+      return;
+    }
+
+    if (!isNewUser) {
+      this.successRegister.set('Ya tienes cuenta de proveedor. Iniciamos sesión por ti.');
+    }
+
+    this.closeRegisterModal();
+    this.auth.navigateAfterLogin(res.role, res.status);
+  }
+
+  onRegisterPhoneInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const formatted = formatChileanPhone(input.value);
+    input.value = formatted;
+    this.registerForm.get('phone')?.setValue(formatted, { emitEvent: false });
+  }
+
+  onRegisterRUTInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const formatted = formatChileanRUT(input.value);
+    input.value = formatted;
+    this.registerForm.get('run')?.setValue(formatted, { emitEvent: false });
+  }
+
+  onRegisterRUTKeydown(event: KeyboardEvent): void {
+    if (event.key === '.' || event.key === ' ') {
+      event.preventDefault();
+    }
+  }
+
+  get rf() {
+    return this.registerForm.controls;
+  }
+
+  get registerPasswordMismatch(): boolean {
+    return !!(this.registerForm.errors?.['passwordMismatch'] && this.registerForm.get('confirmPassword')?.touched);
+  }
+
+  getRegisterPhoneError(): string {
+    const control = this.rf['phone'];
+    if (!control.touched || !control.errors) return '';
+    if (control.errors['required']) return 'El teléfono es requerido';
+    if (control.errors['invalidPhone']) return 'Ingresa un teléfono chileno válido. Ej: +56 9 1234 5678';
+    return 'Teléfono inválido';
+  }
+
+  getRegisterRUTError(): string {
+    const control = this.rf['run'];
+    const formErrors = this.registerForm.errors;
+    if (!control.touched && !formErrors) return '';
+    if (formErrors?.['rutRequired'] && control.touched) return 'El RUT es obligatorio para proveedores';
+    if (formErrors?.['invalidRut'] && control.value) return 'El RUT ingresado no es válido';
+    return '';
+  }
+
+  getRegisterPasswordError(): string {
+    const control = this.rf['password'];
+    if (!control.touched || !control.errors) return '';
+    if (control.errors['required']) return 'La contraseña es requerida';
+    if (control.errors['minlength']) return 'La contraseña debe tener al menos 8 caracteres';
+    if (control.errors['missingUppercase']) return 'La contraseña debe contener al menos una mayúscula';
+    if (control.errors['missingLowercase']) return 'La contraseña debe contener al menos una minúscula';
+    if (control.errors['missingNumber']) return 'La contraseña debe contener al menos un número';
+    return 'Contraseña inválida';
+  }
+
+  private getApiErrorMessage(err: any, fallback: string): string {
+    if (err?.status === 429) {
+      return 'Demasiados intentos fallidos. Por favor espera antes de volver a intentarlo.';
+    }
+    const response = err?.error;
+    const detail = response?.detail;
+
+    if (typeof detail === 'string' && detail.trim()) {
+      if (detail === 'Email already registered') return 'Este correo ya se encuentra registrado';
+      if (detail === 'RUN already registered') return 'Este RUT ya se encuentra registrado';
+      if (detail === 'Phone already registered') return 'Este teléfono ya se encuentra registrado';
+      return detail;
+    }
+
+    if (Array.isArray(detail) && detail.length > 0) {
+      return detail[0]?.msg ?? fallback;
+    }
+
+    return fallback;
+  }
+
+  isImageUrl(icon: string): boolean {
+    return this.resolveMediaUrl(icon) !== '';
+  }
+
+  getCategoryIconUrl(category: MainCategory | null | undefined): string {
+    const rawIcon = this.getRawIconValue(category);
+    return this.resolveMediaUrl(rawIcon);
+  }
+
+  getServiceIconUrl(service: ServiceCategory | null | undefined): string {
+    const rawIcon = this.getRawIconValue(service);
+    return this.resolveMediaUrl(rawIcon);
+  }
+
+  private getRawIconValue(entity: any): string {
+    return String(entity?.icon_url ?? entity?.iconUrl ?? entity?.icon ?? '').trim();
+  }
+
+  private resolveMediaUrl(rawIcon: string): string {
+    if (!rawIcon) return '';
+
+    if (rawIcon.startsWith('http://') || rawIcon.startsWith('https://') || rawIcon.startsWith('data:image/')) {
+      return rawIcon;
+    }
+
+    if (rawIcon.startsWith('//')) {
+      return `https:${rawIcon}`;
+    }
+
+    if (rawIcon.startsWith('res.cloudinary.com/')) {
+      return `https://${rawIcon}`;
+    }
+
+    if (/^v\d+\//.test(rawIcon)) {
+      return `https://res.cloudinary.com/dghwotofx/image/upload/${rawIcon}`;
+    }
+
+    if (rawIcon.startsWith('image/upload/')) {
+      return `https://res.cloudinary.com/dghwotofx/${rawIcon}`;
+    }
+
+    if (rawIcon.startsWith('/')) {
+      return rawIcon;
+    }
+
+    return '';
+  }
+
+  getCategoryEmoji(categoryName: string, icon?: string): string {
+    const lowerName = (categoryName || '').toLowerCase();
+    const lowerIcon = (icon || '').toLowerCase();
+
+    for (const [key, emoji] of Object.entries(this.emojiMap)) {
+      if (lowerName.includes(key) || lowerIcon.includes(key)) {
+        return emoji;
+      }
+    }
+
+    if (lowerName.includes('pint') || lowerIcon.includes('brush')) return '🖌️';
+    if (lowerName.includes('clima') || lowerIcon.includes('thermometer')) return '🌡️';
+    if (lowerName.includes('gas') || lowerIcon.includes('restaurant')) return '🍳';
+    if (lowerName.includes('muda') || lowerIcon.includes('bus')) return '📦';
+    return '🛠️';
+  }
+
   goToRegister(): void {
-    this.router.navigate(['/auth/register-provider']);
+    this.openRegisterModal();
   }
 }

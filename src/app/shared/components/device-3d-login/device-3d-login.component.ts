@@ -8,7 +8,9 @@ import { isPlatformBrowser } from '@angular/common';
   styleUrls: ['./device-3d-login.component.scss']
 })
 export class Device3dLoginComponent implements OnInit, OnDestroy {
-  @Input() variant: 'provider-register' | 'login' | 'categories' | 'map' | 'providers' | 'booking' = 'login';
+  @Input() variant: 'provider-register' | 'identity-verify' | 'login' | 'categories' | 'map' | 'providers' | 'booking' | 'review' | 'image' = 'login';
+  @Input() imageSrc: string | null = null;
+  @Input() imageAlt = 'Pantalla de ejemplo de BappSearch';
   
   constructor(
     private readonly elementRef: ElementRef,

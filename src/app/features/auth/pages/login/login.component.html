@@ -10,7 +10,7 @@
         [class.backdrop-blur-md]="sticky()" 
         [class.bg-opacity-95]="sticky()">
   <div class="py-0 pointer-events-auto">
-    <div class="container lg:max-w-screen-xl md:max-w-screen-md flex items-center px-4">
+    <div class="w-full flex items-center px-5 sm:px-6 lg:pl-10 lg:pr-6 xl:pl-14 xl:pr-8 2xl:pl-20 2xl:pr-10">
       <!-- Logo -->
       <div class="flex items-center gap-2 sm:gap-3">
         <div class="w-[44px] h-[68px] sm:w-[56px] sm:h-[86px] lg:w-[70px] lg:h-[108px] rounded-xl flex overflow-hidden">
@@ -350,8 +350,40 @@
       
       <div class="app-screen">
         <div class="map-bg"></div>
-        
-        <div class="user-center-pin"></div>
+
+        <div class="map-switch-tabs" role="tablist" aria-label="Modo mapa">
+          <div class="map-switch-tab map-switch-tab-active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+            Mapa
+          </div>
+          <div class="map-switch-tab">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"></path></svg>
+            Proveedores <span class="provider-badge">3</span>
+          </div>
+        </div>
+
+        <div class="map-mode-tabs">
+          <div class="mode-tab">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line><line x1="8" y1="4" x2="8" y2="20"></line><line x1="16" y1="4" x2="16" y2="20"></line></svg>
+            Calles
+          </div>
+          <div class="mode-tab">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><line x1="12" y1="2" x2="12" y2="4"></line><line x1="12" y1="20" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"></line><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"></line></svg>
+            Claro
+          </div>
+          <div class="mode-tab mode-tab-active">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path></svg>
+            Oscuro
+          </div>
+        </div>
+
+        <div class="user-avatar-marker" aria-hidden="true">
+          <svg viewBox="0 0 24 32" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 1C6.48 1 2 5.48 2 11c0 7.3 10 20 10 20s10-12.7 10-20C22 5.48 17.52 1 12 1z" fill="#BE202E" stroke="#FFFFFF" stroke-width="1.5"/>
+            <circle cx="12" cy="11" r="4.2" fill="#FFFFFF"/>
+            <circle cx="12" cy="11" r="2.1" fill="#1F2937"/>
+          </svg>
+        </div>
 
         <svg class="bapp-map-pin pin-1" viewBox="0 0 200 180" xmlns="http://www.w3.org/2000/svg">
           <defs><mask id="pin-mask-1"><rect width="100%" height="100%" fill="white" /><circle cx="120" cy="80" r="45" fill="black" /><line x1="20" y1="180" x2="100" y2="100" stroke="black" stroke-width="24" stroke-linecap="round" /></mask></defs>
@@ -374,71 +406,20 @@
           <line x1="30" y1="170" x2="95" y2="105" stroke="#ffffff" stroke-width="16" stroke-linecap="round" />
         </svg>
 
-        <div class="app-header">
-          <h1>Mapa</h1>
-          <div class="header-badges">
-            <div class="badge-yellow">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
-              3
-            </div>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-s)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          </div>
+        <svg class="bapp-map-pin pin-4" viewBox="0 0 200 180" xmlns="http://www.w3.org/2000/svg">
+          <defs><mask id="pin-mask-4"><rect width="100%" height="100%" fill="white" /><circle cx="120" cy="80" r="45" fill="black" /><line x1="20" y1="180" x2="100" y2="100" stroke="black" stroke-width="24" stroke-linecap="round" /></mask></defs>
+          <path d="M 60,80 A 60,60 0 0,1 180,80 L 180,150 L 90,150 A 60,60 0 0,1 50,110 Z" fill="#BE202E" mask="url(#pin-mask-4)" />
+          <circle cx="120" cy="80" r="35" stroke="#ffffff" stroke-width="14" fill="none" />
+          <line x1="30" y1="170" x2="95" y2="105" stroke="#ffffff" stroke-width="16" stroke-linecap="round" />
+        </svg>
+
+        <div class="map-promo-pill">
+          <span>3 proveedores •</span>
+          <strong>Primeros 5 gratis</strong>
         </div>
 
-        <div class="app-search-area">
-          <div class="search-input">
-            <span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              Buscar en el mapa...
-            </span>
-            <div class="km-badge">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="margin-right:2px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> 5 km
-            </div>
-          </div>
-          <div class="chips-row">
-            <div class="chip" style="color:var(--cream);"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg> 3 servicios</div>
-            <div class="chip" style="color:var(--mint);"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> 4 proveedores</div>
-          </div>
-        </div>
-
-        <div class="map-controls-right">
-          <div class="ctrl-btn"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg></div>
-          <div class="ctrl-btn"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10"></circle><line x1="8" y1="12" x2="16" y2="12"></line></svg></div>
-        </div>
-
-        <div class="app-bottom-sheet">
-          <div class="bs-title">4 proveedores en el área</div>
-          <div class="status-dots">
-            <div class="dot-item"><div class="dot" style="background:var(--mint);"></div> En línea</div>
-            <div class="dot-item"><div class="dot" style="background:var(--text-s);"></div> Desconectado</div>
-            <div class="dot-item"><div class="dot" style="background:var(--cream);"></div> Tu posición</div>
-          </div>
-          <div class="theme-toggles">
-            <div class="tgl-btn">Calles</div>
-            <div class="tgl-btn">Clara</div>
-            <div class="tgl-btn tgl-active">Oscuro</div>
-            <span class="dist-label">190 m</span>
-          </div>
-        </div>
-
-        <nav class="app-navbar" aria-label="Navegación principal de la aplicación">
-          <div class="nav-item">
-            <div class="nav-badge"></div>
-            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          </div>
-          <div class="nav-item nav-active">
-            <svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
-          </div>
-          <div class="nav-item">
-            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-          </div>
-          <div class="nav-item">
-            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-          </div>
-          <div class="nav-item">
-            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-          </div>
-        </nav>
+        <div class="map-attribution">Leaflet | © CARTO, © OpenStreetMap contributors</div>
+        <div class="map-bottom-line" aria-hidden="true"></div>
       </div>
     </div>
   </main>
@@ -459,7 +440,7 @@
     <!-- Toggle Modernos (Pills) -->
     <div class="flex justify-center mb-16 reveal reveal--up reveal-d3">
       <div class="toggle-track">
-        <div class="toggle-pill" [style.transform]="guideTab() === 'client' ? 'translateX(0px)' : 'translateX(160px)'"></div>
+        <div class="toggle-pill" [style.transform]="guideTab() === 'client' ? 'translateX(0%)' : 'translateX(100%)'"></div>
         <button type="button" class="toggle-btn" 
                 [class.text-white]="guideTab() === 'client'"
                 [class.text-gray-500]="guideTab() !== 'client'"
@@ -521,6 +502,8 @@
                     <app-device-3d-login variant="providers"></app-device-3d-login>
                   } @else if (idx === 4) {
                     <app-device-3d-login variant="booking"></app-device-3d-login>
+                  } @else if (idx === 5) {
+                    <app-device-3d-login variant="review"></app-device-3d-login>
                   } @else {
                     <img [src]="step.screenImage" [alt]="step.title">
                   }
@@ -561,12 +544,14 @@
                   @if (idx === 0) {
                     <app-device-3d-login variant="provider-register"></app-device-3d-login>
                   } @else if (idx === 1) {
-                    <app-device-3d-login variant="categories"></app-device-3d-login>
+                    <app-device-3d-login variant="identity-verify"></app-device-3d-login>
                   } @else if (idx === 2) {
-                    <app-device-3d-login variant="map"></app-device-3d-login>
+                    <app-device-3d-login variant="categories"></app-device-3d-login>
                   } @else if (idx === 3) {
-                    <app-device-3d-login variant="providers"></app-device-3d-login>
+                    <app-device-3d-login variant="map"></app-device-3d-login>
                   } @else if (idx === 4) {
+                    <app-device-3d-login variant="providers"></app-device-3d-login>
+                  } @else if (idx === 5) {
                     <app-device-3d-login variant="booking"></app-device-3d-login>
                   } @else {
                     <img [src]="step.screenImage" [alt]="step.title">

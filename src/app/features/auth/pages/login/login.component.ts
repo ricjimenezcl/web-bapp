@@ -401,29 +401,36 @@ export class LoginComponent implements OnInit, OnDestroy {
       screenImage: 'https://res.cloudinary.com/dghwotofx/image/upload/v1779930674/login_art_c2qvwr.png',
       color: '#FDE68A' // cream
     },
+    {
+      id: '02',
+      title: 'Valida tu Identidad',
+      description: 'Sube tu RUT o cédula de identidad para verificar tu perfil y generar confianza en los clientes.',
+      screenImage: 'https://res.cloudinary.com/dghwotofx/image/upload/v1779930674/login_art_c2qvwr.png',
+      color: '#A78BFA' // violet
+    },
     { 
-      id: '02', 
+      id: '03', 
       title: 'Configura los Servicios', 
       description: 'Selecciona tus especialidades, sube fotos de trabajos anteriores y establece tu disponibilidad.',
       screenImage: 'https://res.cloudinary.com/dghwotofx/image/upload/v1779930674/login_art_c2qvwr.png',
       color: '#38BDF8' // cyan
     },
     { 
-      id: '03', 
+      id: '04', 
       title: 'Aparece en el Mapa', 
       description: 'Hazte visible en el radar de los clientes que buscan servicios exactamente en tu sector.',
       screenImage: 'https://res.cloudinary.com/dghwotofx/image/upload/v1779930674/login_art_c2qvwr.png',
       color: '#BE202E' // red
     },
     { 
-      id: '04', 
+      id: '05', 
       title: 'Recibe Solicitudes', 
       description: 'Recibe reservas directas y chatea con los clientes para afinar los detalles del servicio.',
       screenImage: 'https://res.cloudinary.com/dghwotofx/image/upload/v1779930674/login_art_c2qvwr.png',
       color: '#A7F3D0' // mint
     },
     { 
-      id: '05', 
+      id: '06', 
       title: 'Ejecuta y Crece', 
       description: 'Realiza el trabajo, recibe calificaciones de 5 estrellas y aumenta tu reputación en la app.',
       screenImage: 'https://res.cloudinary.com/dghwotofx/image/upload/v1779930674/login_art_c2qvwr.png',

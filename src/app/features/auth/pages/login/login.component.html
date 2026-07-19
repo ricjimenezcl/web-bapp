@@ -1070,6 +1070,23 @@
           <div class="text-right -mt-1 mb-2">
             <a routerLink="/auth/reset-password" class="text-sm text-crypgo-primary hover:underline">¿Olvidaste tu contraseña?</a>
           </div>
+
+          @if (loginRolePrompt()) {
+            <div class="rounded-lg border border-crypgo-primary/30 bg-crypgo-primary/10 p-3 text-left">
+              <p class="mb-2 text-sm text-white">Este correo tiene dos perfiles. ¿Cómo quieres entrar?</p>
+              <div class="grid grid-cols-2 gap-2">
+                @for (role of loginRoleOptions(); track role) {
+                  <button
+                    type="button"
+                    (click)="selectLoginRole(role)"
+                    class="rounded-lg border border-crypgo-primary/40 bg-transparent px-3 py-2 text-sm font-semibold text-crypgo-primary hover:bg-crypgo-primary hover:text-crypgo-darkmode transition-colors">
+                    {{ role === 'PROVIDER' ? 'Proveedor' : 'Cliente' }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
           <button 
             type="submit"
             [disabled]="loading()"
@@ -1088,6 +1105,22 @@
               <span class="px-4 bg-crypgo-darkmode text-gray-400">O continúa con</span>
             </div>
           </div>
+
+          @if (socialRolePrompt()) {
+            <div class="mt-4 rounded-lg border border-crypgo-primary/30 bg-crypgo-primary/10 p-3 text-left">
+              <p class="mb-2 text-sm text-white">Este correo social tiene dos perfiles. ¿Cómo quieres entrar?</p>
+              <div class="grid grid-cols-2 gap-2">
+                @for (role of socialRoleOptions(); track role) {
+                  <button
+                    type="button"
+                    (click)="selectSocialLoginRole(role)"
+                    class="rounded-lg border border-crypgo-primary/40 bg-transparent px-3 py-2 text-sm font-semibold text-crypgo-primary hover:bg-crypgo-primary hover:text-crypgo-darkmode transition-colors">
+                    {{ role === 'PROVIDER' ? 'Proveedor' : 'Cliente' }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
 
           <div class="grid grid-cols-2 gap-4 mt-6">
             <button

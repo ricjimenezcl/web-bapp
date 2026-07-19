@@ -47,6 +47,13 @@ export interface StoredUser {
 export interface LoginRequest {
   username: string;
   password: string;
+  role?: UserRole;
+}
+
+export interface LoginRolesResponse {
+  email: string;
+  roles: UserRole[];
+  multiple_roles: boolean;
 }
 
 export interface TokenResponse {

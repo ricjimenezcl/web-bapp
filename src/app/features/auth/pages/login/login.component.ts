@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, Validati
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { SocialAuthService, GoogleLoginProvider, FacebookLoginProvider, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
 import { AuthService } from '../../../../core/services/auth.service';
+import { UserRole } from '../../../../core/models/user.model';
 import { CategoryService } from '../../../../core/services/category.service';
 import { MainCategory, ServiceCategory } from '../../../../core/models/provider.model';
 import { Device3dLoginComponent } from '../../../../shared/components/device-3d-login/device-3d-login.component';
@@ -53,6 +54,10 @@ export class LoginComponent implements OnInit, OnDestroy {
   showModalPass        = signal(false);
   showModalConfirmPass = signal(false);
   registerRole         = signal<'client' | 'provider'>('client');
+  loginRolePrompt      = signal(false);
+  loginRoleOptions     = signal<UserRole[]>([]);
+  socialRolePrompt     = signal(false);
+  socialRoleOptions    = signal<UserRole[]>([]);
   sticky         = signal(false); // Para header sticky
   guideTab       = signal<'client' | 'provider'>('client'); // Tab para guías de uso
   
@@ -86,6 +91,12 @@ export class LoginComponent implements OnInit, OnDestroy {
   currentSlide   = signal(0);
   totalSlides    = 3;
   carouselPaused = signal(false);
+
+  private pendingLogin: { email: string; password: string } | null = null;
+  private pendingSocialLogin: { provider: 'google' | 'facebook'; token: string; email: string; wasRegistering: boolean } | null = null;
+  private socialLoginInProgress = false;
+  private socialRequestedRole: UserRole = 'CLIENT';
+  private socialWasRegistering = false;
 
   // ── FormGroup original ───────────────────────────────────────────
   form = this.fb.group({
@@ -221,21 +232,8 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     // Escuchar cambios en la autenticación social (necesario para el nuevo botón de Google)
     this.socialAuth.authState.subscribe((socialUser) => {
-      if (socialUser?.provider === GoogleLoginProvider.PROVIDER_ID) {
-        this.loading.set(true);
-        const wasRegistering = this.activeTab() === 'register';
-        const roleToAssign = wasRegistering ? this.registerRole().toUpperCase() : 'CLIENT';
-        
-        this.auth.loginWithGoogle(socialUser.idToken, roleToAssign).subscribe({
-          next: (res) => {
-            this.loading.set(false);
-            this.handleSocialLoginSuccess(res, wasRegistering);
-          },
-          error: (err) => {
-            this.loading.set(false);
-            this.error.set(err.error?.detail || 'Error en autenticación con Google');
-          }
-        });
+      if (socialUser?.provider === GoogleLoginProvider.PROVIDER_ID && this.socialLoginInProgress) {
+        this.resolveSocialLoginRole('google', socialUser.idToken, socialUser.email || '', this.socialWasRegistering);
       }
     });
   }
@@ -479,16 +477,61 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.loading.set(true);
     this.error.set('');
     this.success.set('');
+    this.loginRolePrompt.set(false);
 
     const { email, password } = this.form.value;
-    this.auth.login({ username: email!, password: password! }).subscribe({
+    const normalizedEmail = (email ?? '').trim().toLowerCase();
+    const pwd = password ?? '';
+
+    this.auth.getLoginRoles(normalizedEmail).subscribe({
+      next: (rolesResponse) => {
+        const roles = rolesResponse.roles ?? [];
+        if (roles.length > 1) {
+          this.pendingLogin = { email: normalizedEmail, password: pwd };
+          this.loginRoleOptions.set(roles);
+          this.loginRolePrompt.set(true);
+          this.loading.set(false);
+          return;
+        }
+
+        const role = roles.length === 1 ? roles[0] : undefined;
+        this.executeLogin(normalizedEmail, pwd, role);
+      },
+      error: () => {
+        // Fallback conservador: intentar login directo
+        this.executeLogin(normalizedEmail, pwd);
+      }
+    });
+  }
+
+  selectLoginRole(role: UserRole): void {
+    if (!this.pendingLogin) return;
+    const { email, password } = this.pendingLogin;
+    this.loading.set(true);
+    this.error.set('');
+    this.executeLogin(email, password, role);
+  }
+
+  private executeLogin(email: string, password: string, role?: UserRole): void {
+    this.auth.login({ username: email, password, role }).subscribe({
       next: (res) => {
         this.loading.set(false);
+        this.loginRolePrompt.set(false);
+        this.pendingLogin = null;
         this.auth.navigateAfterLogin(res.role, res.status);
       },
       error: (err: any) => {
         this.loading.set(false);
-        this.error.set(err?.error?.detail ?? 'Credenciales incorrectas. Inténtalo de nuevo.');
+
+        const detail = err?.error?.detail;
+        if (err?.status === 409 && detail?.code === 'ROLE_SELECTION_REQUIRED') {
+          this.pendingLogin = { email, password };
+          this.loginRoleOptions.set((detail?.roles ?? []) as UserRole[]);
+          this.loginRolePrompt.set(true);
+          return;
+        }
+
+        this.error.set(typeof detail === 'string' ? detail : 'Credenciales incorrectas. Inténtalo de nuevo.');
       }
     });
   }
@@ -638,8 +681,14 @@ export class LoginComponent implements OnInit, OnDestroy {
   loginWithGoogle(): void {
     this.loading.set(true);
     this.error.set('');
+    this.socialRolePrompt.set(false);
+    this.pendingSocialLogin = null;
+    this.socialLoginInProgress = true;
+    this.socialWasRegistering = this.activeTab() === 'register';
+    this.socialRequestedRole = (this.socialWasRegistering ? this.registerRole().toUpperCase() : 'CLIENT') as UserRole;
     this.socialAuth.signIn(GoogleLoginProvider.PROVIDER_ID)
       .catch(err => {
+        this.socialLoginInProgress = false;
         this.loading.set(false);
         const mappedError = this.mapGoogleAuthError(err);
         if (mappedError) {
@@ -679,30 +728,97 @@ export class LoginComponent implements OnInit, OnDestroy {
     console.log('🔵 Login con Facebook iniciado');
     this.loading.set(true);
     this.error.set('');
+    this.socialRolePrompt.set(false);
+    this.pendingSocialLogin = null;
+    this.socialLoginInProgress = true;
 
     const wasRegistering = this.activeTab() === 'register';
-    const roleToAssign = wasRegistering ? this.registerRole().toUpperCase() : 'CLIENT';
+    this.socialWasRegistering = wasRegistering;
+    this.socialRequestedRole = (wasRegistering ? this.registerRole().toUpperCase() : 'CLIENT') as UserRole;
 
     this.socialAuth.signIn(FacebookLoginProvider.PROVIDER_ID)
       .then(user => {
-        this.auth.loginWithFacebook(user.authToken, roleToAssign).subscribe({
-          next: (res) => {
-            this.loading.set(false);
-            this.handleSocialLoginSuccess(res, wasRegistering);
-          },
-          error: (err) => {
-            this.loading.set(false);
-            this.error.set(err.error?.detail || 'Error en autenticación con Facebook');
-          }
-        });
+        this.resolveSocialLoginRole('facebook', user.authToken, user.email || '', wasRegistering);
       })
       .catch(err => {
+        this.socialLoginInProgress = false;
         this.loading.set(false);
         if (err?.error !== 'popup_closed_by_user') {
           console.error('Facebook Auth Error:', err);
           this.error.set('No se pudo completar el inicio de sesión con Facebook');
         }
       });
+  }
+
+  selectSocialLoginRole(role: UserRole): void {
+    if (!this.pendingSocialLogin) return;
+    this.loading.set(true);
+    this.error.set('');
+    this.continueSocialLogin(this.pendingSocialLogin, role);
+  }
+
+  private resolveSocialLoginRole(
+    provider: 'google' | 'facebook',
+    token: string,
+    email: string,
+    wasRegistering: boolean,
+  ): void {
+    const pending = { provider, token, email, wasRegistering };
+
+    if (wasRegistering) {
+      this.continueSocialLogin(pending, this.socialRequestedRole);
+      return;
+    }
+
+    if (!email) {
+      this.continueSocialLogin(pending, 'CLIENT');
+      return;
+    }
+
+    this.auth.getLoginRoles(email).subscribe({
+      next: (rolesResponse) => {
+        const roles = rolesResponse.roles ?? [];
+        if (roles.length > 1) {
+          this.pendingSocialLogin = pending;
+          this.socialRoleOptions.set(roles);
+          this.socialRolePrompt.set(true);
+          this.loading.set(false);
+          this.socialLoginInProgress = false;
+          return;
+        }
+
+        const role = roles.length === 1 ? roles[0] : 'CLIENT';
+        this.continueSocialLogin(pending, role);
+      },
+      error: () => {
+        this.continueSocialLogin(pending, 'CLIENT');
+      }
+    });
+  }
+
+  private continueSocialLogin(
+    pending: { provider: 'google' | 'facebook'; token: string; email: string; wasRegistering: boolean },
+    role: UserRole,
+  ): void {
+    const request$ = pending.provider === 'google'
+      ? this.auth.loginWithGoogle(pending.token, role)
+      : this.auth.loginWithFacebook(pending.token, role);
+
+    request$.subscribe({
+      next: (res) => {
+        this.loading.set(false);
+        this.socialLoginInProgress = false;
+        this.pendingSocialLogin = null;
+        this.socialRolePrompt.set(false);
+        this.handleSocialLoginSuccess(res, pending.wasRegistering);
+      },
+      error: (err) => {
+        this.loading.set(false);
+        this.socialLoginInProgress = false;
+        this.pendingSocialLogin = null;
+        this.error.set(err.error?.detail || `Error en autenticación con ${pending.provider === 'google' ? 'Google' : 'Facebook'}`);
+      }
+    });
   }
 
   // ── Métodos landing page ─────────────────────────────────────────
@@ -714,6 +830,10 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.showModal.set(true);
     this.error.set('');
     this.success.set('');
+    this.loginRolePrompt.set(false);
+    this.socialRolePrompt.set(false);
+    this.pendingLogin = null;
+    this.pendingSocialLogin = null;
     this.lockBodyScroll();
     document.body.classList.add('modal-open');
   }
@@ -731,6 +851,10 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.activeTab.set(tab);
     this.error.set('');
     this.success.set('');
+    this.loginRolePrompt.set(false);
+    this.socialRolePrompt.set(false);
+    this.pendingLogin = null;
+    this.pendingSocialLogin = null;
     if (tab === 'register') {
       this.registerRole.set('client');
     }

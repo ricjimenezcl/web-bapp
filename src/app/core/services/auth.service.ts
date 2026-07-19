@@ -7,7 +7,7 @@ import { StorageService } from './storage.service';
 import { SessionService } from './session.service';
 import { ProfileCompletionService } from './profile-completion.service';
 import {
-  User, UserProfile, StoredUser, LoginRequest, TokenResponse,
+  UserProfile, StoredUser, LoginRequest, TokenResponse, LoginRolesResponse,
   ClientRegister, ProviderRegister
 } from '../models/user.model';
 
@@ -30,10 +30,17 @@ export class AuthService {
   login(credentials: LoginRequest): Observable<TokenResponse> {
     return this.http.post<TokenResponse>(`${this.api}/auth/login`, {
       username: credentials.username,
-      password: credentials.password
+      password: credentials.password,
+      role: credentials.role,
     }).pipe(
       tap(res => this._storeSession(res))
     );
+  }
+
+  getLoginRoles(email: string): Observable<LoginRolesResponse> {
+    return this.http.get<LoginRolesResponse>(`${this.api}/auth/login-roles`, {
+      params: { email: email.trim().toLowerCase() }
+    });
   }
 
   loginWithGoogle(idToken: string, role: string = 'CLIENT'): Observable<TokenResponse> {

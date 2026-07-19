@@ -6,6 +6,8 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { ProfileService } from '../../../../core/services/profile.service';
 import { UserProfile } from '../../../../core/models/user.model';
 import { CustomValidators } from '../../../../shared/validators/custom-validators';
+import { ContentFilterService } from '../../../../shared/services/content-filter.service';
+import { offensiveContentAsyncValidator } from '../../../../shared/validators/content-filter.validators';
 import { formatChileanPhone } from '../../../../shared/utils/form-formatters';
 import { ProductType } from '../../../../core/services/payment.service';
 import { ModalService } from '../../../../core/services/modal.service';
@@ -26,6 +28,7 @@ export class ClientProfileComponent implements OnInit {
   private readonly route   = inject(ActivatedRoute);
   private readonly fb      = inject(FormBuilder);
   private readonly modal   = inject(ModalService);
+  private readonly contentFilterService = inject(ContentFilterService);
 
   // ── Profile ────────────────────────────────────────────────────────
   user    = signal<UserProfile | null>(null);
@@ -43,9 +46,16 @@ export class ClientProfileComponent implements OnInit {
   private avatarFile: File | null = null;
 
   form = this.fb.group({
-    full_name: ['', [Validators.required, Validators.minLength(3)]],
+    full_name: ['', {
+      validators: [Validators.required, Validators.minLength(3)],
+      asyncValidators: [offensiveContentAsyncValidator(this.contentFilterService, 'profile')],
+      updateOn: 'change',
+    }],
     phone:     ['', CustomValidators.phone()],
-    bio:       [''],
+    bio:       ['', {
+      asyncValidators: [offensiveContentAsyncValidator(this.contentFilterService, 'profile')],
+      updateOn: 'change',
+    }],
   });
 
   // ── Settings ───────────────────────────────────────────────────────
@@ -120,6 +130,7 @@ export class ClientProfileComponent implements OnInit {
 
   submitProfile(): void {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
+    if (this.form.pending) { this.form.markAllAsTouched(); return; }
     this.editLoading.set(true);
     this.editError.set('');
 

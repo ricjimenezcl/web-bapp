@@ -8,7 +8,9 @@ import { Subscription } from 'rxjs';
 import { CategoryService } from '../../core/services/category.service';
 import { AuthService } from '../../core/services/auth.service';
 import { MainCategory, ServiceCategory } from '../../core/models/provider.model';
+import { ContentFilterService } from '../../shared/services/content-filter.service';
 import { CustomValidators } from '../../shared/validators/custom-validators';
+import { offensiveContentAsyncValidator } from '../../shared/validators/content-filter.validators';
 import { formatChileanPhone, formatChileanRUT, normalizeChileanRUTForBackend } from '../../shared/utils/form-formatters';
 
 interface Category {
@@ -68,6 +70,7 @@ export class ProviderLandingComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly socialAuth = inject(SocialAuthService);
+  private readonly contentFilterService = inject(ContentFilterService);
 
   scrolled = signal(false);
   activeFaqIndex = signal<number | null>(null);
@@ -86,7 +89,11 @@ export class ProviderLandingComponent implements OnInit, OnDestroy {
   loadingServices = signal(false);
 
   registerForm = this.fb.group({
-    name: ['', Validators.required],
+    name: ['', {
+      validators: [Validators.required],
+      asyncValidators: [offensiveContentAsyncValidator(this.contentFilterService, 'profile')],
+      updateOn: 'change',
+    }],
     email: ['', [Validators.required, Validators.email]],
     run: ['', Validators.required],
     phone: ['', [Validators.required, CustomValidators.phone()]],
@@ -100,7 +107,7 @@ export class ProviderLandingComponent implements OnInit, OnDestroy {
       const r = ctrl.get('run');
       const errors: ValidationErrors = {};
 
-      if (p && c && c.value && p.value !== c.value) {
+      if (p?.value && c?.value && p.value !== c.value) {
         errors['passwordMismatch'] = true;
       }
 
@@ -389,6 +396,10 @@ export class ProviderLandingComponent implements OnInit, OnDestroy {
   }
 
   submitRegister(): void {
+    if (this.registerForm.pending) {
+      return;
+    }
+
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
       return;
@@ -432,10 +443,14 @@ export class ProviderLandingComponent implements OnInit, OnDestroy {
   }
 
   loginWithGoogle(): void {
+    this.loadingRegister.set(true);
     this.errorRegister.set('');
     this.socialAuth.signIn(GoogleLoginProvider.PROVIDER_ID).catch((err) => {
-      if (err?.error !== 'popup_closed_by_user') {
-        this.errorRegister.set('No se pudo completar el inicio de sesión con Google');
+      this.loadingRegister.set(false);
+      const mappedError = this.mapGoogleAuthError(err);
+      if (mappedError) {
+        console.error('Google Auth Error:', err);
+        this.errorRegister.set(mappedError);
       }
     });
   }
@@ -557,6 +572,32 @@ export class ProviderLandingComponent implements OnInit, OnDestroy {
     }
 
     return fallback;
+  }
+
+  private mapGoogleAuthError(err: any): string | null {
+    const code = String(err?.error ?? err?.type ?? '').toLowerCase();
+    const details = String(err?.details ?? err?.message ?? '').toLowerCase();
+
+    if (code.includes('popup_closed_by_user')) return null;
+
+    if (code.includes('popup_blocked_by_browser')) {
+      return 'Tu navegador bloqueó la ventana emergente de Google. Permite popups para continuar.';
+    }
+
+    if (
+      code.includes('idpiframe_initialization_failed') ||
+      details.includes('not a valid origin for the client') ||
+      details.includes('origin_mismatch') ||
+      details.includes('invalid origin')
+    ) {
+      return 'Google Sign-In no está autorizado para este dominio. Verifica los Authorized JavaScript origins del Client ID.';
+    }
+
+    if (details.includes('invalid_client') || details.includes('client_id')) {
+      return 'La configuración de Google Client ID no es válida para este entorno.';
+    }
+
+    return 'No se pudo completar el inicio de sesión con Google';
   }
 
   isImageUrl(icon: string): boolean {

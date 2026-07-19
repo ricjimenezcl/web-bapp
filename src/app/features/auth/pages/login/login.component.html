@@ -763,6 +763,12 @@
                   class="w-full bg-crypgo-darkmode border border-crypgo-dark_border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-crypgo-primary transition-colors"
                   [class.border-red-500]="contactForm.get('name')?.invalid && contactForm.get('name')?.touched"
                 />
+                @if (contactForm.get('name')?.pending && contactForm.get('name')?.dirty) {
+                  <p class="mt-1 text-xs text-gray-400">Validando contenido...</p>
+                }
+                @if (contactForm.get('name')?.touched && contactForm.get('name')?.errors?.['offensiveContent']) {
+                  <p class="mt-1 text-xs text-red-400">El nombre contiene lenguaje no permitido.</p>
+                }
               </div>
               <div>
                 <label for="contact-email" class="text-white text-sm block mb-2">Correo Electrónico</label>
@@ -786,6 +792,12 @@
                 placeholder="¿En qué podemos ayudarte?"
                 class="w-full bg-crypgo-darkmode border border-crypgo-dark_border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-crypgo-primary transition-colors"
               />
+              @if (contactForm.get('subject')?.pending && contactForm.get('subject')?.dirty) {
+                <p class="mt-1 text-xs text-gray-400">Validando contenido...</p>
+              }
+              @if (contactForm.get('subject')?.touched && contactForm.get('subject')?.errors?.['offensiveContent']) {
+                <p class="mt-1 text-xs text-red-400">El asunto contiene lenguaje no permitido.</p>
+              }
             </div>
 
             <div>
@@ -798,6 +810,12 @@
                 class="w-full bg-crypgo-darkmode border border-crypgo-dark_border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-crypgo-primary transition-colors resize-none"
                 [class.border-red-500]="contactForm.get('message')?.invalid && contactForm.get('message')?.touched"
               ></textarea>
+              @if (contactForm.get('message')?.pending && contactForm.get('message')?.dirty) {
+                <p class="mt-1 text-xs text-gray-400">Validando contenido...</p>
+              }
+              @if (contactForm.get('message')?.touched && contactForm.get('message')?.errors?.['offensiveContent']) {
+                <p class="mt-1 text-xs text-red-400">El mensaje contiene lenguaje no permitido.</p>
+              }
             </div>
 
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -809,7 +827,7 @@
               </div>
               <button 
                 type="submit"
-                [disabled]="contactLoading()"
+                [disabled]="contactLoading() || contactForm.pending"
                 class="w-full sm:w-auto text-center bg-crypgo-primary text-crypgo-darkmode px-6 sm:px-8 py-3 rounded-lg font-semibold hover:bg-transparent hover:text-crypgo-primary border border-crypgo-primary transition-all disabled:opacity-50 whitespace-normal">
                 {{ contactLoading() ? 'Enviando...' : 'Enviar Mensaje' }}
               </button>
@@ -1191,8 +1209,21 @@
               class="w-full bg-crypgo-darkmode border border-crypgo-dark_border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-crypgo-primary transition-colors"
               [class.border-crypgo-error]="rf['name'].invalid && rf['name'].touched"
             />
-            @if (rf['name'].invalid && rf['name'].touched) {
+            @if (rf['name'].errors?.['required'] && rf['name'].touched) {
               <span class="text-crypgo-error text-sm mt-1 block">El nombre es requerido</span>
+            }
+            @if (rf['name'].pending && rf['name'].dirty) {
+              <span class="text-gray-400 text-sm mt-1 block">Validando contenido...</span>
+            }
+            @if (rf['name'].errors?.['offensiveContent'] && rf['name'].touched) {
+              <div class="mt-2 rounded-xl border border-[#FDE68A]/40 bg-[#1A1D25] px-3 py-2 text-xs text-[#FDE68A] [font-family:'Plus_Jakarta_Sans',ui-sans-serif,system-ui]">
+                <div class="flex items-start gap-2">
+                  <svg class="mt-0.5 h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 9v4m0 4h.01M4.93 19h14.14c1.54 0 2.5-1.67 1.73-3L13.73 3c-.77-1.33-2.69-1.33-3.46 0L3.2 16c-.77 1.33.19 3 1.73 3z"/>
+                  </svg>
+                  <span>El nombre contiene lenguaje no permitido. Ajusta el texto para continuar.</span>
+                </div>
+              </div>
             }
           </div>
           <div>
@@ -1326,7 +1357,7 @@
           }
           <button 
             type="submit"
-            [disabled]="registerForm.invalid"
+            [disabled]="registerForm.invalid || registerForm.pending"
             class="btn-crypgo btn-primary-crypgo w-full bg-crypgo-primary text-crypgo-darkmode py-3 rounded-lg font-semibold hover:bg-transparent hover:text-crypgo-primary border border-crypgo-primary transition-all duration-300 disabled:opacity-50">
             Crear Cuenta
           </button>

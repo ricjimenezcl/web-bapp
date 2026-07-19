@@ -8,16 +8,16 @@
        [class.shadow-lg]="scrolled()"
        [class.border-b]="scrolled()"
        [class.border-border]="scrolled()">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
       <!-- Logo -->
   
-        <div class="flex items-center gap-2 sm:gap-3">
-        <div class="w-[44px] h-[68px] sm:w-[56px] sm:h-[86px] lg:w-[70px] lg:h-[108px] rounded-xl flex overflow-hidden">
+        <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+        <div class="w-[44px] h-[68px] sm:w-[56px] sm:h-[86px] lg:w-[70px] lg:h-[108px] rounded-xl flex overflow-hidden flex-shrink-0">
           <img src="https://res.cloudinary.com/dghwotofx/image/upload/f_auto,q_auto,w_320,c_limit/v1774563936/logo_gsgyrf.png"
                alt="Logo BappSearch" class="w-full h-full object-contain">
         </div>
         <img src="https://res.cloudinary.com/dghwotofx/image/upload/v1774563936/titulo_bycrju.png"
-             alt="BappSearch" class="h-[16px] sm:h-[22px] lg:h-[30px] object-contain">
+             alt="BappSearch" class="h-[16px] sm:h-[22px] lg:h-[30px] object-contain w-auto flex-shrink-0">
       </div>
        
       <!-- Nav links desktop -->
@@ -29,8 +29,9 @@
       <!-- CTA -->
       <button type="button"
          (click)="openRegisterModal()"
-         class="bg-primary-500 text-surface-base font-bold text-sm px-5 py-2.5 rounded-full hover:bg-primary-400 active:scale-95 transition-all duration-150 shadow-lg shadow-primary-500/20 whitespace-nowrap">
-        Registrarme Gratis →
+         class="bg-primary-500 text-surface-base font-bold text-[11px] sm:text-sm px-3 sm:px-5 py-2 sm:py-2.5 rounded-full hover:bg-primary-400 active:scale-95 transition-all duration-150 shadow-lg shadow-primary-500/20 whitespace-nowrap shrink-0">
+        <span class="sm:hidden">Registrarme</span>
+        <span class="hidden sm:inline">Registrarme Gratis →</span>
       </button>
     </div>
   </nav>
@@ -277,7 +278,7 @@
       <div class="mt-12 text-center">
         <p class="text-xl sm:text-2xl font-bold text-text-primary">
           BApp Search resuelve todo esto con un perfil gratuito
-          <span class="text-primary-500"> verificado y geolocalizad.</span>
+          <span class="text-primary-500"> verificado y geolocalizado.</span>
         </p>
       </div>
     </div>
@@ -658,12 +659,11 @@
   </section>
 
   @if (showServicesModal()) {
-    <div class="services-modal-backdrop"
+    <dialog open
+         class="services-modal-backdrop"
          (click)="closeServicesModal()"
          (keydown.escape)="closeServicesModal()"
-         role="dialog"
-         aria-modal="true"
-         tabindex="-1">
+         aria-labelledby="services-modal-title">
       <div class="services-modal-container"
            (click)="$event.stopPropagation()"
            (keydown)="$event.stopPropagation()">
@@ -682,7 +682,7 @@
             } @else {
               <span class="services-header-icon">{{ getCategoryEmoji(selectedCategory()?.name || '', selectedCategory()?.icon) }}</span>
             }
-            <h2 class="services-modal-title">{{ selectedCategory()?.name }}</h2>
+            <h2 id="services-modal-title" class="services-modal-title">{{ selectedCategory()?.name }}</h2>
             <p class="services-modal-subtitle">Selecciona un servicio para continuar</p>
           </div>
         </div>
@@ -728,27 +728,27 @@
         <div class="services-modal-orb services-modal-orb-2"></div>
 
       </div>
-    </div>
+    </dialog>
   }
 
   @if (showRegisterModal()) {
-    <div class="fixed inset-0 z-[100] bg-black/65 backdrop-blur-sm flex items-center justify-center p-4"
+        <dialog open
+          class="register-modal-backdrop fixed inset-0 z-[100] bg-black/65 backdrop-blur-sm flex items-center justify-center p-4"
          (click)="closeRegisterModal()"
          (keydown.escape)="closeRegisterModal()"
-         role="dialog"
-         aria-modal="true"
-         tabindex="-1">
+         aria-labelledby="provider-register-modal-title">
       <div class="w-full max-w-md rounded-3xl border border-border bg-surface-base shadow-2xl shadow-black/40 overflow-hidden"
            (click)="$event.stopPropagation()"
            (keydown)="$event.stopPropagation()">
 
         <div class="px-6 pt-6 pb-4 border-b border-border flex items-center justify-between">
           <div>
-            <h3 class="text-xl font-black text-text-primary">Regístrate como Proveedor</h3>
+            <h3 id="provider-register-modal-title" class="text-xl font-black text-text-primary">Regístrate como Proveedor</h3>
             <p class="text-sm text-text-secondary mt-1">Publica servicios y recibe clientes cerca de ti</p>
           </div>
           <button type="button"
                   (click)="closeRegisterModal()"
+                  aria-label="Cerrar registro"
                   class="w-9 h-9 rounded-xl bg-surface-card border border-border text-text-secondary hover:text-text-primary hover:border-border-medium transition-colors flex items-center justify-center">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
@@ -795,19 +795,32 @@
 
           <form [formGroup]="registerForm" (ngSubmit)="submitRegister()" class="space-y-3">
             <div>
-              <label class="block text-xs font-semibold uppercase tracking-wide text-text-tertiary mb-1.5">Nombre completo</label>
-              <input type="text"
+              <label for="provider-register-name" class="block text-xs font-semibold uppercase tracking-wide text-text-tertiary mb-1.5">Nombre completo</label>
+              <input id="provider-register-name" type="text"
                      formControlName="name"
                      placeholder="Ej: Juan Pérez"
                      class="w-full rounded-xl border border-border bg-surface-card px-3 py-2.5 text-sm text-text-primary placeholder:text-text-tertiary outline-none focus:border-primary-500" />
               @if (rf['name'].touched && rf['name'].errors?.['required']) {
                 <p class="mt-1 text-xs text-danger">El nombre es requerido</p>
               }
+              @if (rf['name'].pending && rf['name'].dirty) {
+                <p class="mt-1 text-xs text-text-tertiary">Validando contenido...</p>
+              }
+              @if (rf['name'].touched && rf['name'].errors?.['offensiveContent']) {
+                <div class="mt-2 rounded-xl border border-[#FDE68A]/40 bg-[#1A1D25] px-3 py-2 text-xs text-[#FDE68A] [font-family:'Plus_Jakarta_Sans',ui-sans-serif,system-ui]">
+                  <div class="flex items-start gap-2">
+                    <svg class="mt-0.5 h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 9v4m0 4h.01M4.93 19h14.14c1.54 0 2.5-1.67 1.73-3L13.73 3c-.77-1.33-2.69-1.33-3.46 0L3.2 16c-.77 1.33.19 3 1.73 3z"/>
+                    </svg>
+                    <span>El nombre contiene lenguaje no permitido. Ajusta el texto para continuar.</span>
+                  </div>
+                </div>
+              }
             </div>
 
             <div>
-              <label class="block text-xs font-semibold uppercase tracking-wide text-text-tertiary mb-1.5">Correo electrónico</label>
-              <input type="email"
+              <label for="provider-register-email" class="block text-xs font-semibold uppercase tracking-wide text-text-tertiary mb-1.5">Correo electrónico</label>
+              <input id="provider-register-email" type="email"
                      formControlName="email"
                      placeholder="nombre@correo.com"
                      class="w-full rounded-xl border border-border bg-surface-card px-3 py-2.5 text-sm text-text-primary placeholder:text-text-tertiary outline-none focus:border-primary-500" />
@@ -821,8 +834,8 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label class="block text-xs font-semibold uppercase tracking-wide text-text-tertiary mb-1.5">RUT</label>
-                <input type="text"
+                <label for="provider-register-run" class="block text-xs font-semibold uppercase tracking-wide text-text-tertiary mb-1.5">RUT</label>
+                <input id="provider-register-run" type="text"
                        formControlName="run"
                        inputmode="text"
                        placeholder="12.345.678-9"
@@ -835,8 +848,8 @@
               </div>
 
               <div>
-                <label class="block text-xs font-semibold uppercase tracking-wide text-text-tertiary mb-1.5">Teléfono</label>
-                <input type="tel"
+                <label for="provider-register-phone" class="block text-xs font-semibold uppercase tracking-wide text-text-tertiary mb-1.5">Teléfono</label>
+                <input id="provider-register-phone" type="tel"
                        formControlName="phone"
                        inputmode="numeric"
                        placeholder="+56 9 1234 5678"
@@ -849,9 +862,9 @@
             </div>
 
             <div>
-              <label class="block text-xs font-semibold uppercase tracking-wide text-text-tertiary mb-1.5">Contraseña</label>
+              <label for="provider-register-password" class="block text-xs font-semibold uppercase tracking-wide text-text-tertiary mb-1.5">Contraseña</label>
               <div class="relative">
-                <input [type]="showModalPass() ? 'text' : 'password'"
+                <input id="provider-register-password" [type]="showModalPass() ? 'text' : 'password'"
                        formControlName="password"
                        placeholder="Mínimo 8 caracteres"
                        class="w-full rounded-xl border border-border bg-surface-card px-3 py-2.5 pr-10 text-sm text-text-primary placeholder:text-text-tertiary outline-none focus:border-primary-500" />
@@ -874,9 +887,9 @@
             </div>
 
             <div>
-              <label class="block text-xs font-semibold uppercase tracking-wide text-text-tertiary mb-1.5">Confirmar contraseña</label>
+              <label for="provider-register-confirm-password" class="block text-xs font-semibold uppercase tracking-wide text-text-tertiary mb-1.5">Confirmar contraseña</label>
               <div class="relative">
-                <input [type]="showModalConfirmPass() ? 'text' : 'password'"
+                <input id="provider-register-confirm-password" [type]="showModalConfirmPass() ? 'text' : 'password'"
                        formControlName="confirmPassword"
                        placeholder="Repite tu contraseña"
                        class="w-full rounded-xl border border-border bg-surface-card px-3 py-2.5 pr-10 text-sm text-text-primary placeholder:text-text-tertiary outline-none focus:border-primary-500" />
@@ -914,7 +927,7 @@
             }
 
             <button type="submit"
-                    [disabled]="loadingRegister()"
+                  [disabled]="loadingRegister() || registerForm.pending"
                     class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary-500 px-4 py-3 font-bold text-surface-base hover:bg-primary-400 disabled:opacity-60 disabled:cursor-not-allowed transition-colors">
               @if (loadingRegister()) {
                 <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -929,7 +942,7 @@
           </form>
         </div>
       </div>
-    </div>
+    </dialog>
   }
 
   <!-- ══════════════════════════════════════════════════════════

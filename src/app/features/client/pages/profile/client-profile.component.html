@@ -31,7 +31,7 @@
     </div>
 
     <!-- Nav: General -->
-    <nav class="nav-group">
+    <nav class="nav-group" aria-label="Navegación general del perfil cliente">
       <div class="nav-label">General</div>
 
       <button class="nav-item" [class.nav-item--active]="activeView() === 'overview'"
@@ -71,7 +71,7 @@
     </nav>
 
     <!-- Nav: Preferencias -->
-    <nav class="nav-group">
+    <nav class="nav-group" aria-label="Navegación de preferencias del perfil cliente">
       <div class="nav-label">Preferencias</div>
 
       <button class="nav-item" [class.nav-item--active]="activeView() === 'config'"
@@ -231,13 +231,13 @@
                 </svg>
               </div>
             }
-            <label class="avatar-camera-btn" title="Cambiar foto">
+            <label class="avatar-camera-btn" title="Cambiar foto" for="client-profile-avatar-input" aria-label="Cambiar foto de perfil">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
               </svg>
-              <input type="file" style="display:none" accept="image/*" (change)="onAvatarChange($event)">
+              <input id="client-profile-avatar-input" type="file" style="display:none" accept="image/*" (change)="onAvatarChange($event)">
             </label>
           </div>
           <div>
@@ -250,8 +250,8 @@
           <div class="form-grid">
 
             <div class="form-group form-group--full">
-              <label>Nombre Completo *</label>
-              <input type="text" formControlName="full_name"
+              <label for="client-profile-full-name">Nombre Completo *</label>
+              <input id="client-profile-full-name" type="text" formControlName="full_name"
                 [class.is-error]="form.get('full_name')!.invalid && form.get('full_name')!.touched"
                 placeholder="Juan Pérez">
               @if (form.get('full_name')!.invalid && form.get('full_name')!.touched) {
@@ -259,11 +259,17 @@
                   {{ form.get('full_name')!.errors?.['required'] ? 'El nombre es requerido' : 'Mínimo 3 caracteres' }}
                 </span>
               }
+              @if (form.get('full_name')!.pending && form.get('full_name')!.dirty) {
+                <span class="form-hint">Validando contenido...</span>
+              }
+              @if (form.get('full_name')!.touched && form.get('full_name')!.errors?.['offensiveContent']) {
+                <span class="form-error">El nombre contiene lenguaje no permitido.</span>
+              }
             </div>
 
             <div class="form-group">
-              <label>Teléfono</label>
-              <input type="tel" formControlName="phone"
+              <label for="client-profile-phone">Teléfono</label>
+              <input id="client-profile-phone" type="tel" formControlName="phone"
                 [class.is-error]="form.get('phone')!.invalid && form.get('phone')!.touched"
                 placeholder="+56 9 XXXX XXXX" maxlength="17"
                 (input)="onPhoneInput($event)">
@@ -273,20 +279,26 @@
             </div>
 
             <div class="form-group">
-              <label>Email</label>
-              <input type="email" [value]="user()?.email || ''" disabled>
+              <label for="client-profile-email">Email</label>
+              <input id="client-profile-email" type="email" [value]="user()?.email || ''" disabled>
             </div>
 
             <div class="form-group form-group--full">
-              <label>Biografía / Sobre mí</label>
-              <textarea formControlName="bio" rows="4" placeholder="Cuéntanos sobre ti..."></textarea>
+              <label for="client-profile-bio">Biografía / Sobre mí</label>
+              <textarea id="client-profile-bio" formControlName="bio" rows="4" placeholder="Cuéntanos sobre ti..."></textarea>
+              @if (form.get('bio')!.pending && form.get('bio')!.dirty) {
+                <span class="form-hint">Validando contenido...</span>
+              }
+              @if (form.get('bio')!.touched && form.get('bio')!.errors?.['offensiveContent']) {
+                <span class="form-error">La biografía contiene lenguaje no permitido.</span>
+              }
             </div>
 
           </div>
 
           <div class="form-actions">
             <button type="button" class="btn-secondary" (click)="showView('overview')">Cancelar</button>
-            <button type="submit" class="btn-primary" [disabled]="editLoading()">
+            <button type="submit" class="btn-primary" [disabled]="editLoading() || form.pending">
               @if (editLoading()) { Guardando... } @else { Guardar Cambios }
             </button>
           </div>
@@ -442,11 +454,15 @@
               <h4>Modo Oscuro</h4>
               <p>Reduce el cansancio visual con un tema de alto contraste.</p>
             </div>
-            <label class="toggle-wrap">
-              <input type="checkbox" class="toggle-input" [checked]="darkMode()"
+            <fieldset class="toggle-wrap" style="border:0;padding:0;margin:0;min-width:0;">
+              <legend style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Alternar modo oscuro</legend>
+              <input id="client-profile-dark-mode" type="checkbox" class="toggle-input" [checked]="darkMode()"
                 (change)="toggleDarkMode(($any($event.target)).checked)">
-              <div class="toggle-track"><div class="toggle-thumb"></div></div>
-            </label>
+              <label class="toggle-track" for="client-profile-dark-mode">
+                <span style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Alternar modo oscuro</span>
+                <div class="toggle-thumb"></div>
+              </label>
+            </fieldset>
           </div>
 
           <!-- Cambiar contraseña -->
@@ -478,19 +494,19 @@
             <form [formGroup]="pwForm" (ngSubmit)="changePassword()" class="pw-form">
               <div class="pw-form-grid">
                 <div class="form-group">
-                  <label>Contraseña actual</label>
-                  <input type="password" formControlName="old_password" placeholder="••••••••">
+                  <label for="client-profile-old-password">Contraseña actual</label>
+                  <input id="client-profile-old-password" type="password" formControlName="old_password" placeholder="••••••••">
                 </div>
                 <div class="form-group">
-                  <label>Nueva contraseña</label>
-                  <input type="password" formControlName="new_password" placeholder="Mínimo 8 caracteres">
+                  <label for="client-profile-new-password">Nueva contraseña</label>
+                  <input id="client-profile-new-password" type="password" formControlName="new_password" placeholder="Mínimo 8 caracteres">
                   @if (pwForm.get('new_password')?.touched && pwForm.get('new_password')?.errors?.['minlength']) {
                     <span class="form-error">Mínimo 8 caracteres</span>
                   }
                 </div>
                 <div class="form-group">
-                  <label>Confirmar contraseña</label>
-                  <input type="password" formControlName="confirm_password" placeholder="Repite la contraseña">
+                  <label for="client-profile-confirm-password">Confirmar contraseña</label>
+                  <input id="client-profile-confirm-password" type="password" formControlName="confirm_password" placeholder="Repite la contraseña">
                   @if (pwForm.errors?.['mismatch'] && pwForm.get('confirm_password')?.touched) {
                     <span class="form-error">Las contraseñas no coinciden</span>
                   }
@@ -540,8 +556,8 @@
 </div>
 
 @if (showPremiumModal()) {
-  <div class="premium-modal-backdrop" (click)="closePremiumModal()"></div>
-  <div class="premium-modal" role="dialog" aria-modal="true" aria-label="Planes premium">
+  <button type="button" class="premium-modal-backdrop" (click)="closePremiumModal()" (keydown.enter)="closePremiumModal()" aria-label="Cerrar modal premium"></button>
+  <dialog class="premium-modal" open aria-label="Planes premium">
     <div class="premium-modal-header">
       <h3>Desbloquea más proveedores</h3>
       <button type="button" class="premium-modal-close" (click)="closePremiumModal()">✕</button>
@@ -563,5 +579,5 @@
         <strong>$4.990 CLP</strong>
       </button>
     </div>
-  </div>
+  </dialog>
 }

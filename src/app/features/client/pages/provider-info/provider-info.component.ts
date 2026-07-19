@@ -1,8 +1,7 @@
 import { Component, inject, signal, OnInit, OnDestroy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
-import { Location } from '@angular/common';
-import { Subject, debounceTime, distinctUntilChanged, switchMap, of, forkJoin, takeUntil, catchError } from 'rxjs';
+import { Subject, debounceTime, distinctUntilChanged, switchMap, of, forkJoin, takeUntil, catchError, firstValueFrom } from 'rxjs';
 import { ProviderService } from '../../../../core/services/provider.service';
 import { BookingService } from '../../../../core/services/booking.service';
 import { ChatService } from '../../../../core/services/chat.service';
@@ -14,6 +13,7 @@ import { ProviderProfile, ServiceProvider, ProviderWorkingHours } from '../../..
 import { Review } from '../../../../core/models/review.model';
 import { ModalService } from '../../../../core/services/modal.service';
 import { ReportService, ReportType, REPORT_TYPE_LABELS } from '../../../../core/services/report.service';
+import { ContentFilterService } from '../../../../shared/services/content-filter.service';
 
 interface CalendarDay {
   dateStr: string;      // YYYY-MM-DD
@@ -45,6 +45,7 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
   readonly contactLimit        = inject(ContactLimitService);
   private readonly modal       = inject(ModalService);
   private readonly reportSvc   = inject(ReportService);
+  private readonly contentFilterService = inject(ContentFilterService);
   private readonly destroy$    = new Subject<void>();
 
   // ── Datos del proveedor ──────────────────────────────────────────────────
@@ -86,6 +87,8 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
 
   // ── Notas ────────────────────────────────────────────────────────────────
   bookingNotes = signal('');
+  bookingNotesChecking = signal(false);
+  bookingNotesError = signal('');
 
   // ── Chat ─────────────────────────────────────────────────────────────────
   isStartingChat = signal(false);
@@ -101,8 +104,8 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
     else if (e.key === 'Escape') this.closeLightbox();
   };
 
-  private activeDays             = new Set<number>();
-  private slotsCache             = new Map<string, { time: string; available: boolean }[]>();
+  private readonly activeDays             = new Set<number>();
+  private readonly slotsCache             = new Map<string, { time: string; available: boolean }[]>();
   private useManualAddress       = false;
   private hasShownLocationPrompt = false;
   private readonly searchTerms   = new Subject<string>();
@@ -177,7 +180,7 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
 
   // ── Carga de datos ────────────────────────────────────────────────────────
   load(): void {
-    // Obtiene todo en una sola llamada al endpoint /providers/{id}/detailed
+    // Carga perfil y servicios en una sola llamada al endpoint /providers/{id}/detailed
     this.providerSvc.getProviderDetailedProfile(this.providerId).subscribe({
       next:  (profile) => {
         this.provider.set(profile);
@@ -402,12 +405,39 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
 
   confirmBooking(): void {
     this.bookingAttempted.set(true);
+    this.bookingNotesError.set('');
 
     if (!this.selectedDate() || !this.selectedSlot() || !this.addressInput()) {
       this.showToast('Por favor completa todos los campos requeridos', 'warning');
       return;
     }
 
+    const notes = this.bookingNotes().trim();
+    if (notes.length >= 2) {
+      this.bookingNotesChecking.set(true);
+      firstValueFrom(this.contentFilterService.validateText(notes, 'generic'))
+        .then((result) => {
+          if (result.blocked) {
+            this.bookingNotesChecking.set(false);
+            this.bookingNotesError.set('Las notas contienen lenguaje no permitido.');
+            this.showToast('Corrige las notas antes de continuar', 'warning');
+            return;
+          }
+
+          this.bookingNotesChecking.set(false);
+          this.submitBookingRequest();
+        })
+        .catch(() => {
+          this.bookingNotesChecking.set(false);
+          this.submitBookingRequest();
+        });
+      return;
+    }
+
+    this.submitBookingRequest();
+  }
+
+  private submitBookingRequest(): void {
     const service  = this.selectedService() ?? this.services()[0] ?? null;
     const datePart = this.selectedDate().includes('T')
       ? this.selectedDate().split('T')[0]
@@ -639,12 +669,25 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
     else if (lc.includes('fraude') || lc.includes('esta')) reportType = 'FRAUD';
     else if (lc.includes('contenido') || lc.includes('in'))reportType = 'INAPPROPRIATE_CONTENT';
 
+    const trimmedDescription = description.trim();
+    if (trimmedDescription) {
+      try {
+        const result = await firstValueFrom(this.contentFilterService.validateText(trimmedDescription, 'generic'));
+        if (result.blocked) {
+          this.showToast('La denuncia contiene lenguaje no permitido. Ajusta el texto para continuar.', 'danger');
+          return;
+        }
+      } catch {
+        // UX fail-open: backend vuelve a validar al persistir.
+      }
+    }
+
     this.reportSvc.createReport({
       report_type:          reportType,
       reported_entity_type: 'USER',
       reported_entity_id:   this.providerId,
       reported_user_id:     this.providerId,
-      description:          description || undefined,
+      description:          trimmedDescription || undefined,
     }).subscribe({
       next: () => {
         this.showToast('Denuncia enviada. Gracias por tu reporte.', 'success');

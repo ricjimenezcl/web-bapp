@@ -302,6 +302,12 @@
               @if (form.get('full_name')!.invalid && form.get('full_name')!.touched) {
                 <span class="form-error">El nombre es requerido</span>
               }
+              @if (form.get('full_name')!.pending && form.get('full_name')!.dirty) {
+                <span class="form-hint">Validando contenido...</span>
+              }
+              @if (form.get('full_name')!.touched && form.get('full_name')!.errors?.['offensiveContent']) {
+                <span class="form-error">El nombre contiene lenguaje no permitido.</span>
+              }
             </div>
 
             <div class="form-group">
@@ -319,13 +325,19 @@
               <label for="pp_bio">Descripción profesional / Bio</label>
               <textarea id="pp_bio" formControlName="bio" rows="4"
                 placeholder="Cuéntanos sobre ti y tus servicios..."></textarea>
+              @if (form.get('bio')!.pending && form.get('bio')!.dirty) {
+                <span class="form-hint">Validando contenido...</span>
+              }
+              @if (form.get('bio')!.touched && form.get('bio')!.errors?.['offensiveContent']) {
+                <span class="form-error">La bio contiene lenguaje no permitido.</span>
+              }
             </div>
 
           </div>
 
           <div class="form-actions">
             <button type="button" class="btn-secondary" (click)="showView('overview')">Cancelar</button>
-            <button type="submit" class="btn-primary" [disabled]="saveLoading()">
+            <button type="submit" class="btn-primary" [disabled]="saveLoading() || form.pending">
               @if (saveLoading()) { Guardando... } @else { Guardar Cambios }
             </button>
           </div>

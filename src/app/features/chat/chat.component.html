@@ -55,7 +55,7 @@
         rows="1"
         class="flex-1 form-input resize-none overflow-hidden min-h-[40px] max-h-[120px] py-2.5 textarea-auto-size"
       ></textarea>
-      <button (click)="send()" [disabled]="!messageControl.value?.trim() || sending()"
+      <button (click)="send()" [disabled]="!messageControl.value?.trim() || sending() || messageControl.pending || !!messageControl.errors?.['offensiveContent']"
         class="send-btn shrink-0">
         @if (sending()) {
           <span class="spinner w-4 h-4"></span>
@@ -66,5 +66,14 @@
         }
       </button>
     </div>
+    @if (messageControl.pending && messageControl.value?.trim()) {
+      <p class="mt-2 max-w-2xl mx-auto text-xs text-text-secondary">Validando contenido...</p>
+    }
+    @if (messageControl.errors?.['offensiveContent']) {
+      <p class="mt-2 max-w-2xl mx-auto text-xs text-danger">El mensaje contiene lenguaje no permitido. Ajusta el texto para continuar.</p>
+    }
+    @if (chatInputError()) {
+      <p class="mt-2 max-w-2xl mx-auto text-xs text-danger">{{ chatInputError() }}</p>
+    }
   </div>
 </div>

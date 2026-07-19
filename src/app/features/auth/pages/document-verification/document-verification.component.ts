@@ -11,9 +11,11 @@ import { takeUntil } from 'rxjs/operators';
 
 interface VerificationState {
   selfieUrl: string | null;
-  idDocumentUrl: string | null;
+  idDocumentFrontUrl: string | null;
+  idDocumentBackUrl: string | null;
   selfieDocumentId: number | null;
-  idDocumentId: number | null;
+  idDocumentFrontId: number | null;
+  idDocumentBackId: number | null;
   uploading: boolean;
   verificationInitiated: boolean;
   verificationStatus: 'IDLE' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'PROCESSING';
@@ -23,7 +25,7 @@ interface VerificationState {
   
   // Face preview
   selfieFacePreview: string | null;
-  idFacePreview: string | null;
+  idFrontFacePreview: string | null;
   loadingPreview: boolean;
   facePreviewError: string | null;
 }
@@ -54,7 +56,7 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
   // Camera and Liveness state
   isCameraActive = signal(false);
   cameraMode     = signal<'user' | 'environment'>('user'); // user=selfie, environment=document
-  activeCapture  = signal<'selfie' | 'document' | null>(null);
+  activeCapture  = signal<'selfie' | 'documentFront' | 'documentBack' | null>(null);
   stream: MediaStream | null = null;
 
   // Liveness Logic
@@ -87,9 +89,11 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
 
   state: VerificationState = {
     selfieUrl: null,
-    idDocumentUrl: null,
+    idDocumentFrontUrl: null,
+    idDocumentBackUrl: null,
     selfieDocumentId: null,
-    idDocumentId: null,
+    idDocumentFrontId: null,
+    idDocumentBackId: null,
     uploading: false,
     verificationInitiated: false,
     verificationStatus: 'IDLE',
@@ -97,12 +101,13 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
     retryCount: 0,
     maxRetries: 3,
     selfieFacePreview: null,
-    idFacePreview: null,
+    idFrontFacePreview: null,
     loadingPreview: false,
     facePreviewError: null,
   };
 
-  private docFile: File | null   = null;
+  private docFrontFile: File | null = null;
+  private docBackFile: File | null = null;
   private selfieFile: File | null = null;
   private rawSelfieDataUrl: string | null = null;
   private selfieFallbackTried = false;
@@ -145,7 +150,7 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
     }
   }
 
-  async startCamera(type: 'selfie' | 'document') {
+  async startCamera(type: 'selfie' | 'documentFront' | 'documentBack') {
     this.activeCapture.set(type);
     this.cameraMode.set(type === 'selfie' ? 'user' : 'environment');
     this.isCameraActive.set(true);
@@ -554,13 +559,13 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
 
         // Para selfies: usar el área del óvalo para evitar recortes demasiado agresivos.
         croppedCanvas = this.cropToSelfieOvalRegion(canvas);
-      } else if (this.activeCapture() === 'document' && this.lastDocumentBounds) {
-        // Para documentos: crop del documento
-        croppedCanvas = this.cropToDocumentRegion(canvas, this.lastDocumentBounds);
+      } else if (this.activeCapture() === 'documentFront' || this.activeCapture() === 'documentBack') {
+        // Para documentos: recortar estrictamente al marco guía de la cédula.
+        croppedCanvas = this.cropToDocumentGuideRegion(canvas);
       }
 
       // Verificación básica de calidad para documentos
-      if (this.activeCapture() === 'document') {
+      if (this.activeCapture() === 'documentFront' || this.activeCapture() === 'documentBack') {
         const imageData = context.getImageData(0, 0, canvas.width, canvas.height).data;
         let brightness = 0;
         for (let i = 0; i < imageData.length; i += 40) { // Muestreo rápido
@@ -585,15 +590,56 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
             this.selfieFile = file;
             this.state.selfieUrl = URL.createObjectURL(file);
             this.uploadSelfie();
+          } else if (this.activeCapture() === 'documentFront') {
+            this.docFrontFile = file;
+            this.state.idDocumentFrontUrl = URL.createObjectURL(file);
+            this.uploadIdDocument('front');
           } else {
-            this.docFile = file;
-            this.state.idDocumentUrl = URL.createObjectURL(file);
-            this.uploadIdDocument();
+            this.docBackFile = file;
+            this.state.idDocumentBackUrl = URL.createObjectURL(file);
+            this.uploadIdDocument('back');
           }
           this.stopCamera();
         }
       }, 'image/jpeg', 0.9);
     }
+  }
+
+  /**
+   * Recorta el documento al marco guía mostrado en pantalla.
+   * Mantiene proporción de cédula (1.6:1) y centra el recorte para evitar fondo extra.
+   */
+  private cropToDocumentGuideRegion(canvas: HTMLCanvasElement): HTMLCanvasElement {
+    const targetAspect = 1.6;
+    const cropWidth = Math.floor(canvas.width * 0.84);
+    const cropHeight = Math.floor(cropWidth / targetAspect);
+
+    const left = Math.max(0, Math.floor((canvas.width - cropWidth) / 2));
+    const top = Math.max(0, Math.floor((canvas.height - cropHeight) / 2));
+
+    const safeWidth = Math.min(cropWidth, canvas.width - left);
+    const safeHeight = Math.min(cropHeight, canvas.height - top);
+
+    const cropCanvas = document.createElement('canvas');
+    cropCanvas.width = Math.max(1, safeWidth);
+    cropCanvas.height = Math.max(1, safeHeight);
+
+    const ctx = cropCanvas.getContext('2d');
+    if (ctx) {
+      ctx.drawImage(
+        canvas,
+        left,
+        top,
+        safeWidth,
+        safeHeight,
+        0,
+        0,
+        cropCanvas.width,
+        cropCanvas.height
+      );
+    }
+
+    return cropCanvas;
   }
 
   /**
@@ -693,9 +739,9 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
   onDocumentSelect(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
-    this.docFile = file;
+    this.docFrontFile = file;
     const reader = new FileReader();
-    reader.onload = (e) => this.state.idDocumentUrl = e.target?.result as string;
+    reader.onload = (e) => this.state.idDocumentFrontUrl = e.target?.result as string;
     reader.readAsDataURL(file);
   }
 
@@ -810,9 +856,13 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
   /**
    * Upload ID document with validation
    */
-  async uploadIdDocument(): Promise<void> {
-    if (!this.docFile) {
-      this.error.set('Primero captura tu documento de identidad.');
+  async uploadIdDocument(side: 'front' | 'back'): Promise<void> {
+    const file = side === 'front' ? this.docFrontFile : this.docBackFile;
+
+    if (!file) {
+      this.error.set(side === 'front'
+        ? 'Primero captura el frente de tu cédula.'
+        : 'Primero captura el reverso de tu cédula.');
       return;
     }
 
@@ -821,14 +871,18 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
       this.error.set('');
 
       const result = await firstValueFrom(
-        this.uploadService.uploadDocument(this.docFile, 'IDENTITY_DOCUMENT')
+        this.uploadService.uploadDocument(file, 'IDENTITY_DOCUMENT')
       );
-      
-      this.state.idDocumentId = result.id;
-      console.log('✅ Documento subido con éxito:', result.id);
 
-      // Si ambos documentos están listos, cargar preview
-      if (this.state.selfieDocumentId && this.state.idDocumentId) {
+      if (side === 'front') {
+        this.state.idDocumentFrontId = result.id;
+      } else {
+        this.state.idDocumentBackId = result.id;
+      }
+      console.log(`✅ Documento ${side === 'front' ? 'frontal' : 'posterior'} subido con éxito:`, result.id);
+
+      // Para preview facial solo se usa selfie + frente.
+      if (this.state.selfieDocumentId && this.state.idDocumentFrontId) {
         await this.loadFacePreview();
       }
     } catch (err: any) {
@@ -842,11 +896,15 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
           return;
         }
 
-        const refreshed = await this.retryUploadAfterRefresh(this.docFile, 'IDENTITY_DOCUMENT');
+        const refreshed = await this.retryUploadAfterRefresh(file, 'IDENTITY_DOCUMENT');
         if (refreshed?.id) {
-          this.state.idDocumentId = refreshed.id;
-          console.log('✅ Documento subido tras refresh de token:', refreshed.id);
-          if (this.state.selfieDocumentId && this.state.idDocumentId) {
+          if (side === 'front') {
+            this.state.idDocumentFrontId = refreshed.id;
+          } else {
+            this.state.idDocumentBackId = refreshed.id;
+          }
+          console.log(`✅ Documento ${side === 'front' ? 'frontal' : 'posterior'} subido tras refresh de token:`, refreshed.id);
+          if (this.state.selfieDocumentId && this.state.idDocumentFrontId) {
             await this.loadFacePreview();
           }
           return;
@@ -884,7 +942,7 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
    * Load face preview (FIX ERROR 431: Convert base64 to Data URL)
    */
   async loadFacePreview(): Promise<void> {
-    if (!this.state.selfieDocumentId || !this.state.idDocumentId) {
+    if (!this.state.selfieDocumentId || !this.state.idDocumentFrontId) {
       return;
     }
 
@@ -895,7 +953,7 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
       const result = await firstValueFrom(
         this.uploadService.getFacePreview(
           this.state.selfieDocumentId,
-          this.state.idDocumentId
+          this.state.idDocumentFrontId
         )
       );
 
@@ -904,13 +962,13 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
         this.state.selfieFacePreview = result.selfie_preview 
           ? `data:image/jpeg;base64,${result.selfie_preview}` 
           : null;
-        this.state.idFacePreview = result.id_preview 
+        this.state.idFrontFacePreview = result.id_preview 
           ? `data:image/jpeg;base64,${result.id_preview}` 
           : null;
 
         const facesDetected = result.success && 
           this.state.selfieFacePreview && 
-          this.state.idFacePreview;
+          this.state.idFrontFacePreview;
         
         if (facesDetected) {
           console.log('✅ Face preview loaded successfully');
@@ -950,8 +1008,8 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
    * Submit documents for upload and preview
    */
   async submit(): Promise<void> {
-    if (!this.docFile || !this.selfieFile) {
-      this.error.set('Debes subir el documento y la selfie.');
+    if (!this.selfieFile || !this.docFrontFile || !this.docBackFile) {
+      this.error.set('Debes capturar selfie, frente y reverso de la cédula.');
       return;
     }
 
@@ -961,13 +1019,16 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
     // Upload both documents
     await this.uploadSelfie();
     if (this.state.selfieDocumentId) {
-      await this.uploadIdDocument();
+      await this.uploadIdDocument('front');
+    }
+    if (this.state.idDocumentFrontId) {
+      await this.uploadIdDocument('back');
     }
 
     this.loading.set(false);
 
     // If face preview loaded successfully, advance to preview step
-    if (this.state.selfieFacePreview && this.state.idFacePreview) {
+    if (this.state.selfieFacePreview && this.state.idFrontFacePreview) {
       this.step.set('preview');
     }
   }
@@ -976,8 +1037,8 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
    * Initiate face verification
    */
   async initiateVerification(): Promise<void> {
-    if (!this.state.selfieDocumentId || !this.state.idDocumentId) {
-      this.error.set('Debe subir selfie y documento de identidad');
+    if (!this.state.selfieDocumentId || !this.state.idDocumentFrontId || !this.state.idDocumentBackId) {
+      this.error.set('Debes subir selfie, frente y reverso de la cédula');
       return;
     }
 
@@ -989,7 +1050,7 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
       const result = await firstValueFrom(
         this.uploadService.initiateVerification(
           this.state.selfieDocumentId,
-          this.state.idDocumentId
+          this.state.idDocumentFrontId
         )
       );
       
@@ -1124,9 +1185,11 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
     // Reset state
     this.state = {
       selfieUrl: null,
-      idDocumentUrl: null,
+      idDocumentFrontUrl: null,
+      idDocumentBackUrl: null,
       selfieDocumentId: null,
-      idDocumentId: null,
+      idDocumentFrontId: null,
+      idDocumentBackId: null,
       uploading: false,
       verificationInitiated: false,
       verificationStatus: 'IDLE',
@@ -1134,12 +1197,13 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
       retryCount: 0,
       maxRetries: 3,
       selfieFacePreview: null,
-      idFacePreview: null,
+      idFrontFacePreview: null,
       loadingPreview: false,
       facePreviewError: null,
     };
     
-    this.docFile = null;
+    this.docFrontFile = null;
+    this.docBackFile = null;
     this.selfieFile = null;
     this.rawSelfieDataUrl = null;
     this.selfieFallbackTried = false;

@@ -9,6 +9,8 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { ProfileService } from '../../../../core/services/profile.service';
 import { ProviderProfile } from '../../../../core/models/provider.model';
 import { environment } from '../../../../../environments/environment';
+import { ContentFilterService } from '../../../../shared/services/content-filter.service';
+import { offensiveContentAsyncValidator } from '../../../../shared/validators/content-filter.validators';
 
 interface ServiceTransaction {
   id: number;
@@ -44,6 +46,7 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
   private readonly router      = inject(Router);
   private readonly route       = inject(ActivatedRoute);
   private readonly fb          = inject(FormBuilder);
+  private readonly contentFilterService = inject(ContentFilterService);
   private sub?: Subscription;
 
   provider    = signal<ProviderProfile | null>(null);
@@ -75,9 +78,14 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
   private avatarFile: File | null = null;
 
   form = this.fb.group({
-    full_name: ['', Validators.required],
+    full_name: this.fb.control('', {
+      validators: [Validators.required],
+      asyncValidators: [offensiveContentAsyncValidator(this.contentFilterService, 'profile')],
+    }),
     phone:     [''],
-    bio:       [''],
+    bio:       this.fb.control('', {
+      asyncValidators: [offensiveContentAsyncValidator(this.contentFilterService, 'profile')],
+    }),
   });
 
   showView(v: string): void {
@@ -191,7 +199,14 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
   }
 
   save(): void {
-    if (this.form.invalid) return;
+    if (this.form.pending) {
+      this.form.markAllAsTouched();
+      return;
+    }
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
     this.saveLoading.set(true);
     const save = () => {
       this.providerSvc.updateProfile(this.form.value as any).subscribe({

@@ -207,7 +207,10 @@
               <div class="pi-carousel">
                 @for (svc of services(); track svc.id) {
                   @for (img of $any(svc).portfolio_images || []; track img; let i = $index) {
-                    <div class="pi-carousel-slide" (click)="openImageViewer($any(svc).portfolio_images, i)">
+                        <button type="button"
+                          class="pi-carousel-slide"
+                          (click)="openImageViewer($any(svc).portfolio_images, i)"
+                          [attr.aria-label]="'Abrir imagen ' + (i + 1) + ' del portafolio'">
                       <img
                         [src]="$any(img)"
                         [alt]="svc.business_name + ' — trabajo ' + (i + 1)"
@@ -228,7 +231,7 @@
                         </svg>
                         {{ svc.business_name }}
                       </div>
-                    </div>
+                    </button>
                   }
                 }
 
@@ -603,11 +606,14 @@
 @if (bookingOpen()) {
   <div class="fixed inset-0 bg-black/50 z-40 flex items-end sm:items-center justify-center"
        (click)="closeBooking()" (keydown.escape)="closeBooking()">
-    <div class="bg-white w-full max-w-lg rounded-t-2xl sm:rounded-2xl max-h-[92vh] flex flex-col"
-         (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+    <dialog open
+         class="bg-white w-full max-w-lg rounded-t-2xl sm:rounded-2xl max-h-[92vh] flex flex-col"
+         (click)="$event.stopPropagation()"
+         (keydown)="$event.stopPropagation()"
+         aria-labelledby="booking-modal-title">
 
       <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100 flex-shrink-0">
-        <h2 class="text-base font-bold text-slate-800">Reservar Servicio</h2>
+        <h2 id="booking-modal-title" class="text-base font-bold text-slate-800">Reservar Servicio</h2>
         <button type="button" (click)="closeBooking()"
           class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-400 text-lg transition-colors">×</button>
       </div>
@@ -727,6 +733,7 @@
         </div>
 
         <div class="relative">
+          <label for="provider-booking-address" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Dirección del servicio</label>
           <div class="flex items-center gap-2 mb-2">
             <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
@@ -735,7 +742,7 @@
             <span class="text-sm font-semibold text-slate-800">Ubicación del servicio</span>
           </div>
           <div class="relative flex items-center">
-            <input type="text" placeholder="Ingresa tu dirección"
+            <input id="provider-booking-address" type="text" placeholder="Ingresa tu dirección"
               [value]="addressInput()"
               (input)="onAddressInput(($any($event.target)).value)"
               (focus)="onAddressFocus()"
@@ -783,6 +790,7 @@
         </div>
 
         <div>
+          <label for="provider-booking-notes" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Notas de la reserva</label>
           <div class="flex items-center gap-2 mb-2">
             <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -790,15 +798,22 @@
             <span class="text-sm font-semibold text-slate-800">Notas (opcional)</span>
           </div>
           <textarea
+            id="provider-booking-notes"
             class="w-full h-20 px-3 py-2 rounded-xl border border-white/10 bg-black text-sm text-slate-100 placeholder-slate-500 resize-none outline-none focus:border-amber-400 transition-colors"
             placeholder="Describe brevemente lo que necesitas..."
             [value]="bookingNotes()"
             (input)="bookingNotes.set(($any($event.target)).value)"></textarea>
+          @if (bookingNotesChecking()) {
+            <p class="text-xs text-slate-400 mt-1">Validando contenido...</p>
+          }
+          @if (bookingNotesError()) {
+            <p class="text-xs text-red-500 mt-1">{{ bookingNotesError() }}</p>
+          }
         </div>
 
         <button type="button"
           class="w-full h-12 rounded-xl bg-primary hover:bg-primary-600 text-text-inverse font-bold text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          [disabled]="bookingLoading() || !isBookingValid"
+          [disabled]="bookingLoading() || bookingNotesChecking() || !isBookingValid"
           (click)="confirmBooking()">
           @if (bookingLoading()) {
             <span class="w-4 h-4 rounded-full border-2 border-slate-900 border-t-transparent animate-spin"></span>
@@ -817,7 +832,7 @@
         </button>
 
       </div>
-    </div>
+    </dialog>
   </div>
 }
 
@@ -860,8 +875,8 @@
 
 <!-- ══ LIGHTBOX: Galería de portafolio ══════════════════════════ -->
 @if (lightboxOpen()) {
-  <div class="pi-lb-overlay" (click)="closeLightbox()" role="dialog" aria-modal="true">
-    <div class="pi-lb-box" (click)="$event.stopPropagation()">
+  <dialog open class="pi-lb-overlay" (click)="closeLightbox()" (keydown.escape)="closeLightbox()">
+    <div class="pi-lb-box" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
       <button class="pi-lb-close" type="button" (click)="closeLightbox()" aria-label="Cerrar">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -887,6 +902,6 @@
         <div class="pi-lb-counter">{{ lightboxIndex() + 1 }} / {{ lightboxImages().length }}</div>
       }
     </div>
-  </div>
+  </dialog>
 }
 

@@ -19,7 +19,7 @@
       </div>
     </div>
 
-    <nav class="nav-group">
+    <nav class="nav-group" aria-label="Navegación general del perfil cliente">
       <div class="nav-label">General</div>
       <a class="nav-item" routerLink="/client/tabs/profile">
         <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -48,7 +48,7 @@
       </a>
     </nav>
 
-    <nav class="nav-group">
+    <nav class="nav-group" aria-label="Navegación de preferencias del perfil cliente">
       <div class="nav-label">Preferencias</div>
       <a class="nav-item" routerLink="/client/settings">
         <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -112,12 +112,12 @@
             </svg>
           </div>
         }
-        <label class="avatar-camera-btn" title="Cambiar foto">
+        <label class="avatar-camera-btn" title="Cambiar foto" for="client-edit-avatar-input" aria-label="Cambiar foto de perfil">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
           </svg>
-          <input type="file" class="hidden" accept="image/*" (change)="onAvatarChange($event)">
+          <input id="client-edit-avatar-input" type="file" class="hidden" accept="image/*" (change)="onAvatarChange($event)">
         </label>
       </div>
       <div class="avatar-info">
@@ -131,8 +131,9 @@
       <div class="form-grid">
 
         <div class="form-group form-group--full">
-          <label>Nombre Completo *</label>
+          <label for="client-edit-full-name">Nombre Completo *</label>
           <input
+            id="client-edit-full-name"
             type="text"
             formControlName="full_name"
             [class.is-error]="form.get('full_name')!.invalid && form.get('full_name')!.touched"
@@ -142,11 +143,18 @@
               {{ form.get('full_name')!.errors?.['required'] ? 'El nombre es requerido' : 'Mínimo 3 caracteres' }}
             </span>
           }
+          @if (form.get('full_name')!.pending && form.get('full_name')!.dirty) {
+            <span class="form-hint">Validando contenido...</span>
+          }
+          @if (form.get('full_name')!.touched && form.get('full_name')!.errors?.['offensiveContent']) {
+            <span class="form-error">El nombre contiene lenguaje no permitido.</span>
+          }
         </div>
 
         <div class="form-group">
-          <label>Teléfono</label>
+          <label for="client-edit-phone">Teléfono</label>
           <input
+            id="client-edit-phone"
             type="tel"
             formControlName="phone"
             [class.is-error]="form.get('phone')!.invalid && form.get('phone')!.touched"
@@ -159,18 +167,25 @@
         </div>
 
         <div class="form-group form-group--full">
-          <label>Biografía / Sobre mí</label>
+          <label for="client-edit-bio">Biografía / Sobre mí</label>
           <textarea
+            id="client-edit-bio"
             formControlName="bio"
             rows="4"
             placeholder="Cuéntanos sobre ti..."></textarea>
+          @if (form.get('bio')!.pending && form.get('bio')!.dirty) {
+            <span class="form-hint">Validando contenido...</span>
+          }
+          @if (form.get('bio')!.touched && form.get('bio')!.errors?.['offensiveContent']) {
+            <span class="form-error">La biografía contiene lenguaje no permitido.</span>
+          }
         </div>
 
       </div>
 
       <div class="form-actions">
         <a class="btn-secondary" routerLink="/client/tabs/profile">Cancelar</a>
-        <button type="submit" class="btn-primary" [disabled]="loading()">
+        <button type="submit" class="btn-primary" [disabled]="loading() || form.pending">
           @if (loading()) { Guardando... } @else { Guardar Cambios }
         </button>
       </div>

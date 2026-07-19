@@ -4,7 +4,9 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
 import { ProfileService } from '../../../../core/services/profile.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { ContentFilterService } from '../../../../shared/services/content-filter.service';
 import { CustomValidators } from '../../../../shared/validators/custom-validators';
+import { offensiveContentAsyncValidator } from '../../../../shared/validators/content-filter.validators';
 import { formatChileanPhone } from '../../../../shared/utils/form-formatters';
 
 @Component({
@@ -15,10 +17,11 @@ import { formatChileanPhone } from '../../../../shared/utils/form-formatters';
   styleUrl: './edit-profile.component.scss',
 })
 export class EditProfileComponent implements OnInit {
-  private fb      = inject(FormBuilder);
-  private profile = inject(ProfileService);
-  private auth    = inject(AuthService);
-  private router  = inject(Router);
+  private readonly fb      = inject(FormBuilder);
+  private readonly profile = inject(ProfileService);
+  private readonly auth    = inject(AuthService);
+  private readonly router  = inject(Router);
+  private readonly contentFilterService = inject(ContentFilterService);
 
   loading      = signal(false);
   error        = signal('');
@@ -27,9 +30,16 @@ export class EditProfileComponent implements OnInit {
   private avatarFile: File | null = null;
 
   form = this.fb.group({
-    full_name: ['', [Validators.required, Validators.minLength(3)]],
+    full_name: ['', {
+      validators: [Validators.required, Validators.minLength(3)],
+      asyncValidators: [offensiveContentAsyncValidator(this.contentFilterService, 'profile')],
+      updateOn: 'change',
+    }],
     phone:     ['', CustomValidators.phone()],
-    bio:       [''],
+    bio:       ['', {
+      asyncValidators: [offensiveContentAsyncValidator(this.contentFilterService, 'profile')],
+      updateOn: 'change',
+    }],
   });
 
   ngOnInit(): void {
@@ -58,6 +68,7 @@ export class EditProfileComponent implements OnInit {
 
   submit(): void {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
+    if (this.form.pending) { this.form.markAllAsTouched(); return; }
     this.loading.set(true);
     this.error.set('');
 

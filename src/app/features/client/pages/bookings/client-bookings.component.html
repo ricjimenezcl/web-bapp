@@ -286,8 +286,8 @@
 
     <!-- ── Cancel modal ─────────────────────────────────────────── -->
     @if (cancelTarget()) {
-      <div class="cancel-backdrop" (click)="closeCancelModal()">
-        <div class="cancel-modal" (click)="$event.stopPropagation()">
+      <div class="cancel-backdrop" (click)="closeCancelModal()" (keydown.escape)="closeCancelModal()" tabindex="-1">
+        <div class="cancel-modal" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()" tabindex="-1">
 
           <!-- Icon -->
           <div class="cancel-modal-icon-wrap">
@@ -304,11 +304,18 @@
           </p>
 
           <!-- Optional comment -->
-          <textarea [(ngModel)]="cancelComment"
+          <label for="client-booking-cancel-comment" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Motivo de cancelación</label>
+          <textarea id="client-booking-cancel-comment" [(ngModel)]="cancelComment"
             placeholder="Motivo de cancelación (opcional)"
             rows="2"
             class="cancel-modal-textarea">
           </textarea>
+          @if (cancelChecking()) {
+            <p class="mt-2 text-xs text-text-tertiary">Validando contenido...</p>
+          }
+          @if (cancelContentError()) {
+            <p class="mt-2 text-xs text-danger">{{ cancelContentError() }}</p>
+          }
 
           <!-- Buttons -->
           <div class="cancel-modal-actions">
@@ -318,7 +325,7 @@
               No, volver
             </button>
             <button (click)="confirmCancel()"
-              [disabled]="cancelLoading()"
+              [disabled]="cancelLoading() || cancelChecking()"
               class="cancel-modal-btn cancel-modal-btn--danger">
               @if (cancelLoading()) {
                  <svg class="spin icon-16" fill="none" viewBox="0 0 24 24" width="16" height="16">
@@ -337,8 +344,8 @@
 
     <!-- ── Review modal ─────────────────────────────────────────── -->
     @if (reviewTarget()) {
-      <div class="cancel-backdrop" (click)="closeReviewModal()">
-        <div class="cancel-modal review-modal" (click)="$event.stopPropagation()">
+      <div class="cancel-backdrop" (click)="closeReviewModal()" (keydown.escape)="closeReviewModal()" tabindex="-1">
+        <div class="cancel-modal review-modal" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()" tabindex="-1">
 
           <!-- Icon -->
           <div class="cancel-modal-icon-wrap review-modal-icon-wrap">
@@ -380,13 +387,21 @@
           </div>
 
           <!-- Comment -->
+          <label for="client-booking-review-comment" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Comentario de reseña</label>
           <textarea
+            id="client-booking-review-comment"
             [value]="reviewComment()"
             (input)="reviewComment.set($any($event.target).value)"
             placeholder="Cuéntanos más sobre tu experiencia (opcional)"
             rows="3"
             class="cancel-modal-textarea">
           </textarea>
+          @if (reviewChecking()) {
+            <p class="mt-2 text-xs text-text-tertiary">Validando contenido...</p>
+          }
+          @if (reviewContentError()) {
+            <p class="mt-2 text-xs text-danger">{{ reviewContentError() }}</p>
+          }
 
           <!-- Buttons -->
           <div class="cancel-modal-actions">
@@ -396,7 +411,7 @@
               Cancelar
             </button>
             <button (click)="submitReview()"
-              [disabled]="reviewLoading() || reviewRating() < 1"
+              [disabled]="reviewLoading() || reviewChecking() || reviewRating() < 1"
               class="cancel-modal-btn cancel-modal-btn--primary">
               @if (reviewLoading()) {
                 <svg class="spin icon-16" fill="none" viewBox="0 0 24 24" width="16" height="16">

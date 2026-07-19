@@ -7,6 +7,8 @@ import { ChatService } from '../../core/services/chat.service';
 import { WebSocketService } from '../../core/services/websocket.service';
 import { StorageService } from '../../core/services/storage.service';
 import { ChatMessage, ConversationDetailResponse, UserBasicResponse } from '../../core/models/chat.model';
+import { ContentFilterService } from '../../shared/services/content-filter.service';
+import { offensiveContentAsyncValidator } from '../../shared/validators/content-filter.validators';
 
 @Component({
   selector: 'app-chat',
@@ -19,11 +21,12 @@ import { ChatMessage, ConversationDetailResponse, UserBasicResponse } from '../.
 export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('messagesEnd') messagesEnd!: ElementRef;
 
-  private route    = inject(ActivatedRoute);
-  private chatSvc  = inject(ChatService);
-  private ws       = inject(WebSocketService);
-  private storage  = inject(StorageService);
-  private fb       = inject(FormBuilder);
+  private readonly route    = inject(ActivatedRoute);
+  private readonly chatSvc  = inject(ChatService);
+  private readonly ws       = inject(WebSocketService);
+  private readonly storage  = inject(StorageService);
+  private readonly fb       = inject(FormBuilder);
+  private readonly contentFilterService = inject(ContentFilterService);
 
   conversationId!: number;
   messages          = signal<ChatMessage[]>([]);
@@ -32,13 +35,17 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   loading           = signal(true);
   sending           = signal(false);
   typing            = signal(false);
+  chatInputError    = signal('');
   typingTimeout: ReturnType<typeof setTimeout> | null = null;
   private shouldScrollToBottom = true;
 
-  messageControl = this.fb.control('');
+  messageControl = this.fb.control('', {
+    asyncValidators: [offensiveContentAsyncValidator(this.contentFilterService, 'chat')],
+    updateOn: 'change',
+  });
   currentUserId  = this.storage.user()?.id ?? 0;
 
-  private subs: Subscription[] = [];
+  private readonly subs: Subscription[] = [];
 
   goBack(): void { window.history.back(); }
 
@@ -114,6 +121,9 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   onInput(): void {
+    if (this.chatInputError()) {
+      this.chatInputError.set('');
+    }
     this.ws.sendTyping(this.conversationId, true);
     if (this.typingTimeout) clearTimeout(this.typingTimeout);
     this.typingTimeout = setTimeout(() => {
@@ -123,7 +133,13 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   send(): void {
     const content = this.messageControl.value?.trim();
-    if (!content || this.sending()) return;
+    if (!content || this.sending() || this.messageControl.pending) return;
+    if (this.messageControl.errors?.['offensiveContent']) {
+      this.chatInputError.set('El mensaje contiene lenguaje no permitido. Ajusta el texto para continuar.');
+      return;
+    }
+
+    this.chatInputError.set('');
     this.sending.set(true);
     this.messageControl.setValue('');
     this.ws.sendTyping(this.conversationId, false);
@@ -136,6 +152,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       },
       error: () => {
         this.messageControl.setValue(content);
+        this.chatInputError.set('No pudimos enviar el mensaje. Intenta nuevamente.');
         this.sending.set(false);
       }
     });

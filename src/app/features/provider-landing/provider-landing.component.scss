@@ -502,6 +502,19 @@
   overflow-y: auto;
 }
 
+dialog.services-modal-backdrop,
+dialog.register-modal-backdrop {
+  margin: 0;
+  border: 0;
+  max-width: none;
+  max-height: none;
+}
+
+dialog.services-modal-backdrop::backdrop,
+dialog.register-modal-backdrop::backdrop {
+  background: transparent;
+}
+
 .services-modal-container {
   position: relative;
   width: 100%;

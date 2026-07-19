@@ -29,7 +29,7 @@
         </div>
 
         <!-- Document Frame with Mock ID Guide -->
-        <div *ngIf="activeCapture() === 'document'" 
+        <div *ngIf="activeCapture() === 'documentFront' || activeCapture() === 'documentBack'" 
              class="w-[85vw] aspect-[1.6/1] max-w-md border-4 rounded-lg shadow-[0_0_0_9999px_rgba(0,0,0,0.5)] relative transition-all duration-300"
              [ngClass]="{ 
                'border-green-500': documentAligned(),
@@ -92,7 +92,7 @@
              </div>
              
              <div class="absolute -top-12 left-0 right-0 text-center text-white text-sm font-medium">
-               Alinea el frente de tu documento
+               {{ activeCapture() === 'documentBack' ? 'Alinea el reverso de tu documento' : 'Alinea el frente de tu documento' }}
              </div>
         </div>
       </div>
@@ -112,7 +112,7 @@
         </button>
         
         <!-- Manual capture button for documents -->
-        <button *ngIf="activeCapture() === 'document'"
+        <button *ngIf="activeCapture() === 'documentFront' || activeCapture() === 'documentBack'"
                 (click)="capturePhoto()" 
                 class="w-20 h-20 rounded-full bg-white border-4 border-primary flex items-center justify-center text-primary active:scale-95 transition-transform">
           <div class="w-16 h-16 rounded-full border-2 border-primary/20"></div>
@@ -123,7 +123,7 @@
 
       <div class="absolute top-10 text-white text-center px-6 w-full">
         <h3 class="text-xl font-bold mb-2">
-          {{ activeCapture() === 'selfie' ? 'Validación facial en vivo' : 'Captura tu documento' }}
+          {{ activeCapture() === 'selfie' ? 'Validación facial en vivo' : 'Captura tu cédula' }}
         </h3>
         <p class="text-lg font-medium bg-black/40 backdrop-blur-sm rounded-lg py-2 px-4 inline-block">
           {{ livenessInstruction() }}
@@ -217,11 +217,11 @@
 
           <!-- ID Document -->
           <div>
-            <label class="block text-sm font-medium text-text-secondary mb-2">Documento de identidad</label>
-            @if (state.idDocumentUrl) {
+            <label class="block text-sm font-medium text-text-secondary mb-2">Cédula - Frente</label>
+            @if (state.idDocumentFrontUrl) {
               <div class="relative">
-                <img [src]="state.idDocumentUrl" alt="Documento" class="w-full h-40 object-cover rounded-xl border border-border">
-                <button (click)="state.idDocumentUrl = null; state.idDocumentId = null"
+                <img [src]="state.idDocumentFrontUrl" alt="Cédula frente" class="w-full h-40 object-cover rounded-xl border border-border">
+                <button (click)="state.idDocumentFrontUrl = null; state.idDocumentFrontId = null"
                   type="button"
                   class="absolute top-2 right-2 w-7 h-7 bg-surface-card border border-border rounded-full shadow flex items-center justify-center text-text-tertiary hover:text-danger transition-colors">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -230,13 +230,39 @@
                 </button>
               </div>
             } @else {
-              <button (click)="startCamera('document')" 
+                    <button (click)="startCamera('documentFront')" 
                       class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-border rounded-xl cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors">
                 <svg class="w-6 h-6 text-text-tertiary mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                 </svg>
-                <span class="text-xs text-text-secondary">Capturar Documento</span>
+                <span class="text-xs text-text-secondary">Capturar Frente</span>
+              </button>
+            }
+          </div>
+
+          <!-- ID Document Back -->
+          <div>
+            <label class="block text-sm font-medium text-text-secondary mb-2">Cédula - Reverso</label>
+            @if (state.idDocumentBackUrl) {
+              <div class="relative">
+                <img [src]="state.idDocumentBackUrl" alt="Cédula reverso" class="w-full h-40 object-cover rounded-xl border border-border">
+                <button (click)="state.idDocumentBackUrl = null; state.idDocumentBackId = null"
+                  type="button"
+                  class="absolute top-2 right-2 w-7 h-7 bg-surface-card border border-border rounded-full shadow flex items-center justify-center text-text-tertiary hover:text-danger transition-colors">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+            } @else {
+              <button (click)="startCamera('documentBack')"
+                      class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-border rounded-xl cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors">
+                <svg class="w-6 h-6 text-text-tertiary mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                </svg>
+                <span class="text-xs text-text-secondary">Capturar Reverso</span>
               </button>
             }
           </div>
@@ -244,15 +270,15 @@
 
         <div class="bg-primary/5 border border-primary/20 rounded-lg p-3 mb-4">
           <p class="text-xs text-text-secondary">
-            <strong>Importante:</strong> Asegúrate de que tu rostro sea claramente visible en ambas imágenes. 
-            La verificación es automática y usa reconocimiento facial.
+            <strong>Importante:</strong> Captura selfie, frente y reverso de la cédula, alineando siempre el documento dentro del marco.
+            La verificación facial usa selfie + frente del documento.
           </p>
         </div>
 
         <button class="btn btn-primary btn-block" 
           type="button"
           (click)="submit()" 
-          [disabled]="!state.selfieUrl || !state.idDocumentUrl || loading() || state.uploading">
+          [disabled]="!state.selfieUrl || !state.idDocumentFrontUrl || !state.idDocumentBackUrl || loading() || state.uploading">
           @if (loading() || state.uploading) { 
             <span class="spinner"></span> 
             <span>Subiendo...</span>
@@ -272,7 +298,7 @@
           <div class="flex justify-center py-8">
             <span class="spinner"></span>
           </div>
-        } @else if (state.selfieFacePreview && state.idFacePreview) {
+        } @else if (state.selfieFacePreview && state.idFrontFacePreview) {
           <div class="grid grid-cols-2 gap-4 mb-6">
             <div class="text-center">
               <p class="text-sm font-medium text-text-secondary mb-2">Selfie</p>
@@ -281,7 +307,7 @@
             </div>
             <div class="text-center">
               <p class="text-sm font-medium text-text-secondary mb-2">Documento</p>
-              <img [src]="state.idFacePreview" alt="Rostro en documento" 
+              <img [src]="state.idFrontFacePreview" alt="Rostro en documento" 
                 class="w-full h-40 object-contain border-2 border-primary/30 rounded-xl bg-surface-card">
             </div>
           </div>

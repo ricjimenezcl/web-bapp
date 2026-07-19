@@ -169,12 +169,24 @@
             @if (f['business_name'].invalid && f['business_name'].touched) {
               <span class="as-field-error">El nombre es requerido</span>
             }
+            @if (f['business_name'].pending && f['business_name'].dirty) {
+              <span class="as-hint">Validando contenido...</span>
+            }
+            @if (f['business_name'].touched && f['business_name'].errors?.['offensiveContent']) {
+              <span class="as-field-error">El nombre contiene lenguaje no permitido.</span>
+            }
           </div>
 
           <div class="as-field">
             <label class="as-label">Descripción</label>
             <textarea formControlName="description" rows="3" class="as-textarea"
               placeholder="Describe brevemente tu servicio, experiencia y especialidades..."></textarea>
+            @if (f['description'].pending && f['description'].dirty) {
+              <span class="as-hint">Validando contenido...</span>
+            }
+            @if (f['description'].touched && f['description'].errors?.['offensiveContent']) {
+              <span class="as-field-error">La descripción contiene lenguaje no permitido.</span>
+            }
           </div>
 
           <div class="as-fields-row">
@@ -382,7 +394,7 @@
           <button type="button" class="as-btn as-btn--secondary" (click)="cancel()" [disabled]="loading()">
             Cancelar
           </button>
-          <button type="submit" class="as-btn as-btn--primary" [disabled]="loading()">
+          <button type="submit" class="as-btn as-btn--primary" [disabled]="loading() || form.pending">
             @if (loading()) {
               <span class="as-spinner"></span>
             }

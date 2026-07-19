@@ -11,6 +11,8 @@ import { CustomValidators } from '../../../../shared/validators/custom-validator
 import { formatChileanPhone } from '../../../../shared/utils/form-formatters';
 import { ModalService } from '../../../../core/services/modal.service';
 import { DocumentUploadService } from '../../../../shared/services/document-upload.service';
+import { ContentFilterService } from '../../../../shared/services/content-filter.service';
+import { offensiveContentAsyncValidator } from '../../../../shared/validators/content-filter.validators';
 
 const DAY_NAMES = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 const MAX_PORTFOLIO_IMAGES = 5;
@@ -38,6 +40,7 @@ export class EditServiceComponent implements OnInit, OnDestroy {
   private route       = inject(ActivatedRoute);
   private modal       = inject(ModalService);
   private documentUploadSvc = inject(DocumentUploadService);
+  private contentFilterService = inject(ContentFilterService);
   private destroy$    = new Subject<void>();
 
   readonly dayNames = DAY_NAMES;
@@ -63,8 +66,13 @@ export class EditServiceComponent implements OnInit, OnDestroy {
   private selectedLng: number | null = null;
 
   form = this.fb.group({
-    business_name: ['', Validators.required],
-    description:   [''],
+    business_name: this.fb.control('', {
+      validators: [Validators.required],
+      asyncValidators: [offensiveContentAsyncValidator(this.contentFilterService, 'service')],
+    }),
+    description:   this.fb.control('', {
+      asyncValidators: [offensiveContentAsyncValidator(this.contentFilterService, 'service')],
+    }),
     address:       ['', Validators.required],
     phone:         ['', [Validators.required, CustomValidators.phone()]],
     hourly_rate:   [null as number | null],
@@ -214,6 +222,7 @@ export class EditServiceComponent implements OnInit, OnDestroy {
   }
 
   async submit(): Promise<void> {
+    if (this.form.pending) { this.form.markAllAsTouched(); return; }
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
     this.saving.set(true);
     this.error.set('');

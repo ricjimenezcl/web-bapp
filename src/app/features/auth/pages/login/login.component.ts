@@ -9,6 +9,8 @@ import { MainCategory, ServiceCategory } from '../../../../core/models/provider.
 import { Device3dLoginComponent } from '../../../../shared/components/device-3d-login/device-3d-login.component';
 import { BappieChatbotComponent } from '../../../../shared/components/bappie-chatbot/bappie-chatbot.component';
 import { CustomValidators } from '../../../../shared/validators/custom-validators';
+import { ContentFilterService } from '../../../../shared/services/content-filter.service';
+import { offensiveContentAsyncValidator } from '../../../../shared/validators/content-filter.validators';
 import { formatChileanPhone, formatChileanRUT, normalizeChileanRUTForBackend } from '../../../../shared/utils/form-formatters';
 
 @Component({
@@ -27,6 +29,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   private readonly socialAuth = inject(SocialAuthService);
   private readonly renderer = inject(Renderer2);
   private readonly categorySvc = inject(CategoryService);
+  private readonly contentFilterService = inject(ContentFilterService);
   private carouselInterval: ReturnType<typeof setInterval> | null = null;
   private scrollObserver?: IntersectionObserver;
 
@@ -91,7 +94,11 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   // ── FormGroup registro (modal) ───────────────────────────────────
   registerForm = this.fb.group({
-    name:            ['', Validators.required],
+    name:            ['', {
+      validators: [Validators.required],
+      asyncValidators: [offensiveContentAsyncValidator(this.contentFilterService, 'profile')],
+      updateOn: 'change',
+    }],
     email:           ['', [Validators.required, Validators.email]],
     run:             [''], // Se validará dinámicamente o por el validador Custom
     phone:           ['', [Validators.required, CustomValidators.phone()]],
@@ -102,7 +109,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     const p = ctrl.get('password'), c = ctrl.get('confirmPassword'), r = ctrl.get('run');
     
     // Validar contraseña
-    const mismatch = (p && c && c.value && p.value !== c.value) ? { passwordMismatch: true } : null;
+    const mismatch = (p?.value && c?.value && p.value !== c.value) ? { passwordMismatch: true } : null;
     
     // Validar RUT si es proveedor
     const rutRequired = this.registerRole() === 'provider' && !r?.value;
@@ -116,10 +123,21 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   // ── FormGroup contacto ───────────────────────────────────────────
   contactForm = this.fb.group({
-    name:    ['', Validators.required],
+    name:    this.fb.control('', {
+      validators: [Validators.required],
+      asyncValidators: [offensiveContentAsyncValidator(this.contentFilterService, 'profile')],
+      updateOn: 'change',
+    }),
     email:   ['', [Validators.required, Validators.email]],
-    subject: [''],
-    message: ['', Validators.required],
+    subject: this.fb.control('', {
+      asyncValidators: [offensiveContentAsyncValidator(this.contentFilterService, 'generic')],
+      updateOn: 'change',
+    }),
+    message: this.fb.control('', {
+      validators: [Validators.required],
+      asyncValidators: [offensiveContentAsyncValidator(this.contentFilterService, 'generic')],
+      updateOn: 'change',
+    }),
   });
 
   // ── Detect scroll for sticky header ──────────────────────────────
@@ -202,7 +220,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     // Escuchar cambios en la autenticación social (necesario para el nuevo botón de Google)
     this.socialAuth.authState.subscribe((socialUser) => {
-      if (socialUser && socialUser.provider === GoogleLoginProvider.PROVIDER_ID) {
+      if (socialUser?.provider === GoogleLoginProvider.PROVIDER_ID) {
         this.loading.set(true);
         const wasRegistering = this.activeTab() === 'register';
         const roleToAssign = wasRegistering ? this.registerRole().toUpperCase() : 'CLIENT';
@@ -475,6 +493,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   submitRegister(): void {
+    if (this.registerForm.pending) { return; }
     if (this.registerForm.invalid) { this.registerForm.markAllAsTouched(); return; }
     this.loading.set(true);
     this.error.set('');
@@ -607,13 +626,43 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   // ── Social Login ──────────────────────────────────────────────────
   loginWithGoogle(): void {
+    this.loading.set(true);
     this.error.set('');
     this.socialAuth.signIn(GoogleLoginProvider.PROVIDER_ID)
       .catch(err => {
-        if (err?.error !== 'popup_closed_by_user') {
-          this.error.set('No se pudo completar el inicio de sesión con Google');
+        this.loading.set(false);
+        const mappedError = this.mapGoogleAuthError(err);
+        if (mappedError) {
+          console.error('Google Auth Error:', err);
+          this.error.set(mappedError);
         }
       });
+  }
+
+  private mapGoogleAuthError(err: any): string | null {
+    const code = String(err?.error ?? err?.type ?? '').toLowerCase();
+    const details = String(err?.details ?? err?.message ?? '').toLowerCase();
+
+    if (code.includes('popup_closed_by_user')) return null;
+
+    if (code.includes('popup_blocked_by_browser')) {
+      return 'Tu navegador bloqueó la ventana emergente de Google. Permite popups para continuar.';
+    }
+
+    if (
+      code.includes('idpiframe_initialization_failed') ||
+      details.includes('not a valid origin for the client') ||
+      details.includes('origin_mismatch') ||
+      details.includes('invalid origin')
+    ) {
+      return 'Google Sign-In no está autorizado para este dominio. Verifica los Authorized JavaScript origins del Client ID.';
+    }
+
+    if (details.includes('invalid_client') || details.includes('client_id')) {
+      return 'La configuración de Google Client ID no es válida para este entorno.';
+    }
+
+    return 'No se pudo completar el inicio de sesión con Google';
   }
 
   loginWithFacebook(): void {
@@ -849,6 +898,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   submitContact(): void {
+    if (this.contactForm.pending) { this.contactForm.markAllAsTouched(); return; }
     if (this.contactForm.invalid) { this.contactForm.markAllAsTouched(); return; }
     this.contactLoading.set(true);
     setTimeout(() => {

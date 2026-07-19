@@ -10,6 +10,7 @@ import { ReviewService } from '../../../../core/services/review.service';
 import { WebSocketService } from '../../../../core/services/websocket.service';
 import { BookingResponse, BookingStatus, BOOKING_STATUS_LABELS, BOOKING_STATUS_COLORS } from '../../../../core/models/booking.model';
 import { ModalService } from '../../../../core/services/modal.service';
+import { ContentFilterService } from '../../../../shared/services/content-filter.service';
 
 type TabId = 'upcoming' | 'pending' | 'history' | 'cancelled';
 
@@ -28,6 +29,7 @@ export class ClientBookingsComponent implements OnInit, OnDestroy {
   private readonly wsSvc       = inject(WebSocketService);
   private readonly router      = inject(Router);
   private readonly modal       = inject(ModalService);
+  private readonly contentFilterService = inject(ContentFilterService);
   private readonly destroy$    = new Subject<void>();
 
   bookings        = signal<BookingResponse[]>([]);
@@ -38,12 +40,16 @@ export class ClientBookingsComponent implements OnInit, OnDestroy {
   cancelTarget    = signal<BookingResponse | null>(null);
   cancelComment   = '';
   cancelLoading   = signal(false);
+  cancelChecking  = signal(false);
+  cancelContentError = signal('');
 
   // review modal
   reviewTarget    = signal<BookingResponse | null>(null);
   reviewRating    = signal(0);
   reviewComment   = signal('');
   reviewLoading   = signal(false);
+  reviewChecking  = signal(false);
+  reviewContentError = signal('');
   reviewHoverStar = signal(0);
 
   readonly statusLabels = BOOKING_STATUS_LABELS;
@@ -152,6 +158,8 @@ export class ClientBookingsComponent implements OnInit, OnDestroy {
 
   openCancelModal(booking: BookingResponse): void {
     this.cancelComment = '';
+    this.cancelChecking.set(false);
+    this.cancelContentError.set('');
     this.cancelTarget.set(booking);
     document.body.style.overflow = 'hidden';
   }
@@ -159,14 +167,43 @@ export class ClientBookingsComponent implements OnInit, OnDestroy {
   closeCancelModal(): void {
     this.cancelTarget.set(null);
     this.cancelComment = '';
+    this.cancelChecking.set(false);
+    this.cancelContentError.set('');
     document.body.style.overflow = '';
   }
 
   confirmCancel(): void {
     const booking = this.cancelTarget();
     if (!booking) return;
+    const comment = this.cancelComment.trim();
+
+    if (!comment) {
+      this.cancelContentError.set('');
+      this.submitCancel(booking);
+      return;
+    }
+
+    this.cancelChecking.set(true);
+    this.cancelContentError.set('');
+    this.contentFilterService.validateText(comment, 'generic').subscribe({
+      next: (result) => {
+        this.cancelChecking.set(false);
+        if (result.blocked) {
+          this.cancelContentError.set('El motivo contiene lenguaje no permitido. Ajusta el texto para continuar.');
+          return;
+        }
+        this.submitCancel(booking, comment);
+      },
+      error: () => {
+        this.cancelChecking.set(false);
+        this.submitCancel(booking, comment);
+      }
+    });
+  }
+
+  private submitCancel(booking: BookingResponse, comment?: string): void {
     this.cancelLoading.set(true);
-    this.bookingSvc.cancelBooking(booking.id, this.cancelComment || undefined).subscribe({
+    this.bookingSvc.cancelBooking(booking.id, comment || undefined).subscribe({
       next: () => {
         this.bookings.update(list =>
           list.map(b => String(b.id) === String(booking.id)
@@ -207,6 +244,7 @@ export class ClientBookingsComponent implements OnInit, OnDestroy {
   openReviewModal(booking: BookingResponse): void {
     this.reviewRating.set(0);
     this.reviewComment.set('');
+    this.reviewContentError.set('');
     this.reviewHoverStar.set(0);
     this.reviewTarget.set(booking);
     document.body.style.overflow = 'hidden';
@@ -214,6 +252,7 @@ export class ClientBookingsComponent implements OnInit, OnDestroy {
 
   closeReviewModal(): void {
     this.reviewTarget.set(null);
+    this.reviewContentError.set('');
     document.body.style.overflow = '';
   }
 
@@ -224,16 +263,44 @@ export class ClientBookingsComponent implements OnInit, OnDestroy {
   submitReview(): void {
     const booking = this.reviewTarget();
     if (!booking || this.reviewRating() < 1) return;
+    const comment = this.reviewComment().trim();
+
+    if (!comment) {
+      this.reviewContentError.set('');
+      this.sendReview(booking);
+      return;
+    }
+
+    this.reviewChecking.set(true);
+    this.reviewContentError.set('');
+    this.contentFilterService.validateText(comment, 'review').subscribe({
+      next: (result) => {
+        this.reviewChecking.set(false);
+        if (result.blocked) {
+          this.reviewContentError.set('Tu comentario contiene lenguaje no permitido. Ajusta el texto para continuar.');
+          return;
+        }
+        this.sendReview(booking, comment);
+      },
+      // UX fail-open: backend vuelve a validar al persistir.
+      error: () => {
+        this.reviewChecking.set(false);
+        this.sendReview(booking, comment);
+      }
+    });
+  }
+
+  private sendReview(booking: BookingResponse, comment?: string): void {
     this.reviewLoading.set(true);
     this.reviewSvc.createReview({
       booking_id: Number(booking.id),
       rating: this.reviewRating(),
-      comment: this.reviewComment() || undefined
+      comment,
     }).subscribe({
       next: () => {
         this.reviewLoading.set(false);
         this.closeReviewModal();
-        this.showToast('¡Gracias por tu calificación!');
+        this.showToast('Gracias por tu calificacion.');
         // mark as reviewed locally to hide button
         this.bookings.update(list =>
           list.map(b => String(b.id) === String(booking.id)

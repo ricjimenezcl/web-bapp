@@ -8,6 +8,7 @@ import { CategoryService } from '../../../../core/services/category.service';
 import { MainCategory, ServiceCategory } from '../../../../core/models/provider.model';
 import { Device3dLoginComponent } from '../../../../shared/components/device-3d-login/device-3d-login.component';
 import { BappieChatbotComponent } from '../../../../shared/components/bappie-chatbot/bappie-chatbot.component';
+import { AppFooterComponent } from '../../../../shared/components/app-footer/app-footer.component';
 import { CustomValidators } from '../../../../shared/validators/custom-validators';
 import { ContentFilterService } from '../../../../shared/services/content-filter.service';
 import { offensiveContentAsyncValidator } from '../../../../shared/validators/content-filter.validators';
@@ -16,7 +17,7 @@ import { formatChileanPhone, formatChileanRUT, normalizeChileanRUTForBackend } f
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, Device3dLoginComponent, BappieChatbotComponent, GoogleSigninButtonModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, Device3dLoginComponent, BappieChatbotComponent, AppFooterComponent, GoogleSigninButtonModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -518,10 +519,19 @@ export class LoginComponent implements OnInit, OnDestroy {
     register$.subscribe({
       next: () => {
         this.loading.set(false);
-        this.success.set('Cuenta creada con éxito. Ahora inicia sesión con tus credenciales.');
-        this.activeTab.set('login');
-        // Prellenar login para facilitar acceso
-        this.form.patchValue({ email: normalizedEmail, password });
+        this.success.set('Cuenta creada con éxito. Iniciando sesión...');
+        // Auto-login inmediato para llevar al usuario directamente al dashboard
+        this.auth.login({ username: normalizedEmail, password: password! }).subscribe({
+          next: (res) => {
+            this.auth.navigateAfterLogin(res.role, res.status);
+          },
+          error: () => {
+            // Fallback: prellenar login si el auto-login falla por alguna razón
+            this.success.set('Cuenta creada con éxito. Ahora inicia sesión con tus credenciales.');
+            this.activeTab.set('login');
+            this.form.patchValue({ email: normalizedEmail, password });
+          }
+        });
       },
       error: (err: any) => {
         this.loading.set(false);

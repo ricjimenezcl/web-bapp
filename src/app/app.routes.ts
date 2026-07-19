@@ -208,6 +208,10 @@ export const routes: Routes = [
     path: 'privacy',
     loadComponent: () => import('./shared/pages/privacy/privacy.component').then(m => m.PrivacyComponent)
   },
+  {
+    path: 'faq',
+    loadComponent: () => import('./shared/pages/faq/faq.component').then(m => m.FaqComponent)
+  },
 
   // GUEST FLOW — acceso sin registro para explorar categorías y resultados
   {

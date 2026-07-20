@@ -28,6 +28,10 @@ interface VerificationState {
   idFrontFacePreview: string | null;
   loadingPreview: boolean;
   facePreviewError: string | null;
+  faceDetectionFailed: boolean;
+  rejectionReason: string | null;
+  idCardValidationError: string | null;
+  idCardValidated: boolean;
 }
 
 @Component({
@@ -104,6 +108,10 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
     idFrontFacePreview: null,
     loadingPreview: false,
     facePreviewError: null,
+    faceDetectionFailed: false,
+    rejectionReason: null,
+    idCardValidationError: null,
+    idCardValidated: false,
   };
 
   private docFrontFile: File | null = null;
@@ -949,6 +957,7 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
     try {
       this.state.loadingPreview = true;
       this.state.facePreviewError = null;
+      this.state.faceDetectionFailed = false;
 
       const result = await firstValueFrom(
         this.uploadService.getFacePreview(
@@ -974,34 +983,88 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
           console.log('✅ Face preview loaded successfully');
           this.step.set('preview');
         } else {
-          const errorMsg = result.error || 'No se pudieron detectar rostros';
-          const isAwsConfigError = [
-            'AWS_ACCESS_KEY_ID',
-            'UnrecognizedClientException',
-            'security token',
-          ].some(token => errorMsg.includes(token));
-          
-          if (!isAwsConfigError) {
-            this.state.facePreviewError = errorMsg;
+          const errorMsg = result.error || '';
+          if (!this.isAwsError(errorMsg)) {
+            this.state.facePreviewError = this.mapFacePreviewError(errorMsg, result);
+            this.state.faceDetectionFailed = true;
+            this.error.set(this.state.facePreviewError);
           }
-          console.warn('Face preview no disponible:', errorMsg);
+          console.warn('Face preview no disponible:', errorMsg || 'sin detalle');
         }
       }
     } catch (err: any) {
       console.warn('Failed to load face preview:', err);
       const errorMessage = err?.error?.detail || err?.message || 'Error';
-      const isAwsConfigError = [
-        'AWS_ACCESS_KEY_ID',
-        'UnrecognizedClientException',
-        'security token',
-      ].some(token => errorMessage.includes(token));
-      
-      if (!isAwsConfigError) {
-        this.state.facePreviewError = `Error: ${errorMessage}`;
+      if (!this.isAwsError(errorMessage)) {
+        this.state.facePreviewError = this.mapFacePreviewError(errorMessage, null);
+        this.state.faceDetectionFailed = true;
+        this.error.set(this.state.facePreviewError);
       }
     } finally {
       this.state.loadingPreview = false;
     }
+  }
+
+  private isAwsError(msg: string): boolean {
+    return [
+      'AWS_ACCESS_KEY_ID',
+      'UnrecognizedClientException',
+      'security token',
+      'InvalidClientTokenId',
+      'ExpiredTokenException',
+    ].some(token => msg.includes(token));
+  }
+
+  private mapFacePreviewError(msg: string, result: any): string {
+    const lower = msg.toLowerCase();
+    const noSelfie = !result?.selfie_preview;
+    const noDoc = !result?.id_preview;
+
+    if (noSelfie && noDoc) {
+      return 'No se detectó un rostro ni en la selfie ni en el documento. Vuelve a capturarlos con buena iluminación.';
+    }
+    if (noSelfie || (lower.includes('selfie') && (lower.includes('no face') || lower.includes('not detected')))) {
+      return 'No se detectó un rostro en la selfie. Captúrala de frente, sin obstrucciones y con buena luz.';
+    }
+    if (noDoc || ((lower.includes('document') || lower.includes('id')) && (lower.includes('no face') || lower.includes('not detected')))) {
+      return 'No se detectó un rostro en el documento. Asegúrate de fotografiar tu cédula de identidad chilena mostrando claramente la foto.';
+    }
+    if (lower.includes('multiple') || lower.includes('more than one')) {
+      return 'Se detectaron múltiples rostros. La selfie debe mostrar solo tu rostro.';
+    }
+    if (lower.includes('blurry') || lower.includes('blur') || lower.includes('quality')) {
+      return 'La imagen está borrosa o con baja calidad. Repite la captura con mejor iluminación.';
+    }
+    if (msg) {
+      return `No se pudieron detectar rostros correctamente: ${msg}`;
+    }
+    return 'No se pudieron detectar rostros en las imágenes. Verifica que ambos rostros se vean claramente.';
+  }
+
+  private mapRejectionReason(result: any): string {
+    const reason = (result?.rejection_reason || result?.error || result?.detail || '').toLowerCase();
+    const score = result?.face_match_score ? parseFloat(result.face_match_score) : null;
+
+    if (reason.includes('no face') && reason.includes('selfie')) {
+      return 'No se detectó un rostro en tu selfie.';
+    }
+    if (reason.includes('no face') && (reason.includes('document') || reason.includes('id'))) {
+      return 'No se detectó un rostro en el documento. Asegúrate de usar una cédula de identidad chilena.';
+    }
+    if (reason.includes('match') || reason.includes('differ') || reason.includes('not the same')) {
+      const scoreText = score !== null ? ` (similitud: ${score.toFixed(1)}%)` : '';
+      return `La selfie y el documento no corresponden a la misma persona${scoreText}.`;
+    }
+    if (reason.includes('quality') || reason.includes('blurry') || reason.includes('blur')) {
+      return 'La calidad de las imágenes no es suficiente. Intenta con mejor iluminación y enfoque.';
+    }
+    if (score !== null && score < 50) {
+      return `Los rostros no coinciden (similitud: ${score.toFixed(1)}%).`;
+    }
+    if (result?.face_match_status === 'REJECTED') {
+      return 'La verificación fue rechazada. Sube una selfie clara y una cédula de identidad chilena vigente.';
+    }
+    return 'La verificación no pudo completarse. Revisa las imágenes y vuelve a intentarlo.';
   }
 
   /**
@@ -1015,6 +1078,22 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
 
     this.loading.set(true);
     this.error.set('');
+
+    // Validar OCR de cédula chilena y coincidencia RUN frente/reverso antes de subir
+    const idValidation = await this.uploadService.validateChileanIdPair(
+      this.docFrontFile,
+      this.docBackFile
+    );
+    if (!idValidation.valid) {
+      this.loading.set(false);
+      this.state.idCardValidated = false;
+      this.state.idCardValidationError = idValidation.error || 'La cédula no pasó la validación OCR.';
+      this.error.set(this.state.idCardValidationError);
+      return;
+    }
+
+    this.state.idCardValidated = true;
+    this.state.idCardValidationError = null;
 
     // Upload both documents
     await this.uploadSelfie();
@@ -1042,6 +1121,16 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (this.state.faceDetectionFailed) {
+      this.error.set(this.state.facePreviewError || 'Corrige las imágenes antes de verificar.');
+      return;
+    }
+
+    if (!this.state.idCardValidated) {
+      this.error.set('Primero valida una cédula chilena correcta (frente y reverso con RUN coincidente).');
+      return;
+    }
+
     this.loading.set(true);
     this.error.set('');
     this.step.set('verifying');
@@ -1062,9 +1151,11 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
         if (result.face_match_status === 'APPROVED') {
           this.step.set('approved');
           this.state.confidenceScore = parseFloat(result.face_match_score || '0');
+          this.state.rejectionReason = null;
         } else if (result.face_match_status === 'REJECTED') {
           this.step.set('rejected');
           this.state.confidenceScore = parseFloat(result.face_match_score || '0');
+          this.state.rejectionReason = this.mapRejectionReason(result);
         } else if (result.face_match_status === 'PROCESSING') {
           this.state.verificationStatus = 'PROCESSING';
           this.scheduleStatusCheck();
@@ -1138,11 +1229,13 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
             if (this.statusCheckTimeout) {
               clearTimeout(this.statusCheckTimeout);
             }
+            this.state.rejectionReason = null;
           } else if (status.face_match_status === 'REJECTED') {
             this.step.set('rejected');
             if (this.statusCheckTimeout) {
               clearTimeout(this.statusCheckTimeout);
             }
+            this.state.rejectionReason = this.mapRejectionReason(status);
           } else if (status.face_match_status === 'PENDING') {
             this.retryWithExponentialBackoff();
           }
@@ -1226,6 +1319,10 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
       idFrontFacePreview: null,
       loadingPreview: false,
       facePreviewError: null,
+      faceDetectionFailed: false,
+      rejectionReason: null,
+      idCardValidationError: null,
+      idCardValidated: false,
     };
     
     this.docFrontFile = null;

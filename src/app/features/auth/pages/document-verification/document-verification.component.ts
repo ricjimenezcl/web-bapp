@@ -1178,6 +1178,32 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
     }
   }
 
+  closeVerification(): void {
+    const currentUser = this.storage.user();
+
+    if (window.history.length > 1) {
+      window.history.back();
+      return;
+    }
+
+    if (!currentUser) {
+      this.router.navigate(['/auth/login'], { replaceUrl: true });
+      return;
+    }
+
+    if (currentUser.role === 'CLIENT') {
+      this.router.navigate(['/client/categories'], { replaceUrl: true });
+      return;
+    }
+
+    if (currentUser.role === 'PROVIDER' && currentUser.status === 'ACTIVE') {
+      this.router.navigate(['/provider/tabs'], { replaceUrl: true });
+      return;
+    }
+
+    this.router.navigate(['/auth/login'], { replaceUrl: true });
+  }
+
   /**
    * Retry verification (when rejected)
    */

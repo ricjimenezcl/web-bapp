@@ -736,18 +736,50 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.socialWasRegistering = wasRegistering;
     this.socialRequestedRole = (wasRegistering ? this.registerRole().toUpperCase() : 'CLIENT') as UserRole;
 
-    this.socialAuth.signIn(FacebookLoginProvider.PROVIDER_ID)
+    this.socialAuth.signIn(FacebookLoginProvider.PROVIDER_ID, {
+      scope: 'public_profile,email',
+      return_scopes: true,
+    } as any)
       .then(user => {
-        this.resolveSocialLoginRole('facebook', user.authToken, user.email || '', wasRegistering);
+        const accessToken = String((user as any)?.authToken ?? (user as any)?.response?.accessToken ?? '').trim();
+        const email = String((user as any)?.email ?? (user as any)?.response?.email ?? '').trim();
+
+        if (!accessToken) {
+          throw { error: 'missing_facebook_access_token', details: user };
+        }
+
+        this.resolveSocialLoginRole('facebook', accessToken, email, wasRegistering);
       })
       .catch(err => {
         this.socialLoginInProgress = false;
         this.loading.set(false);
-        if (err?.error !== 'popup_closed_by_user') {
+        const mappedError = this.mapFacebookAuthError(err);
+        if (mappedError) {
           console.error('Facebook Auth Error:', err);
-          this.error.set('No se pudo completar el inicio de sesión con Facebook');
+          this.error.set(mappedError);
         }
       });
+  }
+
+  private mapFacebookAuthError(err: any): string | null {
+    const code = String(err?.error ?? err?.type ?? '').toLowerCase();
+    const details = String(err?.details ?? err?.message ?? '').toLowerCase();
+
+    if (code.includes('popup_closed_by_user')) return null;
+
+    if (code.includes('popup_blocked_by_browser')) {
+      return 'Tu navegador bloqueó la ventana emergente de Facebook. Permite popups para continuar.';
+    }
+
+    if (code.includes('missing_facebook_access_token')) {
+      return 'No fue posible obtener el token de Facebook. Intenta nuevamente.';
+    }
+
+    if (details.includes('app_not_setup') || details.includes('invalid_scope')) {
+      return 'La app de Facebook no está configurada correctamente para este dominio.';
+    }
+
+    return 'No se pudo completar el inicio de sesión con Facebook';
   }
 
   selectSocialLoginRole(role: UserRole): void {

@@ -459,9 +459,18 @@ export class ProviderLandingComponent implements OnInit, OnDestroy {
     this.loadingRegister.set(true);
     this.errorRegister.set('');
 
-    this.socialAuth.signIn(FacebookLoginProvider.PROVIDER_ID)
+    this.socialAuth.signIn(FacebookLoginProvider.PROVIDER_ID, {
+      scope: 'public_profile,email',
+      return_scopes: true,
+    } as any)
       .then((user) => {
-        this.auth.loginWithFacebook(user.authToken, 'PROVIDER').subscribe({
+        const accessToken = String((user as any)?.authToken ?? (user as any)?.response?.accessToken ?? '').trim();
+
+        if (!accessToken) {
+          throw { error: 'missing_facebook_access_token', details: user };
+        }
+
+        this.auth.loginWithFacebook(accessToken, 'PROVIDER').subscribe({
           next: (res) => {
             this.loadingRegister.set(false);
             this.handleSocialLoginSuccess(res);
@@ -474,8 +483,9 @@ export class ProviderLandingComponent implements OnInit, OnDestroy {
       })
       .catch((err) => {
         this.loadingRegister.set(false);
-        if (err?.error !== 'popup_closed_by_user') {
-          this.errorRegister.set('No se pudo completar el inicio de sesión con Facebook');
+        const mappedError = this.mapFacebookAuthError(err);
+        if (mappedError) {
+          this.errorRegister.set(mappedError);
         }
       });
   }
@@ -598,6 +608,27 @@ export class ProviderLandingComponent implements OnInit, OnDestroy {
     }
 
     return 'No se pudo completar el inicio de sesión con Google';
+  }
+
+  private mapFacebookAuthError(err: any): string | null {
+    const code = String(err?.error ?? err?.type ?? '').toLowerCase();
+    const details = String(err?.details ?? err?.message ?? '').toLowerCase();
+
+    if (code.includes('popup_closed_by_user')) return null;
+
+    if (code.includes('popup_blocked_by_browser')) {
+      return 'Tu navegador bloqueó la ventana emergente de Facebook. Permite popups para continuar.';
+    }
+
+    if (code.includes('missing_facebook_access_token')) {
+      return 'No fue posible obtener el token de Facebook. Intenta nuevamente.';
+    }
+
+    if (details.includes('app_not_setup') || details.includes('invalid_scope')) {
+      return 'La app de Facebook no está configurada correctamente para este dominio.';
+    }
+
+    return 'No se pudo completar el inicio de sesión con Facebook';
   }
 
   isImageUrl(icon: string): boolean {

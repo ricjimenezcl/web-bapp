@@ -140,7 +140,16 @@
   <div class="w-full max-w-2xl animate-fade-in">
 
     <!-- Header -->
-    <div class="text-center mb-8">
+    <div class="relative text-center mb-8">
+      <button
+        type="button"
+        class="absolute right-0 top-0 inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface-card text-text-tertiary transition-colors hover:text-text-primary hover:border-primary/40"
+        (click)="closeVerification()"
+        aria-label="Cerrar verificación de identidad">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
       <div class="inline-flex items-center justify-center w-14 h-14 bg-primary/10 rounded-full mb-3">
         <svg class="w-7 h-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

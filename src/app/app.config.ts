@@ -54,7 +54,10 @@ export const appConfig: ApplicationConfig = {
           },
           {
             id: FacebookLoginProvider.PROVIDER_ID,
-            provider: new FacebookLoginProvider(environment.facebookAppId)
+            provider: new FacebookLoginProvider(environment.facebookAppId, {
+              scope: 'public_profile,email',
+              return_scopes: true,
+            })
           }
         ],
         onError: (err) => console.error(err)

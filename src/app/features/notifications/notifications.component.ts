@@ -43,6 +43,7 @@ export class NotificationsComponent implements OnInit {
   getIcon(type: string): string {
     const icons: Record<string, string> = {
       message: '💬', booking_confirmed: '✅', booking_rejected: '❌',
+      booking_reminder_24h: '⏰',
       booking_completed: '🎉', booking_review_request: '⭐', review_received: '⭐',
       service_approved: '🏆', payment_received: '💰', chat_message: '💬',
     };

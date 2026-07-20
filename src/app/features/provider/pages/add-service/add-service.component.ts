@@ -1,5 +1,6 @@
 import { Component, inject, signal, OnInit, OnDestroy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { ReactiveFormsModule, FormBuilder, Validators, FormArray, FormGroup } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, switchMap, of, catchError, firstValueFrom } from 'rxjs';
@@ -15,6 +16,7 @@ import { ModalService } from '../../../../core/services/modal.service';
 import { DocumentUploadService } from '../../../../shared/services/document-upload.service';
 import { ContentFilterService } from '../../../../shared/services/content-filter.service';
 import { offensiveContentAsyncValidator } from '../../../../shared/validators/content-filter.validators';
+import { environment } from '../../../../../environments/environment';
 
 const DAY_NAMES = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 const MAX_PORTFOLIO_IMAGES = 5;
@@ -23,6 +25,18 @@ interface PortfolioImage {
   file: File;
   preview: string;
   url?: string;
+}
+
+type ServiceLimitProductType = 'PROVIDER_SERVICE_30' | 'PROVIDER_PREMIUM_MONTHLY' | 'PROVIDER_PREMIUM_ANNUAL';
+
+interface ServiceLimitEvaluation {
+  canCreate: boolean;
+  activeServices: number;
+  maxServices: number;
+  hasBasePlan: boolean;
+  hasPremiumPlan: boolean;
+  suggestedProductType: ServiceLimitProductType;
+  gateMessage: string;
 }
 
 @Component({
@@ -40,6 +54,7 @@ export class AddServiceComponent implements OnInit, OnDestroy {
   private geoapify     = inject(GeoapifyService);
   private auth         = inject(AuthService);
   private router       = inject(Router);
+  private http         = inject(HttpClient);
   private modal        = inject(ModalService);
   private documentUploadSvc = inject(DocumentUploadService);
   private contentFilterService = inject(ContentFilterService);
@@ -59,6 +74,8 @@ export class AddServiceComponent implements OnInit, OnDestroy {
   error             = signal('');
   success           = signal(false);
   showPaymentGate   = signal(false);
+  paymentGateMessage = signal('Ya tienes 2 servicios en el plan gratuito. Para agregar más servicios necesitas activar un plan.');
+  paymentGateProductType = signal<ServiceLimitProductType>('PROVIDER_SERVICE_30');
   showIdentityGate  = signal(false);
   validationStatus  = signal<string>('not_submitted');
   identityMessage   = signal('Para agregar servicios debes verificar tu identidad.');
@@ -95,11 +112,9 @@ export class AddServiceComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.checkIdentityStatus();
 
-    // Nota: ya NO bloqueamos el formulario aquí solo por tener >=2 servicios.
-    // El backend valida si existe un slot de pago activo (provider_service_slots)
-    // al momento de crear el servicio: si no hay slot, responde 402 y recién ahí
-    // se muestra el payment gate (ver catch en submit()). Bloquear antes impedía
-    // que un proveedor que ya pagó pudiera siquiera ver el formulario.
+    // Pre-check temprano para mostrar el paywall antes de completar el formulario.
+    // El backend se mantiene como fuente de verdad vía respuesta 402 al crear.
+    this.evaluateServiceLimitGate();
 
     // Load main categories
     this.categorySvc.getMainCategories().pipe(takeUntil(this.destroy$)).subscribe({
@@ -192,6 +207,11 @@ export class AddServiceComponent implements OnInit, OnDestroy {
   async submit(): Promise<void> {
     if (this.showIdentityGate()) {
       this.error.set('No puedes agregar servicios hasta verificar tu identidad.');
+      return;
+    }
+
+    if (this.showPaymentGate()) {
+      this.error.set(this.paymentGateMessage());
       return;
     }
 
@@ -295,6 +315,8 @@ export class AddServiceComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.loading.set(false);
         if (err?.status === 402) {
+          this.paymentGateProductType.set('PROVIDER_SERVICE_30');
+          this.paymentGateMessage.set('No tienes un plan activo para publicar un servicio adicional. Activa un plan para continuar.');
           this.showPaymentGate.set(true);
         } else {
           this.error.set(err?.error?.detail ?? 'Error al crear servicio.');
@@ -302,6 +324,106 @@ export class AddServiceComponent implements OnInit, OnDestroy {
         }
       }
     });
+  }
+
+  private async evaluateServiceLimitGate(): Promise<void> {
+    try {
+      const [services, transactions] = await Promise.all([
+        firstValueFrom(this.providerSvc.getMyServices().pipe(catchError(() => of([])))),
+        firstValueFrom(this.http.get<any[]>(`${environment.apiUrl}/transactions/me`).pipe(catchError(() => of([]))))
+      ]);
+
+      const evaluation = this.evaluateServiceEntitlement(services ?? [], transactions ?? []);
+      this.showPaymentGate.set(!evaluation.canCreate);
+      this.paymentGateMessage.set(evaluation.gateMessage);
+      this.paymentGateProductType.set(evaluation.suggestedProductType);
+    } catch {
+      // Si falla el pre-check, el backend sigue siendo la fuente de verdad (402).
+      this.showPaymentGate.set(false);
+    }
+  }
+
+  private evaluateServiceEntitlement(services: any[], transactions: any[]): ServiceLimitEvaluation {
+    const now = Date.now();
+    const activeServices = (services ?? []).filter((s: any) => !!s?.is_available).length;
+
+    const activePlanTypes = (transactions ?? [])
+      .filter((tx: any) => this.isActiveTransaction(tx, now))
+      .map((tx: any) => this.readProductType(tx));
+
+    const hasPremiumPlan = activePlanTypes.some((pt: string) =>
+      pt.includes('PROVIDER_PREMIUM_MONTHLY') ||
+      pt.includes('PROVIDER_PREMIUM_ANNUAL') ||
+      (pt.includes('PROVIDER_PREMIUM') && (pt.includes('YEAR') || pt.includes('ANNUAL')))
+    );
+
+    const hasBasePlan = activePlanTypes.some((pt: string) =>
+      pt.includes('PROVIDER_SERVICE_30') || pt.includes('PROVIDER_SERVICE_YEAR') || pt.includes('PROVIDER_SERVICE_ANNUAL')
+    );
+
+    const maxServices = hasPremiumPlan ? 7 : hasBasePlan ? 3 : 2;
+    const canCreate = activeServices < maxServices;
+
+    if (canCreate) {
+      return {
+        canCreate,
+        activeServices,
+        maxServices,
+        hasBasePlan,
+        hasPremiumPlan,
+        suggestedProductType: hasPremiumPlan ? 'PROVIDER_PREMIUM_ANNUAL' : 'PROVIDER_SERVICE_30',
+        gateMessage: '',
+      };
+    }
+
+    if (!hasBasePlan && activeServices >= 2) {
+      return {
+        canCreate,
+        activeServices,
+        maxServices,
+        hasBasePlan,
+        hasPremiumPlan,
+        suggestedProductType: 'PROVIDER_SERVICE_30',
+        gateMessage: 'Ya alcanzaste los 2 servicios del plan gratuito. Activa un plan mensual o anual para publicar tu tercer servicio.',
+      };
+    }
+
+    if (!hasPremiumPlan && activeServices >= 3) {
+      return {
+        canCreate,
+        activeServices,
+        maxServices,
+        hasBasePlan,
+        hasPremiumPlan,
+        suggestedProductType: 'PROVIDER_PREMIUM_ANNUAL',
+        gateMessage: 'Tu plan actual permite hasta 3 servicios. Para publicar más, activa Premium mensual o Premium anual (hasta 7 servicios activos).',
+      };
+    }
+
+    return {
+      canCreate,
+      activeServices,
+      maxServices,
+      hasBasePlan,
+      hasPremiumPlan,
+      suggestedProductType: 'PROVIDER_PREMIUM_ANNUAL',
+      gateMessage: 'Ya alcanzaste el máximo de 7 servicios activos para planes Premium.',
+    };
+  }
+
+  private isActiveTransaction(tx: any, nowMs: number): boolean {
+    const status = String(tx?.status ?? '').toLowerCase();
+    if (!(status === 'completed' || status === 'authorized')) return false;
+    const expiresAt = tx?.expires_at;
+    if (!expiresAt) return true;
+    const exp = new Date(expiresAt).getTime();
+    return Number.isFinite(exp) && exp > nowMs;
+  }
+
+  private readProductType(tx: any): string {
+    return String(
+      tx?.product_type ?? tx?.product?.sku ?? tx?.product?.product_type ?? tx?.sku ?? ''
+    ).toUpperCase();
   }
 
   private buildWorkingHoursControls(): FormGroup[] {

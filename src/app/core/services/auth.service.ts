@@ -91,6 +91,7 @@ export class AuthService {
           id:         p.id         ?? res.id,
           user_id:    p.user_id    ?? res.id,
           full_name:  p.full_name  ?? '',
+          has_premium: p.has_premium ?? res.has_premium ?? false,
           phone:      p.phone      ?? undefined,
           avatar:     p.avatar     ?? undefined,
           bio:        p.bio        ?? undefined,
@@ -102,7 +103,19 @@ export class AuthService {
           created_at: res.created_at ?? undefined,
         } as UserProfile;
       }),
-      tap(profile => this.storage.setProfile(profile))
+      tap(profile => {
+        this.storage.setProfile(profile);
+        const user = this.storage.user();
+        if (user) {
+          this.storage.setUser({
+            ...user,
+            role: profile.role ?? user.role,
+            status: profile.status ?? user.status,
+            email: profile.email ?? user.email,
+            has_premium: profile.has_premium ?? user.has_premium,
+          });
+        }
+      })
     );
   }
 

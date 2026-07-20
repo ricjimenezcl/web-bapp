@@ -47,15 +47,12 @@
           </svg>
         </div>
         <h2 class="as-gate-title">Actualiza tu plan</h2>
-        <p class="as-gate-desc">
-          Ya tienes 2 servicios en el plan gratuito.<br>
-          Para agregar más servicios necesitas el plan Premium.
-        </p>
+        <p class="as-gate-desc">{{ paymentGateMessage() }}</p>
         <a
           routerLink="/payment"
-          [queryParams]="{ product_type: 'PROVIDER_SERVICE_30', returnTo: '/provider/add-service' }"
+          [queryParams]="{ product_type: paymentGateProductType(), returnTo: '/provider/add-service' }"
           class="as-btn as-btn--primary as-btn--block">
-          Ver planes Premium
+          Ver planes
         </a>
         <a routerLink="/provider/tabs/my-services" class="as-gate-link">
           Volver a mis servicios

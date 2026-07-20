@@ -10,7 +10,8 @@ export type ProductType =
   | 'PROVIDER_SERVICE_YEAR'
   | 'PROVIDER_LEADS_7'
   | 'PROVIDER_LEADS_30'
-  | 'PROVIDER_PREMIUM_MONTHLY';
+  | 'PROVIDER_PREMIUM_MONTHLY'
+  | 'PROVIDER_PREMIUM_ANNUAL';
 
 export interface CreateTransactionRequest {
   product_type: ProductType;

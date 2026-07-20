@@ -1,9 +1,12 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { PaymentService, ProductType } from '../../core/services/payment.service';
 import { StorageService } from '../../core/services/storage.service';
+import { environment } from '../../../environments/environment';
+import { catchError, firstValueFrom, of } from 'rxjs';
 
 export type PayMethod = 'transbank' | 'mercadopago' | 'transferencia';
 
@@ -18,6 +21,7 @@ const PROVIDER_PRODUCT_TYPES: ProductType[] = [
   'PROVIDER_LEADS_7',
   'PROVIDER_LEADS_30',
   'PROVIDER_PREMIUM_MONTHLY',
+  'PROVIDER_PREMIUM_ANNUAL',
 ];
 
 interface PlanUi {
@@ -85,6 +89,14 @@ const PLAN_CATALOG: Record<ProductType, PlanUi> = {
     price: 5990,
     period: 'mensual',
     benefits: ['🔥 Más clientes', '✔ Perfil destacado', '🔓 Accesos premium completos']
+  },
+  PROVIDER_PREMIUM_ANNUAL: {
+    productType: 'PROVIDER_PREMIUM_ANNUAL',
+    title: 'Premium Proveedor anual',
+    subtitle: 'Plan anual preferente',
+    price: 49990,
+    period: 'anual',
+    benefits: ['🔥 Más clientes todo el año', '⭐ Perfil destacado y prioridad', '➕ Hasta 7 servicios activos']
   }
 };
 
@@ -101,6 +113,7 @@ export class PaymentComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly paymentSvc = inject(PaymentService);
   private readonly storage = inject(StorageService);
+  private readonly http = inject(HttpClient);
 
   readonly user     = this.auth.currentProfile;
   readonly userRole = this.auth.currentUser()?.role ?? 'CLIENT';
@@ -192,6 +205,10 @@ export class PaymentComponent implements OnInit {
   goBack(): void {
     const back = this.returnTo();
     if (back) {
+      if (back.startsWith('bapp://')) {
+        window.location.href = back;
+        return;
+      }
       this.router.navigateByUrl(back);
       return;
     }
@@ -249,9 +266,14 @@ export class PaymentComponent implements OnInit {
     this.error.set('');
 
     this.paymentSvc.commitTransaction(params).subscribe({
-      next: (res) => {
+      next: async (res) => {
         this.committing.set(false);
         if (res.success) {
+          const verification = await this.syncPostPaymentState(res.buy_order ?? params.buy_order);
+          if (!verification.ok && verification.message) {
+            this.error.set(verification.message);
+          }
+
           this.success.set(true);
           // Si el flujo indicó a dónde volver (returnTo), respetarlo
           // (p.ej. /provider/add-service tras desbloquear el 3er servicio).
@@ -261,6 +283,17 @@ export class PaymentComponent implements OnInit {
               ? '/provider/tabs/profile'
               : '/client/tabs/profile'
           );
+
+          if (target.startsWith('bapp://')) {
+            const deepLink = this.appendQueryParams(target, {
+              status: 'success',
+              productType: this.selectedProductType(),
+              buyOrder: res.buy_order ?? params.buy_order,
+              expiresAt: res.expires_at,
+            });
+            window.location.href = deepLink;
+            return;
+          }
 
           this.router.navigate([target], {
             queryParams: {
@@ -277,6 +310,54 @@ export class PaymentComponent implements OnInit {
         this.error.set(err?.error?.detail ?? 'Error confirmando el pago.');
       }
     });
+  }
+
+  private async syncPostPaymentState(buyOrder?: string): Promise<{ ok: boolean; message?: string }> {
+    const [userMe, txs] = await Promise.all([
+      firstValueFrom(this.http.get<any>(`${environment.apiUrl}/users/me`).pipe(catchError(() => of(null)))),
+      firstValueFrom(this.http.get<any[]>(`${environment.apiUrl}/transactions/me`).pipe(catchError(() => of([]))))
+    ]);
+
+    await firstValueFrom(this.auth.fetchProfile().pipe(catchError(() => of(null))));
+
+    const current = this.storage.user();
+    if (userMe && current) {
+      this.storage.setUser({
+        ...current,
+        email: userMe.email ?? current.email,
+        role: userMe.role ?? current.role,
+        status: userMe.status ?? current.status,
+        has_premium: userMe.has_premium ?? userMe.profile?.has_premium ?? current.has_premium,
+      });
+    }
+
+    if (buyOrder) {
+      const found = (txs ?? []).some(tx => {
+        const txOrder = String(tx?.buy_order ?? '');
+        const status = String(tx?.status ?? '').toLowerCase();
+        return txOrder === buyOrder && (status === 'completed' || status === 'authorized');
+      });
+      if (!found) {
+        return {
+          ok: false,
+          message: 'El pago fue aprobado, pero la confirmación de transacción aún no aparece. Recarga tu perfil en unos segundos.',
+        };
+      }
+    }
+
+    return { ok: true };
+  }
+
+  private appendQueryParams(baseUrl: string, params: Record<string, string | undefined>): string {
+    const [head, hash = ''] = baseUrl.split('#', 2);
+    const url = new URL(head);
+
+    for (const [key, value] of Object.entries(params)) {
+      if (!value) continue;
+      url.searchParams.set(key, value);
+    }
+
+    return hash ? `${url.toString()}#${hash}` : url.toString();
   }
 
   private redirectToWebpay(url: string, token: string): void {

@@ -18,12 +18,15 @@ const EXTERNAL_DOMAINS = [
 
 const PUBLIC_PATHS = [
   '/auth/login',
+  '/auth/login-roles',
   '/auth/register',
-  '/auth/google',
-  '/auth/facebook',
+  '/auth/oauth/google',
+  '/auth/oauth/facebook',
   '/auth/reset-password',
   '/auth/set-new-password',
+  '/auth/send-verification-email',
   '/auth/verify-email',
+  '/auth/web-session',
   '/categories/',
 ];
 
@@ -44,12 +47,20 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
   const router   = inject(Router);
   const session  = inject(SessionService);
 
-  if (isExternal(req.url) || isPublic(req.url)) {
+  if (isExternal(req.url)) {
     return next(req);
   }
 
+  const reqWithCredentials = req.clone({ withCredentials: true });
+
+  if (isPublic(req.url)) {
+    return next(reqWithCredentials);
+  }
+
   const token = storage.token();
-  const authReq = token ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }) : req;
+  const authReq = token
+    ? reqWithCredentials.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
+    : reqWithCredentials;
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
@@ -61,10 +72,12 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
           return auth.refreshToken().pipe(
             switchMap(res => {
               isRefreshing = false;
-              refreshToken$.next(res.access_token);
-              const retryReq = req.clone({
-                setHeaders: { Authorization: `Bearer ${res.access_token}` }
-              });
+              refreshToken$.next(res.access_token ?? 'cookie-session');
+              const retryReq = res.access_token
+                ? reqWithCredentials.clone({
+                    setHeaders: { Authorization: `Bearer ${res.access_token}` }
+                  })
+                : reqWithCredentials;
               return next(retryReq);
             }),
             catchError(refreshError => {
@@ -84,7 +97,9 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
             filter(t => t !== null),
             take(1),
             switchMap(t => {
-              const retryReq = req.clone({ setHeaders: { Authorization: `Bearer ${t}` } });
+              const retryReq = t && t !== 'cookie-session'
+                ? reqWithCredentials.clone({ setHeaders: { Authorization: `Bearer ${t}` } })
+                : reqWithCredentials;
               return next(retryReq);
             })
           );

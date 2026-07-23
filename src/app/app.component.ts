@@ -4,10 +4,12 @@ import { CommonModule } from '@angular/common';
 import { StorageService } from './core/services/storage.service';
 import { SessionService } from './core/services/session.service';
 import { filter } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { AppFooterComponent } from './shared/components/app-footer/app-footer.component';
 import { GlobalModalComponent } from './shared/components/global-modal/global-modal.component';
 import { CompleteProfileModalComponent } from './shared/components/complete-profile-modal/complete-profile-modal.component';
 import { ProfileCompletionService } from './core/services/profile-completion.service';
+import { AuthService } from './core/services/auth.service';
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -173,6 +175,7 @@ import { ProfileCompletionService } from './core/services/profile-completion.ser
 export class AppComponent implements OnInit {
   private readonly router  = inject(Router);
   private readonly storage = inject(StorageService);
+  private readonly auth = inject(AuthService);
   readonly session          = inject(SessionService);
   readonly profileCompletion = inject(ProfileCompletionService);
 
@@ -180,6 +183,8 @@ export class AppComponent implements OnInit {
   readonly compactFooter = signal(false);
   readonly isFullscreenRoute = signal(false);
   private hasNavigatedOnInit = false;
+  private attemptedCookieBootstrap = false;
+  private isBootstrappingAuth = false;
 
   ngOnInit(): void {
     const navEntry = globalThis.performance
@@ -270,6 +275,10 @@ export class AppComponent implements OnInit {
     if (publicRoutes.some(r => currentUrl.startsWith(r))) return;
 
     if (!isAuthenticated) {
+      if (!this.attemptedCookieBootstrap && !this.isBootstrappingAuth) {
+        this.bootstrapSessionFromCookie();
+        return;
+      }
       if (currentUrl !== '/auth/login') this.router.navigate(['/auth/login']);
       return;
     }
@@ -282,6 +291,27 @@ export class AppComponent implements OnInit {
       }
     } else if (currentUrl === '/client/tabs' || currentUrl === '/client/tabs/service-search') {
       this.router.navigate(['/client/categories'], { replaceUrl: true });
+    }
+  }
+
+  private async bootstrapSessionFromCookie(): Promise<void> {
+    this.attemptedCookieBootstrap = true;
+    this.isBootstrappingAuth = true;
+    try {
+      const profile = await firstValueFrom(this.auth.fetchProfile());
+      this.storage.setUser({
+        id: profile.user_id,
+        email: profile.email ?? '',
+        role: profile.role ?? 'CLIENT',
+        status: profile.status ?? 'ACTIVE',
+        has_premium: profile.has_premium ?? false,
+      });
+      this.storage.markSessionActive();
+    } catch {
+      // Sin cookie de sesión válida o backend no alcanzable.
+    } finally {
+      this.isBootstrappingAuth = false;
+      this.handleInitialNavigation();
     }
   }
 }

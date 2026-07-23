@@ -23,6 +23,10 @@ export class SettingsComponent implements OnInit {
   pwError   = signal('');
   pwSuccess = signal(false);
 
+  showOldPassword = false;
+  showNewPassword = false;
+  showConfirmPassword = false;
+
   pwForm = this.fb.group({
     old_password:     ['', Validators.required],
     new_password:     ['', [Validators.required, Validators.minLength(8)]],
@@ -42,6 +46,18 @@ export class SettingsComponent implements OnInit {
       document.documentElement.classList.remove('dark');
       localStorage.setItem('theme', 'light');
     }
+  }
+
+  togglePasswordVisibility(field: 'old' | 'new' | 'confirm'): void {
+    if (field === 'old') {
+      this.showOldPassword = !this.showOldPassword;
+      return;
+    }
+    if (field === 'new') {
+      this.showNewPassword = !this.showNewPassword;
+      return;
+    }
+    this.showConfirmPassword = !this.showConfirmPassword;
   }
 
   changePassword(): void {

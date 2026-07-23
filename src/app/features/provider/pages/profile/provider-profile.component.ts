@@ -69,6 +69,10 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
   pwError   = signal('');
   pwSuccess = signal(false);
 
+  showOldPassword = false;
+  showNewPassword = false;
+  showConfirmPassword = false;
+
   pwForm = this.fb.group({
     old_password:     ['', Validators.required],
     new_password:     ['', [Validators.required, Validators.minLength(8)]],
@@ -104,6 +108,18 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
       next: () => { this.pwLoading.set(false); this.pwSuccess.set(true); this.pwForm.reset(); },
       error: (err: any) => { this.pwLoading.set(false); this.pwError.set(err?.error?.detail ?? 'Error al cambiar contraseña.'); }
     });
+  }
+
+  togglePasswordVisibility(field: 'old' | 'new' | 'confirm'): void {
+    if (field === 'old') {
+      this.showOldPassword = !this.showOldPassword;
+      return;
+    }
+    if (field === 'new') {
+      this.showNewPassword = !this.showNewPassword;
+      return;
+    }
+    this.showConfirmPassword = !this.showConfirmPassword;
   }
 
   ngOnInit(): void {

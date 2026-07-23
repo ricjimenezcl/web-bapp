@@ -80,6 +80,9 @@ export class ProviderLandingComponent implements OnInit, OnDestroy {
   errorRegister = signal('');
   successRegister = signal('');
   showRegisterModal = signal(false);
+  facebookEmailPromptOpen = signal(false);
+  facebookEmailPromptValue = signal('');
+  facebookEmailPromptError = signal('');
   showModalPass = signal(false);
   showModalConfirmPass = signal(false);
   dbCategories = signal<MainCategory[]>([]);
@@ -260,6 +263,7 @@ export class ProviderLandingComponent implements OnInit, OnDestroy {
   private scrollListener!: () => void;
   private socialAuthSub?: Subscription;
   private heroSlideInterval?: ReturnType<typeof setInterval>;
+  private pendingFacebookAccessToken: string | null = null;
 
   constructor(
     private readonly meta: Meta,
@@ -391,6 +395,7 @@ export class ProviderLandingComponent implements OnInit, OnDestroy {
 
   closeRegisterModal(): void {
     this.showRegisterModal.set(false);
+    this.closeFacebookEmailPrompt();
     this.errorRegister.set('');
     this.successRegister.set('');
   }
@@ -462,20 +467,31 @@ export class ProviderLandingComponent implements OnInit, OnDestroy {
     this.socialAuth.signIn(FacebookLoginProvider.PROVIDER_ID, {
       scope: 'public_profile,email',
       return_scopes: true,
+      auth_type: 'rerequest',
     } as any)
       .then((user) => {
         const accessToken = String((user as any)?.authToken ?? (user as any)?.response?.accessToken ?? '').trim();
+        const emailHint = String((user as any)?.email ?? (user as any)?.response?.email ?? '').trim().toLowerCase();
 
         if (!accessToken) {
-          throw { error: 'missing_facebook_access_token', details: user };
+          const missingTokenError = new Error('missing_facebook_access_token');
+          (missingTokenError as any).error = 'missing_facebook_access_token';
+          (missingTokenError as any).details = user;
+          throw missingTokenError;
         }
 
-        this.auth.loginWithFacebook(accessToken, 'PROVIDER').subscribe({
+        this.auth.loginWithFacebook(accessToken, 'PROVIDER', emailHint || undefined).subscribe({
           next: (res) => {
             this.loadingRegister.set(false);
             this.handleSocialLoginSuccess(res);
           },
           error: (err) => {
+            if (this.isFacebookMissingEmailError(err)) {
+              this.loadingRegister.set(false);
+              this.openFacebookEmailPrompt(accessToken);
+              return;
+            }
+
             this.loadingRegister.set(false);
             this.errorRegister.set(err.error?.detail || 'Error en autenticación con Facebook');
           },
@@ -488,6 +504,69 @@ export class ProviderLandingComponent implements OnInit, OnDestroy {
           this.errorRegister.set(mappedError);
         }
       });
+  }
+
+  private isFacebookMissingEmailError(err: any): boolean {
+    const detail = String(err?.error?.detail ?? err?.message ?? '').toLowerCase();
+    return detail.includes('facebook') && detail.includes('email') && detail.includes('no proporcion');
+  }
+
+  openFacebookEmailPrompt(accessToken: string): void {
+    this.pendingFacebookAccessToken = accessToken;
+    this.facebookEmailPromptValue.set('');
+    this.facebookEmailPromptError.set('');
+    this.facebookEmailPromptOpen.set(true);
+  }
+
+  closeFacebookEmailPrompt(): void {
+    this.facebookEmailPromptOpen.set(false);
+    this.facebookEmailPromptValue.set('');
+    this.facebookEmailPromptError.set('');
+    this.pendingFacebookAccessToken = null;
+  }
+
+  onFacebookEmailPromptInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.facebookEmailPromptValue.set((input.value ?? '').trim().toLowerCase());
+    if (this.facebookEmailPromptError()) {
+      this.facebookEmailPromptError.set('');
+    }
+  }
+
+  submitFacebookEmailPrompt(): void {
+    const accessToken = this.pendingFacebookAccessToken;
+    if (!accessToken) {
+      this.closeFacebookEmailPrompt();
+      return;
+    }
+
+    const manualEmail = this.facebookEmailPromptValue().trim().toLowerCase();
+    if (!this.isBasicValidEmail(manualEmail)) {
+      this.facebookEmailPromptError.set('Ingresa un correo válido para continuar.');
+      return;
+    }
+
+    this.loadingRegister.set(true);
+    this.facebookEmailPromptError.set('');
+
+    this.auth.loginWithFacebook(accessToken, 'PROVIDER', manualEmail).subscribe({
+      next: (res) => {
+        this.loadingRegister.set(false);
+        this.closeFacebookEmailPrompt();
+        this.handleSocialLoginSuccess(res);
+      },
+      error: (fallbackErr) => {
+        this.loadingRegister.set(false);
+        this.facebookEmailPromptError.set(fallbackErr?.error?.detail || 'No fue posible completar el registro con Facebook');
+      },
+    });
+  }
+
+  private isBasicValidEmail(email: string): boolean {
+    if (!email || email.includes(' ')) return false;
+    const at = email.indexOf('@');
+    const dot = email.lastIndexOf('.');
+    return at > 0 && dot > at + 1 && dot < email.length - 1;
   }
 
   private handleSocialLoginSuccess(res: any): void {

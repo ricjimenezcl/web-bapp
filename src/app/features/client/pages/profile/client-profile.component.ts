@@ -65,6 +65,10 @@ export class ClientProfileComponent implements OnInit {
   pwSuccess = signal(false);
   showPremiumModal = signal(false);
 
+  showOldPassword = false;
+  showNewPassword = false;
+  showConfirmPassword = false;
+
   pwForm = this.fb.group({
     old_password:     ['', Validators.required],
     new_password:     ['', [Validators.required, Validators.minLength(8)]],
@@ -163,6 +167,18 @@ export class ClientProfileComponent implements OnInit {
     this.darkMode.set(enabled);
     document.documentElement.classList.toggle('dark', enabled);
     localStorage.setItem('theme', enabled ? 'dark' : 'light');
+  }
+
+  togglePasswordVisibility(field: 'old' | 'new' | 'confirm'): void {
+    if (field === 'old') {
+      this.showOldPassword = !this.showOldPassword;
+      return;
+    }
+    if (field === 'new') {
+      this.showNewPassword = !this.showNewPassword;
+      return;
+    }
+    this.showConfirmPassword = !this.showConfirmPassword;
   }
 
   changePassword(): void {

@@ -13,6 +13,14 @@ import { defineConfig, devices } from '@playwright/test';
  */
 
 const BASE_URL = process.env.BASE_URL ?? 'http://localhost:4200';
+const IS_LOCAL_BASE_URL = (() => {
+  try {
+    const host = new URL(BASE_URL).hostname;
+    return host === 'localhost' || host === '127.0.0.1';
+  } catch {
+    return BASE_URL.includes('localhost') || BASE_URL.includes('127.0.0.1');
+  }
+})();
 
 export default defineConfig({
   testDir: './e2e',
@@ -55,7 +63,7 @@ export default defineConfig({
       use: { ...devices['iPhone 12'] },
     },
   ],
-  webServer: process.env.CI
+  webServer: process.env.CI && IS_LOCAL_BASE_URL
     ? {
         command: 'npm run start',
         url: BASE_URL,

@@ -491,16 +491,44 @@
           <div class="form-grid">
             <div class="form-group form-group--full">
               <label for="pp_old_pw">Contraseña actual</label>
-              <input id="pp_old_pw" type="password" formControlName="old_password" placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"
-                [class.is-error]="pwForm.get('old_password')!.invalid && pwForm.get('old_password')!.touched">
+              <div class="relative">
+                <input id="pp_old_pw" [type]="showOldPassword ? 'text' : 'password'" formControlName="old_password" placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" class="pr-10"
+                  [class.is-error]="pwForm.get('old_password')!.invalid && pwForm.get('old_password')!.touched">
+                <button
+                  type="button"
+                  class="absolute inset-y-0 right-0 px-3 text-text-tertiary hover:text-text-primary"
+                  (click)="togglePasswordVisibility('old')"
+                  [attr.aria-label]="showOldPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                >
+                  @if (showOldPassword) {
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-5 0-9-4-10-7a17.856 17.856 0 012.366-3.357M6.228 6.228A9.956 9.956 0 0112 5c5 0 9 4 10 7a17.87 17.87 0 01-4.293 5.774M15 12a3 3 0 11-6 0 3 3 0 016 0zm6 9L3 3"/></svg>
+                  } @else {
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                  }
+                </button>
+              </div>
               @if (pwForm.get('old_password')!.invalid && pwForm.get('old_password')!.touched) {
                 <span class="form-error">La contraseña actual es requerida</span>
               }
             </div>
             <div class="form-group form-group--full">
               <label for="pp_new_pw">Nueva contraseña</label>
-              <input id="pp_new_pw" type="password" formControlName="new_password" placeholder="Mínimo 8 caracteres"
-                [class.is-error]="pwForm.get('new_password')!.invalid && pwForm.get('new_password')!.touched">
+              <div class="relative">
+                <input id="pp_new_pw" [type]="showNewPassword ? 'text' : 'password'" formControlName="new_password" placeholder="Mínimo 8 caracteres" class="pr-10"
+                  [class.is-error]="pwForm.get('new_password')!.invalid && pwForm.get('new_password')!.touched">
+                <button
+                  type="button"
+                  class="absolute inset-y-0 right-0 px-3 text-text-tertiary hover:text-text-primary"
+                  (click)="togglePasswordVisibility('new')"
+                  [attr.aria-label]="showNewPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                >
+                  @if (showNewPassword) {
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-5 0-9-4-10-7a17.856 17.856 0 012.366-3.357M6.228 6.228A9.956 9.956 0 0112 5c5 0 9 4 10 7a17.87 17.87 0 01-4.293 5.774M15 12a3 3 0 11-6 0 3 3 0 016 0zm6 9L3 3"/></svg>
+                  } @else {
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                  }
+                </button>
+              </div>
               @if (pwForm.get('new_password')!.invalid && pwForm.get('new_password')!.touched) {
                 <span class="form-error">
                   {{ pwForm.get('new_password')!.errors?.['required'] ? 'La nueva contraseña es requerida' : 'Mínimo 8 caracteres' }}
@@ -509,9 +537,23 @@
             </div>
             <div class="form-group form-group--full">
               <label for="pp_confirm_pw">Repetir nueva contraseña</label>
-              <input id="pp_confirm_pw" type="password" formControlName="confirm_password"
-                placeholder="Repite la nueva contraseña"
-                [class.is-error]="pwForm.get('confirm_password')!.touched && pwForm.hasError('passwordsMismatch')">
+              <div class="relative">
+                <input id="pp_confirm_pw" [type]="showConfirmPassword ? 'text' : 'password'" formControlName="confirm_password"
+                  placeholder="Repite la nueva contraseña" class="pr-10"
+                  [class.is-error]="pwForm.get('confirm_password')!.touched && pwForm.hasError('passwordsMismatch')">
+                <button
+                  type="button"
+                  class="absolute inset-y-0 right-0 px-3 text-text-tertiary hover:text-text-primary"
+                  (click)="togglePasswordVisibility('confirm')"
+                  [attr.aria-label]="showConfirmPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                >
+                  @if (showConfirmPassword) {
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-5 0-9-4-10-7a17.856 17.856 0 012.366-3.357M6.228 6.228A9.956 9.956 0 0112 5c5 0 9 4 10 7a17.87 17.87 0 01-4.293 5.774M15 12a3 3 0 11-6 0 3 3 0 016 0zm6 9L3 3"/></svg>
+                  } @else {
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                  }
+                </button>
+              </div>
               @if (pwForm.get('confirm_password')!.touched && pwForm.hasError('passwordsMismatch')) {
                 <span class="form-error">Las contraseñas no coinciden</span>
               }

@@ -1384,5 +1384,51 @@
         </div>
       }
     </div>
+
+    @if (facebookEmailPromptOpen()) {
+      <div
+        class="absolute inset-0 bg-black/60 backdrop-blur-[1px] flex items-center justify-center p-4"
+        (click)="closeFacebookEmailPrompt()">
+        <div
+          class="w-full max-w-sm rounded-2xl border border-crypgo-primary/30 bg-crypgo-deepSlate p-5 text-left shadow-2xl"
+          (click)="$event.stopPropagation()">
+          <h3 class="text-white text-lg font-semibold">Completa tu correo</h3>
+          <p class="mt-2 text-sm text-gray-300">
+            Facebook no compartió tu email. Escríbelo para continuar con tu acceso.
+          </p>
+
+          <label for="facebook-email-fallback" class="mt-4 block text-sm text-white">Correo electrónico</label>
+          <input
+            id="facebook-email-fallback"
+            type="email"
+            [value]="facebookEmailPromptValue()"
+            (input)="onFacebookEmailPromptInput($event)"
+            placeholder="tu@email.com"
+            class="mt-2 w-full rounded-lg border border-crypgo-dark_border bg-crypgo-darkmode px-4 py-3 text-white focus:outline-none focus:border-crypgo-primary"
+            [class.border-crypgo-error]="facebookEmailPromptError()"
+          />
+
+          @if (facebookEmailPromptError()) {
+            <p class="mt-2 text-sm text-crypgo-error">{{ facebookEmailPromptError() }}</p>
+          }
+
+          <div class="mt-5 grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              (click)="closeFacebookEmailPrompt()"
+              class="rounded-lg border border-crypgo-dark_border px-3 py-2 text-sm font-semibold text-gray-300 hover:text-white hover:border-gray-400 transition-colors">
+              Cancelar
+            </button>
+            <button
+              type="button"
+              (click)="submitFacebookEmailPrompt()"
+              [disabled]="loading()"
+              class="rounded-lg border border-crypgo-primary bg-crypgo-primary px-3 py-2 text-sm font-semibold text-crypgo-darkmode hover:bg-transparent hover:text-crypgo-primary transition-colors disabled:opacity-60">
+              {{ loading() ? 'Validando...' : 'Continuar' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    }
   </div>
 }

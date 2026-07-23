@@ -58,6 +58,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   loginRoleOptions     = signal<UserRole[]>([]);
   socialRolePrompt     = signal(false);
   socialRoleOptions    = signal<UserRole[]>([]);
+  facebookEmailPromptOpen = signal(false);
+  facebookEmailPromptValue = signal('');
+  facebookEmailPromptError = signal('');
   sticky         = signal(false); // Para header sticky
   guideTab       = signal<'client' | 'provider'>('client'); // Tab para guías de uso
   
@@ -94,6 +97,10 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   private pendingLogin: { email: string; password: string } | null = null;
   private pendingSocialLogin: { provider: 'google' | 'facebook'; token: string; email: string; wasRegistering: boolean } | null = null;
+  private pendingFacebookEmailFallback: {
+    pending: { provider: 'google' | 'facebook'; token: string; email: string; wasRegistering: boolean };
+    role: UserRole;
+  } | null = null;
   private socialLoginInProgress = false;
   private socialRequestedRole: UserRole = 'CLIENT';
   private socialWasRegistering = false;
@@ -739,13 +746,17 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.socialAuth.signIn(FacebookLoginProvider.PROVIDER_ID, {
       scope: 'public_profile,email',
       return_scopes: true,
+      auth_type: 'rerequest',
     } as any)
       .then(user => {
         const accessToken = String((user as any)?.authToken ?? (user as any)?.response?.accessToken ?? '').trim();
         const email = String((user as any)?.email ?? (user as any)?.response?.email ?? '').trim();
 
         if (!accessToken) {
-          throw { error: 'missing_facebook_access_token', details: user };
+          const missingTokenError = new Error('missing_facebook_access_token');
+          (missingTokenError as any).error = 'missing_facebook_access_token';
+          (missingTokenError as any).details = user;
+          throw missingTokenError;
         }
 
         this.resolveSocialLoginRole('facebook', accessToken, email, wasRegistering);
@@ -834,7 +845,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   ): void {
     const request$ = pending.provider === 'google'
       ? this.auth.loginWithGoogle(pending.token, role)
-      : this.auth.loginWithFacebook(pending.token, role);
+      : this.auth.loginWithFacebook(pending.token, role, pending.email);
 
     request$.subscribe({
       next: (res) => {
@@ -845,12 +856,87 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.handleSocialLoginSuccess(res, pending.wasRegistering);
       },
       error: (err) => {
+        if (pending.provider === 'facebook' && this.isFacebookMissingEmailError(err)) {
+          this.loading.set(false);
+          this.socialLoginInProgress = false;
+          this.pendingSocialLogin = null;
+          this.openFacebookEmailPrompt(pending, role);
+          return;
+        }
+
         this.loading.set(false);
         this.socialLoginInProgress = false;
         this.pendingSocialLogin = null;
         this.error.set(err.error?.detail || `Error en autenticación con ${pending.provider === 'google' ? 'Google' : 'Facebook'}`);
       }
     });
+  }
+
+  private isFacebookMissingEmailError(err: any): boolean {
+    const detail = String(err?.error?.detail ?? err?.message ?? '').toLowerCase();
+    return detail.includes('facebook') && detail.includes('email') && detail.includes('no proporcion');
+  }
+
+  openFacebookEmailPrompt(
+    pending: { provider: 'google' | 'facebook'; token: string; email: string; wasRegistering: boolean },
+    role: UserRole,
+  ): void {
+    this.pendingFacebookEmailFallback = { pending, role };
+    this.facebookEmailPromptValue.set('');
+    this.facebookEmailPromptError.set('');
+    this.facebookEmailPromptOpen.set(true);
+  }
+
+  closeFacebookEmailPrompt(): void {
+    this.facebookEmailPromptOpen.set(false);
+    this.pendingFacebookEmailFallback = null;
+  }
+
+  onFacebookEmailPromptInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.facebookEmailPromptValue.set((input.value ?? '').trim().toLowerCase());
+    if (this.facebookEmailPromptError()) this.facebookEmailPromptError.set('');
+  }
+
+  submitFacebookEmailPrompt(): void {
+    const fallback = this.pendingFacebookEmailFallback;
+    if (!fallback) {
+      this.closeFacebookEmailPrompt();
+      return;
+    }
+
+    const manualEmail = this.facebookEmailPromptValue().trim().toLowerCase();
+    if (!this.isBasicValidEmail(manualEmail)) {
+      this.facebookEmailPromptError.set('Ingresa un correo válido para continuar.');
+      return;
+    }
+
+    this.loading.set(true);
+    this.facebookEmailPromptError.set('');
+
+    this.auth.loginWithFacebook(fallback.pending.token, fallback.role, manualEmail).subscribe({
+      next: (res) => {
+        this.loading.set(false);
+        this.socialLoginInProgress = false;
+        this.pendingSocialLogin = null;
+        this.socialRolePrompt.set(false);
+        this.closeFacebookEmailPrompt();
+        this.handleSocialLoginSuccess(res, fallback.pending.wasRegistering);
+      },
+      error: (fallbackErr) => {
+        this.loading.set(false);
+        this.socialLoginInProgress = false;
+        this.pendingSocialLogin = null;
+        this.facebookEmailPromptError.set(fallbackErr?.error?.detail || 'No fue posible completar el login con Facebook');
+      }
+    });
+  }
+
+  private isBasicValidEmail(email: string): boolean {
+    if (!email || email.includes(' ')) return false;
+    const at = email.indexOf('@');
+    const dot = email.lastIndexOf('.');
+    return at > 0 && dot > at + 1 && dot < email.length - 1;
   }
 
   // ── Métodos landing page ─────────────────────────────────────────
@@ -872,6 +958,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   closeModal(): void {
     this.showModal.set(false);
+    this.closeFacebookEmailPrompt();
     this.success.set('');
     document.body.classList.remove('modal-open');
     if (!this.showServicesModal()) {

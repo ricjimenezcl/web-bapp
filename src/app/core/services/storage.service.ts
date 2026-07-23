@@ -3,6 +3,7 @@ import { StoredUser, UserProfile } from '../models/user.model';
 
 const KEYS = {
   TOKEN:   'bapp_token',
+  REFRESH_TOKEN: 'bapp_refresh_token',
   USER:    'bapp_user',
   PROFILE: 'bapp_profile',
 } as const;
@@ -19,7 +20,7 @@ export class StorageService {
   readonly token          = this._token.asReadonly();
   readonly user           = this._user.asReadonly();
   readonly profile        = this._profile.asReadonly();
-  readonly isAuthenticated = computed(() => !!this._token() && !!this._user());
+  readonly isAuthenticated = computed(() => !!this._user());
 
   constructor() {
     // Retorno desde un flujo de pago externo (Webpay): restaurar la marca
@@ -28,7 +29,7 @@ export class StorageService {
     // entre el Router y AppComponent.
     if (sessionStorage.getItem(PAYMENT_REDIRECT_FLAG) === '1') {
       sessionStorage.removeItem(PAYMENT_REDIRECT_FLAG);
-      if (this._token() && this._user()) {
+      if (this._user()) {
         sessionStorage.setItem(SESSION_FLAG, '1');
       }
     }
@@ -37,6 +38,19 @@ export class StorageService {
   setToken(token: string): void {
     localStorage.setItem(KEYS.TOKEN, token);
     this._token.set(token);
+  }
+
+  clearToken(): void {
+    localStorage.removeItem(KEYS.TOKEN);
+    this._token.set(null);
+  }
+
+  setRefreshToken(token: string): void {
+    localStorage.setItem(KEYS.REFRESH_TOKEN, token);
+  }
+
+  getRefreshToken(): string | null {
+    return localStorage.getItem(KEYS.REFRESH_TOKEN);
   }
 
   setUser(user: StoredUser): void {
@@ -99,7 +113,7 @@ export class StorageService {
    * para la pestaña actual, limpia la sesión por seguridad.
    */
   enforceBrowserSession(): void {
-    const hasPersistedAuth = !!this._token() && !!this._user();
+    const hasPersistedAuth = !!this._user();
     if (hasPersistedAuth && !this.isBrowserSessionActive()) {
       this.clearSession();
     }
@@ -107,6 +121,7 @@ export class StorageService {
 
   clearSession(): void {
     localStorage.removeItem(KEYS.TOKEN);
+    localStorage.removeItem(KEYS.REFRESH_TOKEN);
     localStorage.removeItem(KEYS.USER);
     localStorage.removeItem(KEYS.PROFILE);
     sessionStorage.removeItem(SESSION_FLAG);

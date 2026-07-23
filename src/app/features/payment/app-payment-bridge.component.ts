@@ -16,8 +16,8 @@ import { StoredUser } from '../../core/models/user.model';
  *
  * Flujo:
  *   1. Lee token y params de la URL
- *   2. Llama a /users/me con el token para validarlo y obtener el usuario
- *   3. Guarda token + usuario en StorageService (misma sesión que login normal)
+ *   2. Intercambia token por cookies HttpOnly con /auth/web-session
+ *   3. Guarda usuario en StorageService (sin persistir access token)
  *   4. Redirige a /payment con los params del producto
  */
 @Component({
@@ -53,29 +53,35 @@ export class AppPaymentBridgeComponent implements OnInit {
     const productType = params.get('product_type');
     const returnTo   = params.get('returnTo');
 
+    // Remover token sensible del URL para no dejarlo en historial/referrer.
+    this.stripSensitiveQueryParams();
+
     if (!token) {
       this.error = 'Enlace de pago inválido. Por favor vuelve a intentarlo desde la app.';
       return;
     }
 
-    // Validar token llamando a /users/me con el JWT de la app
-    this.http.get<any>(`${environment.apiUrl}/users/me`, {
-      headers: { Authorization: `Bearer ${token}` }
-    }).subscribe({
+    // Intercambiar token por sesión web basada en cookies HttpOnly
+    this.http.post<any>(`${environment.apiUrl}/auth/web-session`, { token }).subscribe({
       next: (res) => {
-        // Guardar sesión en el web (igual que después del login)
-        this.storage.setToken(token);
+        const userData = res?.user;
+        if (!userData) {
+          this.error = 'No fue posible iniciar la sesión web. Intenta nuevamente.';
+          return;
+        }
 
+        this.storage.clearToken();
         const user: StoredUser = {
-          id:          res.id ?? res.user_id,
-          email:       res.email,
-          role:        res.role,
-          status:      res.status ?? 'ACTIVE',
-          provider_id: res.provider_id,
-          client_id:   res.client_id,
-          has_premium: res.has_premium ?? false,
+          id:          userData.id,
+          email:       userData.email,
+          role:        userData.role,
+          status:      userData.status ?? 'ACTIVE',
+          provider_id: userData.provider_id,
+          client_id:   userData.client_id,
+          has_premium: userData.has_premium ?? false,
         };
         this.storage.setUser(user);
+        this.storage.markSessionActive();
 
         // Construir query params para /payment
         const paymentParams: Record<string, string> = {};
@@ -88,5 +94,17 @@ export class AppPaymentBridgeComponent implements OnInit {
         this.error = 'Tu sesión ha expirado. Por favor vuelve a la app e inténtalo de nuevo.';
       }
     });
+  }
+
+  private stripSensitiveQueryParams(): void {
+    try {
+      const currentUrl = new URL(globalThis.location.href);
+      currentUrl.searchParams.delete('token');
+      currentUrl.searchParams.delete('user_id');
+      currentUrl.searchParams.delete('role');
+      globalThis.history.replaceState({}, '', `${currentUrl.pathname}${currentUrl.search}`);
+    } catch {
+      // Si URL API no está disponible por entorno, continuar sin bloquear el flujo.
+    }
   }
 }

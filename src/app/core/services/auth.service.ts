@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { Observable, tap, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { StorageService } from './storage.service';
-import { SessionService } from './session.service';
 import { ProfileCompletionService } from './profile-completion.service';
 import {
   UserProfile, StoredUser, LoginRequest, TokenResponse, LoginRolesResponse,
@@ -16,7 +15,6 @@ export class AuthService {
   private readonly http    = inject(HttpClient);
   private readonly router  = inject(Router);
   private readonly storage = inject(StorageService);
-  private readonly session = inject(SessionService);
   private readonly profileCompletion = inject(ProfileCompletionService);
 
   private readonly api = environment.apiUrl;
@@ -51,10 +49,11 @@ export class AuthService {
       .pipe(tap(res => this._storeSession(res)));
   }
 
-  loginWithFacebook(accessToken: string, role: string = 'CLIENT'): Observable<TokenResponse> {
-    return this.http.post<TokenResponse>(`${this.api}/auth/oauth/facebook`, { 
+  loginWithFacebook(accessToken: string, role: string = 'CLIENT', emailHint?: string): Observable<TokenResponse> {
+    return this.http.post<TokenResponse>(`${this.api}/auth/oauth/facebook`, {
       access_token: accessToken,
-      role: role
+      role: role,
+      email_hint: emailHint?.trim().toLowerCase() || undefined,
     })
       .pipe(tap(res => this._storeSession(res)));
   }
@@ -120,21 +119,25 @@ export class AuthService {
   }
 
   logout(): void {
-    const token = this.storage.token();
-    if (token) {
-      this.http.post(`${this.api}/auth/logout`, {}).subscribe({ error: () => {} });
-    }
+    const refreshToken = this.storage.getRefreshToken();
+    this.http.post(`${this.api}/auth/logout`, {
+      refresh_token: refreshToken || undefined,
+    }).subscribe({ error: () => {} });
     this.profileCompletion.reset();
     this.storage.clearSession();
     this.router.navigate(['/auth/login']);
   }
 
   refreshToken(): Observable<TokenResponse> {
-    return this.http.post<TokenResponse>(`${this.api}/auth/refresh`, {}).pipe(
+    const refreshToken = this.storage.getRefreshToken();
+    return this.http.post<TokenResponse>(`${this.api}/auth/refresh`, {
+      refresh_token: refreshToken || undefined,
+    }).pipe(
       tap(res => {
-        if (res.access_token) {
-          this.storage.setToken(res.access_token);
-          this.session.watchExpiry(res.access_token);
+        // Cookie-first: evitar persistir access token en localStorage.
+        this.storage.clearToken();
+        if (res.refresh_token) {
+          this.storage.setRefreshToken(res.refresh_token);
         }
       })
     );
@@ -166,9 +169,12 @@ export class AuthService {
   }
 
   private _storeSession(res: TokenResponse): void {
-    this.storage.setToken(res.access_token);
+    // Cookie-first: backend fija el access token en cookie HttpOnly.
+    this.storage.clearToken();
+    if (res.refresh_token) {
+      this.storage.setRefreshToken(res.refresh_token);
+    }
     this.storage.markSessionActive();
-    this.session.watchExpiry(res.access_token);
     const stored: StoredUser = {
       id:          res.user_id,
       email:       '',

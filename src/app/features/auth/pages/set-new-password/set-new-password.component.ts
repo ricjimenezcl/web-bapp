@@ -26,6 +26,9 @@ export class SetNewPasswordComponent implements OnInit {
   error   = signal('');
   success = signal(false);
 
+  showPassword = false;
+  showConfirmPassword = false;
+
   form = this.fb.group({
     password:        ['', [Validators.required, Validators.minLength(8)]],
     confirmPassword: ['', Validators.required],
@@ -34,6 +37,14 @@ export class SetNewPasswordComponent implements OnInit {
   ngOnInit(): void {
     this.token = this.route.snapshot.queryParamMap.get('token') ?? '';
     if (!this.token) this.error.set('Token inválido o expirado.');
+  }
+
+  togglePasswordVisibility(field: 'password' | 'confirm'): void {
+    if (field === 'password') {
+      this.showPassword = !this.showPassword;
+      return;
+    }
+    this.showConfirmPassword = !this.showConfirmPassword;
   }
 
   submit(): void {

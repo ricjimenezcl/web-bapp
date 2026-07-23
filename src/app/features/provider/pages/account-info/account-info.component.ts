@@ -75,6 +75,27 @@ import { AuthService } from '../../../../core/services/auth.service';
       font-size: 11px; color: #FCA5A5;
     }
 
+    .ai-password-wrap {
+      position: relative;
+      input { padding-right: 42px; }
+    }
+
+    .ai-eye-btn {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      border: none;
+      background: transparent;
+      color: #94A3B8;
+      cursor: pointer;
+      padding: 2px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      svg { width: 18px; height: 18px; }
+    }
+
     .ai-btn-primary {
       display: flex; align-items: center; justify-content: center; gap: 8px;
       width: 100%; padding: 12px 20px;
@@ -142,16 +163,44 @@ import { AuthService } from '../../../../core/services/auth.service';
         <form [formGroup]="form" (ngSubmit)="changePassword()">
           <div class="ai-form-group">
             <label for="old_pw">Contraseña actual</label>
-            <input id="old_pw" type="password" formControlName="old_password" placeholder="••••••••"
-              [class.is-error]="form.get('old_password')!.invalid && form.get('old_password')!.touched">
+            <div class="ai-password-wrap">
+              <input id="old_pw" [type]="showOldPassword ? 'text' : 'password'" formControlName="old_password" placeholder="••••••••"
+                [class.is-error]="form.get('old_password')!.invalid && form.get('old_password')!.touched">
+              <button
+                type="button"
+                class="ai-eye-btn"
+                (click)="togglePasswordVisibility('old')"
+                [attr.aria-label]="showOldPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+              >
+                @if (showOldPassword) {
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-5 0-9-4-10-7a17.856 17.856 0 012.366-3.357M6.228 6.228A9.956 9.956 0 0112 5c5 0 9 4 10 7a17.87 17.87 0 01-4.293 5.774M15 12a3 3 0 11-6 0 3 3 0 016 0zm6 9L3 3"/></svg>
+                } @else {
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                }
+              </button>
+            </div>
             @if (form.get('old_password')!.invalid && form.get('old_password')!.touched) {
               <span class="ai-form-error">La contraseña actual es requerida</span>
             }
           </div>
           <div class="ai-form-group">
             <label for="new_pw">Nueva contraseña</label>
-            <input id="new_pw" type="password" formControlName="new_password" placeholder="Mínimo 8 caracteres"
-              [class.is-error]="form.get('new_password')!.invalid && form.get('new_password')!.touched">
+            <div class="ai-password-wrap">
+              <input id="new_pw" [type]="showNewPassword ? 'text' : 'password'" formControlName="new_password" placeholder="Mínimo 8 caracteres"
+                [class.is-error]="form.get('new_password')!.invalid && form.get('new_password')!.touched">
+              <button
+                type="button"
+                class="ai-eye-btn"
+                (click)="togglePasswordVisibility('new')"
+                [attr.aria-label]="showNewPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+              >
+                @if (showNewPassword) {
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-5 0-9-4-10-7a17.856 17.856 0 012.366-3.357M6.228 6.228A9.956 9.956 0 0112 5c5 0 9 4 10 7a17.87 17.87 0 01-4.293 5.774M15 12a3 3 0 11-6 0 3 3 0 016 0zm6 9L3 3"/></svg>
+                } @else {
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                }
+              </button>
+            </div>
             @if (form.get('new_password')!.invalid && form.get('new_password')!.touched) {
               <span class="ai-form-error">
                 {{ form.get('new_password')!.errors?.['required'] ? 'La nueva contraseña es requerida' : 'Mínimo 8 caracteres' }}
@@ -176,10 +225,21 @@ export class AccountInfoComponent {
   error   = signal('');
   success = signal(false);
 
+  showOldPassword = false;
+  showNewPassword = false;
+
   form = this.fb.group({
     old_password: ['', Validators.required],
     new_password: ['', [Validators.required, Validators.minLength(8)]],
   });
+
+  togglePasswordVisibility(field: 'old' | 'new'): void {
+    if (field === 'old') {
+      this.showOldPassword = !this.showOldPassword;
+      return;
+    }
+    this.showNewPassword = !this.showNewPassword;
+  }
 
   changePassword(): void {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }

@@ -25,10 +25,12 @@ export class WebSocketService implements OnDestroy {
 
   connect(): void {
     const token = this.storage.token();
-    if (!token || this.ws?.readyState === WebSocket.OPEN) return;
+    if (this.ws?.readyState === WebSocket.OPEN) return;
 
     this.intentionalClose = false;
-    const url = `${environment.wsUrl}/unified?token=${token}`;
+    const url = token
+      ? `${environment.wsUrl}/unified?token=${encodeURIComponent(token)}`
+      : `${environment.wsUrl}/unified`;
     this.ws = new WebSocket(url);
 
     this.ws.onopen = () => {

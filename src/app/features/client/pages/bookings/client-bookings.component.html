@@ -5,10 +5,10 @@
     <header class="bookings-header">
       <div class="bookings-header-top">
         <div>
-          <h1 class="bookings-title">Mis Reservas</h1>
-          <p class="bookings-subtitle">Gestiona tus citas y servicios</p>
+          <h1 class="bookings-title">{{ 'runtime.myBookingsTitle' | t }}</h1>
+          <p class="bookings-subtitle">{{ 'bookings.subtitle' | t }}</p>
         </div>
-        <button (click)="load()" class="bookings-reload-btn" title="Recargar">
+        <button (click)="load()" class="bookings-reload-btn" [attr.title]="'common.reload' | t">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
@@ -27,7 +27,7 @@
               d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2
                  2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
           </svg>
-          Próximas
+          {{ 'bookings.tabUpcoming' | t }}
           @if (upcomingBookings.length > 0) {
             <span class="ref-tab-badge">{{ upcomingBookings.length }}</span>
           }
@@ -41,7 +41,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
-          Pendientes
+          {{ 'bookings.tabPending' | t }}
           @if (pendingBookings.length > 0) {
             <span class="ref-tab-badge ref-tab-badge--warning">{{ pendingBookings.length }}</span>
           }
@@ -55,7 +55,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
-          Historial
+          {{ 'bookings.tabHistory' | t }}
           @if (historyBookings.length > 0) {
             <span class="ref-tab-badge ref-tab-badge--success">{{ historyBookings.length }}</span>
           }
@@ -70,7 +70,7 @@
               d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0
                  11-18 0 9 9 0 0118 0z"/>
           </svg>
-          Canceladas
+          {{ 'bookings.tabCancelled' | t }}
           @if (cancelledBookings.length > 0) {
             <span class="ref-tab-badge">{{ cancelledBookings.length }}</span>
           }
@@ -102,14 +102,14 @@
                 d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
             </svg>
           </div>
-          <p class="booking-empty-title">Error</p>
+          <p class="booking-empty-title">{{ 'common.error' | t }}</p>
           <p class="booking-empty-sub">{{ error() }}</p>
           <button (click)="load()" class="booking-empty-btn">
             <svg class="icon-16" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
             </svg>
-            <span>Reintentar</span>
+            <span>{{ 'common.retry' | t }}</span>
           </button>
         </div>
       } @else if (displayedBookings.length === 0) {
@@ -120,28 +120,8 @@
                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
             </svg>
           </div>
-          <p class="booking-empty-title">
-            @if (activeTab() === 'upcoming') {
-              Sin reservas próximas
-            } @else if (activeTab() === 'pending') {
-              Sin reservas pendientes
-            } @else if (activeTab() === 'history') {
-              Sin historial de reservas
-            } @else {
-              Sin reservas canceladas
-            }
-          </p>
-          <p class="booking-empty-sub">
-            @if (activeTab() === 'upcoming') {
-              Tus reservas confirmadas aparecerán aquí.
-            } @else if (activeTab() === 'pending') {
-              Aquí verás las reservas pendientes de confirmación.
-            } @else if (activeTab() === 'history') {
-              Las reservas completadas aparecerán aquí.
-            } @else {
-              Aquí aparecerán las reservas que hayas cancelado.
-            }
-          </p>
+          <p class="booking-empty-title">{{ emptyStateTitle() }}</p>
+          <p class="booking-empty-sub">{{ emptyStateSubtitle() }}</p>
         </div>
       } @else {
         <div class="bookings-list">
@@ -163,7 +143,7 @@
                   </svg>
                 </div>
                 <div class="booking-card-info">
-                  <p class="booking-service-name">{{ booking.service_category || 'Servicio' }}</p>
+                  <p class="booking-service-name">{{ booking.service_category || ('runtime.service' | t) }}</p>
                   <p class="booking-price" *ngIf="booking.total_price">
                     ${{ booking.total_price | number:'1.0-0' }}
                   </p>
@@ -230,13 +210,13 @@
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                       </svg>
-                      <span>Abriendo…</span>
+                      <span>{{ 'bookings.opening' | t }}</span>
                     } @else {
                       <svg class="icon-16" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                       </svg>
-                      <span>Chat</span>
+                      <span>{{ 'nav.messages' | t }}</span>
                     }
                   </button>
 
@@ -246,7 +226,7 @@
                       <svg class="icon-16" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                       </svg>
-                      <span>Cancelar</span>
+                      <span>{{ 'common.cancel' | t }}</span>
                     </button>
                   }
                 </div>
@@ -265,14 +245,14 @@
                              -.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57
                              -.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
                       </svg>
-                      <span>Calificar servicio</span>
+                      <span>{{ 'runtime.serviceRated' | t }}</span>
                     </button>
                   } @else {
                     <button class="btn-booking-review btn-booking-review--done" disabled>
                       <svg class="icon-16" fill="currentColor" viewBox="0 0 24 24" width="16" height="16">
                         <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                       </svg>
-                      <span>Servicio calificado</span>
+                      <span>{{ 'bookings.serviceAlreadyRated' | t }}</span>
                     </button>
                   }
                 </div>
@@ -297,21 +277,21 @@
             </svg>
           </div>
 
-          <h3 class="cancel-modal-title">Cancelar reserva</h3>
+          <h3 class="cancel-modal-title">{{ 'bookings.cancelModalTitle' | t }}</h3>
           <p class="cancel-modal-desc">
-            ¿Estás seguro de que deseas cancelar esta reserva?<br>
+            {{ 'bookings.cancelModalConfirm' | t }}<br>
             <strong>{{ cancelTarget()?.service_category }}</strong>
           </p>
 
           <!-- Optional comment -->
-          <label for="client-booking-cancel-comment" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Motivo de cancelación</label>
+          <label for="client-booking-cancel-comment" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">{{ 'bookings.cancelReasonLabel' | t }}</label>
           <textarea id="client-booking-cancel-comment" [(ngModel)]="cancelComment"
-            placeholder="Motivo de cancelación (opcional)"
+            [placeholder]="'bookings.cancelReasonPlaceholder' | t"
             rows="2"
             class="cancel-modal-textarea">
           </textarea>
           @if (cancelChecking()) {
-            <p class="mt-2 text-xs text-text-tertiary">Validando contenido...</p>
+            <p class="mt-2 text-xs text-text-tertiary">{{ 'common.validatingContent' | t }}</p>
           }
           @if (cancelContentError()) {
             <p class="mt-2 text-xs text-danger">{{ cancelContentError() }}</p>
@@ -322,7 +302,7 @@
             <button (click)="closeCancelModal()"
               [disabled]="cancelLoading()"
               class="cancel-modal-btn cancel-modal-btn--secondary">
-              No, volver
+              {{ 'bookings.noGoBack' | t }}
             </button>
             <button (click)="confirmCancel()"
               [disabled]="cancelLoading() || cancelChecking()"
@@ -333,7 +313,7 @@
                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                  </svg>
                }
-               Sí, cancelar
+               {{ 'bookings.yesCancel' | t }}
             </button>
           </div>
         </div>
@@ -359,9 +339,9 @@
             </svg>
           </div>
 
-          <h3 class="cancel-modal-title">Calificar servicio</h3>
+          <h3 class="cancel-modal-title">{{ 'runtime.serviceRated' | t }}</h3>
           <p class="cancel-modal-desc">
-            ¿Cómo fue tu experiencia con<br>
+            {{ 'bookings.reviewHowWas' | t }}<br>
             <strong>{{ reviewTarget()?.service_category }}</strong>?
           </p>
 
@@ -387,17 +367,17 @@
           </div>
 
           <!-- Comment -->
-          <label for="client-booking-review-comment" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Comentario de reseña</label>
+          <label for="client-booking-review-comment" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">{{ 'bookings.reviewCommentLabel' | t }}</label>
           <textarea
             id="client-booking-review-comment"
             [value]="reviewComment()"
             (input)="reviewComment.set($any($event.target).value)"
-            placeholder="Cuéntanos más sobre tu experiencia (opcional)"
+            [placeholder]="'bookings.reviewPlaceholder' | t"
             rows="3"
             class="cancel-modal-textarea">
           </textarea>
           @if (reviewChecking()) {
-            <p class="mt-2 text-xs text-text-tertiary">Validando contenido...</p>
+            <p class="mt-2 text-xs text-text-tertiary">{{ 'common.validatingContent' | t }}</p>
           }
           @if (reviewContentError()) {
             <p class="mt-2 text-xs text-danger">{{ reviewContentError() }}</p>
@@ -408,7 +388,7 @@
             <button (click)="closeReviewModal()"
               [disabled]="reviewLoading()"
               class="cancel-modal-btn cancel-modal-btn--secondary">
-              Cancelar
+              {{ 'common.cancel' | t }}
             </button>
             <button (click)="submitReview()"
               [disabled]="reviewLoading() || reviewChecking() || reviewRating() < 1"
@@ -419,7 +399,7 @@
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                 </svg>
               }
-              Enviar calificación
+              {{ 'bookings.sendReview' | t }}
             </button>
           </div>
         </div>

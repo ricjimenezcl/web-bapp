@@ -77,6 +77,7 @@ export class AddServiceComponent implements OnInit, OnDestroy {
   paymentGateMessage = signal('Ya tienes 2 servicios en el plan gratuito. Para agregar más servicios necesitas activar un plan.');
   paymentGateProductType = signal<ServiceLimitProductType>('PROVIDER_SERVICE_30');
   showIdentityGate  = signal(false);
+  identityCheckDone = signal(false);
   validationStatus  = signal<string>('not_submitted');
   identityMessage   = signal('Para agregar servicios debes verificar tu identidad.');
 
@@ -205,6 +206,11 @@ export class AddServiceComponent implements OnInit, OnDestroy {
   }
 
   async submit(): Promise<void> {
+    if (!this.identityCheckDone()) {
+      this.error.set('Estamos validando tu identidad. Intenta nuevamente en unos segundos.');
+      return;
+    }
+
     if (this.showIdentityGate()) {
       this.error.set('No puedes agregar servicios hasta verificar tu identidad.');
       return;
@@ -470,10 +476,13 @@ export class AddServiceComponent implements OnInit, OnDestroy {
         } else {
           this.showIdentityGate.set(false);
         }
+
+        this.identityCheckDone.set(true);
       },
       error: () => {
         this.showIdentityGate.set(true);
         this.identityMessage.set('No se pudo validar tu identidad. Verifícala antes de agregar servicios.');
+        this.identityCheckDone.set(true);
       }
     });
   }

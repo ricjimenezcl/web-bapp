@@ -231,10 +231,14 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     // Abrir modal automáticamente si viene desde el flujo invitado
     const tab = this.route.snapshot.queryParamMap.get('tab');
+    const emailVerified = this.route.snapshot.queryParamMap.get('emailVerified');
     if (tab === 'register') {
       this.showAuthModal('register', 'client');
     } else if (tab === 'login') {
       this.showAuthModal('login');
+    }
+    if (emailVerified === 'true') {
+      this.success.set('Correo verificado correctamente. Ahora puedes iniciar sesión.');
     }
 
     // Escuchar cambios en la autenticación social (necesario para el nuevo botón de Google)
@@ -530,17 +534,49 @@ export class LoginComponent implements OnInit, OnDestroy {
       error: (err: any) => {
         this.loading.set(false);
 
-        const detail = err?.error?.detail;
-        if (err?.status === 409 && detail?.code === 'ROLE_SELECTION_REQUIRED') {
+        const authError = this.parseAuthError(err);
+        if (err?.status === 409 && authError.code === 'ROLE_SELECTION_REQUIRED') {
           this.pendingLogin = { email, password };
-          this.loginRoleOptions.set((detail?.roles ?? []) as UserRole[]);
+          this.loginRoleOptions.set((authError.roles ?? []) as UserRole[]);
           this.loginRolePrompt.set(true);
           return;
         }
 
-        this.error.set(typeof detail === 'string' ? detail : 'Credenciales incorrectas. Inténtalo de nuevo.');
+        if (err?.status === 403 && (authError.code === 'EMAIL_NOT_VERIFIED' || authError.isEmailNotVerified)) {
+          this.auth.sendVerificationEmail(email, 'web').subscribe({ error: () => {} });
+          this.error.set(authError.message || 'Debes verificar tu correo electrónico para iniciar sesión.');
+          this.success.set('Te reenviamos un correo de verificación. Revisa tu bandeja de entrada y spam.');
+          return;
+        }
+
+        this.error.set(authError.message || 'Credenciales incorrectas. Inténtalo de nuevo.');
       }
     });
+  }
+
+  private parseAuthError(err: any): { code?: string; message?: string; roles?: string[]; isEmailNotVerified: boolean } {
+    const response = err?.error ?? {};
+    const detail = response?.detail;
+    const detailObject = (detail && typeof detail === 'object') ? detail : undefined;
+    const topLevelObject = (response && typeof response === 'object') ? response : undefined;
+
+    const code = detailObject?.code ?? topLevelObject?.code;
+    const roles = detailObject?.roles ?? topLevelObject?.roles;
+    const messageFromDetail = typeof detail === 'string' ? detail : detailObject?.message;
+    const message = messageFromDetail || topLevelObject?.message || '';
+
+    const normalized = String(message || '').toLowerCase();
+    const isEmailNotVerified =
+      code === 'EMAIL_NOT_VERIFIED' ||
+      normalized.includes('verificar tu correo') ||
+      normalized.includes('email_not_verified');
+
+    return {
+      code,
+      message: message || undefined,
+      roles: Array.isArray(roles) ? roles : undefined,
+      isEmailNotVerified,
+    };
   }
 
   submitRegister(): void {
@@ -559,7 +595,8 @@ export class LoginComponent implements OnInit, OnDestroy {
       full_name: (name ?? '').trim(),
       phone: (phone ?? '').trim(),
       run: normalizedRun || undefined,
-      terms_accepted: terms_accepted!
+      terms_accepted: terms_accepted!,
+      registration_source: 'web' as const,
     };
 
     const register$ = this.registerRole() === 'provider'
@@ -569,19 +606,9 @@ export class LoginComponent implements OnInit, OnDestroy {
     register$.subscribe({
       next: () => {
         this.loading.set(false);
-        this.success.set('Cuenta creada con éxito. Iniciando sesión...');
-        // Auto-login inmediato para llevar al usuario directamente al dashboard
-        this.auth.login({ username: normalizedEmail, password: password! }).subscribe({
-          next: (res) => {
-            this.auth.navigateAfterLogin(res.role, res.status);
-          },
-          error: () => {
-            // Fallback: prellenar login si el auto-login falla por alguna razón
-            this.success.set('Cuenta creada con éxito. Ahora inicia sesión con tus credenciales.');
-            this.activeTab.set('login');
-            this.form.patchValue({ email: normalizedEmail, password });
-          }
-        });
+        this.success.set('Cuenta creada con éxito. Revisa tu correo y valida tu cuenta desde el enlace para poder iniciar sesión.');
+        this.activeTab.set('login');
+        this.form.patchValue({ email: normalizedEmail });
       },
       error: (err: any) => {
         this.loading.set(false);
@@ -666,6 +693,9 @@ export class LoginComponent implements OnInit, OnDestroy {
       if (detail === 'Phone already registered') return 'Este teléfono ya se encuentra registrado';
 
       const loweredDetail = detail.toLowerCase();
+      if (detail === 'EMAIL_NOT_VERIFIED' || loweredDetail.includes('verificar tu correo')) {
+        return 'Debes verificar tu correo electrónico desde el enlace enviado para iniciar sesión.';
+      }
       if (loweredDetail.includes('sqlalchemy') || loweredDetail.includes('insert into') || loweredDetail.includes('asyncpg')) {
         return 'Error interno al crear la cuenta. Inténtalo nuevamente en unos minutos.';
       }
@@ -977,6 +1007,10 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (tab === 'register') {
       this.registerRole.set('client');
     }
+  }
+
+  setRegisterRole(role: 'client' | 'provider'): void {
+    this.registerRole.set(role);
   }
 
   toggleMobileMenu(): void {

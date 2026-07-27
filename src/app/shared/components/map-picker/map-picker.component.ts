@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { LocationService, LocationSuggestion } from '../../../core/services/location.service';
+import { TPipe } from '../../pipes/t.pipe';
+import { PlatformI18nService } from '../../../core/services/platform-i18n.service';
 
 @Component({
   selector: 'app-map-picker',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TPipe],
   templateUrl: './map-picker.component.html',
   styleUrls: ['./map-picker.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -22,8 +24,9 @@ export class MapPickerComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() initialLng = -70.6693;
 
   private readonly locationSvc = inject(LocationService);
+  private readonly i18n = inject(PlatformI18nService);
 
-  selectedAddress = signal('Cargando dirección...');
+  selectedAddress = signal('');
   loading = signal(true);
   locationError = signal('');
 
@@ -37,6 +40,7 @@ export class MapPickerComponent implements OnInit, OnDestroy, AfterViewInit {
   private readonly destroy$ = new Subject<void>();
   
   ngOnInit() {
+    this.selectedAddress.set(this.i18n.t('mapPicker.loadingAddress'));
     // ✅ Setup debounced reverse geocoding
     this.dragDebouncer$.pipe(
       debounceTime(500),
@@ -119,14 +123,14 @@ export class MapPickerComponent implements OnInit, OnDestroy, AfterViewInit {
     } catch (e) {
       console.error('Error al inicializar el mapa:', e);
       this.loading.set(false);
-      this.locationError.set('Error al cargar el mapa.');
+      this.locationError.set(this.i18n.t('map.errorLoadMap'));
     }
   }
 
   // ✅ Removido updateLocation(), ahora se usa debouncer directamente
 
   private updateAddressFromCoords(lat: number, lng: number): void {
-    this.selectedAddress.set('Obteniendo dirección...');
+    this.selectedAddress.set(this.i18n.t('mapPicker.fetchingAddress'));
     
     this.locationSvc.reverseGeocode(lat, lng).subscribe({
       next: (address) => {
@@ -140,7 +144,7 @@ export class MapPickerComponent implements OnInit, OnDestroy, AfterViewInit {
 
   useCurrentLocation(): void {
     if (!navigator.geolocation) {
-      this.locationError.set('Tu navegador no soporta geolocalización');
+      this.locationError.set(this.i18n.t('mapPicker.geolocationUnsupported'));
       return;
     }
 
@@ -159,7 +163,7 @@ export class MapPickerComponent implements OnInit, OnDestroy, AfterViewInit {
       },
       (error) => {
         console.error('Error obteniendo ubicación:', error);
-        this.locationError.set('No se pudo obtener tu ubicación');
+        this.locationError.set(this.i18n.t('map.errorGeolocationFallback'));
         this.loading.set(false);
       }
     );

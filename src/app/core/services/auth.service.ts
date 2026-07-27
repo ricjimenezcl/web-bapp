@@ -5,6 +5,7 @@ import { Observable, tap, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { StorageService } from './storage.service';
 import { ProfileCompletionService } from './profile-completion.service';
+import { SessionService } from './session.service';
 import {
   UserProfile, StoredUser, LoginRequest, TokenResponse, LoginRolesResponse,
   ClientRegister, ProviderRegister
@@ -15,6 +16,7 @@ export class AuthService {
   private readonly http    = inject(HttpClient);
   private readonly router  = inject(Router);
   private readonly storage = inject(StorageService);
+  private readonly session = inject(SessionService);
   private readonly profileCompletion = inject(ProfileCompletionService);
 
   private readonly api = environment.apiUrl;
@@ -59,11 +61,17 @@ export class AuthService {
   }
 
   registerClient(data: ClientRegister): Observable<any> {
-    return this.http.post(`${this.api}/auth/register-client`, data);
+    return this.http.post(`${this.api}/auth/register-client`, {
+      ...data,
+      registration_source: 'web',
+    });
   }
 
   registerProvider(data: ProviderRegister): Observable<any> {
-    return this.http.post(`${this.api}/auth/register-provider`, data);
+    return this.http.post(`${this.api}/auth/register-provider`, {
+      ...data,
+      registration_source: 'web',
+    });
   }
 
   resetPassword(email: string): Observable<any> {
@@ -74,8 +82,11 @@ export class AuthService {
     return this.http.post(`${this.api}/auth/set-new-password`, { token, new_password: newPassword });
   }
 
-  sendVerificationEmail(): Observable<any> {
-    return this.http.post(`${this.api}/auth/send-verification-email`, {});
+  sendVerificationEmail(email: string, source: 'web' | 'mobile' = 'web'): Observable<any> {
+    return this.http.post(`${this.api}/auth/send-verification-email`, {
+      email: email.trim().toLowerCase(),
+      source,
+    });
   }
 
   verifyEmail(token: string): Observable<any> {
@@ -134,6 +145,8 @@ export class AuthService {
       refresh_token: refreshToken || undefined,
     }).pipe(
       tap(res => {
+        // Evita dejar un modal/timer de sesión expirada activo tras un refresh exitoso.
+        this.session.reset();
         // Cookie-first: evitar persistir access token en localStorage.
         this.storage.clearToken();
         if (res.refresh_token) {
@@ -169,6 +182,9 @@ export class AuthService {
   }
 
   private _storeSession(res: TokenResponse): void {
+    // Limpia cualquier estado/timer previo de expiración para evitar cierres falsos.
+    this.session.reset();
+
     // Cookie-first: backend fija el access token en cookie HttpOnly.
     this.storage.clearToken();
     if (res.refresh_token) {

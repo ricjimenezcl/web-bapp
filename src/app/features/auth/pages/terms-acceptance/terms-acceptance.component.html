@@ -8,19 +8,19 @@
             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
         </svg>
       </div>
-      <h2 class="text-xl font-bold text-text-primary">Términos y condiciones</h2>
-      <p class="text-sm text-text-secondary mt-1">Por favor revisa y acepta los términos para continuar</p>
+      <h2 class="text-xl font-bold text-text-primary">{{ 'termsAcceptance.title' | t }}</h2>
+      <p class="text-sm text-text-secondary mt-1">{{ 'termsAcceptance.subtitle' | t }}</p>
     </div>
 
     <div class="bg-surface-base rounded-xl border border-border p-4 max-h-48 overflow-y-auto text-xs text-text-secondary mb-4 leading-relaxed">
-      <p class="font-semibold text-text-primary mb-2">Términos de uso de BappSearch</p>
-      <p>Al usar nuestra plataforma, aceptas que tus datos serán utilizados para crear y administrar tu cuenta, conectarte con proveedores de servicios cercanos, verificar tu identidad cuando corresponda y mejorar la experiencia del servicio.</p>
+      <p class="font-semibold text-text-primary mb-2">{{ 'termsAcceptance.summaryTitle' | t }}</p>
+      <p>{{ 'termsAcceptance.summaryBody1' | t }}</p>
       <br>
-      <p>No está permitido usar la plataforma para actividades ilegales, spam, fraude, suplantación, acoso o cualquier comportamiento que viole los derechos de otros usuarios.</p>
+      <p>{{ 'termsAcceptance.summaryBody2' | t }}</p>
       <br>
-      <p>BappSearch actúa como intermediario y no se responsabiliza por la calidad de los servicios prestados por proveedores independientes, salvo en los casos exigidos por la ley aplicable.</p>
+      <p>{{ 'termsAcceptance.summaryBody3' | t }}</p>
       <br>
-      <p>Puedes revisar la política de privacidad completa en <a routerLink="/privacy" class="text-primary underline">nuestra página de privacidad</a>.</p>
+      <p>{{ 'termsAcceptance.summaryPrefix' | t }} <a routerLink="/privacy" class="text-primary underline">{{ 'termsAcceptance.summaryPrivacyLink' | t }}</a>.</p>
     </div>
 
     @if (error()) {
@@ -31,27 +31,27 @@
       <label class="flex items-start gap-3 cursor-pointer">
         <input type="checkbox" [(ngModel)]="termsAccepted" class="mt-0.5 w-4 h-4 accent-primary">
         <span class="text-sm text-text-primary">
-          He leído y acepto los
-          <a routerLink="/terms" class="text-primary font-medium underline hover:text-primary-600">Términos y condiciones</a>
-          y la
-          <a routerLink="/privacy" class="text-primary font-medium underline hover:text-primary-600">Política de privacidad</a>
+          {{ 'termsAcceptance.checkPrefix' | t }}
+          <a routerLink="/terms" class="text-primary font-medium underline hover:text-primary-600">{{ 'terms.pageTitle' | t }}</a>
+          {{ 'termsAcceptance.checkConnector' | t }}
+          <a routerLink="/privacy" class="text-primary font-medium underline hover:text-primary-600">{{ 'privacy.pageTitle' | t }}</a>
           *
         </span>
       </label>
       <label class="flex items-start gap-3 cursor-pointer">
         <input type="checkbox" [(ngModel)]="emailOptIn" class="mt-0.5 w-4 h-4 accent-primary">
-        <span class="text-sm text-text-secondary">Acepto recibir comunicaciones por correo electrónico (opcional)</span>
+        <span class="text-sm text-text-secondary">{{ 'termsAcceptance.emailOptIn' | t }}</span>
       </label>
     </div>
 
     <button (click)="onAccept()" class="btn btn-primary btn-block btn-lg"
       [disabled]="!termsAccepted || loading()">
       @if (loading()) { <span class="spinner"></span> }
-      Continuar
+      {{ 'termsAcceptance.continue' | t }}
     </button>
 
     <button (click)="onDecline()" class="btn btn-ghost btn-block mt-2 text-sm">
-      Cancelar y salir
+      {{ 'termsAcceptance.cancel' | t }}
     </button>
   </div>
 </div>

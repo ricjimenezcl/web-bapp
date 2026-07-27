@@ -21,7 +21,7 @@
           "
           class="flex-1 md:flex-none px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center justify-center gap-1"
         >
-          <ion-icon name="map" class="text-sm"></ion-icon> Calles
+          <ion-icon name="map" class="text-sm"></ion-icon> {{ 'map.styleStreets' | t }}
         </button>
         <button
           (click)="changeMapStyle('light')"
@@ -32,7 +32,7 @@
           "
           class="flex-1 md:flex-none px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center justify-center gap-1"
         >
-          <ion-icon name="sunny" class="text-sm"></ion-icon> Claro
+          <ion-icon name="sunny" class="text-sm"></ion-icon> {{ 'map.styleLight' | t }}
         </button>
         <button
           (click)="changeMapStyle('dark')"
@@ -43,7 +43,7 @@
           "
           class="flex-1 md:flex-none px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center justify-center gap-1"
         >
-          <ion-icon name="moon" class="text-sm"></ion-icon> Oscuro
+          <ion-icon name="moon" class="text-sm"></ion-icon> {{ 'map.styleDark' | t }}
         </button>
       </div>
     </div>
@@ -54,7 +54,7 @@
       >
         <div class="flex flex-col items-center gap-2">
           <span class="spinner w-8 h-8 text-primary"></span>
-          <p class="text-sm text-text-secondary">Cargando mapa...</p>
+          <p class="text-sm text-text-secondary">{{ 'map.loadingMap' | t }}</p>
         </div>
       </div>
     }
@@ -70,12 +70,12 @@
           class="absolute bottom-3 right-3 z-[400] inline-flex items-center gap-2 bg-surface-card/95 backdrop-blur-sm border border-border rounded-full px-3 py-1.5 shadow-lg"
         >
           <span class="text-xs font-medium text-text-primary"
-            >{{ nearbyProviders().length }} proveedores</span
+            >{{ nearbyProviders().length }} {{ 'nav.providers' | t }}</span
           >
           <span class="w-1 h-1 rounded-full bg-text-tertiary"></span>
           <span class="text-xs text-primary inline-flex items-center gap-1">
             <ion-icon name="star" class="text-sm"></ion-icon>
-            Primeros {{ freeProviderLimit }} gratis
+            {{ 'map.firstFree' | t }} {{ freeProviderLimit }} {{ 'map.free' | t }}
           </span>
         </div>
     }
@@ -104,7 +104,7 @@
             "
             class="flex-1 md:flex-none px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center justify-center gap-1"
           >
-            <ion-icon name="map" class="text-sm"></ion-icon> Calles
+            <ion-icon name="map" class="text-sm"></ion-icon> {{ 'map.styleStreets' | t }}
           </button>
           <button
             (click)="changeMapStyle('light')"
@@ -115,7 +115,7 @@
             "
             class="flex-1 md:flex-none px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center justify-center gap-1"
           >
-            <ion-icon name="sunny" class="text-sm"></ion-icon> Claro
+            <ion-icon name="sunny" class="text-sm"></ion-icon> {{ 'map.styleLight' | t }}
           </button>
           <button
             (click)="changeMapStyle('dark')"
@@ -126,7 +126,7 @@
             "
             class="flex-1 md:flex-none px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center justify-center gap-1"
           >
-            <ion-icon name="moon" class="text-sm"></ion-icon> Oscuro
+            <ion-icon name="moon" class="text-sm"></ion-icon> {{ 'map.styleDark' | t }}
           </button>
         </div>
       </div>
@@ -137,7 +137,7 @@
         >
           <div class="flex flex-col items-center gap-2">
             <span class="spinner w-8 h-8 text-primary"></span>
-            <p class="text-sm text-text-secondary">Cargando mapa...</p>
+            <p class="text-sm text-text-secondary">{{ 'map.loadingMap' | t }}</p>
           </div>
         </div>
       }
@@ -153,12 +153,12 @@
           class="absolute bottom-3 right-3 z-[400] inline-flex items-center gap-2 bg-surface-card/95 backdrop-blur-sm border border-border rounded-full px-3 py-1.5 shadow-lg"
         >
           <span class="text-xs font-medium text-text-primary"
-            >{{ nearbyProviders().length }} proveedores</span
+            >{{ nearbyProviders().length }} {{ 'nav.providers' | t }}</span
           >
           <span class="w-1 h-1 rounded-full bg-text-tertiary"></span>
           <span class="text-xs text-primary inline-flex items-center gap-1">
             <ion-icon name="star" class="text-sm"></ion-icon>
-            Primeros {{ freeProviderLimit }} gratis
+            {{ 'map.firstFree' | t }} {{ freeProviderLimit }} {{ 'map.free' | t }}
           </span>
         </div>
       }
@@ -168,10 +168,10 @@
   <footer class="app-footer">
     <div class="footer-inner">
       <span class="footer-brand">BappSearch</span>
-      <nav class="footer-links" aria-label="Enlaces de pie">
-        <a href="/client/tabs/service-search">Buscar</a>
-        <a href="/terms">Términos</a>
-        <a href="/privacy">Privacidad</a>
+      <nav class="footer-links" [attr.aria-label]="'footer.nav' | t">
+        <a href="/client/tabs/service-search">{{ 'runtime.search' | t }}</a>
+        <a href="/terms">{{ 'settings.legal.terms' | t }}</a>
+        <a href="/privacy">{{ 'settings.legal.privacy' | t }}</a>
       </nav>
       <span class="footer-copy">© 2026 BappSearch.</span>
     </div>

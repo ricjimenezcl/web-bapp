@@ -27,13 +27,18 @@ async function globalSetup(config: FullConfig) {
   const browser = await chromium.launch();
   const baseURL = config.projects[0]?.use?.baseURL ?? 'http://localhost:4200';
 
+  const loginWithCredentials = async (page: import('@playwright/test').Page, email: string, password: string) => {
+    await page.goto(`${baseURL}/auth/login?tab=login`);
+    const modal = page.locator('.modal-content');
+    await modal.locator('form input[formcontrolname="email"]').fill(email);
+    await modal.locator('#login-password').fill(password);
+    await modal.locator('form button[type="submit"]').click();
+  };
+
   // ── Sesión cliente ─────────────────────────────────────────────────────────
   const clientCtx = await browser.newContext();
   const clientPage = await clientCtx.newPage();
-  await clientPage.goto(`${baseURL}/auth/login`);
-  await clientPage.getByLabel(/correo/i).fill(clientEmail);
-  await clientPage.getByLabel(/contraseña/i).fill(clientPassword);
-  await clientPage.getByRole('button', { name: /iniciar sesión/i }).click();
+  await loginWithCredentials(clientPage, clientEmail, clientPassword);
   await clientPage.waitForURL(/client\/tabs|bookings/, { timeout: 10_000 }).catch(() => {});
   await clientCtx.storageState({ path: 'e2e/.auth/client.json' });
   await clientCtx.close();
@@ -43,10 +48,7 @@ async function globalSetup(config: FullConfig) {
   if (providerEmail && providerPassword) {
     const providerCtx = await browser.newContext();
     const providerPage = await providerCtx.newPage();
-    await providerPage.goto(`${baseURL}/auth/login`);
-    await providerPage.getByLabel(/correo/i).fill(providerEmail);
-    await providerPage.getByLabel(/contraseña/i).fill(providerPassword);
-    await providerPage.getByRole('button', { name: /iniciar sesión/i }).click();
+    await loginWithCredentials(providerPage, providerEmail, providerPassword);
     await providerPage.waitForURL(/provider\/tabs|home/, { timeout: 10_000 }).catch(() => {});
     await providerCtx.storageState({ path: 'e2e/.auth/provider.json' });
     await providerCtx.close();

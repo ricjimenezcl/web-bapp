@@ -6,11 +6,12 @@ import { NotificationStateService } from '../../../../core/services/notification
 import { ChatService } from '../../../../core/services/chat.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Subscription } from 'rxjs';
+import { TPipe } from '../../../../shared/pipes/t.pipe';
 
 @Component({
   selector: 'app-client-tabs',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterOutlet, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterOutlet, RouterLinkActive, TPipe],
   templateUrl: './client-tabs.component.html',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

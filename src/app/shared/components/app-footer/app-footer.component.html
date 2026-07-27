@@ -9,9 +9,9 @@
         <img src="https://res.cloudinary.com/dghwotofx/image/upload/v1774563936/titulo_bycrju.png"
              alt="BappSearch" class="footer-brand-image footer-brand-image--word hidden sm:block object-contain">
       </a>
-      <p class="footer-tagline">Conectando clientes con proveedores de confianza.</p>
+      <p class="footer-tagline">{{ 'footer.tagline' | t }}</p>
 
-      <div class="footer-social" aria-label="Redes sociales">
+      <div class="footer-social" [attr.aria-label]="'footer.social' | t">
         <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06C2 17.08 5.66 21.24 10.44 22v-7.03H7.9v-2.9h2.54V9.85c0-2.5 1.49-3.88 3.77-3.88 1.09 0 2.23.2 2.23.2v2.46h-1.26c-1.24 0-1.62.77-1.62 1.56v1.88h2.76l-.44 2.9h-2.32V22C18.34 21.24 22 17.08 22 12.06z"/>
@@ -26,18 +26,18 @@
     </div>
 
     <!-- Navigation -->
-    <nav class="footer-nav" aria-label="Navegación del pie">
+    <nav class="footer-nav" [attr.aria-label]="'footer.nav' | t">
 
       <div class="footer-nav-group">
-        <span class="footer-nav-title">Legal</span>
-        <a routerLink="/terms">Términos y condiciones</a>
-        <a routerLink="/privacy">Política de privacidad</a>
+        <span class="footer-nav-title">{{ 'footer.legal' | t }}</span>
+        <a routerLink="/terms">{{ 'footer.termsAndConditions' | t }}</a>
+        <a routerLink="/privacy">{{ 'footer.privacyPolicy' | t }}</a>
       </div>
 
       <div class="footer-nav-group">
-        <span class="footer-nav-title">Soporte</span>
-        <a routerLink="/faq">Preguntas frecuentes</a>
-        <a href="mailto:soporte@bappsearch.com">Contáctanos</a>
+        <span class="footer-nav-title">{{ 'footer.support' | t }}</span>
+        <a routerLink="/faq">{{ 'footer.faq' | t }}</a>
+        <a href="mailto:soporte@bappsearch.com">{{ 'footer.contactUs' | t }}</a>
       </div>
 
     </nav>
@@ -46,11 +46,11 @@
 
   <!-- Bottom bar -->
   <div class="footer-bottom">
-    <span class="footer-copy">© {{ year }} BappSearch. Todos los derechos reservados.</span>
+    <span class="footer-copy">© {{ year }} BappSearch. {{ 'footer.rightsReserved' | t }}</span>
     <div class="footer-bottom-links">
-      <a routerLink="/terms">Términos</a>
+      <a routerLink="/terms">{{ 'settings.legal.terms' | t }}</a>
       <span class="footer-sep" aria-hidden="true">·</span>
-      <a routerLink="/privacy">Privacidad</a>
+      <a routerLink="/privacy">{{ 'settings.legal.privacy' | t }}</a>
     </div>
   </div>
 

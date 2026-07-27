@@ -78,6 +78,7 @@ export interface ClientRegister {
   full_name: string;
   phone: string;
   terms_accepted: boolean;
+  registration_source?: 'web' | 'mobile';
 }
 
 export interface ProviderRegister {
@@ -87,4 +88,5 @@ export interface ProviderRegister {
   phone: string;
   terms_accepted: boolean;
   run?: string;
+  registration_source?: 'web' | 'mobile';
 }

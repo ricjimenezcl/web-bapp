@@ -9,7 +9,7 @@
       <!-- Hamburger (móvil) -->
       <button (click)="toggleSidebar()"
               class="md:hidden p-2 -ml-2 text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-full transition-colors"
-              aria-label="Abrir menú">
+              [attr.aria-label]="'nav.openMenu' | t">
         <ion-icon name="menu-outline" class="text-2xl"></ion-icon>
       </button>
 
@@ -27,16 +27,16 @@
       <button (click)="goToCategories()"
               class="hidden md:flex items-center gap-2 bg-surface-card hover:bg-surface-raised border border-border hover:border-border-medium rounded-full px-4 h-10 text-sm text-text-secondary transition-colors">
         <ion-icon name="search-outline" class="text-base text-primary"></ion-icon>
-        <span class="flex-1 text-left">Nueva búsqueda</span>
+        <span class="flex-1 text-left">{{ 'nav.newSearch' | t }}</span>
       </button>
 
       <!-- Acciones derecha -->
-      <nav class="flex items-center gap-1 lg:gap-2 flex-shrink-0 md:ml-2" aria-label="Acciones rápidas">
+      <nav class="flex items-center gap-1 lg:gap-2 flex-shrink-0 md:ml-2" [attr.aria-label]="'nav.quickActions' | t">
 
         <!-- Nueva búsqueda (móvil, icon-only) -->
         <button (click)="goToCategories()"
                 class="md:hidden w-10 h-10 rounded-full bg-primary/10 hover:bg-primary/20 text-primary flex items-center justify-center transition-colors"
-                aria-label="Nueva búsqueda">
+          [attr.aria-label]="'nav.newSearch' | t">
           <ion-icon name="search-outline" class="text-xl"></ion-icon>
         </button>
 
@@ -44,13 +44,13 @@
         <a routerLink="service-search" routerLinkActive="text-primary bg-primary/10"
            class="hidden lg:flex items-center gap-1.5 px-3 h-10 rounded-full text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors">
           <ion-icon name="rocket-outline" class="text-lg"></ion-icon>
-          <span>Proveedores</span>
+          <span>{{ 'nav.providers' | t }}</span>
         </a>
         <!-- Reservas (desktop) -->
         <a routerLink="bookings" routerLinkActive="text-primary bg-primary/10"
            class="hidden lg:flex items-center gap-1.5 px-3 h-10 rounded-full text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors">
           <ion-icon name="calendar-outline" class="text-lg"></ion-icon>
-          <span>Reservas</span>
+          <span>{{ 'nav.bookings' | t }}</span>
         </a>
 
         <!-- Mensajes (desktop + tablet) -->
@@ -64,13 +64,13 @@
               </span>
             }
           </div>
-          <span>Mensajes</span>
+          <span>{{ 'nav.messages' | t }}</span>
         </a>
 
         <!-- Notificaciones -->
         <a routerLink="/notifications"
            class="w-10 h-10 rounded-full text-text-secondary hover:text-text-primary hover:bg-surface-hover flex items-center justify-center transition-colors relative"
-           aria-label="Notificaciones">
+            [attr.aria-label]="'nav.notifications' | t">
           <ion-icon name="notifications-outline" class="text-xl"></ion-icon>
           @if (unreadNotifications() > 0) {
             <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full"></span>
@@ -80,11 +80,11 @@
         <!-- Avatar + nombre / Perfil -->
         <a routerLink="profile" routerLinkActive="ring-2 ring-primary"
            class="flex items-center gap-2 rounded-full hover:opacity-80 transition-opacity pl-1 pr-2"
-           aria-label="Mi perfil">
+           [attr.aria-label]="'nav.myProfile' | t">
           <div class="w-9 h-9 rounded-full overflow-hidden border border-border bg-surface-card flex items-center justify-center flex-shrink-0">
             @if (currentProfile()?.avatar) {
               <img [src]="currentProfile()!.avatar"
-                   [alt]="currentProfile()?.full_name || 'Foto de perfil'"
+                   [alt]="currentProfile()?.full_name || ('nav.profilePhoto' | t)"
                    class="w-full h-full object-cover">
             } @else {
               <ion-icon name="person-outline" class="text-lg text-text-secondary"></ion-icon>
@@ -112,7 +112,7 @@
   <aside [class]="sidebarOpen() ? 'translate-x-0 pointer-events-auto' : '-translate-x-full pointer-events-none'"
          class="fixed md:hidden inset-y-0 left-0 z-50 w-72 bg-surface-card border-r border-border
                 flex flex-col transition-transform duration-300 ease-in-out"
-         aria-label="Menú móvil">
+      [attr.aria-label]="'nav.mobileMenu' | t">
 
     <!-- Header drawer -->
     <div class="px-5 py-4 border-b border-border flex items-center justify-between">
@@ -123,12 +123,12 @@
         </div>
         <div>
           <p class="text-sm font-bold text-text-primary">BappSearch</p>
-          <p class="text-xs text-text-tertiary">Cliente</p>
+          <p class="text-xs text-text-tertiary">{{ 'nav.client' | t }}</p>
         </div>
       </div>
       <button (click)="closeSidebar()"
               class="p-2 -mr-2 text-text-secondary hover:text-text-primary"
-              aria-label="Cerrar menú">
+              [attr.aria-label]="'nav.closeMenu' | t">
         <ion-icon name="close" class="text-xl"></ion-icon>
       </button>
     </div>
@@ -138,26 +138,26 @@
       <button (click)="goToCategories()"
               class="w-full inline-flex items-center justify-center gap-2 h-10 bg-primary hover:bg-primary-600 text-text-inverse text-sm font-semibold rounded-full transition-colors">
         <ion-icon name="search-outline" class="text-lg"></ion-icon>
-        Nueva búsqueda
+        {{ 'nav.newSearch' | t }}
       </button>
     </div>
 
     <!-- Links -->
-    <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto" aria-label="Navegación móvil">
+    <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto" [attr.aria-label]="'nav.mobileMenu' | t">
       <a routerLink="service-search" routerLinkActive="active"
          (click)="closeSidebar()" class="sidebar-link">
         <ion-icon name="rocket-outline" class="text-xl"></ion-icon>
-        <span>Proveedores</span>
+        <span>{{ 'nav.providers' | t }}</span>
       </a>
       <a routerLink="bookings" routerLinkActive="active"
          (click)="closeSidebar()" class="sidebar-link">
         <ion-icon name="calendar-outline" class="text-xl"></ion-icon>
-        <span>Mis reservas</span>
+        <span>{{ 'nav.myBookings' | t }}</span>
       </a>
       <a routerLink="chats" routerLinkActive="active"
          (click)="closeSidebar()" class="sidebar-link relative">
         <ion-icon name="chatbubbles-outline" class="text-xl"></ion-icon>
-        <span>Mensajes</span>
+        <span>{{ 'nav.messages' | t }}</span>
         @if (unreadNotifications() > 0) {
           <span class="ml-auto px-2 py-0.5 bg-danger text-white text-xs font-semibold rounded-full">
             {{ unreadNotifications() > 9 ? '9+' : unreadNotifications() }}
@@ -167,7 +167,7 @@
       <a routerLink="profile" routerLinkActive="active"
          (click)="closeSidebar()" class="sidebar-link">
         <ion-icon name="person-outline" class="text-xl"></ion-icon>
-        <span>Mi perfil</span>
+        <span>{{ 'nav.myProfile' | t }}</span>
       </a>
     </nav>
 

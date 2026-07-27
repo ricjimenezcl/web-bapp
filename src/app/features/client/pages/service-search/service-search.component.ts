@@ -15,11 +15,13 @@ export type LockedProvider = ServiceProvider & { locked: boolean };
 import { ServiceMapComponent } from '../service-map/service-map.component';
 import { ContactLimitService } from '../../../../core/services/contact-limit.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { TPipe } from '../../../../shared/pipes/t.pipe';
+import { PlatformI18nService } from '../../../../core/services/platform-i18n.service';
 
 @Component({
   selector: 'app-service-search',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, ServiceMapComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, ServiceMapComponent, TPipe],
   templateUrl: './service-search.component.html',
   styleUrl: './service-search.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -33,6 +35,7 @@ export class ServiceSearchComponent implements OnInit {
   private readonly searchState  = inject(SearchStateService);
   private readonly locationSvc  = inject(LocationService);
   private readonly auth         = inject(AuthService);
+  private readonly i18n         = inject(PlatformI18nService);
   readonly contactLimit         = inject(ContactLimitService);
   readonly hasPremium = computed(() => {
     const currentUser = this.auth.currentUser();
@@ -227,7 +230,7 @@ export class ServiceSearchComponent implements OnInit {
           this.loading.set(false);
           return;
         }
-        this.error.set('Error al cargar proveedores.');
+        this.error.set(this.i18n.t('search.errorLoadProviders'));
         this.loading.set(false);
       }
     });
@@ -305,7 +308,7 @@ export class ServiceSearchComponent implements OnInit {
           this.loading.set(false);
           return;
         }
-        this.error.set('Error al cargar proveedores.');
+        this.error.set(this.i18n.t('search.errorLoadProviders'));
         this.loading.set(false);
       }
     });

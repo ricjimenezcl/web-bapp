@@ -11,10 +11,10 @@
     </div>
     <div class="flex-1 min-w-0">
       <p class="font-semibold text-text-primary text-sm">
-        {{ otherParticipant()?.name ?? 'Conversación' }}
+        {{ otherParticipant()?.name ?? ('chat.conversation' | t) }}
       </p>
       @if (typing()) {
-        <p class="text-xs text-primary-500 animate-pulse">Escribiendo...</p>
+        <p class="text-xs text-primary-500 animate-pulse">{{ 'chat.typing' | t }}</p>
       }
     </div>
   </header>
@@ -26,7 +26,7 @@
     } @else if (messages().length === 0) {
       <div class="flex flex-col items-center justify-center h-full text-center py-16">
         <div class="text-5xl mb-3">💬</div>
-        <p class="text-sm text-text-secondary">Inicia la conversación enviando un mensaje.</p>
+        <p class="text-sm text-text-secondary">{{ 'chat.startConversation' | t }}</p>
       </div>
     } @else {
       @for (msg of messages(); track msg.id) {
@@ -51,7 +51,7 @@
         [formControl]="messageControl"
         (keydown)="onKeydown($event)"
         (input)="onInput()"
-        placeholder="Escribe un mensaje..."
+        [placeholder]="'chat.writeMessage' | t"
         rows="1"
         class="flex-1 form-input resize-none overflow-hidden min-h-[40px] max-h-[120px] py-2.5 textarea-auto-size"
       ></textarea>
@@ -67,10 +67,10 @@
       </button>
     </div>
     @if (messageControl.pending && messageControl.value?.trim()) {
-      <p class="mt-2 max-w-2xl mx-auto text-xs text-text-secondary">Validando contenido...</p>
+      <p class="mt-2 max-w-2xl mx-auto text-xs text-text-secondary">{{ 'common.validatingContent' | t }}</p>
     }
     @if (messageControl.errors?.['offensiveContent']) {
-      <p class="mt-2 max-w-2xl mx-auto text-xs text-danger">El mensaje contiene lenguaje no permitido. Ajusta el texto para continuar.</p>
+      <p class="mt-2 max-w-2xl mx-auto text-xs text-danger">{{ 'chat.messageBlocked' | t }}</p>
     }
     @if (chatInputError()) {
       <p class="mt-2 max-w-2xl mx-auto text-xs text-danger">{{ chatInputError() }}</p>

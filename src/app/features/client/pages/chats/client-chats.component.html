@@ -8,15 +8,15 @@
     <!-- Header -->
     <div class="sidebar-header">
       <div class="sidebar-title">
-        <h2>Mensajes</h2>
+        <h2>{{ 'nav.messages' | t }}</h2>
         <div class="header-actions">
-          <button class="action-btn" type="button" aria-label="Filtrar">
+          <button class="action-btn" type="button" [attr.aria-label]="'chat.filter' | t">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M3 4h18M7 8h10M10 12h4"/>
             </svg>
           </button>
-          <button class="action-btn action-btn--accent" type="button" aria-label="Nueva conversación">
+          <button class="action-btn action-btn--accent" type="button" [attr.aria-label]="'chat.newConversation' | t">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                 d="M12 4v16m8-8H4"/>
@@ -30,7 +30,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
         </svg>
-        <input type="text" placeholder="Buscar conversación..." [(ngModel)]="searchText" />
+        <input type="text" [placeholder]="'runtime.searchConversation' | t" [(ngModel)]="searchText" />
       </div>
     </div>
 
@@ -55,8 +55,8 @@
                 d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
             </svg>
           </div>
-          <p class="empty-list-title">Sin conversaciones</p>
-          <p class="empty-list-sub">Cuando contactes un proveedor, aparecerá aquí.</p>
+          <p class="empty-list-title">{{ 'chat.noConversations' | t }}</p>
+          <p class="empty-list-sub">{{ 'chat.noConversationsClientSub' | t }}</p>
         </div>
       } @else {
         @for (conv of filteredConversations; track conv.id) {
@@ -69,7 +69,7 @@
             <div class="chat-avatar">
               @if (conv.other_user_avatar) {
                 <img [src]="conv.other_user_avatar"
-                     [alt]="conv.display_name ?? 'Proveedor'"
+                   [alt]="conv.display_name ?? ('nav.provider' | t)"
                      (error)="$any($event.target).style.display='none'" />
               } @else {
                 <div class="avatar-fallback">
@@ -85,13 +85,13 @@
             <!-- Info -->
             <div class="chat-info">
               <div class="chat-top">
-                <span class="chat-name">{{ conv.display_name ?? 'Proveedor' }}</span>
+                <span class="chat-name">{{ conv.display_name ?? ('nav.provider' | t) }}</span>
                 <span class="chat-time" [class.chat-time--now]="isNow(conv.updated_at)">
-                  {{ isNow(conv.updated_at) ? 'Ahora' : (conv.updated_at ? (conv.updated_at | date:'HH:mm') : '') }}
+                  {{ isNow(conv.updated_at) ? ('chat.now' | t) : (conv.updated_at ? (conv.updated_at | date:'HH:mm') : '') }}
                 </span>
               </div>
               <div class="chat-bottom">
-                <span class="chat-preview">{{ conv.last_message_preview || 'Sin mensajes' }}</span>
+                <span class="chat-preview">{{ conv.last_message_preview || ('chat.noMessages' | t) }}</span>
                 @if ((conv.unread_count ?? 0) > 0) {
                   <span class="unread-badge">{{ conv.unread_count }}</span>
                 } @else {
@@ -106,7 +106,7 @@
             <!-- Botón eliminar conversación -->
             <button class="conv-delete-btn" type="button"
                     (click)="deleteConversation(conv.id, $event)"
-                    title="Eliminar conversación">
+                  [attr.title]="'chat.deleteConversation' | t">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -191,7 +191,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M9 3H7a2 2 0 00-2 2v4m4-6h6m-6 0V1m6 2h2a2 2 0 012 2v4m-4-6V1M3 9h18M3 9a9 9 0 000 9h18a9 9 0 000-9M9 9v6m6-6v6"/>
         </svg>
-        Bappie IA atento a tus mensajes...
+        {{ 'chat.bappieStatus' | t }}
       </div>
     </div>
 
@@ -221,7 +221,7 @@
           </svg>
         </div>
         <h2>BAPPSEARCH</h2>
-        <p>Selecciona una conversación para comenzar</p>
+        <p>{{ 'chat.selectConversationToStart' | t }}</p>
       </div>
     }
   </section>

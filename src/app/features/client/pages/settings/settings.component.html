@@ -10,54 +10,54 @@
         </svg>
       </div>
       <div class="user-mini-info">
-        <h3>Mi cuenta</h3>
-        <p>Preferencias</p>
+        <h3>{{ 'nav.myAccount' | t }}</h3>
+        <p>{{ 'nav.preferences' | t }}</p>
       </div>
     </div>
 
     <nav class="nav-group" aria-label="Navegación general">
-      <div class="nav-label">General</div>
+      <div class="nav-label">{{ 'nav.general' | t }}</div>
       <a class="nav-item" routerLink="/client/tabs/profile">
         <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
         </svg>
-        Resumen
+        {{ 'nav.summary' | t }}
       </a>
       <a class="nav-item" routerLink="/client/edit-profile">
         <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
         </svg>
-        Editar Perfil
+        {{ 'nav.editProfile' | t }}
       </a>
       <a class="nav-item" routerLink="/transactions">
         <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
         </svg>
-        Mis Compras
+        {{ 'nav.myPurchases' | t }}
       </a>
       <a class="nav-item" routerLink="/payment">
         <svg class="nav-icon" fill="currentColor" viewBox="0 0 24 24">
           <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 14.59L5.41 12 6.83 10.58 10 13.75l7.17-7.17 1.42 1.42L10 16.59z"/>
         </svg>
         Premium
-        <span class="nav-badge">UPGRADE</span>
+        <span class="nav-badge">{{ 'nav.upgrade' | t }}</span>
       </a>
     </nav>
 
     <nav class="nav-group" aria-label="Navegación preferencias">
-      <div class="nav-label">Preferencias</div>
+      <div class="nav-label">{{ 'nav.preferences' | t }}</div>
       <a class="nav-item nav-item--active" routerLink="/client/settings">
         <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
         </svg>
-        Configuración
+        {{ 'nav.settings' | t }}
       </a>
       <a class="nav-item" routerLink="/terms">
         <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
-        Ayuda
+        {{ 'nav.help' | t }}
       </a>
     </nav>
 
@@ -65,7 +65,7 @@
       <svg class="nav-icon" fill="currentColor" viewBox="0 0 24 24">
         <path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/>
       </svg>
-      Cerrar sesión
+      {{ 'nav.logout' | t }}
     </button>
 
   </aside>
@@ -74,32 +74,17 @@
   <main class="main-content">
 
     <div class="view-header">
-      <h2>Configuración</h2>
-      <p>Ajusta las preferencias de tu cuenta y privacidad.</p>
+      <h2>{{ 'settings.title' | t }}</h2>
+      <p>{{ 'settings.subtitle' | t }}</p>
     </div>
 
     <div class="config-list">
 
-      <!-- Apariencia -->
-      <div class="config-item">
-        <div class="config-item-info">
-          <h4>Modo Oscuro</h4>
-          <p>Reduce el cansancio visual con un tema de alto contraste.</p>
-        </div>
-        <label class="toggle-wrap" aria-label="Activar modo oscuro">
-          <input type="checkbox" class="toggle-input" [checked]="darkMode()"
-            (change)="toggleDarkMode(($any($event.target)).checked)">
-          <div class="toggle-track">
-            <div class="toggle-thumb"></div>
-          </div>
-        </label>
-      </div>
-
       <!-- Seguridad: cambiar contraseña -->
       <div class="config-item config-item--block">
         <div class="config-item-info">
-          <h4>Cambiar contraseña</h4>
-          <p>Añade una capa extra de seguridad actualizando tu contraseña.</p>
+          <h4>{{ 'settings.password.title' | t }}</h4>
+          <p>{{ 'settings.password.desc' | t }}</p>
         </div>
 
         @if (pwSuccess()) {
@@ -107,7 +92,7 @@
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            Contraseña actualizada. Iniciando sesión de nuevo...
+            {{ 'settings.password.success' | t }}
           </div>
         }
         @if (pwError()) {
@@ -122,9 +107,9 @@
         <form [formGroup]="pwForm" (ngSubmit)="changePassword()" class="pw-form">
           <div class="pw-form-grid">
             <div class="form-group">
-              <label for="s-old-pw">Contraseña actual</label>
+              <label for="s-old-pw">{{ 'settings.password.current' | t }}</label>
               <div class="relative">
-                <input id="s-old-pw" [type]="showOldPassword ? 'text' : 'password'" formControlName="old_password" placeholder="••••••••" class="pr-10" />
+                <input id="s-old-pw" [type]="showOldPassword ? 'text' : 'password'" formControlName="old_password" [placeholder]="'settings.password.placeholder.current' | t" class="pr-10" />
                 <button
                   type="button"
                   class="absolute inset-y-0 right-0 px-3 text-text-tertiary hover:text-text-primary"
@@ -140,9 +125,9 @@
               </div>
             </div>
             <div class="form-group">
-              <label for="s-new-pw">Nueva contraseña</label>
+              <label for="s-new-pw">{{ 'settings.password.new' | t }}</label>
               <div class="relative">
-                <input id="s-new-pw" [type]="showNewPassword ? 'text' : 'password'" formControlName="new_password" placeholder="Mínimo 8 caracteres" class="pr-10" />
+                <input id="s-new-pw" [type]="showNewPassword ? 'text' : 'password'" formControlName="new_password" [placeholder]="'settings.password.placeholder.new' | t" class="pr-10" />
                 <button
                   type="button"
                   class="absolute inset-y-0 right-0 px-3 text-text-tertiary hover:text-text-primary"
@@ -157,13 +142,13 @@
                 </button>
               </div>
               @if (pwForm.get('new_password')?.touched && pwForm.get('new_password')?.errors?.['minlength']) {
-                <span class="form-error">Mínimo 8 caracteres</span>
+                <span class="form-error">{{ 'settings.password.error.minLength' | t }}</span>
               }
             </div>
             <div class="form-group">
-              <label for="s-confirm-pw">Confirmar contraseña</label>
+              <label for="s-confirm-pw">{{ 'settings.password.confirm' | t }}</label>
               <div class="relative">
-                <input id="s-confirm-pw" [type]="showConfirmPassword ? 'text' : 'password'" formControlName="confirm_password" placeholder="Repite la contraseña" class="pr-10" />
+                <input id="s-confirm-pw" [type]="showConfirmPassword ? 'text' : 'password'" formControlName="confirm_password" [placeholder]="'settings.password.placeholder.confirm' | t" class="pr-10" />
                 <button
                   type="button"
                   class="absolute inset-y-0 right-0 px-3 text-text-tertiary hover:text-text-primary"
@@ -178,13 +163,17 @@
                 </button>
               </div>
               @if (pwForm.errors?.['mismatch'] && pwForm.get('confirm_password')?.touched) {
-                <span class="form-error">Las contraseñas no coinciden</span>
+                <span class="form-error">{{ 'settings.password.error.mismatch' | t }}</span>
               }
             </div>
           </div>
           <div class="form-actions">
             <button type="submit" class="btn-primary" [disabled]="pwLoading()">
-              @if (pwLoading()) { Actualizando... } @else { Actualizar contraseña }
+              @if (pwLoading()) {
+                <span>{{ 'settings.password.submitting' | t }}</span>
+              } @else {
+                <span>{{ 'settings.password.submit' | t }}</span>
+              }
             </button>
           </div>
         </form>
@@ -193,26 +182,32 @@
       <!-- Idioma -->
       <div class="config-item">
         <div class="config-item-info">
-          <h4>Idioma de la plataforma</h4>
-          <p>Selecciona tu idioma preferido para la interfaz.</p>
+          <h4>{{ 'settings.language.title' | t }}</h4>
+          <p>{{ 'settings.language.desc' | t }}</p>
         </div>
-        <button class="btn-secondary" type="button">
-          Español
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px;margin-left:6px">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-          </svg>
-        </button>
+        <label class="language-select-wrap" for="client-settings-language" data-no-auto-i18n>
+          <span class="sr-only">{{ 'settings.language.title' | t }}</span>
+          <select
+            id="client-settings-language"
+            class="language-select"
+            [ngModel]="selectedLanguage()"
+            (ngModelChange)="onLanguageChange($event)">
+            @for (language of languages; track language.value) {
+              <option [value]="language.value">{{ language.labelKey | t }}</option>
+            }
+          </select>
+        </label>
       </div>
 
       <!-- Legal -->
       <div class="config-item">
         <div class="config-item-info">
-          <h4>Legal</h4>
-          <p>Consulta los términos y la política de privacidad.</p>
+          <h4>{{ 'settings.legal.title' | t }}</h4>
+          <p>{{ 'settings.legal.desc' | t }}</p>
         </div>
         <div class="config-links">
-          <a routerLink="/terms" class="btn-secondary">Términos</a>
-          <a routerLink="/privacy" class="btn-secondary">Privacidad</a>
+          <a routerLink="/terms" class="btn-secondary">{{ 'settings.legal.terms' | t }}</a>
+          <a routerLink="/privacy" class="btn-secondary">{{ 'settings.legal.privacy' | t }}</a>
         </div>
       </div>
 

@@ -30,6 +30,16 @@ const PUBLIC_PATHS = [
   '/categories/',
 ];
 
+const REFRESH_FAILED_SENTINEL = '__refresh_failed__';
+const REFRESH_RETRY_LATER_SENTINEL = '__refresh_retry_later__';
+const REFRESH_RATE_LIMIT_COOLDOWN_MS = 60_000;
+const REFRESH_TRANSIENT_COOLDOWN_MS = 5_000;
+
+function shouldExpireSessionOnRefreshFailure(error: unknown): boolean {
+  const status = (error as HttpErrorResponse | undefined)?.status;
+  return status === 401 || status === 403;
+}
+
 function isExternal(url: string): boolean {
   return EXTERNAL_DOMAINS.some(d => url.includes(d));
 }
@@ -40,6 +50,7 @@ function isPublic(url: string): boolean {
 
 let isRefreshing = false;
 const refreshToken$ = new BehaviorSubject<string | null>(null);
+let refreshBlockedUntil = 0;
 
 export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn) => {
   const storage  = inject(StorageService);
@@ -65,6 +76,16 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401 && !req.url.includes('/auth/refresh')) {
+        const hasLocalSession = storage.isAuthenticated() || !!storage.getRefreshToken();
+        if (!hasLocalSession) {
+          return throwError(() => error);
+        }
+
+        // Evita tormentas de refresh cuando el backend aplica rate limit.
+        if (Date.now() < refreshBlockedUntil) {
+          return throwError(() => error);
+        }
+
         if (!isRefreshing) {
           isRefreshing = true;
           refreshToken$.next(null);
@@ -82,12 +103,22 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
             }),
             catchError(refreshError => {
               isRefreshing = false;
-              storage.clearSession();
-              // Solo mostrar modal si no está ya en login
-              if (!router.url.startsWith('/auth/')) {
-                session.markExpired();
+                const refreshStatus = (refreshError as HttpErrorResponse | undefined)?.status;
+              if (shouldExpireSessionOnRefreshFailure(refreshError)) {
+                refreshToken$.next(REFRESH_FAILED_SENTINEL);
+                storage.clearSession();
+                // Solo mostrar modal si no está ya en login
+                if (!router.url.startsWith('/auth/')) {
+                  session.markExpired();
+                } else {
+                  router.navigate(['/auth/login']);
+                }
               } else {
-                router.navigate(['/auth/login']);
+                // Errores transitorios (429/red/5xx): no cerrar sesión.
+                  refreshBlockedUntil = Date.now() + (refreshStatus === 429
+                    ? REFRESH_RATE_LIMIT_COOLDOWN_MS
+                    : REFRESH_TRANSIENT_COOLDOWN_MS);
+                refreshToken$.next(REFRESH_RETRY_LATER_SENTINEL);
               }
               return throwError(() => refreshError);
             })
@@ -97,6 +128,10 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
             filter(t => t !== null),
             take(1),
             switchMap(t => {
+              if (t === REFRESH_FAILED_SENTINEL || t === REFRESH_RETRY_LATER_SENTINEL) {
+                return throwError(() => error);
+              }
+
               const retryReq = t && t !== 'cookie-session'
                 ? reqWithCredentials.clone({ setHeaders: { Authorization: `Bearer ${t}` } })
                 : reqWithCredentials;

@@ -3,11 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { catchError, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AppNotification } from '../models/notification.model';
+import { StorageService } from './storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationStateService {
   private readonly http = inject(HttpClient);
   private readonly api = environment.apiUrl;
+  private readonly storage = inject(StorageService);
 
   private readonly _notifications = signal<AppNotification[]>([]);
   private readonly _unreadCount   = signal<number>(0);
@@ -21,6 +23,12 @@ export class NotificationStateService {
 
   loadNotifications(): void {
     if (!this.ENABLE_HTTP_NOTIFICATIONS) {
+      return;
+    }
+
+    if (!this.storage.isAuthenticated()) {
+      this._notifications.set([]);
+      this._unreadCount.set(0);
       return;
     }
 

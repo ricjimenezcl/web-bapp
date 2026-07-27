@@ -15,10 +15,12 @@ test.describe('Smoke Produccion', () => {
   });
 
   test('login carga formulario', async ({ page }) => {
-    await page.goto('/auth/login');
-    await expect(page.getByLabel(/correo/i)).toBeVisible();
-    await expect(page.getByLabel(/contraseña/i)).toBeVisible();
-    await expect(page.getByRole('button', { name: /iniciar sesión/i })).toBeVisible();
+    await page.goto('/auth/login?tab=login');
+    const modal = page.locator('.modal-content');
+
+    await expect(modal.locator('form input[formcontrolname="email"]')).toBeVisible();
+    await expect(modal.locator('#login-password')).toBeVisible();
+    await expect(modal.locator('form button[type="submit"]')).toBeVisible();
   });
 
   test('landing proveedor publica carga', async ({ page }) => {

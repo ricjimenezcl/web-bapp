@@ -6,13 +6,15 @@ import { ServiceProvider } from '../../../../core/models/provider.model';
 import { SearchStateService } from '../../../../core/services/search-state.service';
 import { LocationService } from '../../../../core/services/location.service';
 import { ModalService } from '../../../../core/services/modal.service';
+import { TPipe } from '../../../../shared/pipes/t.pipe';
+import { PlatformI18nService } from '../../../../core/services/platform-i18n.service';
 
 type MapStyle = 'streets' | 'light' | 'dark';
 
 @Component({
   selector: 'app-service-map',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TPipe],
   templateUrl: './service-map.component.html',
   styleUrls: ['./service-map.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -25,6 +27,7 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
   private readonly locationSvc = inject(LocationService);
   private readonly modal = inject(ModalService);
   private readonly router = inject(Router);
+  private readonly i18n = inject(PlatformI18nService);
 
   private popupClickListener: ((e: MouseEvent) => void) | null = null;
 
@@ -237,7 +240,7 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
               this.loadNearbyProviders(lat, lng);
             },
             () => {
-              this.locationError.set('No se pudo obtener tu ubicación. Mostrando Santiago.');
+              this.locationError.set(this.i18n.t('map.errorGeolocationFallback'));
               this.loadNearbyProviders(-33.45, -70.67);
             }
           );
@@ -248,7 +251,7 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
     } catch (e) {
       console.error('Error al inicializar el mapa:', e);
       this.loading.set(false);
-      this.locationError.set('Error al cargar el mapa.');
+      this.locationError.set(this.i18n.t('map.errorLoadMap'));
     }
   }
 
@@ -355,7 +358,7 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
         marker.on('click', () => {
           if (isLocked) {
             marker.openPopup();
-            this.modal.info('Accede a un plan Premium para desbloquear más proveedores.');
+            this.modal.info(this.i18n.t('map.premiumLockedInfo'));
             return;
           }
           // Toggle popup en click/tap
@@ -412,9 +415,9 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
     
     // Asegurar que distance_km y hourly_rate sean números
     const distanceNum = Number(provider.distance_km);
-    const distance = distanceNum > 0 ? `${distanceNum.toFixed(1)} km` : 'N/A';
+    const distance = distanceNum > 0 ? `${distanceNum.toFixed(1)} km` : this.i18n.t('common.notAvailable');
     const hourlyRateNum = Number(provider.hourly_rate);
-    const hourlyRate = hourlyRateNum > 0 ? `$${hourlyRateNum.toLocaleString('es-CL')}` : 'Consultar';
+    const hourlyRate = hourlyRateNum > 0 ? `$${hourlyRateNum.toLocaleString('es-CL')}` : this.i18n.t('common.consult');
     const lockIcon = isLocked ? '🔒 ' : '';
 
     const avatarHtml = provider.avatar
@@ -427,15 +430,15 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
           ${avatarHtml}
           <div class="popup-header-info">
             <strong>${lockIcon}${provider.business_name || provider.full_name}</strong>
-            ${rating > 0 ? `<div class="rating">${stars} ${rating.toFixed(1)}</div>` : '<div class="rating-new">Nuevo</div>'}
+            ${rating > 0 ? `<div class="rating">${stars} ${rating.toFixed(1)}</div>` : `<div class="rating-new">${this.i18n.t('common.new')}</div>`}
           </div>
         </div>
         <div class="popup-body">
           ${provider.service_category?.name ? `<p class="category">📂 ${provider.service_category.name}</p>` : ''}
           <p class="distance">📍 ${distance}</p>
-          <p class="rate">💰 ${hourlyRate}/hr</p>
+          <p class="rate">💰 ${hourlyRate}/${this.i18n.t('common.perHour')}</p>
         </div>
-        ${isLocked ? '<p class="locked-msg">⭐ Premium para acceder</p>' : `<a data-provider-id="${provider.provider_id || provider.id}" class="popup-link">Ver perfil →</a>`}
+        ${isLocked ? `<p class="locked-msg">⭐ ${this.i18n.t('map.premiumToAccess')}</p>` : `<a data-provider-id="${provider.provider_id || provider.id}" class="popup-link">${this.i18n.t('map.viewProfile')} →</a>`}
       </div>
     `;
   }
@@ -456,7 +459,7 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
       },
       error: () => { 
         this.loading.set(false);
-        this.locationError.set('Error al cargar proveedores cercanos.');
+        this.locationError.set(this.i18n.t('map.errorLoadNearbyProviders'));
       }
     });
   }

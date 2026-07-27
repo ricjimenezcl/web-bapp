@@ -6,14 +6,16 @@ import { Subscription, filter, take } from 'rxjs';
 import { ChatService } from '../../core/services/chat.service';
 import { WebSocketService } from '../../core/services/websocket.service';
 import { StorageService } from '../../core/services/storage.service';
+import { PlatformI18nService } from '../../core/services/platform-i18n.service';
 import { ChatMessage, ConversationDetailResponse, UserBasicResponse } from '../../core/models/chat.model';
 import { ContentFilterService } from '../../shared/services/content-filter.service';
 import { offensiveContentAsyncValidator } from '../../shared/validators/content-filter.validators';
+import { TPipe } from '../../shared/pipes/t.pipe';
 
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, TPipe],
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -27,6 +29,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private readonly storage  = inject(StorageService);
   private readonly fb       = inject(FormBuilder);
   private readonly contentFilterService = inject(ContentFilterService);
+  private readonly i18n = inject(PlatformI18nService);
 
   conversationId!: number;
   messages          = signal<ChatMessage[]>([]);
@@ -135,7 +138,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     const content = this.messageControl.value?.trim();
     if (!content || this.sending() || this.messageControl.pending) return;
     if (this.messageControl.errors?.['offensiveContent']) {
-      this.chatInputError.set('El mensaje contiene lenguaje no permitido. Ajusta el texto para continuar.');
+      this.chatInputError.set(this.i18n.t('chat.messageBlocked'));
       return;
     }
 
@@ -152,7 +155,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       },
       error: () => {
         this.messageControl.setValue(content);
-        this.chatInputError.set('No pudimos enviar el mensaje. Intenta nuevamente.');
+        this.chatInputError.set(this.i18n.t('chat.sendError'));
         this.sending.set(false);
       }
     });

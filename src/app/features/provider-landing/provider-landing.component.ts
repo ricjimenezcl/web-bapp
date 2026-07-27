@@ -430,13 +430,29 @@ export class ProviderLandingComponent implements OnInit, OnDestroy {
       next: () => {
         this.loadingRegister.set(false);
         this.successRegister.set('Cuenta creada con éxito. Iniciaremos sesión para continuar.');
-        this.auth.login({ username: normalizedEmail, password: password! }).subscribe({
+        let settled = false;
+        const fallbackToLogin = () => {
+          if (settled) return;
+          settled = true;
+          this.closeRegisterModal();
+          this.router.navigate(['/auth/login'], { queryParams: { tab: 'login' } });
+        };
+
+        const timeoutId = setTimeout(() => {
+          fallbackToLogin();
+        }, 10_000);
+
+        this.auth.login({ username: normalizedEmail, password: password!, role: 'PROVIDER' }).subscribe({
           next: (res) => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timeoutId);
             this.closeRegisterModal();
             this.auth.navigateAfterLogin(res.role, res.status);
           },
           error: () => {
-            this.successRegister.set('Cuenta creada con éxito. Ahora inicia sesión con tus credenciales.');
+            clearTimeout(timeoutId);
+            fallbackToLogin();
           },
         });
       },

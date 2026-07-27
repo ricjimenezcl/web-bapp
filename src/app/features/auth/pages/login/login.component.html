@@ -1158,7 +1158,7 @@
             <div class="grid grid-cols-2 gap-2">
               <button
                 type="button"
-                (click)="registerRole.set('client')"
+                (click)="setRegisterRole('client')"
                 class="py-2 rounded-lg border transition-colors"
                 [class.bg-crypgo-primary]="registerRole() === 'client'"
                 [class.text-crypgo-darkmode]="registerRole() === 'client'"
@@ -1169,7 +1169,7 @@
               </button>
               <button
                 type="button"
-                (click)="registerRole.set('provider')"
+                (click)="setRegisterRole('provider')"
                 class="py-2 rounded-lg border transition-colors"
                 [class.bg-crypgo-primary]="registerRole() === 'provider'"
                 [class.text-crypgo-darkmode]="registerRole() === 'provider'"
@@ -1218,6 +1218,9 @@
               class="w-full bg-crypgo-darkmode border border-crypgo-dark_border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-crypgo-primary transition-colors"
               [class.border-crypgo-error]="rf['email'].invalid && rf['email'].touched"
             />
+            <div class="mt-2">
+              <span class="text-xs text-slate-400">Después de crear tu cuenta te enviaremos un correo para verificar tu email.</span>
+            </div>
             @if (rf['email'].invalid && rf['email'].touched) {
               <span class="text-crypgo-error text-sm mt-1 block">Ingresa un correo válido</span>
             }

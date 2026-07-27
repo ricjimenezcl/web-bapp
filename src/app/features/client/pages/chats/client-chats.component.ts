@@ -5,16 +5,19 @@ import { ChatService } from '../../../../core/services/chat.service';
 import { ConversationUI } from '../../../../core/models/chat.model';
 import { ChatViewComponent } from '../../../../features/chat/chat-view.component';
 import { DatePipe } from '@angular/common';
+import { PlatformI18nService } from '../../../../core/services/platform-i18n.service';
+import { TPipe } from '../../../../shared/pipes/t.pipe';
 
 @Component({
   selector: 'app-client-chats',
   standalone: true,
-  imports: [CommonModule, FormsModule, DatePipe, ChatViewComponent],
+  imports: [CommonModule, FormsModule, DatePipe, ChatViewComponent, TPipe],
   templateUrl: './client-chats.component.html',
   styleUrl: './client-chats.component.scss',
 })
 export class ClientChatsComponent implements OnInit {
   private chatSvc = inject(ChatService);
+  private i18n = inject(PlatformI18nService);
   conversations = signal<ConversationUI[]>([]);
   loading = signal(true);
   selectedConvId = signal<number | null>(null);
@@ -64,7 +67,7 @@ export class ClientChatsComponent implements OnInit {
 
   deleteConversation(id: number, event: Event): void {
     event.stopPropagation();
-    if (!confirm('¿Eliminar esta conversación? Esta acción no se puede deshacer.')) return;
+    if (!confirm(this.i18n.t('chat.deleteConversationConfirm'))) return;
     this.chatSvc.deleteConversation(id).subscribe({
       next: () => {
         this.chatSvc.removeConversationLocally(id);

@@ -11,6 +11,8 @@ import { ProviderProfile } from '../../../../core/models/provider.model';
 import { environment } from '../../../../../environments/environment';
 import { ContentFilterService } from '../../../../shared/services/content-filter.service';
 import { offensiveContentAsyncValidator } from '../../../../shared/validators/content-filter.validators';
+import { TPipe } from '../../../../shared/pipes/t.pipe';
+import { PlatformI18nService } from '../../../../core/services/platform-i18n.service';
 
 interface ServiceTransaction {
   id: number;
@@ -33,7 +35,7 @@ type ProviderProductType = 'PROVIDER_PREMIUM_MONTHLY' | 'PROVIDER_SERVICE_30' | 
 @Component({
   selector: 'app-provider-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, TPipe],
   templateUrl: './provider-profile.component.html',
   styleUrl: './provider-profile.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -47,6 +49,7 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
   private readonly route       = inject(ActivatedRoute);
   private readonly fb          = inject(FormBuilder);
   private readonly contentFilterService = inject(ContentFilterService);
+  private readonly i18n        = inject(PlatformI18nService);
   private sub?: Subscription;
 
   provider    = signal<ProviderProfile | null>(null);
@@ -106,7 +109,7 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
     const { old_password, new_password } = this.pwForm.value;
     this.profileSvc.changePassword(old_password!, new_password!).subscribe({
       next: () => { this.pwLoading.set(false); this.pwSuccess.set(true); this.pwForm.reset(); },
-      error: (err: any) => { this.pwLoading.set(false); this.pwError.set(err?.error?.detail ?? 'Error al cambiar contraseña.'); }
+      error: (err: any) => { this.pwLoading.set(false); this.pwError.set(err?.error?.detail ?? this.i18n.t('profile.errorChangePassword')); }
     });
   }
 
@@ -227,7 +230,7 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
     const save = () => {
       this.providerSvc.updateProfile(this.form.value as any).subscribe({
         next: (p) => { this.provider.set(p); this.saveLoading.set(false); this.success.set(true); this.activeView.set('overview'); setTimeout(() => this.success.set(false), 3000); },
-        error: (err) => { this.saveLoading.set(false); this.error.set(err?.error?.detail ?? 'Error al guardar.'); }
+        error: (err) => { this.saveLoading.set(false); this.error.set(err?.error?.detail ?? this.i18n.t('profile.errorSaving')); }
       });
     };
     if (this.avatarFile) {
@@ -240,7 +243,7 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
         },
         error: (err: any) => {
           this.saveLoading.set(false);
-          this.error.set(err?.error?.detail ?? 'Error al subir avatar.');
+          this.error.set(err?.error?.detail ?? this.i18n.t('profile.errorUploadAvatar'));
         }
       });
     } else { save(); }
@@ -248,8 +251,8 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
 
   inviteFriends(): void {
     const shareData = {
-      title: 'Únete a BAPP',
-      text: 'Descarga BAPP y encuentra los mejores servicios cerca de ti.',
+      title: this.i18n.t('profile.inviteTitle'),
+      text: this.i18n.t('profile.inviteText'),
       url: 'https://bapp.app'
     };
     if (navigator.share) {

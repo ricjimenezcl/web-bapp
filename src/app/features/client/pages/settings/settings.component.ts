@@ -1,24 +1,34 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
 import { ProfileService } from '../../../../core/services/profile.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { PlatformLanguage, PlatformLanguageService } from '../../../../core/services/platform-language.service';
+import { TPipe } from '../../../../shared/pipes/t.pipe';
 
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, TPipe],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',
 })
-export class SettingsComponent implements OnInit {
+export class SettingsComponent {
   private fb         = inject(FormBuilder);
   private profileSvc = inject(ProfileService);
   private auth       = inject(AuthService);
   private router     = inject(Router);
+  private readonly platformLanguage = inject(PlatformLanguageService);
 
-  darkMode  = signal(false);
+  readonly languages: Array<{ value: PlatformLanguage; labelKey: string }> = [
+    { value: 'es', labelKey: 'lang.es' },
+    { value: 'en', labelKey: 'lang.en' },
+    { value: 'pt', labelKey: 'lang.pt' },
+  ];
+  readonly selectedLanguage = this.platformLanguage.language;
+
   pwLoading = signal(false);
   pwError   = signal('');
   pwSuccess = signal(false);
@@ -32,21 +42,6 @@ export class SettingsComponent implements OnInit {
     new_password:     ['', [Validators.required, Validators.minLength(8)]],
     confirm_password: ['', Validators.required],
   }, { validators: this._matchPasswords });
-
-  ngOnInit(): void {
-    this.darkMode.set(document.documentElement.classList.contains('dark'));
-  }
-
-  toggleDarkMode(enabled: boolean): void {
-    this.darkMode.set(enabled);
-    if (enabled) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  }
 
   togglePasswordVisibility(field: 'old' | 'new' | 'confirm'): void {
     if (field === 'old') {
@@ -86,6 +81,12 @@ export class SettingsComponent implements OnInit {
 
   logout(): void {
     this.auth.logout();
+  }
+
+  onLanguageChange(value: string): void {
+    if (value === 'es' || value === 'en' || value === 'pt') {
+      this.platformLanguage.setLanguage(value);
+    }
   }
 
   private _matchPasswords(group: any) {

@@ -5,17 +5,20 @@ import { ActivatedRoute } from '@angular/router';
 import { ChatService } from '../../../../core/services/chat.service';
 import { ConversationUI } from '../../../../core/models/chat.model';
 import { ChatViewComponent } from '../../../../features/chat/chat-view.component';
+import { PlatformI18nService } from '../../../../core/services/platform-i18n.service';
+import { TPipe } from '../../../../shared/pipes/t.pipe';
 
 @Component({
   selector: 'app-provider-inbox',
   standalone: true,
-  imports: [CommonModule, FormsModule, DatePipe, ChatViewComponent],
+  imports: [CommonModule, FormsModule, DatePipe, ChatViewComponent, TPipe],
   templateUrl: './provider-inbox.component.html',
   styleUrl: './provider-inbox.component.scss',
 })
 export class ProviderInboxComponent implements OnInit {
   private readonly chatSvc = inject(ChatService);
   private readonly route   = inject(ActivatedRoute);
+  private readonly i18n    = inject(PlatformI18nService);
   conversations = signal<ConversationUI[]>([]);
   loading = signal(true);
   selectedConvId = signal<number | null>(null);
@@ -35,7 +38,7 @@ export class ProviderInboxComponent implements OnInit {
 
   deleteConversation(id: number, event: Event): void {
     event.stopPropagation();
-    if (!confirm('¿Eliminar esta conversación? Esta acción no se puede deshacer.')) return;
+    if (!confirm(this.i18n.t('chat.deleteConversationConfirm'))) return;
     this.chatSvc.deleteConversation(id).subscribe({
       next: () => {
         this.chatSvc.removeConversationLocally(id);

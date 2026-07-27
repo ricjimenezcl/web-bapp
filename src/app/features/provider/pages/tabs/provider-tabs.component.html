@@ -9,7 +9,7 @@
       <!-- Hamburger (móvil) -->
       <button (click)="toggleSidebar()"
               class="md:hidden p-2 -ml-2 text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-full transition-colors"
-              aria-label="Abrir menú">
+              [attr.aria-label]="'nav.openMenu' | t">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
         </svg>
@@ -26,26 +26,26 @@
       </a>
 
       <!-- Acciones derecha -->
-      <nav class="flex items-left gap-1 lg:gap-2 flex-shrink-0 md:ml-2" aria-label="Acciones rápidas">
+      <nav class="flex items-left gap-1 lg:gap-2 flex-shrink-0 md:ml-2" [attr.aria-label]="'nav.quickActions' | t">
         
 
         <a routerLink="home" routerLinkActive="text-primary bg-primary/10"
            class="hidden lg:flex items-center gap-1.5 px-3 h-10 rounded-full text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors">
           <ion-icon name="home-outline" class="text-lg"></ion-icon>
-          <span>Inicio</span>
+          <span>{{ 'nav.home' | t }}</span>
         </a>
         <!-- Mis servicios (desktop) -->
         <a routerLink="my-services" routerLinkActive="text-primary bg-primary/10"
            class="hidden lg:flex items-center gap-1.5 px-3 h-10 rounded-full text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors">
           <ion-icon name="construct-outline" class="text-lg"></ion-icon>
-          <span>Servicios</span>
+          <span>{{ 'nav.services' | t }}</span>
         </a>
 
         <!-- Reservas (desktop) -->
         <a routerLink="bookings" routerLinkActive="text-primary bg-primary/10"
            class="hidden lg:flex items-center gap-1.5 px-3 h-10 rounded-full text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors">
           <ion-icon name="calendar-outline" class="text-lg"></ion-icon>
-          <span>Reservas</span>
+          <span>{{ 'nav.bookings' | t }}</span>
         </a>
 
         <!-- Mensajes (tablet+desktop) -->
@@ -59,13 +59,13 @@
               </span>
             }
           </div>
-          <span>Mensajes</span>
+          <span>{{ 'nav.messages' | t }}</span>
         </a>
 
         <!-- Notificaciones -->
         <a routerLink="/notifications"
            class="w-10 h-10 rounded-full text-text-secondary hover:text-text-primary hover:bg-surface-hover flex items-center justify-center transition-colors relative"
-           aria-label="Notificaciones">
+            [attr.aria-label]="'nav.notifications' | t">
           <ion-icon name="notifications-outline" class="text-xl"></ion-icon>
           @if (unread() > 0) {
             <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full"></span>
@@ -75,11 +75,11 @@
         <!-- Avatar + nombre / Perfil -->
         <a routerLink="profile" routerLinkActive="ring-2 ring-primary"
            class="flex items-center gap-2 rounded-full hover:opacity-80 transition-opacity pl-1 pr-2"
-           aria-label="Mi perfil">
+            [attr.aria-label]="'nav.myProfile' | t">
           <div class="w-9 h-9 rounded-full overflow-hidden border border-border bg-surface-card flex items-center justify-center flex-shrink-0">
             @if (profile()?.avatar) {
               <img [src]="profile()!.avatar"
-                   [alt]="profile()?.full_name || 'Foto de perfil'"
+                    [alt]="profile()?.full_name || ('nav.profilePhoto' | t)"
                    class="w-full h-full object-cover">
             } @else {
               <ion-icon name="person-outline" class="text-lg text-text-secondary"></ion-icon>
@@ -107,7 +107,7 @@
   <aside [class]="sidebarOpen() ? 'translate-x-0 pointer-events-auto' : '-translate-x-full pointer-events-none'"
          class="fixed md:hidden inset-y-0 left-0 z-50 w-72 bg-surface-card border-r border-border
                 flex flex-col transition-transform duration-300 ease-in-out"
-         aria-label="Menú móvil">
+      [attr.aria-label]="'nav.mobileMenu' | t">
 
     <!-- Header drawer -->
     <div class="px-5 py-4 border-b border-border flex items-center justify-between">
@@ -118,12 +118,12 @@
         </div>
         <div>
           <p class="text-sm font-bold text-text-primary">BappSearch</p>
-          <p class="text-xs text-text-tertiary">Proveedor</p>
+          <p class="text-xs text-text-tertiary">{{ 'nav.provider' | t }}</p>
         </div>
       </div>
       <button (click)="closeSidebar()"
               class="p-2 -mr-2 text-text-secondary hover:text-text-primary"
-              aria-label="Cerrar menú">
+              [attr.aria-label]="'nav.closeMenu' | t">
         <ion-icon name="close" class="text-xl"></ion-icon>
       </button>
     </div>
@@ -133,35 +133,35 @@
       <button (click)="goToAddService()"
          class="w-full inline-flex items-center justify-center gap-2 h-10 bg-primary hover:bg-primary-600 text-text-inverse text-sm font-semibold rounded-full transition-colors">
         <ion-icon name="add-outline" class="text-lg"></ion-icon>
-        Nuevo servicio
+        {{ 'nav.newService' | t }}
       </button>
     </div>
 
     <!-- Links -->
-    <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto" aria-label="Navegación móvil">
+    <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto" [attr.aria-label]="'nav.mobileMenu' | t">
 
       <a routerLink="home" routerLinkActive="active"
          (click)="closeSidebar()" class="sidebar-link">
         <ion-icon name="home-outline" class="text-xl"></ion-icon>
-        <span>Inicio</span>
+        <span>{{ 'nav.home' | t }}</span>
       </a>
 
       <a routerLink="my-services" routerLinkActive="active"
          (click)="closeSidebar()" class="sidebar-link">
         <ion-icon name="construct-outline" class="text-xl"></ion-icon>
-        <span>Mis servicios</span>
+        <span>{{ 'nav.myServices' | t }}</span>
       </a>
 
       <a routerLink="bookings" routerLinkActive="active"
          (click)="closeSidebar()" class="sidebar-link">
         <ion-icon name="calendar-outline" class="text-xl"></ion-icon>
-        <span>Reservas</span>
+        <span>{{ 'nav.bookings' | t }}</span>
       </a>
 
       <a routerLink="inbox" routerLinkActive="active"
          (click)="closeSidebar()" class="sidebar-link relative">
         <ion-icon name="chatbubbles-outline" class="text-xl"></ion-icon>
-        <span>Mensajes</span>
+        <span>{{ 'nav.messages' | t }}</span>
         @if (unread() > 0) {
           <span class="ml-auto px-2 py-0.5 bg-danger text-white text-xs font-semibold rounded-full">
             {{ unread() > 9 ? '9+' : unread() }}
@@ -172,7 +172,7 @@
       <a routerLink="profile" routerLinkActive="active"
          (click)="closeSidebar()" class="sidebar-link">
         <ion-icon name="person-outline" class="text-xl"></ion-icon>
-        <span>Mi perfil</span>
+        <span>{{ 'nav.myProfile' | t }}</span>
       </a>
 
     </nav>
@@ -192,6 +192,7 @@
   <!-- ════════════════════════════════════════════════════════════════════
        FOOTER GLOBAL
   ════════════════════════════════════════════════════════════════════ -->
+  <app-footer [compact]="true"></app-footer>
 
 
 </div>

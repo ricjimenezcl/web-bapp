@@ -3,16 +3,19 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
+import { PlatformI18nService } from '../../../../core/services/platform-i18n.service';
+import { TPipe } from '../../../../shared/pipes/t.pipe';
 
 @Component({
   selector: 'app-terms-acceptance',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, TPipe],
   templateUrl: './terms-acceptance.component.html',
 })
 export class TermsAcceptanceComponent {
   private auth   = inject(AuthService);
   private router = inject(Router);
+  private i18n   = inject(PlatformI18nService);
 
   termsAccepted = false;
   emailOptIn    = false;
@@ -35,7 +38,7 @@ export class TermsAcceptanceComponent {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err?.error?.detail ?? 'No se pudo registrar la aceptación. Intenta nuevamente.');
+        this.error.set(err?.error?.detail ?? this.i18n.t('termsAcceptance.submitError'));
       }
     });
   }

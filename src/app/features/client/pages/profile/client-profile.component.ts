@@ -1,6 +1,7 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ProfileService } from '../../../../core/services/profile.service';
@@ -11,13 +12,16 @@ import { offensiveContentAsyncValidator } from '../../../../shared/validators/co
 import { formatChileanPhone } from '../../../../shared/utils/form-formatters';
 import { ProductType } from '../../../../core/services/payment.service';
 import { ModalService } from '../../../../core/services/modal.service';
+import { PlatformLanguage, PlatformLanguageService } from '../../../../core/services/platform-language.service';
+import { PlatformI18nService } from '../../../../core/services/platform-i18n.service';
+import { TPipe } from '../../../../shared/pipes/t.pipe';
 
 export type DashView = 'overview' | 'edit' | 'purchases' | 'config' | 'help';
 
 @Component({
   selector: 'app-client-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TPipe],
   templateUrl: './client-profile.component.html',
   styleUrl: './client-profile.component.scss',
 })
@@ -29,6 +33,8 @@ export class ClientProfileComponent implements OnInit {
   private readonly fb      = inject(FormBuilder);
   private readonly modal   = inject(ModalService);
   private readonly contentFilterService = inject(ContentFilterService);
+  private readonly platformLanguage = inject(PlatformLanguageService);
+  private readonly i18n = inject(PlatformI18nService);
 
   // ── Profile ────────────────────────────────────────────────────────
   user    = signal<UserProfile | null>(null);
@@ -59,11 +65,16 @@ export class ClientProfileComponent implements OnInit {
   });
 
   // ── Settings ───────────────────────────────────────────────────────
-  darkMode  = signal(false);
   pwLoading = signal(false);
   pwError   = signal('');
   pwSuccess = signal(false);
   showPremiumModal = signal(false);
+  readonly languages: Array<{ value: PlatformLanguage; labelKey: string }> = [
+    { value: 'es', labelKey: 'lang.es' },
+    { value: 'en', labelKey: 'lang.en' },
+    { value: 'pt', labelKey: 'lang.pt' },
+  ];
+  readonly selectedLanguage = this.platformLanguage.language;
 
   showOldPassword = false;
   showNewPassword = false;
@@ -103,7 +114,6 @@ export class ClientProfileComponent implements OnInit {
       next: (p) => { this.user.set(p); this.loading.set(false); this._patchForm(p); },
       error: ()  => this.loading.set(false),
     });
-    this.darkMode.set(document.documentElement.classList.contains('dark'));
   }
 
   // ── View switching ─────────────────────────────────────────────────
@@ -147,7 +157,7 @@ export class ClientProfileComponent implements OnInit {
         },
         error: (err) => {
           this.editLoading.set(false);
-          this.editError.set(err?.error?.detail ?? 'Error al actualizar.');
+          this.editError.set(err?.error?.detail ?? this.i18n.t('profile.errorUpdating'));
         },
       });
     };
@@ -163,12 +173,6 @@ export class ClientProfileComponent implements OnInit {
   }
 
   // ── Settings ───────────────────────────────────────────────────────
-  toggleDarkMode(enabled: boolean): void {
-    this.darkMode.set(enabled);
-    document.documentElement.classList.toggle('dark', enabled);
-    localStorage.setItem('theme', enabled ? 'dark' : 'light');
-  }
-
   togglePasswordVisibility(field: 'old' | 'new' | 'confirm'): void {
     if (field === 'old') {
       this.showOldPassword = !this.showOldPassword;
@@ -185,7 +189,7 @@ export class ClientProfileComponent implements OnInit {
     if (this.pwForm.invalid) { this.pwForm.markAllAsTouched(); return; }
     const { old_password, new_password } = this.pwForm.value;
     if (new_password !== this.pwForm.get('confirm_password')?.value) {
-      this.pwError.set('Las contraseñas no coinciden.'); return;
+      this.pwError.set(this.i18n.t('settings.password.error.mismatch')); return;
     }
     this.pwLoading.set(true);
     this.pwError.set('');
@@ -198,9 +202,15 @@ export class ClientProfileComponent implements OnInit {
       },
       error: (err) => {
         this.pwLoading.set(false);
-        this.pwError.set(err?.error?.detail ?? 'Error al cambiar la contraseña.');
+        this.pwError.set(err?.error?.detail ?? this.i18n.t('profile.errorChangePassword'));
       },
     });
+  }
+
+  onLanguageChange(value: string): void {
+    if (value === 'es' || value === 'en' || value === 'pt') {
+      this.platformLanguage.setLanguage(value);
+    }
   }
 
   // ── External ───────────────────────────────────────────────────────
@@ -226,25 +236,29 @@ export class ClientProfileComponent implements OnInit {
     const user = this.auth.currentUser();
     if (!user?.id) return;
     const inviteUrl = `https://bapp.app/invite/${user.id}`;
-    const shareData = { title: 'Únete a BAPP', text: 'Descarga BAPP y encuentra los mejores servicios cerca de ti.', url: inviteUrl };
+    const shareData = {
+      title: this.i18n.t('profile.inviteTitle'),
+      text: this.i18n.t('profile.inviteText'),
+      url: inviteUrl,
+    };
     if (navigator.share && navigator.canShare?.(shareData)) {
       try { await navigator.share(shareData); } catch { /* cancelled */ }
     } else {
       try {
         await navigator.clipboard.writeText(inviteUrl);
-        await this.modal.success('Enlace copiado al portapapeles.');
+        await this.modal.success(this.i18n.t('profile.linkCopied'));
       }
       catch {
-        await this.modal.error('No se pudo copiar el enlace.');
+        await this.modal.error(this.i18n.t('profile.errorCopyLink'));
       }
     }
   }
 
   async goLogout(): Promise<void> {
     const confirmed = await this.modal.confirm(
-      '¿Estás seguro de que deseas cerrar sesión?',
-      'Cerrar sesión',
-      'Cerrar sesión'
+      this.i18n.t('profile.logoutConfirmBody'),
+      this.i18n.t('nav.logout'),
+      this.i18n.t('nav.logout')
     );
 
     if (confirmed) {

@@ -13,15 +13,15 @@ test.describe('Búsqueda de servicios', () => {
     await expect(page.locator('app-root')).toBeVisible();
   });
 
-  test('página de búsqueda responde', async ({ page }) => {
-    await page.goto('/search');
-    // Debe redirigir a login o mostrar la búsqueda
-    const url = page.url();
-    expect(url).toMatch(/search|login/);
+  test('ruta guest de búsqueda responde', async ({ page }) => {
+    await page.goto('/guest/service-search').catch(() => null);
+    await expect.poll(() => page.url()).toMatch(/\/guest\/(service-search|categories)/i);
+    await expect(page).not.toHaveURL(/auth\/login|\/login/i);
+    await expect(page.locator('app-root')).toBeVisible();
   });
 
   test('landing del proveedor carga', async ({ page }) => {
-    await page.goto('/provider-landing');
+    await page.goto('/registro-proveedores');
     await expect(page.locator('app-root')).toBeVisible();
     await expect(page).not.toHaveURL(/500|error/);
   });

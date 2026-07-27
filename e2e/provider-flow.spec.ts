@@ -44,14 +44,14 @@ test.describe('Flujo Proveedor — guards', () => {
 
 test.describe('Landing del proveedor (pública)', () => {
   test('provider-landing carga sin sesión', async ({ page }) => {
-    await page.goto('/provider-landing');
+    await page.goto('/registro-proveedores');
     await expect(page.locator('app-root')).toBeVisible();
     await expect(page).not.toHaveURL(/login|500|error/);
   });
 
   test('provider-landing tiene CTA de registro', async ({ page }) => {
-    await page.goto('/provider-landing');
-    const cta = page.getByRole('link', { name: /regístrate|empieza|proveedor/i });
+    await page.goto('/registro-proveedores');
+    const cta = page.getByRole('button', { name: /registrarme gratis|registrarme/i });
     await expect(cta.first()).toBeVisible({ timeout: 8_000 });
   });
 });

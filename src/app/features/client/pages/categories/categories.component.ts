@@ -9,11 +9,13 @@ import { MapPickerComponent } from '../../../../shared/components/map-picker/map
 import { AuthService } from '../../../../core/services/auth.service';
 import { ProductType } from '../../../../core/services/payment.service';
 import { ModalService } from '../../../../core/services/modal.service';
+import { PlatformI18nService } from '../../../../core/services/platform-i18n.service';
+import { TPipe } from '../../../../shared/pipes/t.pipe';
 
 @Component({
   selector: 'app-categories',
   standalone: true,
-  imports: [CommonModule, FormsModule, MapPickerComponent],
+  imports: [CommonModule, FormsModule, MapPickerComponent, TPipe],
   templateUrl: './categories.component.html',
   styleUrls: ['./categories.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -25,6 +27,7 @@ export class CategoriesComponent implements OnInit {
   private readonly locationSvc = inject(LocationService);
   private readonly auth        = inject(AuthService);
   private readonly modal       = inject(ModalService);
+  private readonly i18n        = inject(PlatformI18nService);
 
   /** true cuando se accede desde /guest/categories (sin autenticación) */
   readonly isGuestMode = signal(false);
@@ -61,7 +64,7 @@ export class CategoriesComponent implements OnInit {
   showLocationSearch = false;
   locationQuery = '';
   locationSuggestions: LocationSuggestion[] = [];
-  selectedLocationName = 'Tu ubicación actual';
+  selectedLocationName = this.i18n.t('categories.currentLocation');
   isLocationSearching = false;
   private locationSearchTimeout?: ReturnType<typeof setTimeout>;
 
@@ -81,22 +84,26 @@ export class CategoriesComponent implements OnInit {
   readonly premiumModalTitle = computed(() => {
     const reason = this.premiumModalReason();
     if (reason === 'DAILY_SEARCH_LIMIT_REACHED') {
-      return 'Alcanzaste tu límite diario';
+      return this.i18n.t('categories.premium.dailyLimitTitle');
     }
     if (reason === 'FREE_SERVICE_SELECTION_LIMIT') {
-      return 'Límite de servicios por búsqueda';
+      return this.i18n.t('categories.premium.serviceLimitTitle');
     }
-    return 'Desbloquea búsquedas ilimitadas';
+    return this.i18n.t('categories.premium.unlockTitle');
   });
   readonly premiumModalSub = computed(() => {
     const reason = this.premiumModalReason();
     if (reason === 'DAILY_SEARCH_LIMIT_REACHED') {
-      return `Ya usaste tus ${this.freeDailySearchLimit} búsquedas de hoy. Mejora a Premium para seguir buscando sin esperar al próximo día.`;
+      return this.i18n.t('categories.premium.dailyLimitBody')
+        .replace('{limit}', String(this.freeDailySearchLimit));
     }
     if (reason === 'FREE_SERVICE_SELECTION_LIMIT') {
-      return `En plan gratuito puedes seleccionar hasta ${this.maxFreeServices} servicios por búsqueda. Con Premium no tienes este tope.`;
+      return this.i18n.t('categories.premium.serviceLimitBody')
+        .replace('{limit}', String(this.maxFreeServices));
     }
-    return `En plan gratuito puedes realizar ${this.freeDailySearchLimit} búsquedas al día y seleccionar hasta ${this.maxFreeServices} servicios por búsqueda.`;
+    return this.i18n.t('categories.premium.unlockBody')
+      .replace('{daily}', String(this.freeDailySearchLimit))
+      .replace('{services}', String(this.maxFreeServices));
   });
 
   private readonly EMOJI_MAP: Record<string, string> = {
@@ -229,7 +236,7 @@ export class CategoriesComponent implements OnInit {
 
   clearLocation(event?: Event): void {
     if (event) event.stopPropagation();
-    this.selectedLocationName = 'Tu ubicación actual';
+    this.selectedLocationName = this.i18n.t('categories.currentLocation');
     this.locationSvc.clearSelectedLocation();
   }
 
@@ -325,10 +332,10 @@ export class CategoriesComponent implements OnInit {
       return;
     }
     const confirmed = await this.modal.confirm(
-      '¿Está seguro de cancelar búsqueda?',
-      'Cancelar búsqueda',
-      'Sí',
-      'No'
+      this.i18n.t('categories.cancelConfirm.body'),
+      this.i18n.t('categories.cancelConfirm.title'),
+      this.i18n.t('common.yes'),
+      this.i18n.t('common.no')
     );
 
     if (confirmed) {
@@ -394,6 +401,29 @@ export class CategoriesComponent implements OnInit {
     this.premiumModalReason.set(reason);
     this.showPremiumModal.set(true);
   }
+
+  freePlanLimitsText(): string {
+    return this.i18n.t('categories.freePlanLimits')
+      .replace('{daily}', String(this.freeDailySearchLimit))
+      .replace('{services}', String(this.maxFreeServices));
+  }
+
+  pageInfoText(): string {
+    return this.i18n.t('common.pageOf')
+      .replace('{page}', String(this.page()))
+      .replace('{total}', String(this.totalPages()));
+  }
+
+  freeSelectionCapText(): string {
+    return this.i18n.t('categories.freeSelectionCap')
+      .replace('{limit}', String(this.maxFreeServices));
+  }
+
+  selectedServicesSummaryText(): string {
+    return this.i18n.t('categories.selectedServicesCount')
+      .replace('{count}', String(this.selectedServices().length));
+  }
+
   closePremiumModal(): void {
     this.showPremiumModal.set(false);
     this.premiumModalReason.set(null);

@@ -2,18 +2,16 @@ import { Injectable, inject, OnDestroy } from '@angular/core';
 import { Subject, BehaviorSubject } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { StorageService } from './storage.service';
-import { AuthService } from './auth.service';
 import { WsChatMessage, WsTypingIndicator, WsNotification } from '../models/chat.model';
 
 @Injectable({ providedIn: 'root' })
 export class WebSocketService implements OnDestroy {
-  private storage = inject(StorageService);
-  private auth    = inject(AuthService);
+  private readonly storage = inject(StorageService);
 
   private ws: WebSocket | null = null;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private reconnectDelay = 1000;
-  private maxReconnectDelay = 30000;
+  private readonly maxReconnectDelay = 30000;
   private heartbeatInterval: ReturnType<typeof setInterval> | null = null;
   private intentionalClose = false;
 
@@ -24,8 +22,13 @@ export class WebSocketService implements OnDestroy {
   readonly reconnected$    = new Subject<void>();
 
   connect(): void {
+    if (!this.storage.isAuthenticated()) {
+      this.disconnect();
+      return;
+    }
+
     const token = this.storage.token();
-    if (this.ws?.readyState === WebSocket.OPEN) return;
+    if (this.ws?.readyState === WebSocket.OPEN || this.ws?.readyState === WebSocket.CONNECTING) return;
 
     this.intentionalClose = false;
     const url = token
@@ -46,10 +49,15 @@ export class WebSocketService implements OnDestroy {
       } catch { /* ignore parse errors */ }
     };
 
-    this.ws.onclose = () => {
+    this.ws.onclose = (event) => {
       this.connected$.next(false);
       this._stopHeartbeat();
-      if (!this.intentionalClose) {
+      if (!this.intentionalClose && this.storage.isAuthenticated()) {
+        // 4401 = token/cookie inválida o expirada: evitar bucle infinito de reconexión.
+        if (event.code === 4401) {
+          this.disconnect();
+          return;
+        }
         this._scheduleReconnect();
       }
     };
@@ -109,7 +117,6 @@ export class WebSocketService implements OnDestroy {
     if (msg.channel === 'chat') {
       if (msg.type === 'message') this.chatMessage$.next(msg as WsChatMessage);
       if (msg.type === 'typing')  this.typing$.next(msg as WsTypingIndicator);
-      return;
     }
   }
 
@@ -128,18 +135,21 @@ export class WebSocketService implements OnDestroy {
   }
 
   private _scheduleReconnect(): void {
+    if (!this.storage.isAuthenticated()) {
+      this.disconnect();
+      return;
+    }
+
     this._clearReconnect();
     this.reconnectTimer = setTimeout(() => {
+      if (!this.storage.isAuthenticated()) {
+        this.disconnect();
+        return;
+      }
+
       this.reconnectDelay = Math.min(this.reconnectDelay * 2, this.maxReconnectDelay);
       this.reconnected$.next();
-      // Refresh token before reconnecting to avoid "Signature has expired" rejections
-      this.auth.refreshToken().subscribe({
-        next: () => this.connect(),
-        error: () => {
-          // Refresh failed (session truly expired) — disconnect and let auth flow handle it
-          this.disconnect();
-        }
-      });
+      this.connect();
     }, this.reconnectDelay);
   }
 

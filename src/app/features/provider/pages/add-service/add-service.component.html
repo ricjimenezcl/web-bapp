@@ -18,7 +18,18 @@
   <div class="as-body">
 
     <!-- ── IDENTITY GATE ────────────────────────────────────────── -->
-    @if (showIdentityGate()) {
+    @if (!identityCheckDone()) {
+      <div class="as-gate">
+        <div class="as-gate-icon">
+          <span class="as-spinner"></span>
+        </div>
+        <h2 class="as-gate-title">Validando identidad</h2>
+        <p class="as-gate-desc">Estamos verificando tu estado de identidad para habilitar esta sección.</p>
+      </div>
+    }
+
+    <!-- ── IDENTITY GATE ────────────────────────────────────────── -->
+    @else if (showIdentityGate()) {
       <div class="as-gate">
         <div class="as-gate-icon">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">

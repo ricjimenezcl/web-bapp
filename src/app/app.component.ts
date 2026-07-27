@@ -10,10 +10,13 @@ import { GlobalModalComponent } from './shared/components/global-modal/global-mo
 import { CompleteProfileModalComponent } from './shared/components/complete-profile-modal/complete-profile-modal.component';
 import { ProfileCompletionService } from './core/services/profile-completion.service';
 import { AuthService } from './core/services/auth.service';
+import { PlatformLanguageService } from './core/services/platform-language.service';
+import { PlatformAutoTranslateService } from './core/services/platform-auto-translate.service';
+import { TPipe } from './shared/pipes/t.pipe';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, AppFooterComponent, GlobalModalComponent, CompleteProfileModalComponent],
+  imports: [RouterOutlet, CommonModule, AppFooterComponent, GlobalModalComponent, CompleteProfileModalComponent, TPipe],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <div class="app-layout">
@@ -43,16 +46,16 @@ import { AuthService } from './core/services/auth.service';
             <div class="se-icon">
               <ion-icon name="time-outline"></ion-icon>
             </div>
-            <h3>Sesión expirada</h3>
+            <h3>{{ 'session.expired.title' | t }}</h3>
           </div>
 
           <p class="se-message">
-            Tu sesión ha finalizado por inactividad. Por favor, inicia sesión nuevamente para continuar.
+            {{ 'session.expired.body' | t }}
           </p>
 
           <div class="se-actions">
             <button class="se-btn" (click)="goToLogin()">
-              Iniciar sesión
+              {{ 'session.expired.cta' | t }}
             </button>
           </div>
         </div>
@@ -176,6 +179,8 @@ export class AppComponent implements OnInit {
   private readonly router  = inject(Router);
   private readonly storage = inject(StorageService);
   private readonly auth = inject(AuthService);
+  private readonly platformLanguage = inject(PlatformLanguageService);
+  private readonly autoTranslate = inject(PlatformAutoTranslateService);
   readonly session          = inject(SessionService);
   readonly profileCompletion = inject(ProfileCompletionService);
 
@@ -187,6 +192,9 @@ export class AppComponent implements OnInit {
   private isBootstrappingAuth = false;
 
   ngOnInit(): void {
+    this.platformLanguage.initialize();
+    this.autoTranslate.start();
+
     const navEntry = globalThis.performance
       .getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
 
@@ -271,7 +279,7 @@ export class AppComponent implements OnInit {
     if (currentUrl.startsWith('/auth/') && currentUrl !== '/auth/login') return;
 
     // Rutas públicas que no requieren autenticación
-    const publicRoutes = ['/registro-proveedores', '/proveedores', '/terms', '/privacy'];
+    const publicRoutes = ['/registro-proveedores', '/proveedores', '/terms', '/privacy', '/faq', '/guest', '/app-payment'];
     if (publicRoutes.some(r => currentUrl.startsWith(r))) return;
 
     if (!isAuthenticated) {
@@ -307,6 +315,7 @@ export class AppComponent implements OnInit {
         has_premium: profile.has_premium ?? false,
       });
       this.storage.markSessionActive();
+      this.session.reset();
     } catch {
       // Sin cookie de sesión válida o backend no alcanzable.
     } finally {

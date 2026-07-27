@@ -11,13 +11,15 @@ import { WebSocketService } from '../../../../core/services/websocket.service';
 import { BookingResponse, BookingStatus, BOOKING_STATUS_LABELS, BOOKING_STATUS_COLORS } from '../../../../core/models/booking.model';
 import { ModalService } from '../../../../core/services/modal.service';
 import { ContentFilterService } from '../../../../shared/services/content-filter.service';
+import { TPipe } from '../../../../shared/pipes/t.pipe';
+import { PlatformI18nService } from '../../../../core/services/platform-i18n.service';
 
 type TabId = 'upcoming' | 'pending' | 'history' | 'cancelled';
 
 @Component({
   selector: 'app-client-bookings',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TPipe],
   templateUrl: './client-bookings.component.html',
   styleUrl: './client-bookings.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -30,6 +32,7 @@ export class ClientBookingsComponent implements OnInit, OnDestroy {
   private readonly router      = inject(Router);
   private readonly modal       = inject(ModalService);
   private readonly contentFilterService = inject(ContentFilterService);
+  private readonly i18n        = inject(PlatformI18nService);
   private readonly destroy$    = new Subject<void>();
 
   bookings        = signal<BookingResponse[]>([]);
@@ -98,6 +101,32 @@ export class ClientBookingsComponent implements OnInit, OnDestroy {
     }
   }
 
+  emptyStateTitle(): string {
+    switch (this.activeTab()) {
+      case 'upcoming':
+        return this.i18n.t('bookings.emptyUpcomingTitle');
+      case 'pending':
+        return this.i18n.t('bookings.emptyPendingTitle');
+      case 'history':
+        return this.i18n.t('bookings.emptyHistoryTitle');
+      default:
+        return this.i18n.t('bookings.emptyCancelledTitle');
+    }
+  }
+
+  emptyStateSubtitle(): string {
+    switch (this.activeTab()) {
+      case 'upcoming':
+        return this.i18n.t('bookings.emptyUpcomingSub');
+      case 'pending':
+        return this.i18n.t('bookings.emptyPendingSub');
+      case 'history':
+        return this.i18n.t('bookings.emptyHistorySub');
+      default:
+        return this.i18n.t('bookings.emptyCancelledSub');
+    }
+  }
+
   ngOnInit(): void {
     this.load();
     this.subscribeToBookingCompleted();
@@ -121,7 +150,7 @@ export class ClientBookingsComponent implements OnInit, OnDestroy {
           : b
         )
       );
-      this.showToast('Tu reserva fue marcada como completada.');
+      this.showToast(this.i18n.t('bookings.toastMarkedCompleted'));
     });
   }
 
@@ -150,7 +179,7 @@ export class ClientBookingsComponent implements OnInit, OnDestroy {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('Error al cargar reservas. Intenta nuevamente.');
+        this.error.set(this.i18n.t('bookings.errorLoadBookings'));
         this.loading.set(false);
       }
     });
@@ -189,7 +218,7 @@ export class ClientBookingsComponent implements OnInit, OnDestroy {
       next: (result) => {
         this.cancelChecking.set(false);
         if (result.blocked) {
-          this.cancelContentError.set('El motivo contiene lenguaje no permitido. Ajusta el texto para continuar.');
+          this.cancelContentError.set(this.i18n.t('bookings.errorCancelContentBlocked'));
           return;
         }
         this.submitCancel(booking, comment);
@@ -213,11 +242,11 @@ export class ClientBookingsComponent implements OnInit, OnDestroy {
         );
         this.cancelLoading.set(false);
         this.closeCancelModal();
-        this.showToast('Reserva cancelada correctamente.');
+        this.showToast(this.i18n.t('bookings.toastCancelled'));
       },
       error: () => {
         this.cancelLoading.set(false);
-        this.showToast('Error al cancelar la reserva.');
+        this.showToast(this.i18n.t('bookings.errorCancelBooking'));
       }
     });
   }
@@ -225,7 +254,7 @@ export class ClientBookingsComponent implements OnInit, OnDestroy {
   goToChat(booking: BookingResponse): void {
     const providerId = Number(booking.provider_id);
     if (!providerId || Number.isNaN(providerId)) {
-      this.showToast('No encontramos un proveedor asociado a esta reserva.');
+      this.showToast(this.i18n.t('bookings.errorNoProvider'));
       return;
     }
     this.chatOpeningId.set(booking.id);
@@ -236,7 +265,7 @@ export class ClientBookingsComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.chatOpeningId.set(null);
-        this.showToast('No pudimos abrir el chat. Intenta nuevamente.');
+        this.showToast(this.i18n.t('bookings.errorOpenChat'));
       }
     });
   }
@@ -277,7 +306,7 @@ export class ClientBookingsComponent implements OnInit, OnDestroy {
       next: (result) => {
         this.reviewChecking.set(false);
         if (result.blocked) {
-          this.reviewContentError.set('Tu comentario contiene lenguaje no permitido. Ajusta el texto para continuar.');
+          this.reviewContentError.set(this.i18n.t('bookings.errorReviewContentBlocked'));
           return;
         }
         this.sendReview(booking, comment);
@@ -300,7 +329,7 @@ export class ClientBookingsComponent implements OnInit, OnDestroy {
       next: () => {
         this.reviewLoading.set(false);
         this.closeReviewModal();
-        this.showToast('Gracias por tu calificacion.');
+        this.showToast(this.i18n.t('bookings.toastReviewThanks'));
         // mark as reviewed locally to hide button
         this.bookings.update(list =>
           list.map(b => String(b.id) === String(booking.id)
@@ -311,7 +340,7 @@ export class ClientBookingsComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.reviewLoading.set(false);
-        const msg = err?.error?.detail || 'Error al enviar la calificación.';
+        const msg = err?.error?.detail || this.i18n.t('bookings.errorSubmitReview');
         this.showToast(msg);
       }
     });

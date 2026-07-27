@@ -8,11 +8,12 @@ import { ProviderService } from '../../../../core/services/provider.service';
 import { ProviderProfile } from '../../../../core/models/provider.model';
 import { Subscription } from 'rxjs';
 import { AppFooterComponent } from '../../../../shared/components/app-footer/app-footer.component';
+import { TPipe } from '../../../../shared/pipes/t.pipe';
 
 @Component({
   selector: 'app-provider-tabs',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterOutlet, RouterLinkActive, AppFooterComponent],
+  imports: [CommonModule, RouterLink, RouterOutlet, RouterLinkActive, AppFooterComponent, TPipe],
   templateUrl: './provider-tabs.component.html',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

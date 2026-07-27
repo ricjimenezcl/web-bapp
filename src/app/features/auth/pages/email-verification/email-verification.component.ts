@@ -1,6 +1,6 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, ActivatedRoute } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
@@ -12,6 +12,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 export class EmailVerificationComponent implements OnInit {
   private auth  = inject(AuthService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   loading = signal(true);
   success = signal(false);
   error   = signal('');
@@ -40,9 +41,23 @@ export class EmailVerificationComponent implements OnInit {
 
   ngOnInit(): void {
     const token = this.route.snapshot.queryParamMap.get('token') ?? '';
+    const source = (this.route.snapshot.queryParamMap.get('source') ?? 'web').toLowerCase();
     if (!token) { this.loading.set(false); this.error.set('Token inválido.'); return; }
     this.auth.verifyEmail(token).subscribe({
-      next: () => { this.loading.set(false); this.success.set(true); },
+      next: () => {
+        this.loading.set(false);
+        this.success.set(true);
+
+        if (source === 'mobile') {
+          window.location.href = 'bapp://home?emailVerified=true';
+          return;
+        }
+
+        this.router.navigate(['/auth/login'], {
+          queryParams: { tab: 'login', emailVerified: 'true' },
+          replaceUrl: true,
+        });
+      },
       error: (err) => {
         this.loading.set(false);
         const detail: string = err?.error?.detail ?? 'Error al verificar.';

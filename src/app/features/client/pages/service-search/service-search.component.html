@@ -13,7 +13,7 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
       </svg>
-      Mapa
+      {{ 'runtime.map' | t }}
     </button>
     <button
       type="button"
@@ -24,7 +24,7 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/>
       </svg>
-      Proveedores
+      {{ 'nav.providers' | t }}
       @if (!loading() && !showInitial() && filteredProviders().length > 0) {
         <span class="mobile-tab-badge">{{ filteredProviders().length }}</span>
       }
@@ -60,12 +60,12 @@
               d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
           </svg>
           <div class="loc-text">
-            <p>Área de búsqueda activa</p>
+            <p>{{ 'search.activeSearchArea' | t }}</p>
             <h4>
               @if (serviceNames().length > 0) {
                 {{ serviceNames()[0].name }}{{ serviceNames().length > 1 ? ' +' + (serviceNames().length - 1) : '' }}
               } @else {
-                Todos los servicios
+                {{ 'search.allServices' | t }}
               }
             </h4>
           </div>
@@ -82,7 +82,7 @@
             d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
         </svg>
         <input [formControl]="searchControl" type="search"
-          placeholder="¿Qué servicio buscas?" />
+          [placeholder]="'search.whatService' | t" />
       </div>
 
       <!-- Control segmentado de filtros -->
@@ -93,7 +93,7 @@
           <svg fill="currentColor" viewBox="0 0 20 20">
             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
           </svg>
-          Mejor Calificados
+          {{ 'search.bestRated' | t }}
         </button>
         <button class="ref-segment-btn"
           [class.active]="selectedFilter() === 'distance'"
@@ -102,7 +102,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
           </svg>
-          Distancia
+          {{ 'search.distance' | t }}
         </button>
       </div>
 
@@ -121,7 +121,7 @@
         @if (!loading() && !showInitial() && filteredProviders().length > 0) {
           <span class="ref-results-count">
             {{ filteredProviders().length }}
-            proveedor{{ filteredProviders().length !== 1 ? 'es' : '' }} encontrado{{ filteredProviders().length !== 1 ? 's' : '' }}
+            {{ filteredProviders().length !== 1 ? ('search.providersFoundPlural' | t) : ('search.providersFoundSingle' | t) }}
           </span>
         } @else {
           <span></span>
@@ -131,9 +131,9 @@
               ? 'contact-limit contact-limit--danger'
               : 'contact-limit'">
             @if (contactLimit.remaining(currentServiceId()) === 0) {
-              Límite alcanzado
+              {{ 'search.limitReached' | t }}
             } @else {
-              {{ contactLimit.remaining(currentServiceId()) }} gratis restantes
+              {{ contactLimit.remaining(currentServiceId()) }} {{ 'search.freeRemaining' | t }}
             }
           </span>
         }
@@ -170,9 +170,9 @@
                 d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
             </svg>
           </div>
-          <p class="list-empty-title">Error al cargar</p>
+          <p class="list-empty-title">{{ 'common.errorLoading' | t }}</p>
           <p class="list-empty-sub">{{ error() }}</p>
-          <button (click)="search()" class="btn-retry" type="button">Reintentar</button>
+          <button (click)="search()" class="btn-retry" type="button">{{ 'common.retry' | t }}</button>
         </div>
       }
 
@@ -185,8 +185,8 @@
                 d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
             </svg>
           </div>
-          <p class="list-empty-title">Busca proveedores</p>
-          <p class="list-empty-sub">Escribe el servicio que necesitas o explora el mapa.</p>
+          <p class="list-empty-title">{{ 'search.findProviders' | t }}</p>
+          <p class="list-empty-sub">{{ 'search.findProvidersSub' | t }}</p>
         </div>
       }
 
@@ -199,8 +199,8 @@
                 d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
           </div>
-          <p class="list-empty-title">Sin resultados</p>
-          <p class="list-empty-sub">Amplía el área o cambia los criterios de búsqueda.</p>
+          <p class="list-empty-title">{{ 'common.noResults' | t }}</p>
+          <p class="list-empty-sub">{{ 'search.noResultsSub' | t }}</p>
         </div>
       }
 
@@ -265,7 +265,7 @@
                         <svg fill="currentColor" viewBox="0 0 24 24">
                           <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                         </svg>
-                        <span class="badge-text">Verificado</span>
+                        <span class="badge-text">{{ 'search.verified' | t }}</span>
                       </span>
                     }
                     
@@ -275,7 +275,7 @@
                         <svg fill="currentColor" viewBox="0 0 24 24">
                           <path d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
                         </svg>
-                        <span class="badge-text">No verificado</span>
+                        <span class="badge-text">{{ 'search.notVerified' | t }}</span>
                       </span>
                     }
                   </div>
@@ -297,7 +297,7 @@
                     </svg>
                     <span class="rating-count">{{ provider.total_reviews || 0 }}</span>
                   } @else {
-                    <span>Nuevo</span>
+                    <span>{{ 'common.new' | t }}</span>
                   }
                 </div>
 
@@ -323,9 +323,9 @@
                 @if ((provider.distance_km ?? 0) > 0) {
                   a {{ (provider.distance_km ?? 0) | number:'1.1-1' }} km
                 } @else if (provider.hourly_rate) {
-                  ${{ provider.hourly_rate | number:'1.0-0' }}/hr
+                  ${{ provider.hourly_rate | number:'1.0-0' }}/{{ 'common.perHour' | t }}
                 } @else {
-                  Ver ubicación
+                  {{ 'search.viewLocation' | t }}
                 }
               </span>
               <svg class="card-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -336,11 +336,11 @@
 
             @if (provider.locked) {
               <div class="provider-locked-overlay">
-                <span class="provider-locked-badge">Premium</span>
-                <h4>Desbloquea este proveedor</h4>
-                <p>Los primeros 5 son gratis. Activa premium para acceso ilimitado.</p>
+                <span class="provider-locked-badge">{{ 'common.premium' | t }}</span>
+                <h4>{{ 'search.unlockProvider' | t }}</h4>
+                <p>{{ 'search.unlockProviderSub' | t }}</p>
                 <button type="button" class="provider-locked-btn" (click)="goToPremium(); $event.preventDefault(); $event.stopPropagation()">
-                  Desbloquear acceso
+                  {{ 'search.unlockAccess' | t }}
                 </button>
               </div>
             }
@@ -363,9 +363,9 @@
     type="button"
     class="guest-modal-backdrop"
     (click)="closeGuestRegisterModal()"
-    aria-label="Cerrar modal">
+    [attr.aria-label]="'common.closeModal' | t">
   </button>
-  <dialog open class="guest-modal" aria-modal="true" aria-label="Crear cuenta para ver proveedores">
+  <dialog open class="guest-modal" aria-modal="true" [attr.aria-label]="'search.guestCreateAccountTitle' | t">
     <!-- Icono decorativo -->
     <div class="guest-modal__icon">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -375,9 +375,9 @@
     </div>
 
     <!-- Título -->
-    <h3 class="guest-modal__title">Regístrate para ver el perfil</h3>
+    <h3 class="guest-modal__title">{{ 'search.guestCreateAccountTitle' | t }}</h3>
     <p class="guest-modal__sub">
-      Crea tu cuenta gratis y accede a los datos de contacto, reseñas y toda la información de los profesionales disponibles.
+      {{ 'search.guestCreateAccountSub' | t }}
     </p>
 
     <!-- Acciones -->
@@ -387,15 +387,15 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
         </svg>
-        Crear cuenta gratis
+        {{ 'search.createFreeAccount' | t }}
       </button>
       <button type="button" class="guest-modal__btn-secondary" (click)="navigateToLogin()">
-        Ya tengo cuenta — Iniciar Sesión
+        {{ 'runtime.alreadyAccountLogin' | t }}
       </button>
     </div>
 
     <!-- Botón cerrar -->
-    <button type="button" class="guest-modal__close" (click)="closeGuestRegisterModal()" aria-label="Cerrar">
+    <button type="button" class="guest-modal__close" (click)="closeGuestRegisterModal()" [attr.aria-label]="'common.close' | t">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
       </svg>

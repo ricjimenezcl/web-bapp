@@ -13,10 +13,10 @@
     </div>
     <div class="header-info">
       <p class="font-semibold text-text-primary text-sm">
-        {{ otherParticipant()?.name ?? 'Conversación' }}
+        {{ otherParticipant()?.name ?? ('chat.conversation' | t) }}
       </p>
       @if (typing()) {
-        <p class="text-xs text-primary-500 animate-pulse">Escribiendo...</p>
+        <p class="text-xs text-primary-500 animate-pulse">{{ 'chat.typing' | t }}</p>
       }
     </div>
   </header>
@@ -28,7 +28,7 @@
     } @else if (messages().length === 0) {
       <div class="empty-messages">
         <div class="text-5xl mb-3">💬</div>
-        <p class="text-sm text-text-secondary">Inicia la conversación enviando un mensaje.</p>
+        <p class="text-sm text-text-secondary">{{ 'chat.startConversation' | t }}</p>
       </div>
     } @else {
       @for (msg of messages(); track msg.id) {
@@ -45,7 +45,7 @@
             @if (isMyMessage(msg)) {
               <button class="msg-menu-btn" type="button"
                       (click)="toggleMessageMenu(msg.id, $event)"
-                      aria-label="Opciones del mensaje">
+                      [attr.aria-label]="'chat.messageOptions' | t">
                 <svg fill="currentColor" viewBox="0 0 24 24">
                   <circle cx="12" cy="5"  r="1.5"/>
                   <circle cx="12" cy="12" r="1.5"/>
@@ -60,7 +60,7 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                     </svg>
-                    Eliminar mensaje
+                    {{ 'chat.deleteMessage' | t }}
                   </button>
                 </div>
               }
@@ -79,7 +79,7 @@
         [formControl]="messageControl"
         (keydown)="onKeydown($event)"
         (input)="onInput()"
-        placeholder="Escribe un mensaje..."
+        [placeholder]="'chat.writeMessage' | t"
         rows="1"
         class="message-input"
       ></textarea>
@@ -95,10 +95,10 @@
       </button>
     </div>
     @if (messageControl.pending && messageControl.value?.trim()) {
-      <p class="mt-2 text-xs text-text-secondary">Validando contenido...</p>
+      <p class="mt-2 text-xs text-text-secondary">{{ 'common.validatingContent' | t }}</p>
     }
     @if (messageControl.errors?.['offensiveContent']) {
-      <p class="mt-2 text-xs text-danger">El mensaje contiene lenguaje no permitido. Ajusta el texto para continuar.</p>
+      <p class="mt-2 text-xs text-danger">{{ 'chat.messageBlocked' | t }}</p>
     }
     @if (chatInputError()) {
       <p class="mt-2 text-xs text-danger">{{ chatInputError() }}</p>

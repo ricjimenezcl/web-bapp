@@ -6,40 +6,47 @@ import { test, expect } from '@playwright/test';
  */
 
 test.describe('Autenticación', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-  });
-
   test('redirige a login cuando no hay sesión', async ({ page }) => {
     await page.goto('/client/home');
     await expect(page).toHaveURL(/login/);
   });
 
   test('muestra el formulario de login', async ({ page }) => {
-    await page.goto('/auth/login');
-    await expect(page.getByRole('heading', { name: /iniciar sesión/i })).toBeVisible();
-    await expect(page.getByLabel(/correo/i)).toBeVisible();
-    await expect(page.getByLabel(/contraseña/i)).toBeVisible();
+    await page.goto('/auth/login?tab=login');
+    const modal = page.locator('.modal-content');
+
+    await expect(modal.getByRole('heading', { name: /iniciar sesión/i })).toBeVisible();
+    await expect(modal.locator('form input[formcontrolname="email"]')).toBeVisible();
+    await expect(modal.locator('#login-password')).toBeVisible();
   });
 
   test('muestra error con credenciales inválidas', async ({ page }) => {
-    await page.goto('/auth/login');
-    await page.getByLabel(/correo/i).fill('invalido@test.com');
-    await page.getByLabel(/contraseña/i).fill('wrongpassword');
-    await page.getByRole('button', { name: /iniciar sesión/i }).click();
-    await expect(page.getByText(/credenciales|contraseña|correo/i)).toBeVisible({ timeout: 8000 });
+    await page.goto('/auth/login?tab=login');
+    const modal = page.locator('.modal-content');
+
+    await modal.locator('form input[formcontrolname="email"]').fill('invalido@test.com');
+    await modal.locator('#login-password').fill('wrongpassword');
+    await modal.locator('form button[type="submit"]').click();
+    await expect(
+      modal.locator('div').filter({ hasText: /credenciales|inválid|incorrect/i }).first()
+    ).toBeVisible({ timeout: 8000 });
   });
 
   test('navega a registro de cliente', async ({ page }) => {
-    await page.goto('/auth/login');
-    await page.getByRole('link', { name: /regístrate|crear cuenta/i }).click();
-    await expect(page).toHaveURL(/register/);
+    await page.goto('/auth/login?tab=login');
+    const modal = page.locator('.modal-content');
+
+    await modal.getByRole('button', { name: /registrarse/i }).click();
+    await expect(modal.getByRole('heading', { name: /crear cuenta/i })).toBeVisible();
   });
 
   test('muestra el formulario de registro de cliente', async ({ page }) => {
-    await page.goto('/auth/register-client');
-    await expect(page.getByLabel(/nombre/i)).toBeVisible();
-    await expect(page.getByLabel(/correo/i)).toBeVisible();
-    await expect(page.getByLabel(/contraseña/i)).toBeVisible();
+    await page.goto('/auth/login?tab=register');
+    const modal = page.locator('.modal-content');
+
+    await expect(modal.getByRole('heading', { name: /crear cuenta/i })).toBeVisible();
+    await expect(modal.locator('#register-name')).toBeVisible();
+    await expect(modal.locator('#register-email')).toBeVisible();
+    await expect(modal.locator('#register-password')).toBeVisible();
   });
 });

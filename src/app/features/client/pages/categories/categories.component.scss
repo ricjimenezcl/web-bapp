@@ -41,6 +41,182 @@
   }
 }
 
+// ── Bappie panel lateral ─────────────────────────────────────────
+
+.bap-panel {
+  width: clamp(320px, 30vw, 460px);
+  min-width: 320px;
+  max-width: 460px;
+  background: linear-gradient(180deg, #0f1013 0%, #0a0b0d 100%);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  align-self: stretch;
+}
+
+.bap-glow-clip {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.bap-glow {
+  position: absolute;
+  top: -120px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 110%;
+  height: 360px;
+  background: radial-gradient(ellipse at center, rgba(253, 230, 138, 0.12), transparent 70%);
+}
+
+.bap-canvas {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-rows: auto auto auto 1fr;
+  gap: 12px;
+  padding: 18px 18px 8px;
+  min-height: 0;
+  flex: 1;
+}
+
+.bap-svg {
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+  max-height: 470px;
+  display: block;
+  overflow: visible;
+  margin-top: auto;
+}
+
+.bap-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 14px 18px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.bap-brand {
+  margin: 0;
+  line-height: 1;
+}
+
+.bap-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-s);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.bap-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--accent-mint);
+  box-shadow: 0 0 0 4px rgba(167, 243, 208, 0.15);
+}
+
+.bap-float {
+  transform-origin: center;
+  animation: bapFloatHover 4s ease-in-out infinite;
+}
+
+.bap-knock {
+  transform-origin: 195px 170px;
+  animation: bapKnockingMotion 3s ease-in-out infinite;
+}
+
+.bap-window {
+  animation: bapWindowGlow 2.4s ease-in-out infinite;
+}
+
+.bap-ring {
+  transform-origin: center;
+
+  &--1 {
+    animation: bapSoundWave 2s ease-out infinite;
+  }
+
+  &--2 {
+    animation: bapSoundWave 2s ease-out 1s infinite;
+  }
+}
+
+@keyframes bapFloatHover {
+  0%, 100% { transform: translateY(0px) rotate(-1deg); }
+  50% { transform: translateY(-8px) rotate(1deg); }
+}
+
+@keyframes bapKnockingMotion {
+  0%, 70%, 100% { transform: translate(0, 0) rotate(5deg); }
+  75%, 85%, 95% { transform: translate(-10px, -5px) rotate(15deg); }
+  80%, 90% { transform: translate(-5px, -2px) rotate(10deg); }
+}
+
+@keyframes bapWindowGlow {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.75; }
+}
+
+@keyframes bapSoundWave {
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { opacity: 0.5; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+@media (max-width: 1440px) {
+  .bap-canvas {
+    padding: 16px 16px 6px;
+  }
+
+  .bap-svg {
+    min-height: 280px;
+    max-height: 430px;
+  }
+}
+
+@media (max-width: 1280px) {
+  .bap-panel {
+    width: clamp(300px, 31vw, 400px);
+    min-width: 300px;
+  }
+
+  .bap-svg {
+    min-height: 250px;
+    max-height: 380px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .bap-panel {
+    width: clamp(260px, 32vw, 340px);
+    min-width: 260px;
+    border-radius: 20px;
+  }
+
+  .bap-canvas {
+    gap: 10px;
+    padding: 14px 14px 4px;
+  }
+
+  .bap-svg {
+    min-height: 210px;
+    max-height: 300px;
+  }
+}
+
 // ── App frame — mismo patrón que service-search y chats ──────────
 
 .app-frame {

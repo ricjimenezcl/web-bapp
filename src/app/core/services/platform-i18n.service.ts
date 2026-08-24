@@ -262,7 +262,9 @@ export class PlatformI18nService {
 
       'categories.currentLocation': 'Tu ubicacion actual',
       'categories.hintTitle': 'Toca una categoria',
+      'categories.hintTitleSelectServices': 'Categoria seleccionada',
       'categories.hintSubtitle': 'Para ver los servicios disponibles en tu zona',
+      'categories.hintSubtitleSelectServices': 'Ahora selecciona los servicios que buscas',
       'categories.servicesRadar': 'Radar de Servicios Activo',
       'categories.pickLocationOnMap': 'Elegir ubicacion en el mapa',
       'categories.searchPlaceholder': 'Buscar servicio o profesional...',
@@ -707,7 +709,9 @@ export class PlatformI18nService {
 
       'categories.currentLocation': 'Your current location',
       'categories.hintTitle': 'Tap a category',
+      'categories.hintTitleSelectServices': 'Category selected',
       'categories.hintSubtitle': 'To see available services in your area',
+      'categories.hintSubtitleSelectServices': 'Now select the services you are looking for',
       'categories.servicesRadar': 'Active Services Radar',
       'categories.pickLocationOnMap': 'Choose location on the map',
       'categories.searchPlaceholder': 'Search service or professional...',
@@ -1152,7 +1156,9 @@ export class PlatformI18nService {
 
       'categories.currentLocation': 'Sua localizacao atual',
       'categories.hintTitle': 'Toque em uma categoria',
+      'categories.hintTitleSelectServices': 'Categoria selecionada',
       'categories.hintSubtitle': 'Para ver os servicos disponiveis na sua area',
+      'categories.hintSubtitleSelectServices': 'Agora selecione os servicos que voce procura',
       'categories.servicesRadar': 'Radar de Servicos Ativo',
       'categories.pickLocationOnMap': 'Escolher localizacao no mapa',
       'categories.searchPlaceholder': 'Buscar servico ou profissional...',

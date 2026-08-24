@@ -2,6 +2,9 @@ Options -MultiViews
 RewriteEngine On
 RewriteBase /
 
+# Permitir que el popup de Google Sign-In se comunique con la ventana principal
+Header always set Cross-Origin-Opener-Policy "same-origin-allow-popups"
+
 # No reescribir archivos o directorios existentes
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d

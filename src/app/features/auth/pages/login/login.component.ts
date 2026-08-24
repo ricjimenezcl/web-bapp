@@ -1,8 +1,9 @@
-import { Component, inject, signal, OnInit, OnDestroy, HostListener, ViewChild, ElementRef, Renderer2, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy, HostListener, ViewChild, ElementRef, Renderer2, CUSTOM_ELEMENTS_SCHEMA, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { SocialAuthService, GoogleLoginProvider, FacebookLoginProvider, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
+
 import { AuthService } from '../../../../core/services/auth.service';
 import { UserRole } from '../../../../core/models/user.model';
 import { CategoryService } from '../../../../core/services/category.service';
@@ -32,6 +33,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   private readonly renderer = inject(Renderer2);
   private readonly categorySvc = inject(CategoryService);
   private readonly contentFilterService = inject(ContentFilterService);
+  private readonly ngZone = inject(NgZone);
   private carouselInterval: ReturnType<typeof setInterval> | null = null;
   private scrollObserver?: IntersectionObserver;
 
@@ -104,6 +106,12 @@ export class LoginComponent implements OnInit, OnDestroy {
   private socialLoginInProgress = false;
   private socialRequestedRole: UserRole = 'CLIENT';
   private socialWasRegistering = false;
+  /** Evita que el .catch() de signIn() muestre error cuando authState ya manejó el login exitoso */
+  private googleAuthHandledByState = false;
+  /** Contenedor del botón Google pre-renderizado para click programático dentro del user-gesture */
+  private gBtnHolder: HTMLElement | null = null;
+  /** Elemento clickable dentro del contenedor (role="button" o similar, detectado tras renderizado) */
+  private gBtnClickEl: HTMLElement | null = null;
 
   // ── FormGroup original ───────────────────────────────────────────
   form = this.fb.group({
@@ -241,12 +249,40 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.success.set('Correo verificado correctamente. Ahora puedes iniciar sesión.');
     }
 
-    // Escuchar cambios en la autenticación social (necesario para el nuevo botón de Google)
+    // Escuchar cambios en la autenticación social.
+    // NgZone.run() porque el callback de credencial de GIS corre fuera de la zona de Angular.
     this.socialAuth.authState.subscribe((socialUser) => {
       if (socialUser?.provider === GoogleLoginProvider.PROVIDER_ID && this.socialLoginInProgress) {
-        this.resolveSocialLoginRole('google', socialUser.idToken, socialUser.email || '', this.socialWasRegistering);
+        this.ngZone.run(() => {
+          this.googleAuthHandledByState = true;
+          this.resolveSocialLoginRole('google', socialUser.idToken, socialUser.email || '', this.socialWasRegistering);
+        });
       }
     });
+
+    // Pre-renderizar botón Google sin depender de initState (que bloquea si Facebook SDK falla).
+    // Polling directo al SDK de GIS para independencia del resto de providers.
+    this.tryRenderGoogleButton();
+  }
+
+  /** Sondea la disponibilidad del SDK de GIS y pre-renderiza el botón oculto. */
+  private tryRenderGoogleButton(attempt = 0): void {
+    if (this.gBtnClickEl) return;
+    const gsi = (window as any).google?.accounts?.id;
+    if (gsi) {
+      const container = document.createElement('div');
+      container.style.cssText = 'position:fixed;top:0;left:0;width:200px;height:50px;opacity:0;pointer-events:none;z-index:-1;overflow:hidden';
+      document.body.appendChild(container);
+      gsi.renderButton(container, { type: 'standard', size: 'large', width: 200 });
+      this.gBtnHolder = container;
+      // renderButton puede ser asíncrono; esperar brevemente antes de buscar el elemento clickable.
+      setTimeout(() => {
+        this.gBtnClickEl = container.querySelector<HTMLElement>('[role="button"], button, [tabindex]')
+          ?? container;
+      }, 300);
+    } else if (attempt < 20) {
+      setTimeout(() => this.tryRenderGoogleButton(attempt + 1), 500);
+    }
   }
 
   private handleSocialLoginSuccess(res: any, wasRegistering: boolean): void {
@@ -294,6 +330,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.stopTestimonialCarousel();
     this.stopStatCarousel();
     this.scrollObserver?.disconnect();
+    this.gBtnHolder?.remove();
     // Garantizar que el scroll-lock se libere al destruir el componente
     this.unlockBodyScroll();
   }
@@ -721,35 +758,66 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.socialRolePrompt.set(false);
     this.pendingSocialLogin = null;
     this.socialLoginInProgress = true;
+    this.googleAuthHandledByState = false;
     this.socialWasRegistering = this.activeTab() === 'register';
     this.socialRequestedRole = (this.socialWasRegistering ? this.registerRole().toUpperCase() : 'CLIENT') as UserRole;
-    this.socialAuth.signIn(GoogleLoginProvider.PROVIDER_ID)
-      .catch(err => {
-        this.socialLoginInProgress = false;
-        this.loading.set(false);
-        const mappedError = this.mapGoogleAuthError(err);
-        if (mappedError) {
-          console.error('Google Auth Error:', err);
-          this.error.set(mappedError);
-        }
-      });
+
+    // Hacer click en el botón Google pre-renderizado dentro del contexto de gesture del usuario.
+    // use_fedcm_for_prompt:false impide que prompt() funcione, renderButton()+click sí abre el popup.
+    const btn = this.gBtnClickEl ?? this.gBtnHolder;
+    if (btn) {
+      btn.click();
+    } else {
+      // SDK de GIS aún no cargado — reintentar render y mostrar error
+      this.socialLoginInProgress = false;
+      this.loading.set(false);
+      this.tryRenderGoogleButton(); // reintento por si acaso
+      this.error.set('Google Sign-In aún no está listo. Espera un momento e intenta de nuevo.');
+    }
   }
 
   private mapGoogleAuthError(err: any): string | null {
+    // GIS PromptMomentNotification: el objeto tiene métodos isDismissedMoment/isDisplayMoment
+    // en lugar de campos error/type estándar.
+    if (typeof err?.isDismissedMoment === 'function' || typeof err?.isDisplayMoment === 'function') {
+      const reason = typeof err.getDismissedReason === 'function' ? String(err.getDismissedReason() ?? '') : '';
+      const skippedReason = typeof err.getSkippedReason === 'function' ? String(err.getSkippedReason() ?? '') : '';
+      if (reason === 'credential_returned' || reason === 'cancel_called') return null;
+      if (skippedReason || reason === 'tap_outside' || reason === 'user_cancel') return null;
+      // El navegador suprimió el diálogo (FedCM, cookies de terceros desactivadas, opt-out, etc.)
+      return 'Google no pudo mostrar el diálogo de inicio de sesión. Intenta en modo normal del navegador o permite ventanas emergentes.';
+    }
+
     const code = String(err?.error ?? err?.type ?? '').toLowerCase();
     const details = String(err?.details ?? err?.message ?? '').toLowerCase();
 
-    if (code.includes('popup_closed_by_user')) return null;
+    // Cancelación / supresión silenciosa — no mostrar error al usuario
+    if (
+      code.includes('popup_closed_by_user') ||
+      code === 'popup_closed' ||
+      code === 'access_denied' ||
+      code === 'cancelled' ||
+      code === 'user_cancel' ||
+      code === 'not_displayed' ||
+      code === 'skipped' ||
+      code === 'dismissed' ||
+      code === 'opt_out_or_no_session' ||
+      code === 'suppressed_by_user' ||
+      details.includes('opt_out_or_no_session') ||
+      details.includes('suppressed_by_user')
+    ) return null;
 
-    if (code.includes('popup_blocked_by_browser')) {
+    if (code.includes('popup_blocked_by_browser') || code === 'popup_blocked') {
       return 'Tu navegador bloqueó la ventana emergente de Google. Permite popups para continuar.';
     }
 
     if (
       code.includes('idpiframe_initialization_failed') ||
+      code === 'unregistered_origin' ||
       details.includes('not a valid origin for the client') ||
       details.includes('origin_mismatch') ||
-      details.includes('invalid origin')
+      details.includes('invalid origin') ||
+      details.includes('unregistered_origin')
     ) {
       return 'Google Sign-In no está autorizado para este dominio. Verifica los Authorized JavaScript origins del Client ID.';
     }
@@ -758,6 +826,12 @@ export class LoginComponent implements OnInit, OnDestroy {
       return 'La configuración de Google Client ID no es válida para este entorno.';
     }
 
+    // Fallback por si initState falla y se llama signIn() igualmente
+    if (typeof err === 'string' && err.toLowerCase().includes('providers not ready')) {
+      return 'Google Sign-In todavía no está listo. Espera un momento e intenta de nuevo.';
+    }
+
+    console.error('[Google Auth] Error no mapeado:', JSON.stringify({ code, details, raw: err }, null, 2));
     return 'No se pudo completar el inicio de sesión con Google';
   }
 

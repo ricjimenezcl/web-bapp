@@ -33,11 +33,12 @@
       <!-- Acciones derecha -->
       <nav class="flex items-center gap-1 lg:gap-2 flex-shrink-0 md:ml-2" [attr.aria-label]="'nav.quickActions' | t">
 
-        <!-- Nueva búsqueda (móvil, icon-only) -->
+        <!-- Nueva búsqueda (móvil) -->
         <button (click)="goToCategories()"
-                class="md:hidden w-10 h-10 rounded-full bg-primary/10 hover:bg-primary/20 text-primary flex items-center justify-center transition-colors"
-          [attr.aria-label]="'nav.newSearch' | t">
-          <ion-icon name="search-outline" class="text-xl"></ion-icon>
+                class="md:hidden flex items-center gap-1.5 h-10 px-3 rounded-full bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
+                [attr.aria-label]="'nav.newSearch' | t">
+          <ion-icon name="search-outline" class="text-xl flex-shrink-0"></ion-icon>
+          <span class="text-sm font-medium">{{ 'nav.newSearch' | t }}</span>
         </button>
 
         <!-- Mapa (desktop) -->

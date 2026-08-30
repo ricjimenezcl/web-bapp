@@ -331,8 +331,11 @@ export class ServiceSearchComponent implements OnInit {
   private removeDuplicates(providers: ServiceProvider[]): ServiceProvider[] {
     const seen = new Set<number>();
     return providers.filter(p => {
-      if (seen.has(p.id)) return false;
-      seen.add(p.id);
+      // Usar provider_id como clave: evita repetir el mismo proveedor
+      // aunque tenga múltiples service_providers registrados
+      const key = p.provider_id ?? p.id;
+      if (seen.has(key)) return false;
+      seen.add(key);
       return true;
     });
   }

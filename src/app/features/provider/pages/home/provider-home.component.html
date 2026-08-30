@@ -157,16 +157,17 @@
               <div class="ph-mvc-text">
                 <h3>{{ 
                   validationStatus() === 'rejected' ? 'Acción requerida: Revisión Rechazada' :
-                  validationStatus() === 'pending' ? 'Estamos revisando tus documentos' :
-                  'Tu seguridad es nuestra prioridad' 
+                  validationStatus() === 'pending' ? 'Verificación en curso — acceso restringido' :
+                  'Verifica tu identidad para operar' 
                 }}</h3>
                 <p>
                   @if (validationStatus() === 'pending') {
-                    Tu identidad está <strong>en revisión</strong>. Pronto podrás publicar servicios.
+                    Tu identidad está <strong>en revisión</strong>. Mientras no sea aprobada, <strong>no podrás publicar servicios ni interactuar</strong> con clientes en la plataforma.
+                    <br><a routerLink="/auth/verify-identity" style="color:inherit;text-decoration:underline;font-weight:600;" (click)="$event.stopPropagation()">Ver estado de mi verificación →</a>
                   } @else if (validationStatus() === 'rejected') {
                     Tu verificación fue <strong>rechazada</strong>. Haz clic para reintentar.
                   } @else {
-                    <strong>Verifica tu identidad</strong> para poder publicar servicios y recibir pagos.
+                    <strong>Verifica tu identidad</strong> para poder publicar servicios, recibir reservas e interactuar con clientes.
                   }
                 </p>
               </div>

@@ -33,8 +33,8 @@ export class BookingService {
     return this.http.get<BookingResponse[]>(`${this.api}/bookings/provider`);
   }
 
-  confirmBooking(id: number): Observable<BookingResponse> {
-    return this.http.post<BookingResponse>(`${this.api}/bookings/${id}/confirm`, {});
+  confirmBooking(id: number, source: 'web' | 'mobile' = 'web'): Observable<BookingResponse> {
+    return this.http.post<BookingResponse>(`${this.api}/bookings/${id}/confirm`, { source });
   }
 
   rejectBooking(id: number, reason?: string): Observable<BookingResponse> {

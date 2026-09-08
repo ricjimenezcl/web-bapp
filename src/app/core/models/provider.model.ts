@@ -64,6 +64,23 @@ export interface MainCategory {
   services?: ServiceCategory[];
 }
 
+export interface Subcategory {
+  id: number;
+  name: string;
+  description?: string;
+  icon?: string;
+  main_category_id: number;
+}
+
+export interface Service {
+  id: number;
+  name: string;
+  description?: string;
+  icon?: string;
+  subcategory_id: number;
+  service_category_id?: number;
+}
+
 export interface ProviderStats {
   total_services: number;
   active_services: number;

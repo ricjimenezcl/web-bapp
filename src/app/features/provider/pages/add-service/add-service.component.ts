@@ -9,7 +9,7 @@ import { ProviderService } from '../../../../core/services/provider.service';
 import { CategoryService } from '../../../../core/services/category.service';
 import { GeoapifyService, AddressSuggestion } from '../../../../core/services/geoapify.service';
 import { AuthService } from '../../../../core/services/auth.service';
-import { MainCategory, ServiceCategory } from '../../../../core/models/provider.model';
+import { MainCategory, ServiceCategory, Subcategory } from '../../../../core/models/provider.model';
 import { CustomValidators } from '../../../../shared/validators/custom-validators';
 import { formatChileanPhone } from '../../../../shared/utils/form-formatters';
 import { ModalService } from '../../../../core/services/modal.service';
@@ -68,6 +68,7 @@ export class AddServiceComponent implements OnInit, OnDestroy {
   uploadingImages = signal(false);
 
   mainCategories    = signal<MainCategory[]>([]);
+  subcategoryOptions = signal<Subcategory[]>([]);
   subServices       = signal<ServiceCategory[]>([]);
   loadingSubServices = signal(false);
   loading           = signal(false);
@@ -94,6 +95,7 @@ export class AddServiceComponent implements OnInit, OnDestroy {
       asyncValidators: [offensiveContentAsyncValidator(this.contentFilterService, 'service')],
     }),
     main_category_id: ['', Validators.required],
+    subcategory_id:   ['', Validators.required],
     service_id:       ['', Validators.required],
     description:      this.fb.control('', {
       asyncValidators: [offensiveContentAsyncValidator(this.contentFilterService, 'service')],
@@ -158,23 +160,42 @@ export class AddServiceComponent implements OnInit, OnDestroy {
 
   onMainCategoryChange(): void {
     const id = Number(this.form.get('main_category_id')?.value);
+    this.form.get('subcategory_id')?.setValue('');
+    this.form.get('service_id')?.setValue('');
+    this.subcategoryOptions.set([]);
+    this.subServices.set([]);
+    if (!id) return;
+
+    this.loadingSubServices.set(true);
+    this.categorySvc.getSubcategories(id).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (subs) => {
+        this.subcategoryOptions.set(subs);
+        this.loadingSubServices.set(false);
+      },
+      error: () => this.loadingSubServices.set(false)
+    });
+  }
+
+  onSubcategoryChange(): void {
+    const id = Number(this.form.get('subcategory_id')?.value);
     this.form.get('service_id')?.setValue('');
     this.subServices.set([]);
     if (!id) return;
 
     this.loadingSubServices.set(true);
-    this.categorySvc.getCategoryWithServices(id).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (cat) => {
-        this.subServices.set(cat.services ?? []);
+    this.categorySvc.getServicesBySubcategory(id).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (services) => {
+        const mapped: ServiceCategory[] = services.map(s => ({
+          id: s.service_category_id ?? s.id,
+          name: s.name,
+          description: s.description,
+          icon: s.icon,
+          main_category_id: Number(this.form.get('main_category_id')?.value),
+        }));
+        this.subServices.set(mapped);
         this.loadingSubServices.set(false);
       },
-      error: () => {
-        // Fallback: try getServices with main_category_id
-        this.categorySvc.getServices({ main_category_id: id }).pipe(takeUntil(this.destroy$)).subscribe({
-          next: (svcs) => { this.subServices.set(svcs); this.loadingSubServices.set(false); },
-          error: () => this.loadingSubServices.set(false)
-        });
-      }
+      error: () => this.loadingSubServices.set(false)
     });
   }
 

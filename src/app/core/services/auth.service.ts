@@ -147,6 +147,8 @@ export class AuthService {
       tap(res => {
         // Evita dejar un modal/timer de sesión expirada activo tras un refresh exitoso.
         this.session.reset();
+        // Programar expiración proactiva del nuevo access token (cookie-first: no se persiste en localStorage).
+        this.session.watchExpiry(res.access_token);
         // Cookie-first: evitar persistir access token en localStorage.
         this.storage.clearToken();
         if (res.refresh_token) {
@@ -184,6 +186,8 @@ export class AuthService {
   private _storeSession(res: TokenResponse): void {
     // Limpia cualquier estado/timer previo de expiración para evitar cierres falsos.
     this.session.reset();
+    // Programar expiración proactiva del access token (cookie-first: no se persiste en localStorage).
+    this.session.watchExpiry(res.access_token);
 
     // Cookie-first: backend fija el access token en cookie HttpOnly.
     this.storage.clearToken();

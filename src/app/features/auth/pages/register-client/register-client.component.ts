@@ -71,12 +71,25 @@ export class RegisterClientComponent {
   }
 
   private getApiErrorMessage(err: any, fallback: string): string {
-    const response = err?.error;
-    if (typeof response?.detail === 'string' && response.detail.trim()) {
-      return response.detail;
+    if (err?.status === 429) {
+      return 'Demasiados intentos fallidos. Por favor espera antes de volver a intentarlo.';
     }
-    if (Array.isArray(response?.detail) && response.detail.length > 0) {
-      return response.detail[0]?.msg ?? fallback;
+    const response = err?.error;
+    const detail = response?.detail;
+    if (typeof detail === 'string' && detail.trim()) {
+      // Mapeo de errores conocidos del backend a mensajes descriptivos en español
+      if (detail === 'Email already registered') return 'Este correo ya se encuentra registrado';
+      if (detail === 'RUN already registered') return 'Este RUT ya se encuentra registrado';
+      if (detail === 'Phone already registered') return 'Este teléfono ya se encuentra registrado';
+
+      const loweredDetail = detail.toLowerCase();
+      if (loweredDetail.includes('sqlalchemy') || loweredDetail.includes('insert into') || loweredDetail.includes('asyncpg')) {
+        return 'Error interno al crear la cuenta. Inténtalo nuevamente en unos minutos.';
+      }
+      return detail;
+    }
+    if (Array.isArray(detail) && detail.length > 0) {
+      return detail[0]?.msg ?? fallback;
     }
     if (Array.isArray(response?.errors) && response.errors.length > 0) {
       return response.errors[0]?.message ?? fallback;

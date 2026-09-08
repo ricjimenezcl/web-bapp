@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, shareReplay, catchError, throwError } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { MainCategory, ServiceCategory, Subcategory, Service } from '../models/provider.model';
 
@@ -12,16 +13,14 @@ export class CategoryService {
   private _categories$: Observable<MainCategory[]> | null = null;
 
   getMainCategories(): Observable<MainCategory[]> {
-    if (!this._categories$) {
-      this._categories$ = this.http.get<MainCategory[]>(`${this.api}/categories/main-categories`)
-        .pipe(
-          catchError(err => {
-            this._categories$ = null; // limpiar caché en error para que el próximo intento reintente la petición
-            return throwError(() => err);
-          }),
-          shareReplay(1)
-        );
-    }
+    this._categories$ ??= this.http.get<MainCategory[]>(`${this.api}/categories/main-categories`)
+      .pipe(
+        catchError(err => {
+          this._categories$ = null; // limpiar caché en error para que el próximo intento reintente la petición
+          return throwError(() => err);
+        }),
+        shareReplay(1)
+      );
     return this._categories$;
   }
 
@@ -37,6 +36,33 @@ export class CategoryService {
       queryParams.main_category_id = params.main_category_id;
     }
     return this.http.get<ServiceCategory[]>(`${this.api}/categories/services`, { params: queryParams });
+  }
+
+  getServiceCatalog(query?: string): Observable<ServiceCategory[]> {
+    let params = new HttpParams();
+    const normalizedQuery = (query ?? '').trim();
+    if (normalizedQuery.length > 0) {
+      params = params.set('q', normalizedQuery);
+    }
+
+    return this.http.get<Array<{
+      id: number;
+      name: string;
+      description?: string | null;
+      icon?: string | null;
+      subcategory_id: number;
+      service_category_id?: number | null;
+    }>>(`${this.api}/categories/services-catalog`, { params }).pipe(
+      map(services => services
+        .map(service => ({
+          id: service.service_category_id ?? service.id,
+          name: service.name,
+          description: service.description ?? '',
+          icon: service.icon ?? '',
+          main_category_id: 0,
+        }))
+      )
+    );
   }
 
   getSubcategories(mainCategoryId: number): Observable<Subcategory[]> {

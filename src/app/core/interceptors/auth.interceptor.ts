@@ -78,6 +78,10 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
       if (error.status === 401 && !req.url.includes('/auth/refresh')) {
         const hasLocalSession = storage.isAuthenticated() || !!storage.getRefreshToken();
         if (!hasLocalSession) {
+          // Sin sesión local: mostrar modal de expiración si no estamos ya en login.
+          if (!router.url.startsWith('/auth/')) {
+            session.markExpired();
+          }
           return throwError(() => error);
         }
 

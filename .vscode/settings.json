@@ -7,6 +7,10 @@
         "/^git add app/services/transbank_service\\.py && git commit -m \"Chore: align Webpay create call with official Transbank SDK example\" && git push origin pre-produccion && git log --oneline -2$/": {
             "approve": true,
             "matchCommandLine": true
+        },
+        "/^python3 -m py_compile app/services/notification_dispatcher\\.py && echo OK$/": {
+            "approve": true,
+            "matchCommandLine": true
         }
     }
 }

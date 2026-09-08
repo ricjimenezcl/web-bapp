@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CategoryService } from '../../../../core/services/category.service';
 import { LocationService, LocationSuggestion } from '../../../../core/services/location.service';
-import { MainCategory, ServiceCategory } from '../../../../core/models/provider.model';
+import { MainCategory, ServiceCategory, Subcategory } from '../../../../core/models/provider.model';
 import { MapPickerComponent } from '../../../../shared/components/map-picker/map-picker.component';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ProductType } from '../../../../core/services/payment.service';
@@ -38,6 +38,8 @@ export class CategoriesComponent implements OnInit {
   
   // Para manejo de subcategorías
   selectedMainCategory = signal<MainCategory | null>(null);
+  subcategoryOptions = signal<Subcategory[]>([]);
+  selectedSubcategory = signal<Subcategory | null>(null);
   subcategories = signal<ServiceCategory[]>([]);
   selectedServices = signal<ServiceCategory[]>([]);
   showSubcategories = signal(false);
@@ -51,12 +53,19 @@ export class CategoriesComponent implements OnInit {
 
   // Search functionality
   searchQuery = signal('');
+  private normalizeSearchText(value: string | null | undefined): string {
+    return (value ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+  }
+
   filteredCategories = computed(() => {
-    const query = this.searchQuery().trim().toLowerCase();
+    const query = this.normalizeSearchText(this.searchQuery()).trim();
     if (query.length < 2) return [];
     return this.allCategories().filter(cat => 
-      cat.name.toLowerCase().includes(query) || 
-      cat.description?.toLowerCase().includes(query)
+      this.normalizeSearchText(cat.name).includes(query) || 
+      this.normalizeSearchText(cat.description).includes(query)
     ).slice(0, 8);
   });
 
@@ -67,6 +76,7 @@ export class CategoriesComponent implements OnInit {
   selectedLocationName = this.i18n.t('categories.currentLocation');
   isLocationSearching = false;
   private locationSearchTimeout?: ReturnType<typeof setTimeout>;
+  private catalogSearchTimeout?: ReturnType<typeof setTimeout>;
 
   // Map picker functionality
   showMapPicker = signal(false);
@@ -150,7 +160,7 @@ export class CategoriesComponent implements OnInit {
     });
 
     // Cargar todas las categorías de servicios para autocomplete
-    this.categorySvc.getServices().subscribe({
+    this.categorySvc.getServiceCatalog().subscribe({
       next: services => {
         console.log('📦 Servicios cargados para autocomplete:', services.length);
         this.allCategories.set(services);
@@ -166,6 +176,21 @@ export class CategoriesComponent implements OnInit {
   onSearchInput(value: string): void {
     // Actualizar el signal para disparar el computed
     this.searchQuery.set(value);
+
+    const query = value.trim();
+    if (this.catalogSearchTimeout) {
+      clearTimeout(this.catalogSearchTimeout);
+    }
+    if (query.length < 2) {
+      return;
+    }
+
+    this.catalogSearchTimeout = globalThis.setTimeout(() => {
+      this.categorySvc.getServiceCatalog(query).subscribe({
+        next: services => this.allCategories.set(services),
+        error: (err) => console.error('Error cargando catálogo de servicios por búsqueda:', err)
+      });
+    }, 250);
   }
 
   selectServiceCategory(cat: ServiceCategory): void {
@@ -291,37 +316,68 @@ export class CategoriesComponent implements OnInit {
   }
 
   select(cat: MainCategory): void {
-    console.log('✅ Categoría seleccionada:', cat.name, 'ID:', cat.id);
     this.selectedMainCategory.set(cat);
+    this.selectedSubcategory.set(null);
+    this.subcategoryOptions.set([]);
+    this.subcategories.set([]);
     this.selectedServices.set([]);
     this.loading.set(true);
     this.showSubcategories.set(true);
-    
-    // Cargar subcategorías (servicios específicos) de la categoría seleccionada
-    this.categorySvc.getCategoryWithServices(cat.id).subscribe({
-      next: (categoryWithServices) => {
-        console.log('📦 Subcategorías cargadas:', categoryWithServices.services?.length || 0);
-        this.subcategories.set(categoryWithServices.services || []);
-        this.page.set(1);
+    this.page.set(1);
+
+    this.categorySvc.getSubcategories(cat.id).subscribe({
+      next: (subs) => {
+        this.subcategoryOptions.set(subs);
         this.loading.set(false);
       },
-      error: () => {
-        // Si falla, cargar usando el otro endpoint
-        this.categorySvc.getServices({ category_id: cat.id }).subscribe({
-          next: (services) => {
-            this.subcategories.set(services);
-            this.page.set(1);
-            this.loading.set(false);
-          },
-          error: () => this.loading.set(false)
-        });
-      }
+      error: () => this.loading.set(false)
     });
+  }
+
+  onSubcategoryChange(subcategoryIdStr: string): void {
+    const id = Number(subcategoryIdStr);
+    if (!id) {
+      this.selectedSubcategory.set(null);
+      this.subcategories.set([]);
+      this.selectedServices.set([]);
+      return;
+    }
+    const sub = this.subcategoryOptions().find(s => s.id === id) ?? null;
+    this.selectedSubcategory.set(sub);
+    this.subcategories.set([]);
+    this.selectedServices.set([]);
+    this.loading.set(true);
+    this.page.set(1);
+
+    this.categorySvc.getServicesBySubcategory(id).subscribe({
+      next: (services) => {
+        const mapped: ServiceCategory[] = services.map(s => ({
+          id: s.service_category_id ?? s.id,
+          name: s.name,
+          description: s.description,
+          icon: s.icon,
+          main_category_id: this.selectedMainCategory()?.id,
+        }));
+        this.subcategories.set(mapped);
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false)
+    });
+  }
+
+  clearSubcategory(): void {
+    this.selectedSubcategory.set(null);
+    this.subcategories.set([]);
+    this.selectedServices.set([]);
+    this.page.set(1);
   }
 
   back(): void {
     this.showSubcategories.set(false);
     this.selectedMainCategory.set(null);
+    this.selectedSubcategory.set(null);
+    this.subcategoryOptions.set([]);
+    this.subcategories.set([]);
     this.selectedServices.set([]);
     this.page.set(1);
   }

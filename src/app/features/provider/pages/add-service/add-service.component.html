@@ -136,9 +136,26 @@
           @if (loadingSubServices()) {
             <div class="as-loading-row">
               <span class="as-spinner"></span>
-              <span class="as-loading-text">Cargando servicios...</span>
+              <span class="as-loading-text">Cargando...</span>
             </div>
-          } @else if (subServices().length > 0) {
+          } @else if (subcategoryOptions().length > 0) {
+            <div class="as-field">
+              <label class="as-label">Subcategoría <span class="as-required">*</span></label>
+              <select formControlName="subcategory_id" class="as-select"
+                [class.as-select--error]="f['subcategory_id'].invalid && f['subcategory_id'].touched"
+                (change)="onSubcategoryChange()">
+                <option value="">Selecciona una subcategoría</option>
+                @for (sub of subcategoryOptions(); track sub.id) {
+                  <option [value]="sub.id">{{ sub.name }}</option>
+                }
+              </select>
+              @if (f['subcategory_id'].invalid && f['subcategory_id'].touched) {
+                <span class="as-field-error">Selecciona una subcategoría</span>
+              }
+            </div>
+          }
+
+          @if (subServices().length > 0) {
             <div class="as-field">
               <label class="as-label">Servicio <span class="as-required">*</span></label>
               <select formControlName="service_id" class="as-select"
@@ -152,8 +169,8 @@
                 <span class="as-field-error">Selecciona un servicio</span>
               }
             </div>
-          } @else if (f['main_category_id'].value && !loadingSubServices()) {
-            <p class="as-hint">No hay servicios disponibles para esta categoría.</p>
+          } @else if (f['subcategory_id'].value && !loadingSubServices()) {
+            <p class="as-hint">No hay servicios disponibles para esta subcategoría.</p>
           }
         </div>
 

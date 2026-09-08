@@ -127,6 +127,7 @@ describe('BookingService — endpoints', () => {
     service.confirmBooking(1).subscribe();
     const req = httpMock.expectOne(`${base}/1/confirm`);
     expect(req.request.method).toBe('POST');
+    expect(req.request.body.source).toBe('web');
     req.flush(makeBooking({ status: 'APPROVED' }));
   });
 

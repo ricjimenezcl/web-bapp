@@ -1,5 +1,7 @@
 export type NotificationType =
   | 'message'
+  | 'booking_received'
+  | 'booking_request_sent'
   | 'booking_confirmed'
   | 'booking_rejected'
   | 'booking_reminder_24h'

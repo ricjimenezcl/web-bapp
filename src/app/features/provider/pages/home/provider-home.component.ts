@@ -153,7 +153,7 @@ export class ProviderHomeComponent implements OnInit, OnDestroy {
     let message = 'Debes realizar la verificación de identidad para poder publicar servicios.';
     
     if (status === 'pending') {
-      message = 'Tu identidad está en revisión. Te avisaremos cuando sea aprobada.';
+      message = 'Para operar debes validar tu identidad. Sin ella no podrás publicar servicios ni recibir clientes.';
     } else if (status === 'rejected') {
       message = 'Tu verificación fue rechazada. Por favor, revisa tus documentos y reintenta.';
     } else if (status === 'not_submitted') {

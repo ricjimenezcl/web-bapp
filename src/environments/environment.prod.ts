@@ -10,4 +10,5 @@ export const environment = {
   cloudinaryCloudName: '',
   cloudinaryUploadPreset: 'ml_default',
   mapDefaultStyle: 'liberty' as 'liberty' | 'positron' | 'dark-matter',
+  cartoApiKey: 'cb1_3o2x_1_03424ccfd656dfa3e03fdad7',
 };

@@ -221,6 +221,68 @@
   p { font-size: 14px; color: #94A3B8; margin: 0; }
 }
 
+// Subtítulo de sección dentro de una vista fusionada (ej: "Mis compras" dentro de Resumen)
+.section-subheader {
+  margin: 32px 0 16px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+  h3 {
+    font-size: 16px;
+    font-weight: 800;
+    color: #F9FAFB;
+    margin: 0 0 4px;
+  }
+
+  p { font-size: 13px; color: #94A3B8; margin: 0; }
+}
+
+.payments-card {
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 20px 22px;
+  margin: 26px 0 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  p {
+    margin: 0;
+    font-size: 13px;
+    color: #94A3B8;
+    line-height: 1.5;
+  }
+}
+
+.payments-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  h3 {
+    margin: 4px 0 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: #F9FAFB;
+  }
+
+  @media (max-width: 767px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.section-eyebrow {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #94A3B8;
+}
+
 // ══════════════════════════════════════════════════════════════════════
 // SHARED ELEMENTS — usan tokens de _bapp-web.scss
 // ══════════════════════════════════════════════════════════════════════
@@ -890,26 +952,19 @@
 
   .dashboard-container { flex-direction: column; margin: 20px 12px; gap: 20px; }
   .sidebar { width: 100%; position: static; gap: 16px; }
+  // Mantener el nav vertical tipo tabs (igual que desktop) en vez de
+  // convertirlo en una barra horizontal con scroll.
   .nav-group {
-    flex-direction: row;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding-bottom: 8px;
-    gap: 8px;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    &::-webkit-scrollbar { display: none; }
+    flex-direction: column;
+    gap: 4px;
   }
-  .nav-label { display: none; }
   .nav-item {
-    white-space: nowrap;
-    flex-shrink: 0;
-    width: auto;
+    width: 100%;
     min-height: 44px;
-    padding: 10px 16px;
+    padding: 12px 16px;
     font-size: 13px;
   }
-  .btn-logout { width: auto; min-height: 44px; }
+  .btn-logout { width: 100%; min-height: 44px; }
   .main-content { padding: 24px 20px; min-height: auto; }
 
   .view-header h2 { font-size: 20px; }

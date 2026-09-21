@@ -2,6 +2,7 @@ import { Injectable, inject, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap, map } from 'rxjs';
+import { SocialAuthService } from '@abacritt/angularx-social-login';
 import { environment } from '../../../environments/environment';
 import { StorageService } from './storage.service';
 import { ProfileCompletionService } from './profile-completion.service';
@@ -18,6 +19,7 @@ export class AuthService {
   private readonly storage = inject(StorageService);
   private readonly session = inject(SessionService);
   private readonly profileCompletion = inject(ProfileCompletionService);
+  private readonly socialAuth = inject(SocialAuthService);
 
   private readonly api = environment.apiUrl;
 
@@ -134,9 +136,11 @@ export class AuthService {
     this.http.post(`${this.api}/auth/logout`, {
       refresh_token: refreshToken || undefined,
     }).subscribe({ error: () => {} });
+
+    void this.socialAuth.signOut().catch(() => undefined);
     this.profileCompletion.reset();
     this.storage.clearSession();
-    this.router.navigate(['/auth/login']);
+    this.router.navigate(['/auth/login'], { replaceUrl: true });
   }
 
   refreshToken(): Observable<TokenResponse> {
@@ -147,10 +151,11 @@ export class AuthService {
       tap(res => {
         // Evita dejar un modal/timer de sesión expirada activo tras un refresh exitoso.
         this.session.reset();
-        // Programar expiración proactiva del nuevo access token (cookie-first: no se persiste en localStorage).
+        // Programar expiración proactiva del nuevo access token.
         this.session.watchExpiry(res.access_token);
-        // Cookie-first: evitar persistir access token en localStorage.
-        this.storage.clearToken();
+        if (res.access_token) {
+          this.storage.setToken(res.access_token);
+        }
         if (res.refresh_token) {
           this.storage.setRefreshToken(res.refresh_token);
         }
@@ -186,11 +191,15 @@ export class AuthService {
   private _storeSession(res: TokenResponse): void {
     // Limpia cualquier estado/timer previo de expiración para evitar cierres falsos.
     this.session.reset();
-    // Programar expiración proactiva del access token (cookie-first: no se persiste en localStorage).
+    // Programar expiración proactiva del access token.
     this.session.watchExpiry(res.access_token);
 
-    // Cookie-first: backend fija el access token en cookie HttpOnly.
-    this.storage.clearToken();
+    // Mantener un fallback del access token en sessionStorage para que todas
+    // las llamadas protegidas sigan enviando Authorization Bearer incluso si
+    // el backend no conserva el cookie del navegador en este flujo.
+    if (res.access_token) {
+      this.storage.setToken(res.access_token);
+    }
     if (res.refresh_token) {
       this.storage.setRefreshToken(res.refresh_token);
     }

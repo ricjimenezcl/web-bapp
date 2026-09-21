@@ -11,7 +11,7 @@ import { GeoapifyService, AddressSuggestion } from '../../../../core/services/ge
 import { AuthService } from '../../../../core/services/auth.service';
 import { MainCategory, ServiceCategory, Subcategory } from '../../../../core/models/provider.model';
 import { CustomValidators } from '../../../../shared/validators/custom-validators';
-import { formatChileanPhone } from '../../../../shared/utils/form-formatters';
+import { formatChileanPhone, normalizeChileanPhoneForBackend } from '../../../../shared/utils/form-formatters';
 import { ModalService } from '../../../../core/services/modal.service';
 import { DocumentUploadService } from '../../../../shared/services/document-upload.service';
 import { ContentFilterService } from '../../../../shared/services/content-filter.service';
@@ -276,7 +276,7 @@ export class AddServiceComponent implements OnInit, OnDestroy {
       servicio:         Number(v.main_category_id),
       categoria:        Number(v.service_id),
       nombre_prestador: v.business_name!,
-      fono:             (v.phone! as string).replace(/\s/g, ''),  // quitar espacios del formato
+      fono:             normalizeChileanPhoneForBackend((v.phone! as string)),
       detalle:          v.description || '',
       direccion:        v.address!,
       lat:              this.selectedLat,

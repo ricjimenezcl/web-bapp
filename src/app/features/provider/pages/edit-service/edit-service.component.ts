@@ -8,7 +8,7 @@ import { ProviderService } from '../../../../core/services/provider.service';
 import { GeoapifyService, AddressSuggestion } from '../../../../core/services/geoapify.service';
 import { ProviderWorkingHours } from '../../../../core/models/provider.model';
 import { CustomValidators } from '../../../../shared/validators/custom-validators';
-import { formatChileanPhone } from '../../../../shared/utils/form-formatters';
+import { formatChileanPhone, normalizeChileanPhoneForBackend } from '../../../../shared/utils/form-formatters';
 import { ModalService } from '../../../../core/services/modal.service';
 import { DocumentUploadService } from '../../../../shared/services/document-upload.service';
 import { ContentFilterService } from '../../../../shared/services/content-filter.service';
@@ -269,7 +269,7 @@ export class EditServiceComponent implements OnInit, OnDestroy {
       address:       v.address!,
       latitude:      this.selectedLat ?? undefined,
       longitude:     this.selectedLng ?? undefined,
-      phone:         v.phone!,
+      phone:         normalizeChileanPhoneForBackend(v.phone ?? ''),
     };
 
     // ══ INCLUIR PORTFOLIO IMAGES ══════════════════════════════════════

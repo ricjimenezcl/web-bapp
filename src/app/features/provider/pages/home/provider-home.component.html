@@ -134,7 +134,7 @@
             <div class="ph-mvc-header">
               <div class="ph-mvc-badge">
                 @if (validationStatus() === 'pending') {
-                  <i class="fa-solid fa-clock-rotate-left"></i> En Revisión
+                  <i class="fa-solid fa-clock-rotate-left"></i> Validando
                 } @else if (validationStatus() === 'rejected') {
                   <i class="fa-solid fa-circle-xmark"></i> Rechazada
                 } @else {
@@ -157,12 +157,12 @@
               <div class="ph-mvc-text">
                 <h3>{{ 
                   validationStatus() === 'rejected' ? 'Acción requerida: Revisión Rechazada' :
-                  validationStatus() === 'pending' ? 'Verificación en curso — acceso restringido' :
+                  validationStatus() === 'pending' ? 'Para operar debes validar tu identidad' :
                   'Verifica tu identidad para operar' 
                 }}</h3>
                 <p>
                   @if (validationStatus() === 'pending') {
-                    Tu identidad está <strong>en revisión</strong>. Mientras no sea aprobada, <strong>no podrás publicar servicios ni interactuar</strong> con clientes en la plataforma.
+                    Es <strong>obligatorio</strong> validar tu identidad para poder operar en la plataforma: mientras no lo hagas, <strong>no podrás publicar servicios ni interactuar</strong> con clientes.
                     <br><a routerLink="/auth/verify-identity" style="color:inherit;text-decoration:underline;font-weight:600;" (click)="$event.stopPropagation()">Ver estado de mi verificación →</a>
                   } @else if (validationStatus() === 'rejected') {
                     Tu verificación fue <strong>rechazada</strong>. Haz clic para reintentar.

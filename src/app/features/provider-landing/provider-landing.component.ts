@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, PLATFORM_ID, Inject, inject, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, PLATFORM_ID, Inject, inject, NgZone, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
@@ -265,12 +265,17 @@ export class ProviderLandingComponent implements OnInit, OnDestroy {
   private socialAuthSub?: Subscription;
   private heroSlideInterval?: ReturnType<typeof setInterval>;
   private pendingFacebookAccessToken: string | null = null;
-  /** Evita que authState llame al backend si el usuario no ha iniciado explícitamente el flujo de Google */
-  private googleSignInInitiated = false;
-  /** Contenedor del botón Google pre-renderizado para click programático dentro del user-gesture */
-  private gBtnHolder: HTMLElement | null = null;
-  /** Elemento clickable dentro del contenedor (role="button" o similar, detectado tras renderizado) */
-  private gBtnClickEl: HTMLElement | null = null;
+
+  /**
+   * Host visible donde se dibuja el botón real de Google Identity Services.
+   * No se debe simular un click programático sobre el botón de Google: su UI
+   * se renderiza dentro de un iframe cross-origin que solo reacciona a clicks
+   * físicos y confiables del usuario.
+   */
+  @ViewChild('googleBtnHost')
+  set googleBtnHost(ref: ElementRef<HTMLDivElement> | undefined) {
+    if (ref) this.renderGoogleButton(ref.nativeElement);
+  }
 
   constructor(
     private readonly meta: Meta,
@@ -298,10 +303,10 @@ export class ProviderLandingComponent implements OnInit, OnDestroy {
     this.socialAuthSub = this.socialAuth.authState.subscribe((socialUser) => {
       if (!socialUser) return;
       if (socialUser.provider !== GoogleLoginProvider.PROVIDER_ID) return;
-      if (!this.googleSignInInitiated) return;
+      if (!socialUser.idToken) return;
       this.ngZone.run(() => {
-        this.googleSignInInitiated = false;
         this.loadingRegister.set(true);
+        this.errorRegister.set('');
         this.auth.loginWithGoogle(socialUser.idToken, 'PROVIDER').subscribe({
           next: (res) => {
             this.loadingRegister.set(false);
@@ -309,33 +314,33 @@ export class ProviderLandingComponent implements OnInit, OnDestroy {
           },
           error: (err) => {
             this.loadingRegister.set(false);
-            this.errorRegister.set(err.error?.detail || 'Error en autenticación con Google');
+            this.errorRegister.set(this.getApiErrorMessage(err, 'Error en autenticación con Google'));
           },
         });
       });
     });
-
-    // Pre-renderizar botón Google sin depender de initState (que bloquea si Facebook SDK falla).
-    this.tryRenderGoogleButton();
   }
 
-  /** Sondea la disponibilidad del SDK de GIS y pre-renderiza el botón oculto. */
-  private tryRenderGoogleButton(attempt = 0): void {
-    if (this.gBtnClickEl) return;
+  /**
+   * Dibuja el botón real de Google Identity Services dentro del contenedor visible.
+   */
+  private renderGoogleButton(container: HTMLElement, attempt = 0): void {
     const gsi = (window as any).google?.accounts?.id;
-    if (gsi) {
-      const container = document.createElement('div');
-      container.style.cssText = 'position:fixed;top:0;left:0;width:200px;height:50px;opacity:0;pointer-events:none;z-index:-1;overflow:hidden';
-      document.body.appendChild(container);
-      gsi.renderButton(container, { type: 'standard', size: 'large', width: 200 });
-      this.gBtnHolder = container;
-      setTimeout(() => {
-        this.gBtnClickEl = container.querySelector<HTMLElement>('[role="button"], button, [tabindex]')
-          ?? container;
-      }, 300);
-    } else if (attempt < 20) {
-      setTimeout(() => this.tryRenderGoogleButton(attempt + 1), 500);
+    if (!gsi) {
+      if (attempt < 20) setTimeout(() => this.renderGoogleButton(container, attempt + 1), 500);
+      return;
     }
+    container.innerHTML = '';
+    const width = Math.min(Math.max(container.clientWidth || container.parentElement?.clientWidth || 240, 200), 400);
+    gsi.renderButton(container, {
+      type: 'standard',
+      theme: 'outline',
+      size: 'large',
+      shape: 'rectangular',
+      text: 'signup_with',
+      logo_alignment: 'left',
+      width,
+    });
   }
 
   ngOnDestroy(): void {
@@ -352,7 +357,6 @@ export class ProviderLandingComponent implements OnInit, OnDestroy {
     }
 
     this.socialAuthSub?.unsubscribe();
-    this.gBtnHolder?.remove();
   }
 
   toggleFaq(index: number): void {
@@ -497,24 +501,6 @@ export class ProviderLandingComponent implements OnInit, OnDestroy {
     });
   }
 
-  loginWithGoogle(): void {
-    this.loadingRegister.set(true);
-    this.errorRegister.set('');
-    this.googleSignInInitiated = true;
-
-    // Hacer click en el botón Google pre-renderizado dentro del contexto de gesture del usuario.
-    // use_fedcm_for_prompt:false impide que prompt() funcione, renderButton()+click sí abre el popup.
-    const btn = this.gBtnClickEl ?? this.gBtnHolder;
-    if (btn) {
-      btn.click();
-    } else {
-      this.googleSignInInitiated = false;
-      this.loadingRegister.set(false);
-      this.tryRenderGoogleButton();
-      this.errorRegister.set('Google Sign-In aún no está listo. Espera un momento e intenta de nuevo.');
-    }
-  }
-
   loginWithFacebook(): void {
     this.loadingRegister.set(true);
     this.errorRegister.set('');
@@ -525,39 +511,47 @@ export class ProviderLandingComponent implements OnInit, OnDestroy {
       auth_type: 'rerequest',
     } as any)
       .then((user) => {
-        const accessToken = String((user as any)?.authToken ?? (user as any)?.response?.accessToken ?? '').trim();
-        const emailHint = String((user as any)?.email ?? (user as any)?.response?.email ?? '').trim().toLowerCase();
+        // El SDK del navegador de Facebook puede resolver esta promesa fuera de la zona de Angular
+        // (igual que ocurre con el callback de credencial de Google); si eso pasa, la navegación
+        // posterior y las actualizaciones de los signals no disparan detección de cambios y la
+        // página "se queda pegada" en la landing aunque el registro haya funcionado.
+        this.ngZone.run(() => {
+          const accessToken = String((user as any)?.authToken ?? (user as any)?.response?.accessToken ?? '').trim();
+          const emailHint = String((user as any)?.email ?? (user as any)?.response?.email ?? '').trim().toLowerCase();
 
-        if (!accessToken) {
-          const missingTokenError = new Error('missing_facebook_access_token');
-          (missingTokenError as any).error = 'missing_facebook_access_token';
-          (missingTokenError as any).details = user;
-          throw missingTokenError;
-        }
+          if (!accessToken) {
+            const missingTokenError = new Error('missing_facebook_access_token');
+            (missingTokenError as any).error = 'missing_facebook_access_token';
+            (missingTokenError as any).details = user;
+            throw missingTokenError;
+          }
 
-        this.auth.loginWithFacebook(accessToken, 'PROVIDER', emailHint || undefined).subscribe({
-          next: (res) => {
-            this.loadingRegister.set(false);
-            this.handleSocialLoginSuccess(res);
-          },
-          error: (err) => {
-            if (this.isFacebookMissingEmailError(err)) {
+          this.auth.loginWithFacebook(accessToken, 'PROVIDER', emailHint || undefined).subscribe({
+            next: (res) => {
               this.loadingRegister.set(false);
-              this.openFacebookEmailPrompt(accessToken);
-              return;
-            }
+              this.handleSocialLoginSuccess(res);
+            },
+            error: (err) => {
+              if (this.isFacebookMissingEmailError(err)) {
+                this.loadingRegister.set(false);
+                this.openFacebookEmailPrompt(accessToken);
+                return;
+              }
 
-            this.loadingRegister.set(false);
-            this.errorRegister.set(err.error?.detail || 'Error en autenticación con Facebook');
-          },
+              this.loadingRegister.set(false);
+              this.errorRegister.set(this.getApiErrorMessage(err, 'Error en autenticación con Facebook'));
+            },
+          });
         });
       })
       .catch((err) => {
-        this.loadingRegister.set(false);
-        const mappedError = this.mapFacebookAuthError(err);
-        if (mappedError) {
-          this.errorRegister.set(mappedError);
-        }
+        this.ngZone.run(() => {
+          this.loadingRegister.set(false);
+          const mappedError = this.mapFacebookAuthError(err);
+          if (mappedError) {
+            this.errorRegister.set(mappedError);
+          }
+        });
       });
   }
 
@@ -612,7 +606,7 @@ export class ProviderLandingComponent implements OnInit, OnDestroy {
       },
       error: (fallbackErr) => {
         this.loadingRegister.set(false);
-        this.facebookEmailPromptError.set(fallbackErr?.error?.detail || 'No fue posible completar el registro con Facebook');
+        this.facebookEmailPromptError.set(this.getApiErrorMessage(fallbackErr, 'No fue posible completar el registro con Facebook'));
       },
     });
   }

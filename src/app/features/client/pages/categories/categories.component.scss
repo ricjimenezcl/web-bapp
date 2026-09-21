@@ -88,8 +88,8 @@
 .bap-svg {
   width: 100%;
   height: 100%;
-  min-height: 300px;
-  max-height: 470px;
+  min-height: 220px;
+  max-height: 360px;
   display: block;
   overflow: visible;
   margin-top: auto;
@@ -102,11 +102,18 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  flex-shrink: 0; // nunca debe comprimirse/recortarse por el alto del SVG
 }
 
 .bap-brand {
   margin: 0;
   line-height: 1;
+  flex-shrink: 0;
+
+  img {
+    max-width: 100%;
+    width: auto;
+  }
 }
 
 .bap-status {
@@ -182,8 +189,8 @@
   }
 
   .bap-svg {
-    min-height: 280px;
-    max-height: 430px;
+    min-height: 200px;
+    max-height: 320px;
   }
 }
 
@@ -194,8 +201,8 @@
   }
 
   .bap-svg {
-    min-height: 250px;
-    max-height: 380px;
+    min-height: 180px;
+    max-height: 280px;
   }
 }
 
@@ -212,8 +219,8 @@
   }
 
   .bap-svg {
-    min-height: 210px;
-    max-height: 300px;
+    min-height: 150px;
+    max-height: 220px;
   }
 }
 
@@ -458,6 +465,13 @@
   &--premium {
     border-color: rgba(167, 243, 208, 0.25);
     background: rgba(167, 243, 208, 0.08);
+  }
+
+  // En móvil el padding-top de .cat-header ya es chico (20px/14px);
+  // el margin-top negativo heredado de desktop hacía que el banner
+  // se saliera por encima del borde superior del .app-frame.
+  @media (max-width: 767px) {
+    margin-top: 0;
   }
 
   @media (max-width: 400px) {

@@ -190,6 +190,34 @@
   }
 }
 
+// ── "Continuar más tarde" (secundario) ──────────────────────
+.cpm-btn-later {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 8px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 249, 196, 0.65);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: inherit;
+  text-align: center;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  transition: color 0.2s;
+
+  &:hover:not(:disabled) {
+    color: rgba(255, 249, 196, 0.95);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
 @media (max-width: 430px) {
   .cpm-btn {
     min-height: 46px;

@@ -43,31 +43,6 @@
         {{ 'nav.summary' | t }}
       </button>
 
-      <button class="nav-item" [class.nav-item--active]="activeView() === 'edit'"
-              type="button" (click)="showView('edit')">
-        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-        </svg>
-        {{ 'nav.editProfile' | t }}
-      </button>
-
-      <button class="nav-item" [class.nav-item--active]="activeView() === 'purchases'"
-              type="button" (click)="showView('purchases')">
-        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-        </svg>
-        {{ 'nav.myPurchases' | t }}
-      </button>
-
-      <button class="nav-item" type="button" (click)="openPremiumModal()">
-        <svg class="nav-icon" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 14.59L5.41 12 6.83 10.58 10 13.75l7.17-7.17 1.42 1.42L10 16.59z"/>
-        </svg>
-        Premium
-        <span class="nav-badge">UPGRADE</span>
-      </button>
     </nav>
 
     <!-- Nav: Preferencias -->
@@ -188,6 +163,52 @@
             <small class="stat-label">{{ 'profile.locationLabel' | t }}</small>
             <span class="stat-value">{{ 'profile.notRegistered' | t }}</span>
           </div>
+        </div>
+
+        <div class="payments-card">
+          <div class="payments-card__header">
+            <div>
+              <small class="section-eyebrow">Pagos</small>
+              <h3>Mis pagos</h3>
+            </div>
+            <button type="button" class="btn-primary" (click)="showView('payments')">Ver pagos</button>
+          </div>
+          <p>Revisa tus movimientos, pagos y facturación desde aquí.</p>
+        </div>
+
+        <!-- ── Mis compras (fusionado en Resumen) ─────────────────── -->
+        <div class="section-subheader">
+          <h3>{{ 'profile.purchasesTitle' | t }}</h3>
+          <p>{{ 'profile.purchasesSubtitle' | t }}</p>
+        </div>
+
+        <div class="purchase-summary">
+          <div class="sum-item">
+            <span class="sum-val">0</span>
+            <span class="sum-lbl">{{ 'profile.totalOrders' | t }}</span>
+          </div>
+          <div class="sum-item">
+            <span class="sum-val sum-val--success">0</span>
+            <span class="sum-lbl">{{ 'profile.completed' | t }}</span>
+          </div>
+          <div class="sum-item">
+            <span class="sum-val sum-val--accent">0</span>
+            <span class="sum-lbl">{{ 'profile.pending' | t }}</span>
+          </div>
+          <div class="sum-item sum-item--last">
+            <span class="sum-val sum-val--danger">0</span>
+            <span class="sum-lbl">{{ 'profile.cancelled' | t }}</span>
+          </div>
+        </div>
+
+        <div class="empty-state">
+          <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+          </svg>
+          <h3>{{ 'profile.noRecentTransactions' | t }}</h3>
+          <p>{{ 'profile.noRecentTransactionsSub' | t }}</p>
+          <button class="btn-secondary" type="button" (click)="openPremiumModal()">{{ 'runtime.exploreServices' | t }}</button>
         </div>
       </div>
     }
@@ -310,45 +331,6 @@
       </div>
     }
 
-    <!-- ── VISTA: MIS COMPRAS ─────────────────────────────────────── -->
-    @if (activeView() === 'purchases') {
-      <div class="view-anim">
-        <div class="view-header">
-          <h2>{{ 'profile.purchasesTitle' | t }}</h2>
-          <p>{{ 'profile.purchasesSubtitle' | t }}</p>
-        </div>
-
-        <div class="purchase-summary">
-          <div class="sum-item">
-            <span class="sum-val">0</span>
-            <span class="sum-lbl">{{ 'profile.totalOrders' | t }}</span>
-          </div>
-          <div class="sum-item">
-            <span class="sum-val sum-val--success">0</span>
-            <span class="sum-lbl">{{ 'profile.completed' | t }}</span>
-          </div>
-          <div class="sum-item">
-            <span class="sum-val sum-val--accent">0</span>
-            <span class="sum-lbl">{{ 'profile.pending' | t }}</span>
-          </div>
-          <div class="sum-item sum-item--last">
-            <span class="sum-val sum-val--danger">0</span>
-            <span class="sum-lbl">{{ 'profile.cancelled' | t }}</span>
-          </div>
-        </div>
-
-        <div class="empty-state">
-          <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-          </svg>
-          <h3>{{ 'profile.noRecentTransactions' | t }}</h3>
-          <p>{{ 'profile.noRecentTransactionsSub' | t }}</p>
-          <button class="btn-secondary" type="button" (click)="openPremiumModal()">{{ 'runtime.exploreServices' | t }}</button>
-        </div>
-      </div>
-    }
-
     <!-- ── VISTA: AYUDA ──────────────────────────────────────────── -->
     @if (activeView() === 'help') {
       <div class="view-anim">
@@ -442,6 +424,26 @@
       </div>
     }
 
+    <!-- ── VISTA: MIS PAGOS ─────────────────────────────────────── -->
+    @if (activeView() === 'payments') {
+      <div class="view-anim">
+        <div class="view-header">
+          <h2>Mis pagos</h2>
+          <p>Administra tus pagos y planes activos.</p>
+        </div>
+
+        <div class="empty-state">
+          <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+          </svg>
+          <h3>No tienes pagos recientes</h3>
+          <p>Aún no se han registrado pagos en tu cuenta.</p>
+          <button class="btn-primary" type="button" (click)="openPremiumModal()">Ver planes</button>
+        </div>
+      </div>
+    }
+
     <!-- ── VISTA: CONFIGURACIÓN ───────────────────────────────────── -->
     @if (activeView() === 'config') {
       <div class="view-anim">
@@ -451,6 +453,21 @@
         </div>
 
         <div class="config-list">
+
+          <button type="button" class="config-menu-item" (click)="showView('edit')">
+            <div class="config-menu-icon config-menu-icon--blue">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+              </svg>
+            </div>
+            <div class="config-menu-info">
+              <span class="config-menu-label">{{ 'nav.editProfile' | t }}</span>
+              <span class="config-menu-sub">Actualiza tu información personal</span>
+            </div>
+            <svg class="config-menu-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </button>
 
           <!-- Cambiar contraseña -->
           <div class="config-item config-item--block">

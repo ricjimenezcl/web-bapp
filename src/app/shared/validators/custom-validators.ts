@@ -39,9 +39,12 @@ export class CustomValidators {
   static phone(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
       if (!control.value) return null;
+
       const cleaned = control.value.toString().replace(/\D/g, '');
-      // Acepta: "9XXXXXXXX" (9 dígitos) o "569XXXXXXXX" (11 dígitos con código de país)
-      return /^(56)?9\d{8}$/.test(cleaned) ? null : { invalidPhone: true };
+      const normalized = cleaned.replace(/^56/, '').replace(/^9/, '');
+
+      // El usuario escribe solo los 8 dígitos finales del móvil y el prefijo "+56 9" es fijo.
+      return /^\d{8}$/.test(normalized) ? null : { invalidPhone: true };
     };
   }
 

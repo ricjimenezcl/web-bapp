@@ -11,6 +11,7 @@ import { ProductType } from '../../../../core/services/payment.service';
 import { ModalService } from '../../../../core/services/modal.service';
 import { PlatformI18nService } from '../../../../core/services/platform-i18n.service';
 import { TPipe } from '../../../../shared/pipes/t.pipe';
+import { isFontAwesomeIcon, isImageIcon } from '../../../../shared/utils/icon-kind.util';
 
 @Component({
   selector: 'app-categories',
@@ -311,8 +312,12 @@ export class CategoriesComponent implements OnInit {
   }
 
   isImageUrl(icon: string | null | undefined): boolean {
-    if (!icon) return false;
-    return icon.startsWith('http://') || icon.startsWith('https://');
+    return isImageIcon(icon);
+  }
+
+  /** true cuando el icono viene como clase(s) de Font Awesome (ej. "fa-solid fa-house") */
+  isFontAwesomeIcon(icon: string | null | undefined): boolean {
+    return isFontAwesomeIcon(icon);
   }
 
   select(cat: MainCategory): void {

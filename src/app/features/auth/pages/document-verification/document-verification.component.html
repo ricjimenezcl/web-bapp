@@ -1,120 +1,116 @@
 <div class="min-h-screen bg-surface-page flex items-center justify-center p-4">
-  <!-- Camera Overlay -->
   <div *ngIf="isCameraActive()" class="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center">
     <div class="relative w-full h-full max-w-2xl bg-black flex items-center justify-center overflow-hidden">
-      <video #videoElement 
-             autoplay 
-             playsinline 
-             class="w-full h-full object-cover"
-             [style.transform]="cameraMode() === 'user' ? 'scaleX(-1)' : 'none'"></video>
-      
-      <!-- Overlay Guides -->
+      <video #videoElement autoplay playsinline class="w-full h-full transition-all duration-150 bg-black" [ngClass]="{ 'object-cover': activeCapture() === 'selfie', 'object-contain': activeCapture() === 'documentFront' || activeCapture() === 'documentBack' }" [style.transform]="cameraMode() === 'user' ? 'scaleX(-1)' : 'none'" [style.clipPath]="activeCapture() === 'documentFront' || activeCapture() === 'documentBack' ? 'inset(0 round 24px)' : 'none'"></video>
+
       <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <!-- Selfie Oval (Adaptive) -->
         <div *ngIf="activeCapture() === 'selfie'" class="w-64 h-96 border-4 rounded-[100%] shadow-[0_0_0_9999px_rgba(0,0,0,0.6)] transition-all duration-300" [style.transform]="'translate(' + ovalOffsetX() + 'px, ' + ovalOffsetY() + 'px) scale(' + ovalScale() + ')'" [class.border-green-500]="faceQualityGood()" [class.border-yellow-500]="faceDetected() && !faceQualityGood()" [class.border-white]="!faceDetected()">
-             
-             <!-- Feedback Liveness - Good Quality -->
-             <div *ngIf="faceQualityGood()" class="absolute -bottom-12 left-0 right-0 text-center">
-                <span class="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full animate-bounce">
-                  ✓ Rostro válido detectado
-                </span>
-             </div>
-             
-             <!-- Feedback - Good Detection but not quality -->
-             <div *ngIf="faceDetected() && !faceQualityGood()" class="absolute -bottom-12 left-0 right-0 text-center">
-                <span class="bg-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                  ⚠ Mejora la iluminación
-                </span>
-             </div>
+          <div *ngIf="faceQualityGood()" class="absolute -bottom-12 left-0 right-0 text-center">
+            <span class="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full animate-bounce">✓ Rostro válido detectado</span>
+          </div>
+          <div *ngIf="faceDetected() && !faceQualityGood()" class="absolute -bottom-12 left-0 right-0 text-center">
+            <span class="bg-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full">⚠ Mejora la iluminación</span>
+          </div>
         </div>
 
-        <!-- Document Frame with Mock ID Guide -->
-        <div *ngIf="activeCapture() === 'documentFront' || activeCapture() === 'documentBack'" 
-             class="w-[85vw] aspect-[1.6/1] max-w-md border-4 rounded-lg shadow-[0_0_0_9999px_rgba(0,0,0,0.5)] relative transition-all duration-300"
-             [ngClass]="{ 
-               'border-green-500': documentAligned(),
-               'border-yellow-500': !documentAligned() && documentQuality() === 'fair',
-               'border-red-500': documentQuality() === 'poor',
-               'border-white/50': documentQuality() === 'fair' && !documentAligned()
-             }">
-             <!-- Mock Chilean ID Card Guide -->
-             <div class="absolute inset-0 flex items-center justify-center opacity-30 pointer-events-none rounded-lg overflow-hidden">
-               <div class="w-full h-full bg-gradient-to-br from-blue-900 via-slate-800 to-slate-900 rounded-lg relative flex flex-col justify-between p-4">
-                 <!-- Header with seal -->
-                 <div class="text-white text-center">
-                   <div class="text-[10px] font-bold tracking-wider">REPÚBLICA DE CHILE</div>
-                   <div class="text-xs font-bold mt-1 tracking-wider">CÉDULA DE IDENTIDAD</div>
-                 </div>
-                 
-                 <!-- Photo placeholder -->
-                 <div class="absolute left-3 top-8 w-14 h-18 bg-gradient-to-br from-gray-300 to-gray-400 rounded-sm border-2 border-gray-500 flex items-center justify-center shadow-md">
-                   <svg class="w-7 h-7 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
-                     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                   </svg>
-                 </div>
-                 
-                 <!-- Name and info areas -->
-                 <div class="absolute left-20 top-9 text-white space-y-1.5">
-                   <div class="h-1.5 w-40 bg-gray-400 rounded-full opacity-60"></div>
-                   <div class="h-1.5 w-32 bg-gray-400 rounded-full opacity-60"></div>
-                   <div class="text-[9px] tracking-wider mt-2">RUN:</div>
-                   <div class="h-1.5 w-24 bg-gray-400 rounded-full opacity-60"></div>
-                 </div>
-                 
-                 <!-- Signature and date -->
-                 <div class="flex justify-between items-end px-2">
-                   <div class="text-white text-[8px]">
-                     <div class="h-1 w-12 bg-gray-400 rounded opacity-60 mb-1"></div>
-                     <div class="h-1 w-10 bg-gray-400 rounded opacity-60"></div>
-                   </div>
-                   <div class="text-white text-center">
-                     <div class="h-2 w-14 bg-gray-400 rounded opacity-60"></div>
-                   </div>
-                 </div>
-               </div>
-             </div>
-             
-             <!-- Status feedback -->
-             <div *ngIf="documentAligned()" class="absolute -bottom-10 left-0 right-0 text-center">
-               <span class="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full inline-block">
-                 ✓ Documento bien alineado
-               </span>
-             </div>
-             <div *ngIf="!documentAligned() && documentQuality() === 'fair'" class="absolute -bottom-10 left-0 right-0 text-center">
-               <span class="bg-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full inline-block">
-                 ⚠ Alinea mejor el documento
-               </span>
-             </div>
-             <div *ngIf="documentQuality() === 'poor'" class="absolute -bottom-10 left-0 right-0 text-center">
-               <span class="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full inline-block">
-                 ❌ Mejora la iluminación
-               </span>
-             </div>
-             
-             <div class="absolute -top-12 left-0 right-0 text-center text-white text-sm font-medium">
-               {{ activeCapture() === 'documentBack' ? 'Alinea el reverso de tu documento' : 'Alinea el frente de tu documento' }}
-             </div>
+        <div #documentGuide *ngIf="activeCapture() === 'documentFront' || activeCapture() === 'documentBack'" class="w-[90vw] aspect-[1.58/1] max-w-[620px] border-4 rounded-[28px] shadow-[0_0_0_9999px_rgba(0,0,0,0.72)] relative transition-all duration-300" [ngClass]="{ 'border-green-500': documentAligned(), 'border-yellow-500': !documentAligned() && documentQuality() === 'fair', 'border-red-500': documentQuality() === 'poor', 'border-white/50': documentQuality() === 'fair' && !documentAligned() }">
+          <div class="absolute inset-0 flex items-center justify-center opacity-40 pointer-events-none rounded-[24px] overflow-hidden">
+            <div class="relative w-[92%] h-[88%] rounded-[18px] border border-white/60 bg-gradient-to-br from-sky-100 via-slate-100 to-slate-200 shadow-inner">
+              <div class="absolute left-4 top-3 right-4 flex items-center justify-between text-[7px] font-bold tracking-[0.18em] text-slate-700 uppercase">
+                <div class="flex items-center gap-2">
+                  <span class="inline-block w-3 h-3 rounded-sm bg-red-600"></span>
+                  <span>Cédula de identidad</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <span class="inline-block w-2 h-2 rounded-full bg-red-600"></span>
+                  <span class="inline-block w-2 h-2 rounded-full bg-blue-600"></span>
+                </div>
+              </div>
+
+              <ng-container *ngIf="activeCapture() === 'documentFront'">
+                <div class="absolute left-5 top-10 w-[28%] h-[42%] rounded-md border-2 border-slate-500 bg-gradient-to-br from-slate-300 via-slate-200 to-slate-100 flex items-center justify-center">
+                  <svg class="w-10 h-10 text-slate-600" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                  </svg>
+                </div>
+
+                <div class="absolute left-[34%] top-11 right-5 space-y-2 text-slate-700">
+                  <div class="h-2.5 w-28 rounded-full bg-slate-400/80"></div>
+                  <div class="h-2.5 w-24 rounded-full bg-slate-400/80"></div>
+                  <div class="h-2.5 w-20 rounded-full bg-slate-400/80"></div>
+                  <div class="mt-3 h-2.5 w-20 rounded-full bg-slate-400/80"></div>
+                  <div class="h-2.5 w-24 rounded-full bg-slate-400/80"></div>
+                  <div class="h-2.5 w-16 rounded-full bg-slate-400/80"></div>
+                </div>
+
+                <div class="absolute left-5 bottom-5 right-5 grid grid-cols-2 gap-2 text-[8px] text-slate-600 uppercase">
+                  <div class="h-2 w-24 rounded-full bg-slate-400/80"></div>
+                  <div class="h-2 w-16 rounded-full bg-slate-400/80 justify-self-end"></div>
+                  <div class="h-2 w-28 rounded-full bg-slate-400/80"></div>
+                  <div class="h-2 w-14 rounded-full bg-slate-400/80 justify-self-end"></div>
+                </div>
+
+                <div class="absolute right-6 top-7 w-10 h-10 rounded-md border border-slate-500 bg-slate-200/70"></div>
+              </ng-container>
+
+              <ng-container *ngIf="activeCapture() === 'documentBack'">
+                <div class="absolute left-7 top-8 w-12 h-12 rounded-md border border-slate-500 bg-slate-200/80 flex items-center justify-center">
+                  <div class="w-8 h-8 border border-slate-500 rounded-sm bg-white/60"></div>
+                </div>
+
+                <div class="absolute left-20 top-8 right-8 text-[8px] font-medium text-slate-700 uppercase">
+                  <div class="h-2 w-16 rounded-full bg-slate-400/80 mb-2"></div>
+                  <div class="h-2 w-20 rounded-full bg-slate-400/80 mb-2"></div>
+                  <div class="h-2 w-14 rounded-full bg-slate-400/80"></div>
+                </div>
+
+                <div class="absolute left-5 right-5 top-24">
+                  <div class="h-2 w-[90%] rounded-full bg-slate-400/80 mb-2"></div>
+                  <div class="h-2 w-[75%] rounded-full bg-slate-400/80 mb-2"></div>
+                  <div class="h-2 w-[82%] rounded-full bg-slate-400/80 mb-2"></div>
+                  <div class="h-2 w-[68%] rounded-full bg-slate-400/80 mb-2"></div>
+                  <div class="h-2 w-[85%] rounded-full bg-slate-400/80 mb-2"></div>
+                  <div class="h-2 w-[70%] rounded-full bg-slate-400/80"></div>
+                </div>
+
+                <div class="absolute left-6 bottom-7 right-6 grid grid-cols-2 gap-2 text-[8px] text-slate-600 uppercase">
+                  <div class="h-2 w-24 rounded-full bg-slate-400/80"></div>
+                  <div class="h-2 w-12 rounded-full bg-slate-400/80 justify-self-end"></div>
+                  <div class="h-2 w-20 rounded-full bg-slate-400/80"></div>
+                  <div class="h-2 w-16 rounded-full bg-slate-400/80 justify-self-end"></div>
+                </div>
+
+                <div class="absolute right-8 bottom-8 w-10 h-10 rounded-md border border-slate-500 bg-slate-200/70"></div>
+              </ng-container>
+            </div>
+          </div>
+
+          <div *ngIf="documentAligned()" class="absolute -bottom-10 left-0 right-0 text-center">
+            <span class="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full inline-block">✓ Documento bien alineado</span>
+          </div>
+          <div *ngIf="!documentAligned() && documentQuality() === 'fair'" class="absolute -bottom-10 left-0 right-0 text-center">
+            <span class="bg-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full inline-block">⚠ Alinea mejor el documento</span>
+          </div>
+          <div *ngIf="documentQuality() === 'poor'" class="absolute -bottom-10 left-0 right-0 text-center">
+            <span class="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full inline-block">❌ Mejora la iluminación</span>
+          </div>
+
+          <div class="absolute -top-12 left-0 right-0 text-center text-white text-sm font-medium">
+            {{ activeCapture() === 'documentBack' ? 'Alinea el reverso de tu documento' : 'Alinea el frente de tu documento' }}
+          </div>
         </div>
       </div>
 
-      <!-- Controls -->
       <div class="absolute bottom-10 left-0 right-0 flex justify-center items-center gap-8">
-        <button (click)="stopCamera()" 
-                class="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/30 transition-colors">
+        <button (click)="stopCamera()" class="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/30 transition-colors">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
-        
-        <!-- Manual capture button for selfies (visible when quality is good) -->
-        <button *ngIf="activeCapture() === 'selfie' && faceQualityGood()"
-                (click)="capturePhoto()" 
-                class="w-20 h-20 rounded-full bg-green-500 border-4 border-white flex items-center justify-center text-white active:scale-95 transition-transform animate-pulse">
+
+        <button *ngIf="activeCapture() === 'selfie' && faceQualityGood()" (click)="capturePhoto()" class="w-20 h-20 rounded-full bg-green-500 border-4 border-white flex items-center justify-center text-white active:scale-95 transition-transform animate-pulse">
           <div class="w-16 h-16 rounded-full border-2 border-white/30"></div>
         </button>
-        
-        <!-- Manual capture button for documents -->
-        <button *ngIf="activeCapture() === 'documentFront' || activeCapture() === 'documentBack'"
-                (click)="capturePhoto()" 
-                class="w-20 h-20 rounded-full bg-white border-4 border-primary flex items-center justify-center text-primary active:scale-95 transition-transform">
+
+        <button *ngIf="activeCapture() === 'documentFront' || activeCapture() === 'documentBack'" (click)="capturePhoto()" class="w-20 h-20 rounded-full bg-white border-4 border-primary flex items-center justify-center text-primary active:scale-95 transition-transform">
           <div class="w-16 h-16 rounded-full border-2 border-primary/20"></div>
         </button>
 
@@ -122,15 +118,9 @@
       </div>
 
       <div class="absolute top-10 text-white text-center px-6 w-full">
-        <h3 class="text-xl font-bold mb-2">
-          {{ activeCapture() === 'selfie' ? 'Validación facial en vivo' : 'Captura tu cédula' }}
-        </h3>
-        <p class="text-lg font-medium bg-black/40 backdrop-blur-sm rounded-lg py-2 px-4 inline-block">
-          {{ livenessInstruction() }}
-        </p>
-        <p *ngIf="activeCapture() === 'selfie' && !faceDetected()" class="text-xs text-yellow-300 mt-2">
-          💡 Centra tu cara dentro del óvalo blanco
-        </p>
+        <h3 class="text-xl font-bold mb-2">{{ activeCapture() === 'selfie' ? 'Validación facial en vivo' : 'Captura tu cédula' }}</h3>
+        <p class="text-lg font-medium bg-black/40 backdrop-blur-sm rounded-lg py-2 px-4 inline-block">{{ livenessInstruction() }}</p>
+        <p *ngIf="activeCapture() === 'selfie' && !faceDetected()" class="text-xs text-yellow-300 mt-2">💡 Centra tu cara dentro del óvalo blanco</p>
       </div>
 
       <canvas #canvasElement class="hidden"></canvas>
@@ -138,306 +128,215 @@
   </div>
 
   <div class="w-full max-w-2xl animate-fade-in">
-
-    <!-- Header -->
     <div class="relative text-center mb-8">
-      <button
-        type="button"
-        class="absolute right-0 top-0 inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface-card text-text-tertiary transition-colors hover:text-text-primary hover:border-primary/40"
-        (click)="closeVerification()"
-        aria-label="Cerrar verificación de identidad">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-        </svg>
+      <button type="button" class="absolute right-0 top-0 inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface-card text-text-tertiary transition-colors hover:text-text-primary hover:border-primary/40" (click)="closeVerification()" aria-label="Cerrar verificación de identidad">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
+
       <div class="inline-flex items-center justify-center w-14 h-14 bg-primary/10 rounded-full mb-3">
-        <svg class="w-7 h-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-        </svg>
+        <svg class="w-7 h-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
       </div>
       <h1 class="text-2xl font-bold text-text-primary">Verificación de identidad</h1>
       <p class="text-text-secondary mt-1">Verificación facial automática con inteligencia artificial</p>
     </div>
 
-    <!-- Step indicators -->
     <div class="flex items-center justify-center gap-2 mb-8">
       <div class="flex items-center gap-2">
-        <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors"
-          [class]="step() === 'upload' ? 'bg-primary text-text-inverse' : 'bg-surface-card text-text-tertiary'">1</div>
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors" [class]="step() === 'upload' ? 'bg-primary text-text-inverse' : 'bg-surface-card text-text-tertiary'">1</div>
         <span class="text-xs text-text-secondary hidden sm:block">Subir</span>
       </div>
       <div class="flex-1 max-w-[40px] h-px bg-border"></div>
       <div class="flex items-center gap-2">
-        <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors"
-          [class]="step() === 'preview' ? 'bg-primary text-text-inverse' : 'bg-surface-card text-text-tertiary'">2</div>
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors" [class]="step() === 'preview' ? 'bg-primary text-text-inverse' : 'bg-surface-card text-text-tertiary'">2</div>
         <span class="text-xs text-text-secondary hidden sm:block">Preview</span>
       </div>
       <div class="flex-1 max-w-[40px] h-px bg-border"></div>
       <div class="flex items-center gap-2">
-        <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors"
-          [class]="step() === 'verifying' ? 'bg-primary text-text-inverse' : 'bg-surface-card text-text-tertiary'">3</div>
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors" [class]="step() === 'verifying' ? 'bg-primary text-text-inverse' : 'bg-surface-card text-text-tertiary'">3</div>
         <span class="text-xs text-text-secondary hidden sm:block">Verificar</span>
       </div>
       <div class="flex-1 max-w-[40px] h-px bg-border"></div>
       <div class="flex items-center gap-2">
-        <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors"
-          [class]="['approved', 'rejected'].includes(step()) ? 'bg-primary text-text-inverse' : 'bg-surface-card text-text-tertiary'">4</div>
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors" [class]="['approved', 'rejected'].includes(step()) ? 'bg-primary text-text-inverse' : 'bg-surface-card text-text-tertiary'">4</div>
         <span class="text-xs text-text-secondary hidden sm:block">Resultado</span>
       </div>
     </div>
 
-    @if (error()) {
-      <div class="alert alert-danger mb-4"><span>{{ error() }}</span></div>
-    }
+    <div *ngIf="error()" class="alert alert-danger mb-4"><span>{{ error() }}</span></div>
 
-    <!-- Step 1: Upload Documents -->
-    @if (step() === 'upload') {
-      <div class="card card-body">
-        <h3 class="font-semibold text-text-primary mb-4">📋 Subir documentos</h3>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <!-- Selfie -->
-          <div>
-            <label class="block text-sm font-medium text-text-secondary mb-2">Selfie</label>
-            @if (state.selfieUrl) {
-              <div class="relative">
-                <img [src]="state.selfieUrl" alt="Selfie" class="w-full h-40 object-contain bg-black/10 rounded-xl border border-border">
-                <button (click)="state.selfieUrl = null; state.selfieDocumentId = null"
-                  type="button"
-                  class="absolute top-2 right-2 w-7 h-7 bg-surface-card border border-border rounded-full shadow flex items-center justify-center text-text-tertiary hover:text-danger transition-colors">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                  </svg>
-                </button>
-              </div>
-            } @else {
-              <button (click)="startCamera('selfie')" 
-                      class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-border rounded-xl cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors">
-                <svg class="w-6 h-6 text-text-tertiary mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-                <span class="text-xs text-text-secondary">Abrir Cámara para Selfie</span>
-              </button>
-            }
-          </div>
+    <div *ngIf="step() === 'upload'" class="card card-body">
+      <h3 class="font-semibold text-text-primary mb-4">📋 Subir documentos</h3>
 
-          <!-- ID Document -->
-          <div>
-            <label class="block text-sm font-medium text-text-secondary mb-2">Cédula - Frente</label>
-            @if (state.idDocumentFrontUrl) {
-              <div class="relative">
-                <img [src]="state.idDocumentFrontUrl" alt="Cédula frente" class="w-full h-40 object-cover rounded-xl border border-border">
-                <button (click)="state.idDocumentFrontUrl = null; state.idDocumentFrontId = null"
-                  type="button"
-                  class="absolute top-2 right-2 w-7 h-7 bg-surface-card border border-border rounded-full shadow flex items-center justify-center text-text-tertiary hover:text-danger transition-colors">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                  </svg>
-                </button>
-              </div>
-            } @else {
-                    <button (click)="startCamera('documentFront')" 
-                      class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-border rounded-xl cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors">
-                <svg class="w-6 h-6 text-text-tertiary mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                </svg>
-                <span class="text-xs text-text-secondary">Capturar Frente</span>
-              </button>
-            }
-          </div>
-
-          <!-- ID Document Back -->
-          <div>
-            <label class="block text-sm font-medium text-text-secondary mb-2">Cédula - Reverso</label>
-            @if (state.idDocumentBackUrl) {
-              <div class="relative">
-                <img [src]="state.idDocumentBackUrl" alt="Cédula reverso" class="w-full h-40 object-cover rounded-xl border border-border">
-                <button (click)="state.idDocumentBackUrl = null; state.idDocumentBackId = null"
-                  type="button"
-                  class="absolute top-2 right-2 w-7 h-7 bg-surface-card border border-border rounded-full shadow flex items-center justify-center text-text-tertiary hover:text-danger transition-colors">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                  </svg>
-                </button>
-              </div>
-            } @else {
-              <button (click)="startCamera('documentBack')"
-                      class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-border rounded-xl cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors">
-                <svg class="w-6 h-6 text-text-tertiary mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                </svg>
-                <span class="text-xs text-text-secondary">Capturar Reverso</span>
-              </button>
-            }
-          </div>
-        </div>
-
-        <div class="bg-primary/5 border border-primary/20 rounded-lg p-3 mb-4">
-          <p class="text-xs text-text-secondary">
-            <strong>Importante:</strong> Captura selfie, frente y reverso de la cédula, alineando siempre el documento dentro del marco.
-            La verificación facial usa selfie + frente del documento.
-          </p>
-        </div>
-
-        @if (state.idCardValidationError) {
-          <div class="alert alert-warning mb-4">
-            <span>{{ state.idCardValidationError }}</span>
-          </div>
-        }
-
-        @if (state.facePreviewError) {
-          <div class="alert alert-warning mb-4">
-            <span>{{ state.facePreviewError }}</span>
-          </div>
-          <p class="text-xs text-warning mb-4">Corrige las imágenes y vuelve a subir antes de verificar.</p>
-        }
-
-        <button class="btn btn-primary btn-block" 
-          type="button"
-          (click)="submit()" 
-          [disabled]="!state.selfieUrl || !state.idDocumentFrontUrl || !state.idDocumentBackUrl || loading() || state.uploading">
-          @if (loading() || state.uploading) { 
-            <span class="spinner"></span> 
-            <span>Subiendo...</span>
-          } @else {
-            <span>Subir y validar</span>
-          }
-        </button>
-      </div>
-    }
-
-    <!-- Step 2: Face Preview -->
-    @if (step() === 'preview') {
-      <div class="card card-body">
-        <h3 class="font-semibold text-text-primary mb-4">👤 Preview de rostros detectados</h3>
-        
-        @if (state.loadingPreview) {
-          <div class="flex justify-center py-8">
-            <span class="spinner"></span>
-          </div>
-        } @else if (state.selfieFacePreview && state.idFrontFacePreview) {
-          <div class="grid grid-cols-2 gap-4 mb-6">
-            <div class="text-center">
-              <p class="text-sm font-medium text-text-secondary mb-2">Selfie</p>
-              <img [src]="state.selfieFacePreview" alt="Rostro en selfie" 
-                class="w-full h-40 object-contain border-2 border-primary/30 rounded-xl bg-surface-card">
-            </div>
-            <div class="text-center">
-              <p class="text-sm font-medium text-text-secondary mb-2">Documento</p>
-              <img [src]="state.idFrontFacePreview" alt="Rostro en documento" 
-                class="w-full h-40 object-contain border-2 border-primary/30 rounded-xl bg-surface-card">
-            </div>
-          </div>
-
-          <div class="bg-success/5 border border-success/20 rounded-lg p-3 mb-4">
-            <p class="text-sm text-text-secondary">
-              ✅ Rostros detectados correctamente. Haz clic en "Iniciar verificación" para comparar automáticamente.
-            </p>
-          </div>
-
-          <div class="flex gap-2">
-            <button class="btn btn-secondary flex-1" type="button" (click)="retryVerification()">Reintentar</button>
-            <button class="btn btn-primary flex-1" type="button" (click)="initiateVerification()" [disabled]="loading()">
-              @if (loading()) { <span class="spinner"></span> } 
-              Iniciar verificación
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div>
+          <label class="block text-sm font-medium text-text-secondary mb-2">Selfie</label>
+          <div *ngIf="state.selfieUrl; else selfieEmpty" class="relative">
+            <img [src]="state.selfieUrl" alt="Selfie" class="w-full h-40 object-contain bg-black/10 rounded-xl border border-border" />
+            <button type="button" (click)="state.selfieUrl = null; state.selfieDocumentId = null; selfieFile = null" class="absolute top-2 right-2 w-7 h-7 bg-surface-card border border-border rounded-full shadow flex items-center justify-center text-text-tertiary hover:text-danger transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
           </div>
-        } @else if (state.facePreviewError) {
-          <div class="alert alert-warning mb-4">
-            <span>{{ state.facePreviewError }}</span>
-          </div>
-          <button class="btn btn-secondary btn-block" type="button" (click)="retryVerification()">Reintentar con otras imágenes</button>
-        }
-      </div>
-    }
+          <ng-template #selfieEmpty>
+            <button type="button" (click)="startCamera('selfie')" class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-border rounded-xl cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors">
+              <svg class="w-6 h-6 text-text-tertiary mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <span class="text-xs text-text-secondary">Abrir Cámara para Selfie</span>
+            </button>
+          </ng-template>
+        </div>
 
-    <!-- Step 3: Verifying -->
-    @if (step() === 'verifying') {
-      <div class="card card-body text-center">
-        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-          <span class="spinner"></span>
+        <div>
+          <label class="block text-sm font-medium text-text-secondary mb-2">Cédula - Frente</label>
+          <div *ngIf="state.idDocumentFrontUrl; else frontEmpty" class="relative">
+            <img [src]="state.idDocumentFrontUrl" alt="Cédula frente" class="w-full h-40 object-cover rounded-xl border border-border" />
+            <button type="button" (click)="state.idDocumentFrontUrl = null; state.idDocumentFrontId = null; docFrontFile = null" class="absolute top-2 right-2 w-7 h-7 bg-surface-card border border-border rounded-full shadow flex items-center justify-center text-text-tertiary hover:text-danger transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+          </div>
+          <ng-template #frontEmpty>
+            <button type="button" (click)="startCamera('documentFront')" class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-border rounded-xl cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors">
+              <svg class="w-6 h-6 text-text-tertiary mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+              <span class="text-xs text-text-secondary">Capturar Frente</span>
+            </button>
+          </ng-template>
         </div>
-        <h3 class="text-xl font-semibold text-text-primary">Verificando identidad...</h3>
-        <p class="text-text-secondary mt-2 text-sm">
-          Estamos comparando los rostros con inteligencia artificial. Esto puede tomar unos segundos.
-        </p>
-        <div class="mt-4 text-xs text-text-tertiary">
-          Estado: {{ state.verificationStatus }}
+
+        <div>
+          <label class="block text-sm font-medium text-text-secondary mb-2">Cédula - Reverso</label>
+          <div *ngIf="state.idDocumentBackUrl; else backEmpty" class="relative">
+            <img [src]="state.idDocumentBackUrl" alt="Cédula reverso" class="w-full h-40 object-cover rounded-xl border border-border" />
+            <button type="button" (click)="state.idDocumentBackUrl = null; state.idDocumentBackId = null; docBackFile = null" class="absolute top-2 right-2 w-7 h-7 bg-surface-card border border-border rounded-full shadow flex items-center justify-center text-text-tertiary hover:text-danger transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+          </div>
+          <ng-template #backEmpty>
+            <button
+              type="button"
+              (click)="startCamera('documentBack')"
+              [disabled]="!(state.selfieFacePreview && state.idFrontFacePreview && !state.faceDetectionFailed)"
+              [class.opacity-50]="!(state.selfieFacePreview && state.idFrontFacePreview && !state.faceDetectionFailed)"
+              [class.cursor-not-allowed]="!(state.selfieFacePreview && state.idFrontFacePreview && !state.faceDetectionFailed)"
+              [ngClass]="{
+                'hover:border-primary': state.selfieFacePreview && state.idFrontFacePreview && !state.faceDetectionFailed,
+                'hover:bg-primary/5': state.selfieFacePreview && state.idFrontFacePreview && !state.faceDetectionFailed
+              }"
+              class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-border rounded-xl transition-colors">
+              <svg class="w-6 h-6 text-text-tertiary mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+              <span class="text-xs text-text-secondary">
+                {{ (state.selfieFacePreview && state.idFrontFacePreview && !state.faceDetectionFailed) ? 'Capturar Reverso' : 'Primero valida la preview' }}
+              </span>
+            </button>
+          </ng-template>
         </div>
       </div>
-    }
 
-    <!-- Step 4: Approved -->
-    @if (step() === 'approved') {
-      <div class="card card-body text-center">
-        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-success/10 flex items-center justify-center">
-          <svg class="w-8 h-8 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-          </svg>
-        </div>
-        <h3 class="text-xl font-semibold text-text-primary">¡Verificación exitosa!</h3>
-        <p class="text-text-secondary mt-2 text-sm">
-          Tu identidad ha sido verificada correctamente.
-        </p>
-        @if (state.confidenceScore !== null) {
-          <div class="mt-3 text-sm text-text-tertiary">
-            Nivel de confianza: <strong>{{ state.confidenceScore.toFixed(1) }}%</strong>
-          </div>
-        }
-        <button class="btn btn-primary btn-block mt-6" type="button" (click)="continueToDashboard()">
-          Continuar al panel de proveedor
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-          </svg>
-        </button>
+      <div class="bg-primary/5 border border-primary/20 rounded-lg p-3 mb-4">
+        <p class="text-xs text-text-secondary"><strong>Importante:</strong> Deben estar tomadas las 3 fotos antes de continuar: selfie, frente y reverso de la cédula. La verificación facial usa selfie + frente del documento; el reverso sirve para validar la identidad del documento.</p>
       </div>
-    }
 
-    <!-- Step 4: Rejected -->
-    @if (step() === 'rejected') {
-      <div class="card card-body text-center">
-        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-danger/10 flex items-center justify-center">
-          <svg class="w-8 h-8 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
-        </div>
-        <h3 class="text-xl font-semibold text-text-primary">Verificación rechazada</h3>
-        @if (state.rejectionReason) {
-          <div class="mt-3 bg-danger/5 border border-danger/20 rounded-lg p-3 text-left">
-            <p class="text-sm text-danger">{{ state.rejectionReason }}</p>
-          </div>
-        } @else {
-          <p class="text-text-secondary mt-2 text-sm">
-            Los rostros no coinciden suficientemente. Por favor, intenta nuevamente con imágenes más claras.
-          </p>
-        }
-        @if (state.confidenceScore !== null) {
-          <div class="mt-3 text-sm text-text-tertiary">
-            Nivel de confianza: <strong>{{ state.confidenceScore.toFixed(1) }}%</strong>
-          </div>
-        }
-        <div class="bg-warning/5 border border-warning/20 rounded-lg p-3 mt-4">
-          <p class="text-xs text-text-secondary">
-            <strong>Consejos:</strong> Usa tu cédula de identidad chilena vigente, buena iluminación,
-            selfie de frente y sin obstrucciones en el rostro.
-          </p>
-        </div>
-        <button class="btn btn-primary btn-block mt-6" type="button" (click)="retryVerification()">
-          Reintentar verificación
-        </button>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+        <div class="rounded-lg border px-3 py-2 text-xs font-medium" [ngClass]="{
+          'border-success/40': selfieFile,
+          'bg-success/5': selfieFile,
+          'text-success': selfieFile,
+          'border-border': !selfieFile,
+          'bg-surface-card': !selfieFile,
+          'text-text-secondary': !selfieFile
+        }">Selfie: {{ selfieFile ? 'tomada' : 'pendiente' }}</div>
+
+        <div class="rounded-lg border px-3 py-2 text-xs font-medium" [ngClass]="{
+          'border-success/40': docFrontFile,
+          'bg-success/5': docFrontFile,
+          'text-success': docFrontFile,
+          'border-border': !docFrontFile,
+          'bg-surface-card': !docFrontFile,
+          'text-text-secondary': !docFrontFile
+        }">Frente: {{ docFrontFile ? 'tomada' : 'pendiente' }}</div>
+
+        <div class="rounded-lg border px-3 py-2 text-xs font-medium" [ngClass]="{
+          'border-success/40': docBackFile,
+          'bg-success/5': docBackFile,
+          'text-success': docBackFile,
+          'border-border': !docBackFile,
+          'bg-surface-card': !docBackFile,
+          'text-text-secondary': !docBackFile
+        }">Reverso: {{ docBackFile ? 'tomada' : 'pendiente' }}</div>
       </div>
-    }
 
-    <!-- Logout option -->
-    <div class="text-center mt-6">
-      <button (click)="logout()" type="button" class="text-sm text-text-tertiary hover:text-text-secondary transition-colors">
-        Cerrar sesión
+      <div *ngIf="state.idCardValidationError" class="alert alert-warning mb-4"><span>{{ state.idCardValidationError }}</span></div>
+      <div *ngIf="state.facePreviewError" class="alert alert-warning mb-4"><span>{{ state.facePreviewError }}</span></div>
+      <p *ngIf="state.facePreviewError" class="text-xs text-warning mb-4">Corrige las imágenes y vuelve a subir antes de verificar.</p>
+
+      <button class="btn btn-primary btn-block" type="button" (click)="submit()" [disabled]="!canStartValidation() || loading() || state.uploading">
+        <span *ngIf="loading() || state.uploading" class="spinner"></span>
+        <span>{{ (loading() || state.uploading) ? 'Subiendo...' : 'Subir y validar' }}</span>
       </button>
+    </div>
+
+    <div *ngIf="step() === 'preview'" class="card card-body">
+      <h3 class="font-semibold text-text-primary mb-4">👤 Preview de rostros detectados</h3>
+
+      <div *ngIf="state.loadingPreview" class="flex justify-center py-8"><span class="spinner"></span></div>
+
+      <ng-container *ngIf="!state.loadingPreview && (state.selfieFacePreview || state.selfieUrl) && (state.idFrontFacePreview || state.idDocumentFrontUrl)">
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <div class="text-center">
+            <p class="text-sm font-medium text-text-secondary mb-2">Selfie</p>
+            <img [src]="state.selfieFacePreview || state.selfieUrl" alt="Rostro en selfie" class="w-full h-40 object-contain border-2 border-primary/30 rounded-xl bg-surface-card" />
+          </div>
+          <div class="text-center">
+            <p class="text-sm font-medium text-text-secondary mb-2">Documento</p>
+            <img [src]="state.idFrontFacePreview || state.idDocumentFrontUrl" alt="Rostro en documento" class="w-full h-40 object-contain border-2 border-primary/30 rounded-xl bg-surface-card" />
+          </div>
+        </div>
+
+        <div class="bg-success/5 border border-success/20 rounded-lg p-3 mb-4">
+          <p class="text-sm text-text-secondary">✅ Rostros detectados correctamente. Haz clic en "Iniciar verificación" para comparar automáticamente.</p>
+        </div>
+
+        <div class="flex gap-2">
+          <button class="btn btn-secondary flex-1" type="button" (click)="step.set('upload')">Subir reverso</button>
+          <button class="btn btn-primary flex-1" type="button" (click)="initiateVerification()" [disabled]="loading() || !state.idDocumentBackId">
+            <span *ngIf="loading()" class="spinner"></span>
+            <span>{{ state.idDocumentBackId ? 'Iniciar verificación' : 'Falta reverso' }}</span>
+          </button>
+        </div>
+      </ng-container>
+
+      <div *ngIf="!state.loadingPreview && state.facePreviewError" class="alert alert-warning mb-4"><span>{{ state.facePreviewError }}</span></div>
+      <button *ngIf="!state.loadingPreview && state.facePreviewError" class="btn btn-secondary btn-block" type="button" (click)="retryVerification()">Reintentar con otras imágenes</button>
+    </div>
+
+    <div *ngIf="step() === 'verifying'" class="card card-body text-center">
+      <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center"><span class="spinner"></span></div>
+      <h3 class="text-xl font-semibold text-text-primary">Verificando identidad...</h3>
+      <p class="text-text-secondary mt-2 text-sm">Estamos comparando los rostros con inteligencia artificial. Esto puede tomar unos segundos.</p>
+      <div class="mt-4 text-xs text-text-tertiary">Estado: {{ state.verificationStatus }}</div>
+    </div>
+
+    <div *ngIf="step() === 'approved'" class="card card-body text-center">
+      <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-success/10 flex items-center justify-center">
+        <svg class="w-8 h-8 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+      </div>
+      <h3 class="text-xl font-semibold text-text-primary">¡Verificación exitosa!</h3>
+      <p class="text-text-secondary mt-2 text-sm">Tu identidad ha sido verificada correctamente.</p>
+      <div *ngIf="state.confidenceScore !== null" class="mt-3 text-sm text-text-tertiary">Nivel de confianza: <strong>{{ state.confidenceScore.toFixed(1) }}%</strong></div>
+      <button class="btn btn-primary btn-block mt-6" type="button" (click)="continueToDashboard()">Continuar al panel de proveedor <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+
+    <div *ngIf="step() === 'rejected'" class="card card-body text-center">
+      <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-danger/10 flex items-center justify-center">
+        <svg class="w-8 h-8 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </div>
+      <h3 class="text-xl font-semibold text-text-primary">Verificación rechazada</h3>
+      <div *ngIf="state.rejectionReason" class="mt-3 bg-danger/5 border border-danger/20 rounded-lg p-3 text-left"><p class="text-sm text-danger">{{ state.rejectionReason }}</p></div>
+      <p *ngIf="!state.rejectionReason" class="text-text-secondary mt-2 text-sm">Los rostros no coinciden suficientemente. Por favor, intenta nuevamente con imágenes más claras.</p>
+      <div *ngIf="state.confidenceScore !== null" class="mt-3 text-sm text-text-tertiary">Nivel de confianza: <strong>{{ state.confidenceScore.toFixed(1) }}%</strong></div>
+      <div class="bg-warning/5 border border-warning/20 rounded-lg p-3 mt-4"><p class="text-xs text-text-secondary"><strong>Consejos:</strong> Usa tu cédula de identidad chilena vigente, buena iluminación, selfie de frente y sin obstrucciones en el rostro.</p></div>
+      <button class="btn btn-primary btn-block mt-6" type="button" (click)="retryVerification()">Reintentar verificación</button>
+    </div>
+
+    <div class="text-center mt-6">
+      <button (click)="logout()" type="button" class="text-sm text-text-tertiary hover:text-text-secondary transition-colors">Cerrar sesión</button>
     </div>
   </div>
 </div>

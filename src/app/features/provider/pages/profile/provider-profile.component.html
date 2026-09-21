@@ -43,23 +43,6 @@
         {{ 'nav.summary' | t }}
       </button>
 
-      <button class="nav-item" [class.nav-item--active]="activeView() === 'edit'"
-              type="button" (click)="showView('edit')">
-        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-        </svg>
-        {{ 'nav.editProfile' | t }}
-      </button>
-
-      <button class="nav-item" [class.nav-item--active]="activeView() === 'payments'"
-              type="button" (click)="showView('payments')">
-        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-        </svg>
-        {{ 'provider.myPayments' | t }}
-      </button>
     </nav>
 
     <!-- Nav: Preferencias -->
@@ -150,8 +133,8 @@
             <div>
               <h3 class="verification-title">
                 @if (provider()?.validation_status === 'approved') { Perfil Verificado }
-                @else if (provider()?.validation_status === 'pending') { Verificacion en proceso }
-                @else { Identidad sin verificar }
+                @else if (provider()?.validation_status === 'pending') { Verificacion de identidad obligatoria }
+                @else { Verificacion de identidad obligatoria }
               </h3>
               <div class="perks-grid">
                 @if (provider()?.validation_status === 'approved') {
@@ -172,14 +155,14 @@
                     <svg class="perk-icon" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
                     </svg>
-                    Solicitud en revisión &mdash; pronto recibirás una notificación
+                    Sin validacion de identidad no podras tener acceso a los beneficios de la plataforma
                   </div>
                 } @else {
                   <div class="perk">
                     <svg class="perk-icon" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
                     </svg>
-                    Completa la verificación para activar tu perfil público
+                    Sin validacion de identidad no podras tener acceso a los beneficios de la plataforma
                   </div>
                 }
               </div>
@@ -200,7 +183,7 @@
             <small class="stat-label">Valoracion promedio</small>
             <span class="stat-value">
               @if (provider()?.rating_avg && provider()!.rating_avg! > 0) {
-                \u2605 {{ provider()!.rating_avg | number:'1.1-1' }}
+                 {{ provider()!.rating_avg | number:'1.1-1' }}
               } @else { Sin valoraciones }
             </span>
           </div>
@@ -222,6 +205,17 @@
             <small class="stat-label">Correo electrónico</small>
             <span class="stat-value">{{ provider()?.email }}</span>
           </div>
+        </div>
+
+        <div class="payments-card">
+          <div class="payments-card__header">
+            <div>
+              <small class="section-eyebrow">Pagos</small>
+              <h3>Mis pagos</h3>
+            </div>
+            <button type="button" class="btn-primary" (click)="showView('payments')">Ver pagos</button>
+          </div>
+          <p>Revisa tus movimientos, pagos y facturación desde aquí.</p>
         </div>
 
         @if (provider()?.bio) {
@@ -355,8 +349,23 @@
 
         <div class="config-list">
 
-          <button type="button" class="config-menu-item" (click)="showView('password')">
+          <button type="button" class="config-menu-item" (click)="showView('edit')">
             <div class="config-menu-icon config-menu-icon--blue">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+              </svg>
+            </div>
+            <div class="config-menu-info">
+              <span class="config-menu-label">Editar perfil</span>
+              <span class="config-menu-sub">Actualiza tu información personal</span>
+            </div>
+            <svg class="config-menu-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </button>
+
+          <button type="button" class="config-menu-item" (click)="showView('password')">
+            <div class="config-menu-icon config-menu-icon--green">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
@@ -492,7 +501,7 @@
             <div class="form-group form-group--full">
               <label for="pp_old_pw">Contraseña actual</label>
               <div class="relative">
-                <input id="pp_old_pw" [type]="showOldPassword ? 'text' : 'password'" formControlName="old_password" placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" class="pr-10"
+                <input id="pp_old_pw" [type]="showOldPassword ? 'text' : 'password'" formControlName="old_password" placeholder="" class="pr-10"
                   [class.is-error]="pwForm.get('old_password')!.invalid && pwForm.get('old_password')!.touched">
                 <button
                   type="button"

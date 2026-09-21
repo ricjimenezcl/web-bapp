@@ -9,6 +9,74 @@ import { DocumentUploadService } from '../../../../core/services/document-upload
 import { Subject, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
+export interface DocumentCaptureRectInput {
+  canvasWidth: number;
+  canvasHeight: number;
+  videoWidth: number;
+  videoHeight: number;
+  videoRect: { left: number; top: number; width: number; height: number };
+  guideRect: { left: number; top: number; width: number; height: number };
+  marginRatio?: number;
+  documentAspect?: number;
+}
+
+export function calculateDocumentCaptureRect({
+  canvasWidth,
+  canvasHeight,
+  videoWidth,
+  videoHeight,
+  videoRect,
+  guideRect,
+  marginRatio = 0.02,
+  documentAspect = 1.58,
+}: DocumentCaptureRectInput) {
+  const innerGuide = {
+    left: guideRect.left + guideRect.width * 0.06,
+    top: guideRect.top + guideRect.height * 0.08,
+    width: guideRect.width * 0.88,
+    height: guideRect.height * 0.84,
+  };
+
+  const scale = Math.min(videoRect.width / Math.max(videoWidth, 1), videoRect.height / Math.max(videoHeight, 1));
+  const displayedWidth = videoWidth * scale;
+  const displayedHeight = videoHeight * scale;
+  const offsetX = (videoRect.width - displayedWidth) / 2;
+  const offsetY = (videoRect.height - displayedHeight) / 2;
+
+  const guideLeftInDisplay = Math.max(0, innerGuide.left - videoRect.left - offsetX);
+  const guideTopInDisplay = Math.max(0, innerGuide.top - videoRect.top - offsetY);
+  const guideRightInDisplay = Math.min(displayedWidth, innerGuide.left + innerGuide.width - videoRect.left - offsetX);
+  const guideBottomInDisplay = Math.min(displayedHeight, innerGuide.top + innerGuide.height - videoRect.top - offsetY);
+
+  // El documento se ve más bajo en la vista real del teléfono. Para alinear la captura sin
+  // recortarla, bajamos el inicio y el fin del recorte en la misma proporción para mantener
+  // la altura completa de la cédula.
+  const downwardBias = Math.max((guideBottomInDisplay - guideTopInDisplay) * 0.18, 24);
+  const adjustedGuideTopInDisplay = Math.min(displayedHeight, guideTopInDisplay + downwardBias);
+  const adjustedGuideBottomInDisplay = Math.min(displayedHeight, guideBottomInDisplay + downwardBias);
+
+  const sourceLeft = (guideLeftInDisplay / Math.max(displayedWidth, 1)) * videoWidth;
+  const sourceTop = (adjustedGuideTopInDisplay / Math.max(displayedHeight, 1)) * videoHeight;
+  const sourceWidth = ((guideRightInDisplay - guideLeftInDisplay) / Math.max(displayedWidth, 1)) * videoWidth;
+  const sourceHeight = ((adjustedGuideBottomInDisplay - adjustedGuideTopInDisplay) / Math.max(displayedHeight, 1)) * videoHeight;
+
+  const horizontalMargin = Math.max(sourceWidth * marginRatio, 8);
+  const verticalMargin = Math.max(sourceHeight * marginRatio, 8);
+
+  const left = Math.max(0, Math.min(videoWidth - 1, sourceLeft - horizontalMargin));
+  const top = Math.max(0, Math.min(videoHeight - 1, sourceTop - verticalMargin));
+
+  const width = Math.max(1, Math.min(sourceWidth + horizontalMargin * 2, videoWidth - left));
+  const height = Math.max(1, Math.min(Math.max(sourceHeight + verticalMargin * 2, width / documentAspect), videoHeight - top));
+
+  return {
+    left: Math.round(Math.min(left, canvasWidth - 1)),
+    top: Math.round(Math.min(top, canvasHeight - 1)),
+    width: Math.round(Math.min(width, canvasWidth - Math.min(left, canvasWidth - 1))),
+    height: Math.round(Math.min(height, canvasHeight - Math.min(top, canvasHeight - 1))),
+  };
+}
+
 interface VerificationState {
   selfieUrl: string | null;
   idDocumentFrontUrl: string | null;
@@ -29,6 +97,7 @@ interface VerificationState {
   loadingPreview: boolean;
   facePreviewError: string | null;
   faceDetectionFailed: boolean;
+  frontRunDigits: string | null;
   rejectionReason: string | null;
   idCardValidationError: string | null;
   idCardValidated: boolean;
@@ -43,6 +112,7 @@ interface VerificationState {
 export class DocumentVerificationComponent implements OnInit, OnDestroy {
   @ViewChild('videoElement') videoElement!: ElementRef<HTMLVideoElement>;
   @ViewChild('canvasElement') canvasElement!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('documentGuide') documentGuide!: ElementRef<HTMLDivElement>;
 
   private http    = inject(HttpClient);
   private auth    = inject(AuthService);
@@ -109,16 +179,17 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
     loadingPreview: false,
     facePreviewError: null,
     faceDetectionFailed: false,
+    frontRunDigits: null,
     rejectionReason: null,
     idCardValidationError: null,
     idCardValidated: false,
   };
 
-  private docFrontFile: File | null = null;
-  private docBackFile: File | null = null;
-  private selfieFile: File | null = null;
-  private rawSelfieDataUrl: string | null = null;
-  private selfieFallbackTried = false;
+  docFrontFile: File | null = null;
+  docBackFile: File | null = null;
+  selfieFile: File | null = null;
+  rawSelfieDataUrl: string | null = null;
+  selfieFallbackTried = false;
 
   ngOnInit(): void {
     const user = this.storage.user();
@@ -158,7 +229,31 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
     }
   }
 
+  private canCaptureFrontDocument(): boolean {
+    return !!(this.selfieFile || this.state.selfieDocumentId);
+  }
+
+  private canCaptureBackDocument(): boolean {
+    return !!(
+      this.state.selfieDocumentId &&
+      this.state.idDocumentFrontId &&
+      this.state.selfieFacePreview &&
+      this.state.idFrontFacePreview &&
+      !this.state.faceDetectionFailed
+    );
+  }
+
   async startCamera(type: 'selfie' | 'documentFront' | 'documentBack') {
+    if (type === 'documentFront' && !this.canCaptureFrontDocument()) {
+      this.error.set('Primero debes tomar y subir la selfie para continuar con el frente de la cédula.');
+      return;
+    }
+
+    if (type === 'documentBack' && !this.canCaptureBackDocument()) {
+      this.error.set('Primero debes validar la selfie y el frente de la cédula para poder continuar con el reverso.');
+      return;
+    }
+
     this.activeCapture.set(type);
     this.cameraMode.set(type === 'selfie' ? 'user' : 'environment');
     this.isCameraActive.set(true);
@@ -176,7 +271,8 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
         video: {
           facingMode: this.cameraMode(),
           width: { ideal: 1280 },
-          height: { ideal: 720 }
+          height: { ideal: 720 },
+          aspectRatio: 1.7777777778
         },
         audio: false
       });
@@ -186,7 +282,8 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
         if (this.videoElement) {
           this.videoElement.nativeElement.srcObject = this.stream;
           this.videoElement.nativeElement.play();
-          
+          this.updateVideoCrop();
+
           if (type === 'selfie') {
             this.startLivenessDetection();
           } else {
@@ -203,13 +300,43 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
   }
 
   private startDocumentDetection() {
+    this.stopLivenessDetection();
     this.livenessStep.set('CENTER');
     this.livenessInstruction.set('Alinea el frente de tu documento');
     this.lastCheckTime = Date.now();
-    
+    this.updateVideoCrop();
+
     this.faceDetectionInterval = setInterval(() => {
       this.performDetectionCycle();
+      this.updateVideoCrop();
     }, 150);
+  }
+
+  private updateVideoCrop() {
+    const video = this.videoElement?.nativeElement as HTMLVideoElement | undefined;
+    const guide = this.documentGuide?.nativeElement as HTMLDivElement | undefined;
+
+    if (!video) return;
+
+    if ((!guide || this.activeCapture() === 'selfie') && this.activeCapture() !== 'documentFront' && this.activeCapture() !== 'documentBack') {
+      video.style.clipPath = 'none';
+      return;
+    }
+
+    if (!guide) {
+      video.style.clipPath = 'none';
+      return;
+    }
+
+    const guideRect = guide.getBoundingClientRect();
+    const videoRect = video.getBoundingClientRect();
+
+    const left = ((guideRect.left - videoRect.left) / videoRect.width) * 100;
+    const top = ((guideRect.top - videoRect.top) / videoRect.height) * 100;
+    const right = 100 - ((guideRect.right - videoRect.left) / videoRect.width) * 100;
+    const bottom = 100 - ((guideRect.bottom - videoRect.top) / videoRect.height) * 100;
+
+    video.style.clipPath = `inset(${top}% ${right}% ${bottom}% ${left}% round 24px)`;
   }
 
   stopCamera() {
@@ -223,6 +350,7 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
   }
 
   private startLivenessDetection() {
+    this.stopLivenessDetection();
     this.livenessStep.set('CENTER');
     this.livenessInstruction.set('Coloca tu rostro dentro del óvalo');
     this.lastCheckTime = Date.now();
@@ -243,12 +371,15 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
     const video = this.videoElement?.nativeElement;
     const canvas = this.canvasElement?.nativeElement;
     if (!video || !canvas || video.paused) return;
+    if (!video.videoWidth || !video.videoHeight) return;
 
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     if (!ctx) return;
 
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
+    if (!canvas.width || !canvas.height) return;
+
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     const now = Date.now();
@@ -283,10 +414,10 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
           // Calcular posición del rostro respecto al centro del canvas
           const targetX = face.centerX - canvas.width / 2;
           const targetY = face.centerY - canvas.height / 2;
-          
-          // CORRECCIÓN: Negar los valores para mover el óvalo HACIA el rostro
-          this.ovalOffsetX.update(v => v + (-targetX - v) * 0.15);
-          this.ovalOffsetY.update(v => v + (-targetY - v) * 0.15);
+
+          // Mantener el óvalo centrado respecto al rostro sin invertir la dirección.
+          this.ovalOffsetX.update(v => v + (targetX - v) * 0.15);
+          this.ovalOffsetY.update(v => v + (targetY - v) * 0.15);
 
           // Adaptar tamaño basado en características detectadas
           if (face.width && face.height) {
@@ -355,6 +486,8 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
   }
 
   private performDocumentDetection(ctx: CanvasRenderingContext2D, width: number, height: number) {
+    if (!width || !height) return;
+
     const imageData = ctx.getImageData(0, 0, width, height);
     const data = imageData.data;
     
@@ -456,6 +589,8 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
   }
 
   private findFaceRegionImproved(ctx: CanvasRenderingContext2D, width: number, height: number) {
+    if (!width || !height) return null;
+
     const imageData = ctx.getImageData(0, 0, width, height);
     const data = imageData.data;
     
@@ -557,19 +692,34 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
       canvas.height = video.videoHeight;
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      // Crop según el tipo de captura
       let croppedCanvas = canvas;
-      
+
       if (this.activeCapture() === 'selfie') {
-        // Guardar frame completo para reintento si el backend rechaza el crop.
         this.rawSelfieDataUrl = canvas.toDataURL('image/jpeg', 0.92);
         this.selfieFallbackTried = false;
-
-        // Para selfies: usar el área del óvalo para evitar recortes demasiado agresivos.
         croppedCanvas = this.cropToSelfieOvalRegion(canvas);
       } else if (this.activeCapture() === 'documentFront' || this.activeCapture() === 'documentBack') {
-        // Para documentos: recortar estrictamente al marco guía de la cédula.
-        croppedCanvas = this.cropToDocumentGuideRegion(canvas);
+        const documentCanvas = this.cropToDocumentGuideRegion(canvas);
+        croppedCanvas = documentCanvas || canvas;
+
+        const preferredFace = this.pickLargestLeftFaceForDocument(canvas);
+        if (preferredFace) {
+          console.log('[DOC][front] Rostro preferido para la cédula:', {
+            area: preferredFace.area,
+            centerX: preferredFace.centerX,
+            centerY: preferredFace.centerY,
+            left: preferredFace.minX,
+            width: preferredFace.width,
+            height: preferredFace.height,
+          });
+        } else {
+          console.warn('[DOC][front] No se detectó un rostro válido en la cédula frontal.');
+        }
+
+        console.log('[OCR][capture] Captura documental recortada al marco guía', {
+          source: { width: canvas.width, height: canvas.height },
+          result: { width: croppedCanvas.width, height: croppedCanvas.height }
+        });
       }
 
       // Verificación básica de calidad para documentos
@@ -618,28 +768,93 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
    * Mantiene proporción de cédula (1.6:1) y centra el recorte para evitar fondo extra.
    */
   private cropToDocumentGuideRegion(canvas: HTMLCanvasElement): HTMLCanvasElement {
-    const targetAspect = 1.6;
-    const cropWidth = Math.floor(canvas.width * 0.84);
-    const cropHeight = Math.floor(cropWidth / targetAspect);
+    const video = this.videoElement?.nativeElement as HTMLVideoElement | undefined;
+    const guide = this.documentGuide?.nativeElement as HTMLDivElement | undefined;
 
-    const left = Math.max(0, Math.floor((canvas.width - cropWidth) / 2));
-    const top = Math.max(0, Math.floor((canvas.height - cropHeight) / 2));
+    if (video && guide) {
+      const guideRect = guide.getBoundingClientRect();
+      const videoRect = video.getBoundingClientRect();
 
-    const safeWidth = Math.min(cropWidth, canvas.width - left);
-    const safeHeight = Math.min(cropHeight, canvas.height - top);
+      const rect = calculateDocumentCaptureRect({
+        canvasWidth: canvas.width,
+        canvasHeight: canvas.height,
+        videoWidth: video.videoWidth,
+        videoHeight: video.videoHeight,
+        videoRect: {
+          left: videoRect.left,
+          top: videoRect.top,
+          width: videoRect.width,
+          height: videoRect.height,
+        },
+        guideRect: {
+          left: guideRect.left,
+          top: guideRect.top,
+          width: guideRect.width,
+          height: guideRect.height,
+        },
+        marginRatio: 0.02,
+        documentAspect: 1.58,
+      });
+
+      const cropCanvas = document.createElement('canvas');
+      cropCanvas.width = Math.max(1, rect.width);
+      cropCanvas.height = Math.max(1, rect.height);
+
+      const ctx = cropCanvas.getContext('2d');
+      if (ctx) {
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(0, 0, cropCanvas.width, cropCanvas.height);
+        ctx.drawImage(
+          canvas,
+          rect.left,
+          rect.top,
+          rect.width,
+          rect.height,
+          0,
+          0,
+          cropCanvas.width,
+          cropCanvas.height
+        );
+      }
+
+      console.log('[OCR][capture] Documento recortado usando guía visible', {
+        guideRect: { left: guideRect.left, top: guideRect.top, width: guideRect.width, height: guideRect.height },
+        source: rect,
+        video: { width: video.videoWidth, height: video.videoHeight },
+      });
+
+      return cropCanvas;
+    }
+
+    const detected = this.findDocumentBoundsByEdges(canvas);
+    const targetAspect = 1.55;
+
+    const cropRect = detected && detected.width > 150 && detected.height > 120
+      ? detected
+      : {
+          left: Math.max(0, Math.floor((canvas.width - canvas.width * 0.72) / 2)),
+          top: Math.max(0, Math.floor((canvas.height - (canvas.width * 0.72) / targetAspect) / 2)),
+          width: Math.max(260, Math.floor(canvas.width * 0.72)),
+          height: Math.max(260, Math.floor((canvas.width * 0.72) / targetAspect))
+        };
+
+    const finalWidth = Math.min(cropRect.width, canvas.width - cropRect.left);
+    const finalHeight = Math.min(cropRect.height, canvas.height - cropRect.top);
 
     const cropCanvas = document.createElement('canvas');
-    cropCanvas.width = Math.max(1, safeWidth);
-    cropCanvas.height = Math.max(1, safeHeight);
+    cropCanvas.width = Math.max(1, finalWidth);
+    cropCanvas.height = Math.max(1, finalHeight);
 
     const ctx = cropCanvas.getContext('2d');
     if (ctx) {
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, cropCanvas.width, cropCanvas.height);
       ctx.drawImage(
         canvas,
-        left,
-        top,
-        safeWidth,
-        safeHeight,
+        cropRect.left,
+        cropRect.top,
+        finalWidth,
+        finalHeight,
         0,
         0,
         cropCanvas.width,
@@ -648,6 +863,130 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
     }
 
     return cropCanvas;
+  }
+
+  private findDocumentBoundsByEdges(canvas: HTMLCanvasElement): { left: number; top: number; width: number; height: number } | null {
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return null;
+
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+    let minX = canvas.width;
+    let minY = canvas.height;
+    let maxX = 0;
+    let maxY = 0;
+    let darkPixels = 0;
+
+    for (let y = 0; y < canvas.height; y += 6) {
+      for (let x = 0; x < canvas.width; x += 6) {
+        const index = (y * canvas.width + x) * 4;
+        const r = data[index];
+        const g = data[index + 1];
+        const b = data[index + 2];
+
+        const brightness = (r + g + b) / 3;
+
+        if (brightness < 170 || (r > 160 && g > 160 && b > 160 && (r - g) < 25 && (g - b) < 25)) {
+          darkPixels++;
+          minX = Math.min(minX, x);
+          maxX = Math.max(maxX, x);
+          minY = Math.min(minY, y);
+          maxY = Math.max(maxY, y);
+        }
+      }
+    }
+
+    if (darkPixels < 200 || maxX <= minX || maxY <= minY) {
+      return null;
+    }
+
+    const padding = 30;
+    const left = Math.max(0, minX - padding);
+    const top = Math.max(0, minY - padding);
+    const width = Math.min(canvas.width - left, maxX - minX + padding * 2);
+    const height = Math.min(canvas.height - top, maxY - minY + padding * 2);
+
+    return {
+      left,
+      top,
+      width: Math.max(180, width),
+      height: Math.max(180, height)
+    };
+  }
+
+  private pickLargestLeftFaceForDocument(canvas: HTMLCanvasElement): any | null {
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return null;
+
+    const width = canvas.width;
+    const height = canvas.height;
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const data = imageData.data;
+    const skinPixels: Array<{ x: number; y: number }> = [];
+    const step = 18;
+
+    for (let y = height * 0.1; y < height * 0.9; y += step) {
+      for (let x = width * 0.1; x < width * 0.9; x += step) {
+        const index = (Math.floor(y) * width + Math.floor(x)) * 4;
+        const r = data[index];
+        const g = data[index + 1];
+        const b = data[index + 2];
+
+        if (this.isSkinTone(r, g, b)) {
+          skinPixels.push({ x, y });
+        }
+      }
+    }
+
+    if (skinPixels.length < 10) return null;
+
+    const clusters: Array<{ minX: number; maxX: number; minY: number; maxY: number; pixels: Array<{ x: number; y: number }> }> = [];
+
+    for (const pixel of skinPixels) {
+      let assigned = false;
+      for (const cluster of clusters) {
+        const nearX = Math.abs(pixel.x - ((cluster.minX + cluster.maxX) / 2)) < 40;
+        const nearY = Math.abs(pixel.y - ((cluster.minY + cluster.maxY) / 2)) < 40;
+        if (nearX && nearY) {
+          cluster.pixels.push(pixel);
+          cluster.minX = Math.min(cluster.minX, pixel.x);
+          cluster.maxX = Math.max(cluster.maxX, pixel.x);
+          cluster.minY = Math.min(cluster.minY, pixel.y);
+          cluster.maxY = Math.max(cluster.maxY, pixel.y);
+          assigned = true;
+          break;
+        }
+      }
+      if (!assigned) {
+        clusters.push({ minX: pixel.x, maxX: pixel.x, minY: pixel.y, maxY: pixel.y, pixels: [pixel] });
+      }
+    }
+
+    const faces = clusters
+      .map(cluster => {
+        const faceWidth = cluster.maxX - cluster.minX;
+        const faceHeight = cluster.maxY - cluster.minY;
+        const area = faceWidth * faceHeight;
+        return {
+          area,
+          centerX: (cluster.minX + cluster.maxX) / 2,
+          centerY: (cluster.minY + cluster.maxY) / 2,
+          width: faceWidth,
+          height: faceHeight,
+          minX: cluster.minX,
+          maxX: cluster.maxX,
+        };
+      })
+      .filter(face => face.area > (width * height) * 0.02 && face.area < (width * height) * 0.4);
+
+    if (faces.length === 0) return null;
+
+    faces.sort((a, b) => {
+      if (b.area !== a.area) return b.area - a.area;
+      return a.minX - b.minX;
+    });
+
+    return faces[0];
   }
 
   /**
@@ -870,7 +1209,12 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
     if (!file) {
       this.error.set(side === 'front'
         ? 'Primero captura el frente de tu cédula.'
-        : 'Primero captura el reverso de tu cédula.');
+        : 'Primero valida la selfie y el frente de la cédula para tomar el reverso.');
+      return;
+    }
+
+    if (side === 'back' && !this.canCaptureBackDocument()) {
+      this.error.set('El reverso solo puede tomarse después de validar la selfie y el frente.');
       return;
     }
 
@@ -884,12 +1228,14 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
 
       if (side === 'front') {
         this.state.idDocumentFrontId = result.id;
+        this.state.frontRunDigits = await this.uploadService.extractRunFromFrontImage(file);
+        console.log('[OCR][front] RUN guardado desde el frente:', this.state.frontRunDigits);
       } else {
         this.state.idDocumentBackId = result.id;
       }
       console.log(`✅ Documento ${side === 'front' ? 'frontal' : 'posterior'} subido con éxito:`, result.id);
 
-      // Para preview facial solo se usa selfie + frente.
+      // La preview facial debe crearse con selfie + frente antes de permitir reverso.
       if (this.state.selfieDocumentId && this.state.idDocumentFrontId) {
         await this.loadFacePreview();
       }
@@ -912,7 +1258,7 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
             this.state.idDocumentBackId = refreshed.id;
           }
           console.log(`✅ Documento ${side === 'front' ? 'frontal' : 'posterior'} subido tras refresh de token:`, refreshed.id);
-          if (this.state.selfieDocumentId && this.state.idDocumentFrontId) {
+          if (side === 'front' && this.state.selfieDocumentId && this.state.idDocumentFrontId) {
             await this.loadFacePreview();
           }
           return;
@@ -951,6 +1297,7 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
    */
   async loadFacePreview(): Promise<void> {
     if (!this.state.selfieDocumentId || !this.state.idDocumentFrontId) {
+      this.error.set('Debes subir la selfie y el frente de la cédula antes de continuar.');
       return;
     }
 
@@ -1067,23 +1414,75 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
     return 'La verificación no pudo completarse. Revisa las imágenes y vuelve a intentarlo.';
   }
 
+  private validateRequiredPhoto(file: File | null, label: string): string | null {
+    if (!file) {
+      return `${label} no está tomada.`;
+    }
+
+    if (!(file instanceof File)) {
+      return `${label} no es un archivo válido.`;
+    }
+
+    if (file.size <= 0) {
+      return `${label} está vacía.`;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      return `${label} no es una imagen válida.`;
+    }
+
+    return null;
+  }
+
+  canStartValidation(): boolean {
+    return !!this.selfieFile && !!this.docFrontFile && !!this.docBackFile && !this.loading() && !this.state.uploading;
+  }
+
+  private getMissingPhotoError(): string | null {
+    const selfieError = this.validateRequiredPhoto(this.selfieFile, 'La selfie');
+    if (selfieError) return selfieError;
+
+    const frontError = this.validateRequiredPhoto(this.docFrontFile, 'La foto del frente de la cédula');
+    if (frontError) return frontError;
+
+    const backError = this.validateRequiredPhoto(this.docBackFile, 'La foto del reverso de la cédula');
+    if (backError) return backError;
+
+    return null;
+  }
+
   /**
    * Submit documents for upload and preview
    */
   async submit(): Promise<void> {
-    if (!this.selfieFile || !this.docFrontFile || !this.docBackFile) {
-      this.error.set('Debes capturar selfie, frente y reverso de la cédula.');
+    const frontFile = this.docFrontFile;
+    const backFile = this.docBackFile;
+    const selfieFile = this.selfieFile;
+
+    const missingRequiredPhotoError = this.getMissingPhotoError();
+    if (missingRequiredPhotoError || !frontFile || !backFile || !selfieFile) {
+      this.error.set(`Antes de continuar debes tomar las 3 fotos: ${missingRequiredPhotoError || 'falta una imagen requerida.'}`);
       return;
     }
 
     this.loading.set(true);
     this.error.set('');
 
+    console.log('[OCR][verification] Iniciando validación de cédula desde submit()', {
+      hasSelfie: !!selfieFile,
+      hasFront: !!frontFile,
+      hasBack: !!backFile,
+      frontName: frontFile?.name,
+      backName: backFile?.name,
+    });
+
     // Validar OCR de cédula chilena y coincidencia RUN frente/reverso antes de subir
     const idValidation = await this.uploadService.validateChileanIdPair(
-      this.docFrontFile,
-      this.docBackFile
+      frontFile,
+      backFile
     );
+
+    console.log('[OCR][verification] Resultado validación cédula:', idValidation);
     if (!idValidation.valid) {
       this.loading.set(false);
       this.state.idCardValidated = false;
@@ -1116,9 +1515,22 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
    * Initiate face verification
    */
   async initiateVerification(): Promise<void> {
-    if (!this.state.selfieDocumentId || !this.state.idDocumentFrontId || !this.state.idDocumentBackId) {
-      this.error.set('Debes subir selfie, frente y reverso de la cédula');
+    if (!this.state.selfieDocumentId || !this.state.idDocumentFrontId) {
+      this.error.set('Debes subir la selfie y el frente de la cédula antes de verificar.');
       return;
+    }
+
+    if (!this.state.idDocumentBackId) {
+      this.error.set('Primero completa el reverso de la cédula para continuar con la verificación final.');
+      return;
+    }
+
+    if (!this.state.frontRunDigits) {
+      this.state.frontRunDigits = await this.uploadService.extractRunFromFrontImage(this.docFrontFile!);
+      if (!this.state.frontRunDigits) {
+        this.error.set('No se pudo leer el RUN del frente de la cédula. Vuelve a tomar la imagen del frente.');
+        return;
+      }
     }
 
     if (this.state.faceDetectionFailed) {
@@ -1320,6 +1732,7 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
       loadingPreview: false,
       facePreviewError: null,
       faceDetectionFailed: false,
+      frontRunDigits: null,
       rejectionReason: null,
       idCardValidationError: null,
       idCardValidated: false,

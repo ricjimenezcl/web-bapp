@@ -522,10 +522,11 @@
     background: rgba(253,215,53,0.10);
     border: 1.5px solid rgba(253,215,53,0.35);
     color: #FDD735;
-    white-space: nowrap;
+    white-space: normal;
     text-align: center;
     line-height: 1.2;
-    overflow-wrap: normal;
+    overflow-wrap: break-word;
+    min-width: 0;
 
     &:hover:not(:disabled) { background: rgba(253,215,53,0.18); }
   }
@@ -536,10 +537,11 @@
     background: rgba(239,68,68,0.10);
     border: 1.5px solid rgba(239,68,68,0.32);
     color: #F87171;
-    white-space: nowrap;
+    white-space: normal;
     text-align: center;
     line-height: 1.2;
-    overflow-wrap: normal;
+    overflow-wrap: break-word;
+    min-width: 0;
 
     &:hover { background: rgba(239,68,68,0.18); }
   }
@@ -625,6 +627,37 @@
   .footer-bottom {
     padding-left: 14px;
     padding-right: 14px;
+  }
+}
+
+// ── Anti-colapso de texto en botones (proyecto completo) — mobile ───────────
+// Cada feature define sus propias clases de botón (.btn, .action-btn, .ref-segment-btn,
+// .pi-btn-back, .sv-btn, .ms-btn-upgrade, .cpm-btn, .gm-btn, etc.) sin un componente
+// compartido único, por lo que un `white-space: nowrap` (Tailwind `whitespace-nowrap`
+// o CSS explícito en algún componente) puede hacer que el texto se salga de la caja
+// del botón y se vea superpuesto/junto con el texto vecino en pantallas angostas.
+// Esta capa fuerza wrap seguro en TODO botón/enlace-botón "con texto" (siempre llevan
+// "btn" en el nombre de clase en este proyecto) en viewports móviles, ganando por
+// !important a los estilos scoped por componente (Angular agrega un atributo
+// `_ngcontent-*` que sube la especificidad de las reglas locales). No se usa el
+// selector universal `button`/`[type=button]` a propósito: evita afectar botones
+// icon-only (dots de carrusel, toggles) que dependen de `min-width`/`line-height: 0`
+// fijos para su tamaño exacto.
+@media (max-width: 767.98px) {
+  a[role="button"],
+  [class*="btn"] {
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: normal !important;
+    line-height: 1.25 !important;
+    text-align: center !important;
+    min-width: 0 !important;
+  }
+
+  // Los hijos internos (íconos, spans de texto) también deben poder encogerse
+  // dentro de contenedores flex para no forzar overlap del hermano contiguo.
+  [class*="btn"] > * {
+    min-width: 0;
   }
 }
 

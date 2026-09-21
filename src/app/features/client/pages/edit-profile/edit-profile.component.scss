@@ -385,9 +385,10 @@
 
   .dashboard-container { flex-direction: column; margin: 20px 12px; gap: 20px; }
   .sidebar { width: 100%; position: static; gap: 16px; }
-  .nav-group { flex-direction: row; overflow-x: auto; padding-bottom: 4px; gap: 8px; }
-  .nav-label { display: none; }
-  .nav-item { white-space: nowrap; flex-shrink: 0; }
+  // Mantener el nav vertical tipo tabs (igual que desktop) en vez de
+  // convertirlo en una barra horizontal con scroll.
+  .nav-group { flex-direction: column; gap: 4px; }
+  .nav-item { width: 100%; }
   .main-content { padding: 24px 20px; min-height: auto; }
   .form-grid { grid-template-columns: 1fr; }
   .form-group.form-group--full { grid-column: span 1; }

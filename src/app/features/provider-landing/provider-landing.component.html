@@ -292,7 +292,7 @@
       <div class="text-center mb-14">
         <p class="text-sm font-semibold text-accent-500 uppercase tracking-widest mb-3">Tu categoría está aquí</p>
         <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-text-primary">
-          19 categorías de servicios
+          10 categorías de servicios
         </h2>
         <p class="text-text-secondary mt-4 text-lg max-w-xl mx-auto">
           Desde electricistas hasta peluqueras, profesores y cuidadores. Hay espacio para ti.
@@ -742,251 +742,271 @@
   }
 
   @if (showRegisterModal()) {
-        <dialog open
-          class="register-modal-backdrop fixed inset-0 z-[100] bg-black/65 backdrop-blur-sm flex items-center justify-center p-4"
+    <div class="modal-backdrop fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-50 py-2 sm:py-4"
          (click)="closeRegisterModal()"
          (keydown.escape)="closeRegisterModal()"
-         aria-labelledby="provider-register-modal-title">
-      <div class="relative w-full max-w-md rounded-3xl border border-border bg-surface-base shadow-2xl shadow-black/40 overflow-hidden"
+         role="dialog" aria-modal="true" aria-labelledby="provider-register-modal-title">
+      <div class="modal-content glass-effect relative w-full max-w-md mx-3 sm:mx-4 max-h-[94vh] sm:max-h-[92vh] overflow-y-auto rounded-lg px-4 sm:px-8 pt-6 sm:pt-10 pb-5 sm:pb-8 text-center border border-crypgo-dark_border"
            (click)="$event.stopPropagation()"
            (keydown)="$event.stopPropagation()">
 
-        <div class="px-6 pt-6 pb-4 border-b border-border flex items-center justify-between">
-          <div>
-            <h3 id="provider-register-modal-title" class="text-xl font-black text-text-primary">Regístrate como Proveedor</h3>
-            <p class="text-sm text-text-secondary mt-1">Publica servicios y recibe clientes cerca de ti</p>
+        <button type="button"
+                (click)="closeRegisterModal()"
+                aria-label="Cerrar registro"
+                class="absolute top-4 right-4 text-white hover:text-crypgo-primary transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+
+        <div class="mb-5">
+          <div class="flex items-center justify-center gap-2 mb-3">
+            <div class="w-[40px] h-[62px] rounded-xl flex overflow-hidden flex-shrink-0">
+              <img src="https://res.cloudinary.com/dghwotofx/image/upload/f_auto,q_auto,w_320,c_limit/v1774563936/logo_gsgyrf.png"
+                   alt="Logo BappSearch" class="w-full h-full object-contain">
+            </div>
+            <img src="https://res.cloudinary.com/dghwotofx/image/upload/v1774563936/titulo_bycrju.png"
+                 alt="BappSearch" class="h-[20px] object-contain">
           </div>
-          <button type="button"
-                  (click)="closeRegisterModal()"
-                  aria-label="Cerrar registro"
-                  class="w-9 h-9 rounded-xl bg-surface-card border border-border text-text-secondary hover:text-text-primary hover:border-border-medium transition-colors flex items-center justify-center">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-          </button>
+          <h2 id="provider-register-modal-title" class="text-white text-24 font-bold">Regístrate como Proveedor</h2>
+          <p class="text-gray-400 text-sm mt-1">Publica servicios y recibe clientes cerca de ti</p>
         </div>
 
-        <div class="px-6 py-5 max-h-[78vh] overflow-y-auto">
-          <div class="grid grid-cols-2 gap-3 mb-4">
-            <button type="button"
-                    (click)="loginWithGoogle()"
-                    [disabled]="loadingRegister()"
-                    class="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-card px-3 py-2.5 text-sm font-semibold text-text-primary hover:border-border-medium disabled:opacity-60">
-              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-4 h-4" />
-              Google
-            </button>
+        @if (errorRegister()) {
+          <div class="bg-crypgo-error/10 border border-crypgo-error/30 rounded-lg p-3 mb-4 text-red-400 text-sm">
+            {{ errorRegister() }}
+          </div>
+        }
+
+        @if (successRegister()) {
+          <div class="bg-green-500/10 border border-green-500/30 rounded-lg p-3 mb-4 text-green-300 text-sm">
+            {{ successRegister() }}
+          </div>
+        }
+
+        <form [formGroup]="registerForm" (ngSubmit)="submitRegister()" class="space-y-3 sm:space-y-4 text-left">
+          <div>
+            <label for="provider-register-name" class="text-white text-sm block mb-2">Nombre completo</label>
+            <input id="provider-register-name" type="text"
+                   formControlName="name"
+                   placeholder="Ej: Juan Pérez"
+                   class="w-full bg-crypgo-darkmode border border-crypgo-dark_border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-crypgo-primary transition-colors"
+                   [class.border-crypgo-error]="rf['name'].invalid && rf['name'].touched" />
+            @if (rf['name'].touched && rf['name'].errors?.['required']) {
+              <span class="text-crypgo-error text-sm mt-1 block">El nombre es requerido</span>
+            }
+            @if (rf['name'].pending && rf['name'].dirty) {
+              <span class="text-gray-400 text-sm mt-1 block">Validando contenido...</span>
+            }
+            @if (rf['name'].touched && rf['name'].errors?.['offensiveContent']) {
+              <div class="mt-2 rounded-xl border border-[#FDE68A]/40 bg-[#1A1D25] px-3 py-2 text-xs text-[#FDE68A] [font-family:'Plus_Jakarta_Sans',ui-sans-serif,system-ui]">
+                <div class="flex items-start gap-2">
+                  <svg class="mt-0.5 h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 9v4m0 4h.01M4.93 19h14.14c1.54 0 2.5-1.67 1.73-3L13.73 3c-.77-1.33-2.69-1.33-3.46 0L3.2 16c-.77 1.33.19 3 1.73 3z"/>
+                  </svg>
+                  <span>El nombre contiene lenguaje no permitido. Ajusta el texto para continuar.</span>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div>
+            <label for="provider-register-email" class="text-white text-sm block mb-2">Correo electrónico</label>
+            <input id="provider-register-email" type="email"
+                   formControlName="email"
+                   placeholder="tu@email.com"
+                   class="w-full bg-crypgo-darkmode border border-crypgo-dark_border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-crypgo-primary transition-colors"
+                   [class.border-crypgo-error]="rf['email'].invalid && rf['email'].touched" />
+            @if (rf['email'].touched && rf['email'].errors?.['required']) {
+              <span class="text-crypgo-error text-sm mt-1 block">El correo es requerido</span>
+            }
+            @if (rf['email'].touched && rf['email'].errors?.['email']) {
+              <span class="text-crypgo-error text-sm mt-1 block">Ingresa un correo válido</span>
+            }
+          </div>
+
+          <div>
+            <label for="provider-register-run" class="text-white text-sm block mb-2">RUT (Cédula de Identidad)</label>
+            <input id="provider-register-run" type="text"
+                   formControlName="run"
+                   inputmode="text"
+                   placeholder="12.345.678-9"
+                   (input)="onRegisterRUTInput($event)"
+                   (keydown)="onRegisterRUTKeydown($event)"
+                   class="w-full bg-crypgo-darkmode border border-crypgo-dark_border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-crypgo-primary transition-colors"
+                   [class.border-crypgo-error]="getRegisterRUTError() !== ''" />
+            @if (getRegisterRUTError() !== '') {
+              <span class="text-crypgo-error text-sm mt-1 block">{{ getRegisterRUTError() }}</span>
+            }
+          </div>
+
+          <div>
+            <label for="provider-register-phone" class="text-white text-sm block mb-2">Teléfono</label>
+            <input id="provider-register-phone" type="tel"
+                   formControlName="phone"
+                   inputmode="numeric"
+                   placeholder="+56 9 1234 5678"
+                   maxlength="17"
+                   (input)="onRegisterPhoneInput($event)"
+                   class="w-full bg-crypgo-darkmode border border-crypgo-dark_border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-crypgo-primary transition-colors"
+                   [class.border-crypgo-error]="getRegisterPhoneError() !== ''" />
+            @if (getRegisterPhoneError() !== '') {
+              <span class="text-crypgo-error text-sm mt-1 block">{{ getRegisterPhoneError() }}</span>
+            }
+          </div>
+
+          <div>
+            <label for="provider-register-password" class="text-white text-sm block mb-2">Contraseña</label>
+            <div class="relative">
+              <input id="provider-register-password" [type]="showModalPass() ? 'text' : 'password'"
+                     formControlName="password"
+                     placeholder="Mínimo 8, 1 mayúscula, 1 minúscula y 1 número"
+                     class="w-full bg-crypgo-darkmode border border-crypgo-dark_border rounded-lg px-4 py-3 pr-10 text-white focus:outline-none focus:border-crypgo-primary transition-colors"
+                     [class.border-crypgo-error]="rf['password'].invalid && rf['password'].touched" />
+              <button type="button"
+                      (click)="showModalPass.set(!showModalPass())"
+                      class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                      aria-label="Mostrar/ocultar contraseña">
+                @if (showModalPass()) {
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                  </svg>
+                } @else {
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                }
+              </button>
+            </div>
+            @if (getRegisterPasswordError()) {
+              <span class="text-crypgo-error text-sm mt-1 block">{{ getRegisterPasswordError() }}</span>
+            }
+          </div>
+
+          <div>
+            <label for="provider-register-confirm-password" class="text-white text-sm block mb-2">Repetir contraseña</label>
+            <div class="relative">
+              <input id="provider-register-confirm-password" [type]="showModalConfirmPass() ? 'text' : 'password'"
+                     formControlName="confirmPassword"
+                     placeholder="Repite tu contraseña"
+                     class="w-full bg-crypgo-darkmode border border-crypgo-dark_border rounded-lg px-4 py-3 pr-10 text-white focus:outline-none focus:border-crypgo-primary transition-colors"
+                     [class.border-crypgo-error]="registerPasswordMismatch" />
+              <button type="button"
+                      (click)="showModalConfirmPass.set(!showModalConfirmPass())"
+                      class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                      aria-label="Mostrar/ocultar confirmación de contraseña">
+                @if (showModalConfirmPass()) {
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                  </svg>
+                } @else {
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                }
+              </button>
+            </div>
+            @if (registerPasswordMismatch) {
+              <span class="text-crypgo-error text-sm mt-1 block">Las contraseñas no coinciden</span>
+            }
+          </div>
+
+          <div class="flex items-start gap-3">
+            <input id="provider-register-terms" type="checkbox"
+                   formControlName="terms_accepted"
+                   class="mt-1 w-4 h-4 accent-crypgo-primary" />
+            <label for="provider-register-terms" class="text-gray-400 text-sm">
+              Acepto los <a routerLink="/terms" class="text-crypgo-primary hover:underline">Términos y Condiciones</a> y la <a routerLink="/privacy" class="text-crypgo-primary hover:underline">Política de Privacidad</a>
+            </label>
+          </div>
+          @if (rf['terms_accepted'].touched && rf['terms_accepted'].errors?.['required']) {
+            <span class="text-crypgo-error text-sm -mt-2 block">Debes aceptar los términos para continuar</span>
+          }
+
+          <button type="submit"
+                  [disabled]="loadingRegister() || registerForm.pending"
+                  class="btn-crypgo btn-primary-crypgo w-full bg-crypgo-primary text-crypgo-darkmode py-3 rounded-lg font-semibold hover:bg-transparent hover:text-crypgo-primary border border-crypgo-primary transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2">
+            @if (loadingRegister()) {
+              <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+              </svg>
+              Procesando...
+            } @else {
+              Crear Cuenta
+            }
+          </button>
+        </form>
+
+        <!-- Social Login -->
+        <div class="mt-6">
+          <div class="relative">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-crypgo-dark_border"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+              <span class="px-4 bg-crypgo-darkmode text-gray-400">O regístrate con</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mt-6">
+            <div class="h-[50px] w-full rounded-lg overflow-hidden bg-white flex items-center justify-center">
+              <div #googleBtnHost class="w-full flex items-center justify-center"></div>
+            </div>
+
             <button type="button"
                     (click)="loginWithFacebook()"
                     [disabled]="loadingRegister()"
-                    class="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-card px-3 py-2.5 text-sm font-semibold text-text-primary hover:border-border-medium disabled:opacity-60">
-              <svg class="w-4 h-4 text-[#1877F2]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073c0 6.019 4.388 11.01 10.125 11.927V15.563H7.078v-3.49h3.047V9.413c0-3.007 1.792-4.669 4.533-4.669 1.313 0 2.686.235 2.686.235v2.953H15.83c-1.49 0-1.955.927-1.955 1.877v2.264h3.328l-.532 3.49h-2.796V24C19.612 23.083 24 18.092 24 12.073z"/>
+                    class="flex items-center justify-center gap-3 bg-[#1877F2] text-white py-3 rounded-lg font-semibold hover:bg-[#166FE5] transition-all disabled:opacity-60">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
               </svg>
               Facebook
             </button>
           </div>
-
-          <div class="relative text-center mb-4">
-            <span class="absolute left-0 right-0 top-1/2 h-px bg-border"></span>
-            <span class="relative inline-block bg-surface-base px-3 text-xs font-semibold uppercase tracking-widest text-text-tertiary">o con email</span>
-          </div>
-
-          @if (errorRegister()) {
-            <div class="mb-4 rounded-xl border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
-              {{ errorRegister() }}
-            </div>
-          }
-
-          @if (successRegister()) {
-            <div class="mb-4 rounded-xl border border-success/30 bg-success/10 px-3 py-2 text-sm text-success">
-              {{ successRegister() }}
-            </div>
-          }
-
-          <form [formGroup]="registerForm" (ngSubmit)="submitRegister()" class="space-y-3">
-            <div>
-              <label for="provider-register-name" class="block text-xs font-semibold uppercase tracking-wide text-text-tertiary mb-1.5">Nombre completo</label>
-              <input id="provider-register-name" type="text"
-                     formControlName="name"
-                     placeholder="Ej: Juan Pérez"
-                     class="w-full rounded-xl border border-border bg-surface-card px-3 py-2.5 text-sm text-text-primary placeholder:text-text-tertiary outline-none focus:border-primary-500" />
-              @if (rf['name'].touched && rf['name'].errors?.['required']) {
-                <p class="mt-1 text-xs text-danger">El nombre es requerido</p>
-              }
-              @if (rf['name'].pending && rf['name'].dirty) {
-                <p class="mt-1 text-xs text-text-tertiary">Validando contenido...</p>
-              }
-              @if (rf['name'].touched && rf['name'].errors?.['offensiveContent']) {
-                <div class="mt-2 rounded-xl border border-[#FDE68A]/40 bg-[#1A1D25] px-3 py-2 text-xs text-[#FDE68A] [font-family:'Plus_Jakarta_Sans',ui-sans-serif,system-ui]">
-                  <div class="flex items-start gap-2">
-                    <svg class="mt-0.5 h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 9v4m0 4h.01M4.93 19h14.14c1.54 0 2.5-1.67 1.73-3L13.73 3c-.77-1.33-2.69-1.33-3.46 0L3.2 16c-.77 1.33.19 3 1.73 3z"/>
-                    </svg>
-                    <span>El nombre contiene lenguaje no permitido. Ajusta el texto para continuar.</span>
-                  </div>
-                </div>
-              }
-            </div>
-
-            <div>
-              <label for="provider-register-email" class="block text-xs font-semibold uppercase tracking-wide text-text-tertiary mb-1.5">Correo electrónico</label>
-              <input id="provider-register-email" type="email"
-                     formControlName="email"
-                     placeholder="nombre@correo.com"
-                     class="w-full rounded-xl border border-border bg-surface-card px-3 py-2.5 text-sm text-text-primary placeholder:text-text-tertiary outline-none focus:border-primary-500" />
-              @if (rf['email'].touched && rf['email'].errors?.['required']) {
-                <p class="mt-1 text-xs text-danger">El correo es requerido</p>
-              }
-              @if (rf['email'].touched && rf['email'].errors?.['email']) {
-                <p class="mt-1 text-xs text-danger">Ingresa un correo válido</p>
-              }
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label for="provider-register-run" class="block text-xs font-semibold uppercase tracking-wide text-text-tertiary mb-1.5">RUT</label>
-                <input id="provider-register-run" type="text"
-                       formControlName="run"
-                       inputmode="text"
-                       placeholder="12.345.678-9"
-                       (input)="onRegisterRUTInput($event)"
-                       (keydown)="onRegisterRUTKeydown($event)"
-                       class="w-full rounded-xl border border-border bg-surface-card px-3 py-2.5 text-sm text-text-primary placeholder:text-text-tertiary outline-none focus:border-primary-500" />
-                @if (getRegisterRUTError()) {
-                  <p class="mt-1 text-xs text-danger">{{ getRegisterRUTError() }}</p>
-                }
-              </div>
-
-              <div>
-                <label for="provider-register-phone" class="block text-xs font-semibold uppercase tracking-wide text-text-tertiary mb-1.5">Teléfono</label>
-                <input id="provider-register-phone" type="tel"
-                       formControlName="phone"
-                       inputmode="numeric"
-                       placeholder="+56 9 1234 5678"
-                       (input)="onRegisterPhoneInput($event)"
-                       class="w-full rounded-xl border border-border bg-surface-card px-3 py-2.5 text-sm text-text-primary placeholder:text-text-tertiary outline-none focus:border-primary-500" />
-                @if (getRegisterPhoneError()) {
-                  <p class="mt-1 text-xs text-danger">{{ getRegisterPhoneError() }}</p>
-                }
-              </div>
-            </div>
-
-            <div>
-              <label for="provider-register-password" class="block text-xs font-semibold uppercase tracking-wide text-text-tertiary mb-1.5">Contraseña</label>
-              <div class="relative">
-                <input id="provider-register-password" [type]="showModalPass() ? 'text' : 'password'"
-                       formControlName="password"
-                       placeholder="Mínimo 8 caracteres"
-                       class="w-full rounded-xl border border-border bg-surface-card px-3 py-2.5 pr-10 text-sm text-text-primary placeholder:text-text-tertiary outline-none focus:border-primary-500" />
-                <button type="button"
-                        (click)="showModalPass.set(!showModalPass())"
-                        class="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-md text-text-tertiary hover:text-text-primary flex items-center justify-center">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    @if (!showModalPass()) {
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                    } @else {
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.956 9.956 0 012.223-3.592M6.228 6.228A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.97 9.97 0 01-4.132 5.411M3 3l18 18"/>
-                    }
-                  </svg>
-                </button>
-              </div>
-              @if (getRegisterPasswordError()) {
-                <p class="mt-1 text-xs text-danger">{{ getRegisterPasswordError() }}</p>
-              }
-            </div>
-
-            <div>
-              <label for="provider-register-confirm-password" class="block text-xs font-semibold uppercase tracking-wide text-text-tertiary mb-1.5">Confirmar contraseña</label>
-              <div class="relative">
-                <input id="provider-register-confirm-password" [type]="showModalConfirmPass() ? 'text' : 'password'"
-                       formControlName="confirmPassword"
-                       placeholder="Repite tu contraseña"
-                       class="w-full rounded-xl border border-border bg-surface-card px-3 py-2.5 pr-10 text-sm text-text-primary placeholder:text-text-tertiary outline-none focus:border-primary-500" />
-                <button type="button"
-                        (click)="showModalConfirmPass.set(!showModalConfirmPass())"
-                        class="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-md text-text-tertiary hover:text-text-primary flex items-center justify-center">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    @if (!showModalConfirmPass()) {
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                    } @else {
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.956 9.956 0 012.223-3.592M6.228 6.228A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.97 9.97 0 01-4.132 5.411M3 3l18 18"/>
-                    }
-                  </svg>
-                </button>
-              </div>
-              @if (registerPasswordMismatch) {
-                <p class="mt-1 text-xs text-danger">Las contraseñas no coinciden</p>
-              }
-            </div>
-
-            <label class="flex items-start gap-2 rounded-xl border border-border bg-surface-card px-3 py-2.5">
-              <input type="checkbox"
-                     formControlName="terms_accepted"
-                     class="mt-0.5 rounded border-border bg-surface-base text-primary-500 focus:ring-primary-500/40" />
-              <span class="text-xs text-text-secondary leading-relaxed">
-                Acepto los
-                <a routerLink="/terms" class="text-primary-500 hover:text-primary-400">Términos y Condiciones</a>
-                y la
-                <a routerLink="/privacy" class="text-primary-500 hover:text-primary-400">Política de Privacidad</a>.
-              </span>
-            </label>
-            @if (rf['terms_accepted'].touched && rf['terms_accepted'].errors?.['required']) {
-              <p class="-mt-2 text-xs text-danger">Debes aceptar los términos para continuar</p>
-            }
-
-            <button type="submit"
-                  [disabled]="loadingRegister() || registerForm.pending"
-                    class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary-500 px-4 py-3 font-bold text-surface-base hover:bg-primary-400 disabled:opacity-60 disabled:cursor-not-allowed transition-colors">
-              @if (loadingRegister()) {
-                <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-                </svg>
-                Procesando...
-              } @else {
-                Crear cuenta de proveedor
-              }
-            </button>
-          </form>
         </div>
 
         @if (facebookEmailPromptOpen()) {
-          <div class="absolute inset-0 z-20 bg-black/65 backdrop-blur-[1px] flex items-center justify-center p-4"
+          <div class="absolute inset-0 bg-black/60 backdrop-blur-[1px] flex items-center justify-center p-4"
                (click)="closeFacebookEmailPrompt()">
-            <div class="w-full max-w-sm rounded-2xl border border-primary-500/40 bg-surface-card p-5 shadow-2xl"
+            <div class="w-full max-w-sm rounded-2xl border border-crypgo-primary/30 bg-crypgo-deepSlate p-5 text-left shadow-2xl"
                  (click)="$event.stopPropagation()">
-              <h4 class="text-lg font-black text-text-primary">Completa tu correo</h4>
-              <p class="mt-2 text-sm text-text-secondary">Facebook no compartió tu email. Ingresa tu correo para continuar con el registro.</p>
+              <h3 class="text-white text-lg font-semibold">Completa tu correo</h3>
+              <p class="mt-2 text-sm text-gray-300">Facebook no compartió tu email. Escríbelo para continuar con tu registro.</p>
 
-              <label for="provider-facebook-email-fallback" class="mt-4 block text-xs font-semibold uppercase tracking-wide text-text-tertiary">Correo electrónico</label>
+              <label for="provider-facebook-email-fallback" class="mt-4 block text-sm text-white">Correo electrónico</label>
               <input
                 id="provider-facebook-email-fallback"
                 type="email"
                 [value]="facebookEmailPromptValue()"
                 (input)="onFacebookEmailPromptInput($event)"
-                placeholder="nombre@correo.com"
-                class="mt-2 w-full rounded-xl border border-border bg-surface-base px-3 py-2.5 text-sm text-text-primary placeholder:text-text-tertiary outline-none focus:border-primary-500"
-                [class.border-danger]="facebookEmailPromptError()"
+                placeholder="tu@email.com"
+                class="mt-2 w-full rounded-lg border border-crypgo-dark_border bg-crypgo-darkmode px-4 py-3 text-white focus:outline-none focus:border-crypgo-primary"
+                [class.border-crypgo-error]="facebookEmailPromptError()"
               />
 
               @if (facebookEmailPromptError()) {
-                <p class="mt-2 text-xs text-danger">{{ facebookEmailPromptError() }}</p>
+                <p class="mt-2 text-sm text-crypgo-error">{{ facebookEmailPromptError() }}</p>
               }
 
               <div class="mt-5 grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   (click)="closeFacebookEmailPrompt()"
-                  class="rounded-xl border border-border px-3 py-2 text-sm font-semibold text-text-secondary hover:text-text-primary hover:border-border-medium transition-colors">
+                  class="rounded-lg border border-crypgo-dark_border px-3 py-2 text-sm font-semibold text-gray-300 hover:text-white hover:border-gray-400 transition-colors">
                   Cancelar
                 </button>
                 <button
                   type="button"
                   (click)="submitFacebookEmailPrompt()"
                   [disabled]="loadingRegister()"
-                  class="rounded-xl bg-primary-500 px-3 py-2 text-sm font-bold text-surface-base hover:bg-primary-400 disabled:opacity-60 transition-colors">
+                  class="rounded-lg border border-crypgo-primary bg-crypgo-primary px-3 py-2 text-sm font-semibold text-crypgo-darkmode hover:bg-transparent hover:text-crypgo-primary transition-colors disabled:opacity-60">
                   {{ loadingRegister() ? 'Validando...' : 'Continuar' }}
                 </button>
               </div>
@@ -994,7 +1014,7 @@
           </div>
         }
       </div>
-    </dialog>
+    </div>
   }
 
   <!-- ══════════════════════════════════════════════════════════

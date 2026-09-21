@@ -13,27 +13,52 @@
  * @returns Valor formateado, o '' si el input está vacío
  */
 export function formatChileanPhone(rawValue: string): string {
-  // 1. Quitar caracteres no numéricos
   let digits = rawValue.replace(/\D/g, '');
 
-  // 2. Quitar prefijo 56 si ya viene con él (p.ej. al pegar "+56 9 1234 5678")
-  if (digits.startsWith('56') && digits.length > 9) {
+  // El sistema exige prefijo fijo "+56 9" y solo 8 dígitos finales.
+  if (digits.startsWith('56')) {
     digits = digits.substring(2);
   }
-
-  // 3. Limitar a 9 dígitos locales
-  digits = digits.substring(0, 9);
-
-  if (digits.length === 0) return '';
-
-  // 4. Solo aplicar el formato visual completo cuando el número está completo (9 dígitos).
-  //    Si el usuario está borrando o aún escribiendo, devolver los dígitos sin formatear
-  //    para que el cursor no salte y la edición funcione con normalidad.
-  if (digits.length === 9) {
-    return `+56 ${digits[0]} ${digits.substring(1, 5)} ${digits.substring(5)}`;
+  if (digits.startsWith('9')) {
+    digits = digits.substring(1);
   }
 
-  return digits;
+  digits = digits.substring(0, 8);
+
+  if (digits.length === 0) return '+56 9';
+  if (digits.length <= 4) return `+56 9 ${digits}`;
+  return `+56 9 ${digits.substring(0, 4)} ${digits.substring(4)}`;
+}
+
+/**
+ * Normaliza un teléfono chileno al formato canónico para backend: "+569XXXXXXXX".
+ * Acepta formatos tipo "+56 9 1234 5678", "56912345678", "981234567" y "12345678".
+ */
+export function normalizeChileanPhoneForBackend(rawValue: string): string {
+  const digits = (rawValue ?? '').toString().replace(/\D/g, '');
+  if (!digits) return '';
+
+  if (digits.startsWith('56')) {
+    const withoutCountry = digits.slice(2);
+    if (withoutCountry.length === 9 && withoutCountry.startsWith('9')) {
+      return `+56${withoutCountry}`;
+    }
+    return `+${digits}`;
+  }
+
+  if (digits.length === 9 && digits.startsWith('9')) {
+    return `+56${digits}`;
+  }
+
+  if (digits.length === 8) {
+    return `+569${digits}`;
+  }
+
+  if (digits.length >= 11) {
+    return `+${digits}`;
+  }
+
+  return `+56${digits}`;
 }
 
 /**

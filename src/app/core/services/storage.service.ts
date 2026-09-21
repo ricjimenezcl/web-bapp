@@ -13,7 +13,7 @@ const PAYMENT_REDIRECT_FLAG = 'bapp_payment_redirect_pending';
 
 @Injectable({ providedIn: 'root' })
 export class StorageService {
-  private readonly _token   = signal<string | null>(localStorage.getItem(KEYS.TOKEN));
+  private readonly _token   = signal<string | null>(sessionStorage.getItem(KEYS.TOKEN) ?? localStorage.getItem(KEYS.TOKEN));
   private readonly _user    = signal<StoredUser | null>(this._parseJson(localStorage.getItem(KEYS.USER)));
   private readonly _profile = signal<UserProfile | null>(this._parseJson(localStorage.getItem(KEYS.PROFILE)));
 
@@ -36,11 +36,15 @@ export class StorageService {
   }
 
   setToken(token: string): void {
+    // Mantener un fallback de sesión en sessionStorage para que la app pueda
+    // enviar Authorization Bearer incluso si el backend usa cookies HttpOnly.
+    sessionStorage.setItem(KEYS.TOKEN, token);
     localStorage.setItem(KEYS.TOKEN, token);
     this._token.set(token);
   }
 
   clearToken(): void {
+    sessionStorage.removeItem(KEYS.TOKEN);
     localStorage.removeItem(KEYS.TOKEN);
     this._token.set(null);
   }
@@ -120,6 +124,7 @@ export class StorageService {
   }
 
   clearSession(): void {
+    sessionStorage.removeItem(KEYS.TOKEN);
     localStorage.removeItem(KEYS.TOKEN);
     localStorage.removeItem(KEYS.REFRESH_TOKEN);
     localStorage.removeItem(KEYS.USER);

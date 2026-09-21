@@ -723,27 +723,6 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
     this.lightboxOpen.set(false);
   }
 
-  /**
-   * Muestra el modal de paywall para desbloquear servicios premium
-   */
-  async showPremiumPaywall(): Promise<void> {
-    const confirmed = await this.modal.confirm(
-      'Desbloquea la posibilidad de reservar múltiples servicios del mismo proveedor.\n\nPlan Premium: $9.990/mes\nCancela cuando quieras.\n\nIncluye:\n- Reserva ilimitada de servicios\n- Soporte prioritario\n- Sin comisiones adicionales\n- Acceso anticipado a nuevas funciones',
-      'Hazte Premium',
-      'Suscribirme',
-      'Ahora no'
-    );
-
-    if (confirmed) {
-      void this.router.navigate(['/payment'], {
-        queryParams: {
-          plan: 'premium',
-          source: 'provider-info',
-          providerId: this.providerId
-        }
-      });
-    }
-  }
 
   // ── Toast ─────────────────────────────────────────────────────────────────
   showToast(msg: string, type: string = 'success'): void {

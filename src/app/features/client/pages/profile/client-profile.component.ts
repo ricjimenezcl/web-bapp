@@ -16,7 +16,7 @@ import { PlatformLanguage, PlatformLanguageService } from '../../../../core/serv
 import { PlatformI18nService } from '../../../../core/services/platform-i18n.service';
 import { TPipe } from '../../../../shared/pipes/t.pipe';
 
-export type DashView = 'overview' | 'edit' | 'purchases' | 'config' | 'help';
+export type DashView = 'overview' | 'edit' | 'config' | 'help' | 'payments';
 
 @Component({
   selector: 'app-client-profile',

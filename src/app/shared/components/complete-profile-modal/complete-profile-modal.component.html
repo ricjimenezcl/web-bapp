@@ -89,6 +89,15 @@
         }
       </button>
 
+      <button
+        type="button"
+        class="cpm-btn-later"
+        [disabled]="loading()"
+        (click)="later()"
+      >
+        Continuar más tarde
+      </button>
+
     </form>
 
     <!-- Nota legal -->

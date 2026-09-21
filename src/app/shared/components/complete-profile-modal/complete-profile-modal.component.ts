@@ -3,8 +3,9 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ProfileCompletionService } from '../../../core/services/profile-completion.service';
 import { StorageService } from '../../../core/services/storage.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { CustomValidators } from '../../validators/custom-validators';
-import { formatChileanPhone, formatChileanRUT, normalizeChileanRUTForBackend } from '../../utils/form-formatters';
+import { formatChileanPhone, formatChileanRUT, normalizeChileanPhoneForBackend, normalizeChileanRUTForBackend } from '../../utils/form-formatters';
 import { environment } from '../../../../environments/environment';
 
 @Component({
@@ -19,6 +20,7 @@ export class CompleteProfileModalComponent {
   private readonly http        = inject(HttpClient);
   private readonly completion  = inject(ProfileCompletionService);
   private readonly storage     = inject(StorageService);
+  private readonly auth        = inject(AuthService);
   private readonly api         = environment.apiUrl;
 
   readonly loading = signal(false);
@@ -60,6 +62,14 @@ export class CompleteProfileModalComponent {
     }
   }
 
+  /** Cierra el modal sin guardar y cierra la sesión, enviando al login.
+   *  No persiste en localStorage, por lo que al volver a iniciar sesión se
+   *  volverá a exigir completar el perfil mientras siga incompleto. */
+  later(): void {
+    this.completion.dismiss();
+    this.auth.logout();
+  }
+
   submit(): void {
     this.form.markAllAsTouched();
     if (this.form.invalid || this.loading()) return;
@@ -68,11 +78,9 @@ export class CompleteProfileModalComponent {
     this.error.set('');
 
     const v = this.form.value;
-    const phone = v.phone ?? '';
+    const phone = normalizeChileanPhoneForBackend(v.phone ?? '');
 
-    // Enviar teléfono sin el prefijo visual para el backend
-    const cleanPhone = phone.replace(/\D/g, '');
-    const payload: Record<string, string> = { phone: cleanPhone };
+    const payload: Record<string, string> = { phone };
 
     if (this.needsRut()) {
       // El backend espera RUT canónico: "12345678-9"
@@ -89,7 +97,7 @@ export class CompleteProfileModalComponent {
         // Actualizar perfil en storage
         const current = this.storage.profile();
         if (current) {
-          this.storage.setProfile({ ...current, phone: cleanPhone, run: payload['run'] });
+          this.storage.setProfile({ ...current, phone, run: payload['run'] });
         }
         // Persistir en localStorage: no volver a preguntar en próximos logins
         const userId = this.storage.user()?.id;

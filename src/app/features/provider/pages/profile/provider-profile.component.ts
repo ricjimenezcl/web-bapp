@@ -8,6 +8,7 @@ import { ProviderService } from '../../../../core/services/provider.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ProfileService } from '../../../../core/services/profile.service';
 import { ProviderProfile } from '../../../../core/models/provider.model';
+import { normalizeChileanPhoneForBackend } from '../../../../shared/utils/form-formatters';
 import { environment } from '../../../../../environments/environment';
 import { ContentFilterService } from '../../../../shared/services/content-filter.service';
 import { offensiveContentAsyncValidator } from '../../../../shared/validators/content-filter.validators';
@@ -228,7 +229,11 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
     }
     this.saveLoading.set(true);
     const save = () => {
-      this.providerSvc.updateProfile(this.form.value as any).subscribe({
+      const payload = {
+        ...this.form.value,
+        phone: normalizeChileanPhoneForBackend((this.form.value.phone ?? '') as string)
+      } as any;
+      this.providerSvc.updateProfile(payload).subscribe({
         next: (p) => { this.provider.set(p); this.saveLoading.set(false); this.success.set(true); this.activeView.set('overview'); setTimeout(() => this.success.set(false), 3000); },
         error: (err) => { this.saveLoading.set(false); this.error.set(err?.error?.detail ?? this.i18n.t('profile.errorSaving')); }
       });

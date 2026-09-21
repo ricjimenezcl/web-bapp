@@ -8,6 +8,7 @@ import { LocationService } from '../../../../core/services/location.service';
 import { ModalService } from '../../../../core/services/modal.service';
 import { TPipe } from '../../../../shared/pipes/t.pipe';
 import { PlatformI18nService } from '../../../../core/services/platform-i18n.service';
+import { environment } from '../../../../../environments/environment';
 
 type MapStyle = 'streets' | 'light' | 'dark';
 
@@ -263,7 +264,7 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
     
     // Crear ícono de ubicación actual con imagen personalizada (PNG para mejor compatibilidad)
     const userIcon = this.L.icon({
-      iconUrl: 'https://res.cloudinary.com/dghwotofx/image/upload/v1782705912/ubi_cli_2_nlnxac.svg',
+      iconUrl: 'https://res.cloudinary.com/dghwotofx/image/upload/v1789871024/pin_ubicacion_j7u7ov.svg',
       iconSize: [32, 32],
       iconAnchor: [16, 32],
       popupAnchor: [0, -32],
@@ -494,11 +495,11 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
         tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
         break;
       case 'light':
-        tileUrl = 'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+        tileUrl = `https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=${environment.cartoApiKey}`;
         attribution = '© CARTO, © OpenStreetMap contributors';
         break;
       case 'dark':
-        tileUrl = 'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+        tileUrl = `https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=${environment.cartoApiKey}`;
         attribution = '© CARTO, © OpenStreetMap contributors';
         break;
     }

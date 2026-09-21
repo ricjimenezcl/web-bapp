@@ -248,6 +248,8 @@
           <div class="cat-ac-icon">
             @if (isImageUrl(cat.icon)) {
               <img [src]="cat.icon" [alt]="cat.name" class="cat-ac-img" />
+            } @else if (isFontAwesomeIcon(cat.icon)) {
+              <i class="cat-ac-ion {{ cat.icon }}" aria-hidden="true"></i>
             } @else {
               <ion-icon [name]="cat.icon || 'construct-outline'" class="cat-ac-ion"></ion-icon>
             }
@@ -316,6 +318,8 @@
               <div class="cat-icon-bubble">
                 @if (isImageUrl(cat.icon)) {
                   <img [src]="cat.icon" [alt]="cat.name" class="cat-icon-img" loading="lazy" />
+                } @else if (isFontAwesomeIcon(cat.icon)) {
+                  <i class="cat-icon-ion {{ cat.icon }}" aria-hidden="true"></i>
                 } @else {
                   <ion-icon [name]="cat.icon || 'construct-outline'" class="cat-icon-ion"></ion-icon>
                 }
@@ -380,6 +384,8 @@
                     <div class="cat-icon-bubble">
                       @if (isImageUrl(sub.icon)) {
                         <img [src]="sub.icon" [alt]="sub.name" class="cat-icon-img" loading="lazy" />
+                      } @else if (isFontAwesomeIcon(sub.icon)) {
+                        <i class="cat-icon-ion {{ sub.icon }}" aria-hidden="true"></i>
                       } @else {
                         <ion-icon [name]="sub.icon || selectedMainCategory()?.icon || 'construct-outline'"
                                   class="cat-icon-ion"></ion-icon>

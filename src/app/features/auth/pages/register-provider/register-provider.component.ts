@@ -4,7 +4,7 @@ import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, Validati
 import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { CustomValidators } from '../../../../shared/validators/custom-validators';
-import { formatChileanPhone, formatChileanRUT, normalizeChileanRUTForBackend } from '../../../../shared/utils/form-formatters';
+import { formatChileanPhone, formatChileanRUT, normalizeChileanPhoneForBackend, normalizeChileanRUTForBackend } from '../../../../shared/utils/form-formatters';
 
 function passwordMatch(ctrl: AbstractControl): ValidationErrors | null {
   const p = ctrl.get('password'), c = ctrl.get('confirmPassword');
@@ -49,7 +49,7 @@ export class RegisterProviderComponent {
     this.auth.registerProvider({
       full_name:      v.full_name!,
       email:          v.email!,
-      phone:          v.phone!,
+      phone:          normalizeChileanPhoneForBackend(v.phone ?? ''),
       password:       v.password!,
       terms_accepted: !!v.terms_accepted,
       run:            normalizedRun || undefined,

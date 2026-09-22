@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, firstValueFrom } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, firstValueFrom, throwError, timer } from 'rxjs';
+import { catchError, delayWhen, map, retryWhen, scan } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { createWorker, PSM } from 'tesseract.js';
 
@@ -737,6 +738,16 @@ export class DocumentUploadService {
   /**
    * Upload document to backend (backend handles Cloudinary upload)
    */
+  private shouldRetryUpload(error: HttpErrorResponse): boolean {
+    if (error.status === 0) return true;
+
+    const message = (error.message || '').toLowerCase();
+    return message.includes('err_connection_closed')
+      || message.includes('network error')
+      || message.includes('connection closed')
+      || message.includes('connection reset');
+  }
+
   uploadDocument(file: File, documentType: string): Observable<any> {
     return new Observable(observer => {
       this.validateImage(file)
@@ -754,16 +765,44 @@ export class DocumentUploadService {
           formData.append('document_type', documentType);
           formData.append('file', file);
 
-          this.http.post(`${this.API_URL}/upload-signed`, formData).subscribe({
-            next: (response) => {
-              observer.next(response);
-              observer.complete();
-            },
-            error: (err) => {
-              console.error('Document upload failed:', err);
-              observer.error(err);
-            }
-          });
+          this.http.post(`${this.API_URL}/upload-signed`, formData)
+            .pipe(
+              retryWhen(errors =>
+                errors.pipe(
+                  scan((attempt, error) => {
+                    const httpError = error as HttpErrorResponse;
+
+                    if (!this.shouldRetryUpload(httpError) || attempt >= 1) {
+                      throw error;
+                    }
+
+                    console.warn('[UPLOAD] Retry due to transient connection reset on signed upload', {
+                      documentType,
+                      status: httpError.status,
+                      message: httpError.message,
+                      attempt: attempt + 1,
+                    });
+
+                    return attempt + 1;
+                  }, 0),
+                  delayWhen(() => timer(1500))
+                )
+              ),
+              map((response) => response),
+              catchError((err) => {
+                console.error('Document upload failed:', err);
+                return throwError(() => err);
+              })
+            )
+            .subscribe({
+              next: (response) => {
+                observer.next(response);
+                observer.complete();
+              },
+              error: (err) => {
+                observer.error(err);
+              }
+            });
         })
         .catch(error => {
           observer.error(error);

@@ -277,19 +277,31 @@
 
 // Evita que el texto de tabs se salga en mobile (override a _bapp-web.scss)
 .pi-tabs-nav .ref-segment-btn {
+  flex: 1 1 0;
   min-width: 0;
-  white-space: normal;
-  overflow-wrap: anywhere;
+  width: 100%;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
   text-align: center;
   line-height: 1.15;
   padding: 10px 6px;
+  text-overflow: ellipsis;
+}
+
+.pi-tabs-nav .ref-segment-label {
+  display: inline-block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 @media (max-width: 767px) {
   .pi-tabs-nav .ref-segment-btn {
-    font-size: 11px;
+    font-size: 10.5px;
     gap: 4px;
-    padding: 9px 4px;
+    padding: 9px 5px;
   }
 
   .pi-tabs-nav .ref-segment-btn svg {

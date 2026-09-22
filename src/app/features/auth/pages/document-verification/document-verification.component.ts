@@ -30,44 +30,26 @@ export function calculateDocumentCaptureRect({
   marginRatio = 0.02,
   documentAspect = 1.58,
 }: DocumentCaptureRectInput) {
-  const innerGuide = {
-    left: guideRect.left + guideRect.width * 0.06,
-    top: guideRect.top + guideRect.height * 0.08,
-    width: guideRect.width * 0.88,
-    height: guideRect.height * 0.84,
-  };
-
   const scale = Math.min(videoRect.width / Math.max(videoWidth, 1), videoRect.height / Math.max(videoHeight, 1));
   const displayedWidth = videoWidth * scale;
   const displayedHeight = videoHeight * scale;
   const offsetX = (videoRect.width - displayedWidth) / 2;
   const offsetY = (videoRect.height - displayedHeight) / 2;
 
-  const guideLeftInDisplay = Math.max(0, innerGuide.left - videoRect.left - offsetX);
-  const guideTopInDisplay = Math.max(0, innerGuide.top - videoRect.top - offsetY);
-  const guideRightInDisplay = Math.min(displayedWidth, innerGuide.left + innerGuide.width - videoRect.left - offsetX);
-  const guideBottomInDisplay = Math.min(displayedHeight, innerGuide.top + innerGuide.height - videoRect.top - offsetY);
-
-  // El documento se ve más bajo en la vista real del teléfono. Para alinear la captura sin
-  // recortarla, bajamos el inicio y el fin del recorte en la misma proporción para mantener
-  // la altura completa de la cédula.
-  const downwardBias = Math.max((guideBottomInDisplay - guideTopInDisplay) * 0.18, 24);
-  const adjustedGuideTopInDisplay = Math.min(displayedHeight, guideTopInDisplay + downwardBias);
-  const adjustedGuideBottomInDisplay = Math.min(displayedHeight, guideBottomInDisplay + downwardBias);
+  const guideLeftInDisplay = Math.max(0, guideRect.left - videoRect.left - offsetX);
+  const guideTopInDisplay = Math.max(0, guideRect.top - videoRect.top - offsetY);
+  const guideRightInDisplay = Math.min(displayedWidth, guideRect.left + guideRect.width - videoRect.left - offsetX);
+  const guideBottomInDisplay = Math.min(displayedHeight, guideRect.top + guideRect.height - videoRect.top - offsetY);
 
   const sourceLeft = (guideLeftInDisplay / Math.max(displayedWidth, 1)) * videoWidth;
-  const sourceTop = (adjustedGuideTopInDisplay / Math.max(displayedHeight, 1)) * videoHeight;
+  const sourceTop = (guideTopInDisplay / Math.max(displayedHeight, 1)) * videoHeight;
   const sourceWidth = ((guideRightInDisplay - guideLeftInDisplay) / Math.max(displayedWidth, 1)) * videoWidth;
-  const sourceHeight = ((adjustedGuideBottomInDisplay - adjustedGuideTopInDisplay) / Math.max(displayedHeight, 1)) * videoHeight;
+  const sourceHeight = ((guideBottomInDisplay - guideTopInDisplay) / Math.max(displayedHeight, 1)) * videoHeight;
 
-  const horizontalMargin = Math.max(sourceWidth * marginRatio, 8);
-  const verticalMargin = Math.max(sourceHeight * marginRatio, 8);
-
-  const left = Math.max(0, Math.min(videoWidth - 1, sourceLeft - horizontalMargin));
-  const top = Math.max(0, Math.min(videoHeight - 1, sourceTop - verticalMargin));
-
-  const width = Math.max(1, Math.min(sourceWidth + horizontalMargin * 2, videoWidth - left));
-  const height = Math.max(1, Math.min(Math.max(sourceHeight + verticalMargin * 2, width / documentAspect), videoHeight - top));
+  const left = Math.max(0, Math.min(videoWidth - 1, sourceLeft));
+  const top = Math.max(0, Math.min(videoHeight - 1, sourceTop));
+  const width = Math.max(1, Math.min(sourceWidth, videoWidth - left));
+  const height = Math.max(1, Math.min(sourceHeight, videoHeight - top));
 
   return {
     left: Math.round(Math.min(left, canvasWidth - 1)),

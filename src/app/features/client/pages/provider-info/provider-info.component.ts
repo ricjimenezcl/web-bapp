@@ -150,6 +150,22 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
     return this.provider()?.bio ?? '';
   }
 
+  getAvatarSrc(): string {
+    const profile = this.provider();
+    return profile?.avatar || profile?.avatar_url || profile?.picture || '/assets/images/default-avatar.png';
+  }
+
+  handleAvatarError(event: Event): void {
+    const image = event.target as HTMLImageElement | null;
+    if (!image) return;
+    if (image.dataset['fallbackApplied'] === 'true' || image.src.endsWith('/assets/images/default-avatar.png')) {
+      image.style.display = 'none';
+      return;
+    }
+    image.dataset['fallbackApplied'] = 'true';
+    image.src = '/assets/images/default-avatar.png';
+  }
+
   get hasWorkingHours(): boolean {
     return this.activeDays.size > 0;
   }

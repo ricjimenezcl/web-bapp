@@ -149,6 +149,64 @@
   animation: bapWindowGlow 2.4s ease-in-out infinite;
 }
 
+.bap-radar-scene {
+  transform-origin: center;
+}
+
+.bap-radar-screen {
+  filter: drop-shadow(0 0 24px rgba(167, 243, 208, 0.18));
+}
+
+.bap-radar-carousel-wrap {
+  opacity: 1;
+}
+
+.bap-radar-carousel-track {
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: bapRadarCarousel 8s linear infinite;
+  opacity: 1;
+}
+
+.bap-radar-sweep {
+  transform-origin: 110px 180px;
+  animation: bapRadarSweep 4s linear infinite;
+  transform-box: fill-box;
+}
+
+.bap-radar-pulse {
+  transform-origin: center;
+  animation: bapRadarPulse 2.2s ease-out infinite;
+}
+
+.bap-radar-card {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: bapRadarCardFloat 3.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 12px rgba(245, 217, 139, 0.35));
+  opacity: 1;
+}
+
+.bap-radar-card rect {
+  fill: rgba(23, 25, 30, 0.98);
+  stroke: rgba(245, 217, 139, 1);
+  stroke-width: 1.8;
+  opacity: 1;
+}
+
+.bap-radar-card path,
+.bap-radar-card circle {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 1;
+  fill: rgba(245, 217, 139, 1);
+  stroke: rgba(245, 217, 139, 1);
+}
+
+.bap-radar-card--2 { animation-delay: 0.3s; }
+.bap-radar-card--3 { animation-delay: 0.6s; }
+.bap-radar-card--4 { animation-delay: 0.9s; }
+
 .bap-ring {
   transform-origin: center;
 
@@ -181,6 +239,29 @@
   0% { transform: scale(0.5); opacity: 0; }
   50% { opacity: 0.5; }
   100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes bapRadarSweep {
+  0%   { transform: rotate(0deg); opacity: 0.2; }
+  20%  { opacity: 0.9; }
+  50%  { transform: rotate(180deg); opacity: 0.75; }
+  100% { transform: rotate(360deg); opacity: 0.2; }
+}
+
+@keyframes bapRadarPulse {
+  0%   { transform: scale(0.7); opacity: 0.8; }
+  70%  { opacity: 0.3; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
+
+@keyframes bapRadarCardFloat {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50%      { transform: translateY(-4px) scale(1.04); }
+}
+
+@keyframes bapRadarCarousel {
+  0%, 100% { transform: translateX(0px); }
+  50%      { transform: translateX(-58px); }
 }
 
 @media (max-width: 1440px) {

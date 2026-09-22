@@ -77,10 +77,11 @@
            class="flex items-center gap-2 rounded-full hover:opacity-80 transition-opacity pl-1 pr-2"
             [attr.aria-label]="'nav.myProfile' | t">
           <div class="w-9 h-9 rounded-full overflow-hidden border border-border bg-surface-card flex items-center justify-center flex-shrink-0">
-            @if (profile()?.avatar) {
-              <img [src]="profile()!.avatar"
+            @if (profile()?.avatar || profile()?.avatar_url || profile()?.picture) {
+              <img [src]="getAvatarSrc()"
                     [alt]="profile()?.full_name || ('nav.profilePhoto' | t)"
-                   class="w-full h-full object-cover">
+                   class="w-full h-full object-cover"
+                   (error)="handleAvatarError($event)">
             } @else {
               <ion-icon name="person-outline" class="text-lg text-text-secondary"></ion-icon>
             }

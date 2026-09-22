@@ -99,13 +99,16 @@ export class AuthService {
     return this.http.get<any>(`${this.api}/users/me`).pipe(
       map(res => {
         const p = res.profile ?? {};
+        const avatar = p.avatar ?? p.avatar_url ?? p.picture ?? res.avatar ?? res.avatar_url ?? res.picture ?? undefined;
         return {
           id:         p.id         ?? res.id,
           user_id:    p.user_id    ?? res.id,
           full_name:  p.full_name  ?? '',
           has_premium: p.has_premium ?? res.has_premium ?? false,
           phone:      p.phone      ?? undefined,
-          avatar:     p.avatar     ?? undefined,
+          avatar,
+          avatar_url: p.avatar_url ?? p.avatar ?? p.picture ?? res.avatar_url ?? res.avatar ?? res.picture ?? undefined,
+          picture:    p.picture    ?? p.avatar ?? p.avatar_url ?? res.picture ?? res.avatar ?? res.avatar_url ?? undefined,
           bio:        p.bio        ?? undefined,
           rating_avg: p.rating_avg ?? undefined,
           email:      res.email    ?? undefined,
@@ -125,6 +128,8 @@ export class AuthService {
             status: profile.status ?? user.status,
             email: profile.email ?? user.email,
             has_premium: profile.has_premium ?? user.has_premium,
+            avatar: profile.avatar ?? profile.avatar_url ?? profile.picture ?? user.avatar,
+            picture: profile.picture ?? profile.avatar ?? profile.avatar_url ?? user.picture,
           });
         }
       })
@@ -211,6 +216,8 @@ export class AuthService {
       status:      res.status,
       provider_id: res.provider_id,
       client_id:   res.client_id,
+      avatar:      res.avatar ?? res.avatar_url ?? res.picture ?? undefined,
+      picture:     res.picture ?? res.avatar ?? res.avatar_url ?? undefined,
     };
     this.storage.setUser(stored);
   }

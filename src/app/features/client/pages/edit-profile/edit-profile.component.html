@@ -5,7 +5,9 @@
 
     <div class="user-mini">
       @if (avatarPreview()) {
-        <img class="user-mini-avatar" [src]="avatarPreview()!" alt="Avatar">
+        <img class="user-mini-avatar" [src]="avatarPreview()!" alt="Avatar" (error)="handleAvatarError($event)">
+      } @else if (auth.currentProfile()?.avatar || auth.currentProfile()?.avatar_url || auth.currentProfile()?.picture) {
+        <img class="user-mini-avatar" [src]="getAvatarSrc()" alt="Avatar" (error)="handleAvatarError($event)">
       } @else {
         <div class="user-mini-avatar user-mini-avatar--ph">
           <svg fill="currentColor" viewBox="0 0 24 24">
@@ -104,7 +106,9 @@
     <div class="avatar-section">
       <div class="avatar-img-wrap">
         @if (avatarPreview()) {
-          <img [src]="avatarPreview()!" class="avatar-img" alt="Avatar">
+          <img [src]="avatarPreview()!" class="avatar-img" alt="Avatar" (error)="handleAvatarError($event)">
+        } @else if (auth.currentProfile()?.avatar || auth.currentProfile()?.avatar_url || auth.currentProfile()?.picture) {
+          <img [src]="getAvatarSrc()" class="avatar-img" alt="Avatar" (error)="handleAvatarError($event)">
         } @else {
           <div class="avatar-img avatar-img--ph">
             <svg fill="currentColor" viewBox="0 0 24 24">

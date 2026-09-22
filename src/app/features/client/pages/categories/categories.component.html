@@ -57,34 +57,71 @@
           <feDropShadow dx="0" dy="8" stdDeviation="6"
                         flood-color="#000" flood-opacity="0.8"/>
         </filter>
+        <clipPath id="bapRadarClip">
+          <rect x="0" y="72" width="220" height="236" rx="14"/>
+        </clipPath>
       </defs>
 
-      <!-- CASA -->
-      <g transform="translate(280, 56) scale(0.92)">
-        <rect x="0" y="50" width="220" height="300" rx="10"
-              fill="#121214" stroke="#222" stroke-width="2"/>
-        <path d="M-20,60 L110,-20 L240,60 Z"
-              fill="#0A0A0C" stroke="#222" stroke-width="2"/>
-        <rect x="130" y="100" width="50" height="70" rx="4"
-              fill="#050505" stroke="#333" stroke-width="2"/>
-        <!-- Ventana pulsante -->
-        <rect x="135" y="105" width="40" height="60" rx="2"
-              fill="#FDE68A" class="bap-window"/>
-        <line x1="155" y1="105" x2="155" y2="165"
-              stroke="#111" stroke-width="2"/>
-        <line x1="135" y1="135" x2="175" y2="135"
-              stroke="#111" stroke-width="2"/>
-        <rect x="30" y="160" width="80" height="190" rx="4"
-              fill="#0A0A0C" stroke="#333" stroke-width="2"/>
-        <circle cx="95" cy="255" r="4" fill="#FDE68A" opacity="0.8"/>
-        <!-- Ondas timbre -->
-        <g transform="translate(100, 255)">
-          <circle cx="0" cy="0" r="10" fill="none"
-                  stroke="#A7F3D0" stroke-width="2"
-                  class="bap-ring bap-ring--1"/>
-          <circle cx="0" cy="0" r="10" fill="none"
-                  stroke="#A7F3D0" stroke-width="2"
-                  class="bap-ring bap-ring--2"/>
+      <!-- RADAR: pantalla con carrusel de servicios -->
+      <g transform="translate(280, -72) scale(0.98)" class="bap-radar-scene">
+        <rect x="0" y="50" width="220" height="300" rx="12"
+              fill="#121214" stroke="#2A2A2E" stroke-width="2"/>
+
+        <rect x="0" y="72" width="220" height="236" rx="14"
+              fill="#0A0B0F" stroke="#2A2A2E" stroke-width="2"
+              class="bap-radar-screen"/>
+
+        <g clip-path="url(#bapRadarClip)" class="bap-radar-carousel-wrap">
+          <g class="bap-radar-carousel-track">
+            <g class="bap-radar-card bap-radar-card--1" transform="translate(12 90)">
+              <rect x="0" y="0" width="58" height="58" rx="14" fill="#17191E" stroke="#F5D98B" stroke-width="1.5"/>
+              <circle cx="29" cy="29" r="13" fill="#F5D98B"/>
+              <path d="M29 15v28M15 29h28" stroke="#111" stroke-width="2.8" stroke-linecap="round"/>
+            </g>
+            <g class="bap-radar-card bap-radar-card--2" transform="translate(76 90)">
+              <rect x="0" y="0" width="58" height="58" rx="14" fill="#17191E" stroke="#F5D98B" stroke-width="1.5"/>
+              <path d="M14 31l15-18 15 18" fill="none" stroke="#F5D98B" stroke-width="2.9" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="29" cy="15" r="3.5" fill="#F5D98B"/>
+            </g>
+            <g class="bap-radar-card bap-radar-card--3" transform="translate(140 90)">
+              <rect x="0" y="0" width="58" height="58" rx="14" fill="#17191E" stroke="#F5D98B" stroke-width="1.5"/>
+              <path d="M16 17h24v24H16z" fill="none" stroke="#F5D98B" stroke-width="2.6"/>
+              <circle cx="22" cy="22" r="3.2" fill="#F5D98B"/>
+              <circle cx="34" cy="34" r="3.2" fill="#F5D98B"/>
+            </g>
+            <g class="bap-radar-card bap-radar-card--4" transform="translate(204 90)">
+              <rect x="0" y="0" width="58" height="58" rx="14" fill="#17191E" stroke="#F5D98B" stroke-width="1.5"/>
+              <path d="M15 20a14 14 0 0 1 28 0v14H15z" fill="none" stroke="#F5D98B" stroke-width="2.6"/>
+              <path d="M20 28h18" stroke="#F5D98B" stroke-width="2.6" stroke-linecap="round"/>
+            </g>
+            <g class="bap-radar-card bap-radar-card--1" transform="translate(268 90)">
+              <rect x="0" y="0" width="58" height="58" rx="14" fill="#17191E" stroke="#F5D98B" stroke-width="1.5"/>
+              <circle cx="29" cy="29" r="13" fill="#F5D98B"/>
+              <path d="M29 15v28M15 29h28" stroke="#111" stroke-width="2.8" stroke-linecap="round"/>
+            </g>
+            <g class="bap-radar-card bap-radar-card--2" transform="translate(332 90)">
+              <rect x="0" y="0" width="58" height="58" rx="14" fill="#17191E" stroke="#F5D98B" stroke-width="1.5"/>
+              <path d="M14 31l15-18 15 18" fill="none" stroke="#F5D98B" stroke-width="2.9" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="29" cy="15" r="3.5" fill="#F5D98B"/>
+            </g>
+          </g>
+        </g>
+
+        <circle cx="110" cy="180" r="66" fill="none" stroke="#1E9E7A" stroke-opacity="0.35" stroke-width="1.5"/>
+        <circle cx="110" cy="180" r="48" fill="none" stroke="#1E9E7A" stroke-opacity="0.32" stroke-width="1.5"/>
+        <circle cx="110" cy="180" r="30" fill="none" stroke="#1E9E7A" stroke-opacity="0.28" stroke-width="1.5"/>
+
+        <line x1="110" y1="86" x2="110" y2="274" stroke="#1E9E7A" stroke-opacity="0.2" stroke-width="1.2"/>
+        <line x1="44" y1="180" x2="176" y2="180" stroke="#1E9E7A" stroke-opacity="0.2" stroke-width="1.2"/>
+
+        <path d="M110 180 L176 116 A66 66 0 0 1 110 114 Z"
+              fill="rgba(167, 243, 208, 0.1)" stroke="#A7F3D0" stroke-opacity="0.4" stroke-width="1.2"
+              class="bap-radar-sweep"/>
+
+        <g transform="translate(86 146)">
+          <circle cx="0" cy="0" r="12" fill="#FDE68A" opacity="0.92"/>
+          <circle cx="0" cy="0" r="20" fill="none" stroke="#FDE68A" stroke-opacity="0.45" stroke-width="1.5" class="bap-radar-pulse"/>
+          <circle cx="0" cy="0" r="28" fill="none" stroke="#A7F3D0" stroke-opacity="0.35" stroke-width="1.2" class="bap-radar-pulse"/>
         </g>
       </g>
 
@@ -92,7 +129,6 @@
       <g transform="translate(112, 88)" class="bap-float">
         <ellipse cx="140" cy="200" rx="20" ry="40"
                  fill="#000" opacity="0.3"/>
-        <rect x="145" y="140" width="10" height="20" fill="#333"/>
         <path d="M 115 160 Q 150 180 185 160 C 190 210 170 240 150 240
                  C 130 240 110 210 115 160 Z"
               fill="url(#bapBodyGrad)" stroke="#333" stroke-width="2"

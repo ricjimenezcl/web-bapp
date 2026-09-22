@@ -133,6 +133,22 @@ export class ClientProfileComponent implements OnInit {
     this.form.get('phone')?.setValue(fmt, { emitEvent: false });
   }
 
+  getAvatarSrc(): string {
+    const profile = this.user();
+    return profile?.avatar || profile?.avatar_url || profile?.picture || '/assets/images/default-avatar.png';
+  }
+
+  handleAvatarError(event: Event): void {
+    const image = event.target as HTMLImageElement | null;
+    if (!image) return;
+    if (image.dataset['fallbackApplied'] === 'true' || image.src.endsWith('/assets/images/default-avatar.png')) {
+      image.style.display = 'none';
+      return;
+    }
+    image.dataset['fallbackApplied'] = 'true';
+    image.src = '/assets/images/default-avatar.png';
+  }
+
   onAvatarChange(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;

@@ -19,7 +19,7 @@ import { formatChileanPhone } from '../../../../shared/utils/form-formatters';
 export class EditProfileComponent implements OnInit {
   private readonly fb      = inject(FormBuilder);
   private readonly profile = inject(ProfileService);
-  private readonly auth    = inject(AuthService);
+  readonly auth            = inject(AuthService);
   private readonly router  = inject(Router);
   private readonly contentFilterService = inject(ContentFilterService);
 
@@ -55,6 +55,22 @@ export class EditProfileComponent implements OnInit {
     const formatted = formatChileanPhone(input.value);
     input.value = formatted;
     this.form.get('phone')?.setValue(formatted, { emitEvent: false });
+  }
+
+  getAvatarSrc(): string {
+    const profile = this.auth.currentProfile();
+    return profile?.avatar || profile?.avatar_url || profile?.picture || '/assets/images/default-avatar.png';
+  }
+
+  handleAvatarError(event: Event): void {
+    const image = event.target as HTMLImageElement | null;
+    if (!image) return;
+    if (image.dataset['fallbackApplied'] === 'true' || image.src.endsWith('/assets/images/default-avatar.png')) {
+      image.style.display = 'none';
+      return;
+    }
+    image.dataset['fallbackApplied'] = 'true';
+    image.src = '/assets/images/default-avatar.png';
   }
 
   onAvatarChange(event: Event): void {

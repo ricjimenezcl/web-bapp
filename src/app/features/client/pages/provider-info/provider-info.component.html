@@ -40,11 +40,11 @@
           <div class="pi-cover-photo"></div>
 
           <div class="pi-avatar-container">
-            @if (provider()!.avatar) {
+            @if (provider()?.avatar || provider()?.avatar_url || provider()?.picture) {
               <img
-                [src]="provider()!.avatar"
+                [src]="getAvatarSrc()"
                 [alt]="providerName"
-                (error)="$any($event.target).src='/assets/images/default-avatar.png'" />
+                (error)="handleAvatarError($event)" />
             } @else {
               <div class="pi-avatar-fallback">
                 <svg fill="currentColor" viewBox="0 0 24 24">

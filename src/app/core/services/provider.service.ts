@@ -36,6 +36,18 @@ export class ProviderService {
     return trimmed;
   }
 
+  private normalizeProfileAvatar(profile: Partial<ProviderProfile> | null | undefined): ProviderProfile | null {
+    if (!profile) return null;
+
+    const rawAvatar = (profile as any).avatar ?? (profile as any).avatar_url ?? (profile as any).picture ?? undefined;
+    const normalizedAvatar = this.normalizeAvatar(rawAvatar);
+
+    return {
+      ...profile,
+      avatar: normalizedAvatar,
+    } as ProviderProfile;
+  }
+
   private mapServiceProvider(item: any): ServiceProvider {
     const avatar = this.normalizeAvatar(
       item.provider?.avatar ??
@@ -69,12 +81,15 @@ export class ProviderService {
 
   getMyProfile(): Observable<ProviderProfile> {
     return this.http.get<ProviderProfile>(`${this.api}/providers/me`).pipe(
+      map((p) => this.normalizeProfileAvatar(p) ?? p),
       tap(p => this._profile.set(p))
     );
   }
 
   getProviderProfile(id: number): Observable<ProviderProfile> {
-    return this.http.get<ProviderProfile>(`${this.api}/providers/${id}`);
+    return this.http.get<ProviderProfile>(`${this.api}/providers/${id}`).pipe(
+      map((p) => this.normalizeProfileAvatar(p) ?? p)
+    );
   }
 
   /**
@@ -83,7 +98,9 @@ export class ProviderService {
    * Respuesta incluye: id, full_name, bio, rating_avg, total_reviews, services[], etc.
    */
   getProviderDetailedProfile(id: number): Observable<ProviderProfile> {
-    return this.http.get<ProviderProfile>(`${this.api}/providers/${id}/detailed`);
+    return this.http.get<ProviderProfile>(`${this.api}/providers/${id}/detailed`).pipe(
+      map((p) => this.normalizeProfileAvatar(p) ?? p)
+    );
   }
 
   updateProfile(data: Partial<ProviderProfile>): Observable<ProviderProfile> {

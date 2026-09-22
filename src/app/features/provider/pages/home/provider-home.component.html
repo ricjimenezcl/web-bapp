@@ -23,11 +23,11 @@
 
       <!-- Avatar -->
       <div class="ph-avatar-wrap">
-        @if (profile()?.avatar) {
+        @if (profile()?.avatar || profile()?.avatar_url || profile()?.picture) {
           <img class="ph-avatar-img"
-               [src]="profile()!.avatar"
+               [src]="profile()?.avatar || profile()?.avatar_url || profile()?.picture || defaultAvatar"
                [alt]="profile()?.full_name || 'Proveedor'"
-               (error)="$any($event.target).src='/assets/images/default-avatar.png'" />
+               (error)="handleAvatarError($event)" />
         } @else {
           <div class="ph-avatar-fallback">
             <svg fill="currentColor" viewBox="0 0 24 24">

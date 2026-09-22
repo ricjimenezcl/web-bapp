@@ -12,6 +12,8 @@ export interface User {
   client_id?: number;
   name?: string;
   picture?: string;
+  avatar?: string;
+  avatar_url?: string;
   verified?: boolean;
   terms_accepted?: boolean;
   has_premium?: boolean;
@@ -24,6 +26,8 @@ export interface UserProfile {
   has_premium?: boolean;
   phone?: string;
   avatar?: string | null;
+  avatar_url?: string | null;
+  picture?: string | null;
   bio?: string;
   rating_avg?: number;
   email?: string;
@@ -42,6 +46,8 @@ export interface StoredUser {
   provider_id?: number;
   client_id?: number;
   has_premium?: boolean;
+  avatar?: string | null;
+  picture?: string | null;
 }
 
 export interface LoginRequest {
@@ -67,7 +73,9 @@ export interface TokenResponse {
   client_id?: number;
   email?: string;
   name?: string;
+  avatar?: string;
   avatar_url?: string;
+  picture?: string;
   terms_accepted?: boolean;
   is_new_user?: boolean;
 }

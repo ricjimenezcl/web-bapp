@@ -58,13 +58,26 @@ export class StorageService {
   }
 
   setUser(user: StoredUser): void {
-    localStorage.setItem(KEYS.USER, JSON.stringify(user));
-    this._user.set(user);
+    const normalizedUser: StoredUser = {
+      ...user,
+      avatar: user.avatar || user.picture || undefined,
+      picture: user.picture || user.avatar || undefined,
+    };
+
+    localStorage.setItem(KEYS.USER, JSON.stringify(normalizedUser));
+    this._user.set(normalizedUser);
   }
 
   setProfile(profile: UserProfile): void {
-    localStorage.setItem(KEYS.PROFILE, JSON.stringify(profile));
-    this._profile.set(profile);
+    const normalizedProfile: UserProfile = {
+      ...profile,
+      avatar: profile.avatar || profile.avatar_url || profile.picture || undefined,
+      avatar_url: profile.avatar_url || profile.avatar || profile.picture || undefined,
+      picture: profile.picture || profile.avatar || profile.avatar_url || undefined,
+    };
+
+    localStorage.setItem(KEYS.PROFILE, JSON.stringify(normalizedProfile));
+    this._profile.set(normalizedProfile);
   }
 
   updateProfile(partial: Partial<UserProfile>): void {

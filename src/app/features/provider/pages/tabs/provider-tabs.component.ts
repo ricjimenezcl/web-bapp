@@ -38,6 +38,22 @@ export class ProviderTabsComponent implements OnInit, OnDestroy {
     this.closeSidebar();
   }
 
+  getAvatarSrc(): string {
+    const data = this.profile();
+    return data?.avatar || data?.avatar_url || data?.picture || '/assets/images/default-avatar.png';
+  }
+
+  handleAvatarError(event: Event): void {
+    const image = event.target as HTMLImageElement | null;
+    if (!image) return;
+    if (image.dataset['fallbackApplied'] === 'true' || image.src.endsWith('/assets/images/default-avatar.png')) {
+      image.style.display = 'none';
+      return;
+    }
+    image.dataset['fallbackApplied'] = 'true';
+    image.src = '/assets/images/default-avatar.png';
+  }
+
   ngOnInit(): void {
     this.ws.connect();
     this.notif.loadNotifications();

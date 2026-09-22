@@ -4,6 +4,8 @@ export interface ProviderProfile {
   full_name: string;
   phone?: string;
   avatar?: string;
+  avatar_url?: string;
+  picture?: string;
   bio?: string;
   rating_avg?: number;
   run?: string;

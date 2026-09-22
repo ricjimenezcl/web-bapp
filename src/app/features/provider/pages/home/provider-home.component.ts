@@ -18,6 +18,8 @@ import { ServiceViewersComponent } from '../../components/service-viewers/servic
   styleUrl: './provider-home.component.scss',
 })
 export class ProviderHomeComponent implements OnInit, OnDestroy {
+  readonly defaultAvatar = '/assets/images/default-avatar.png';
+
   private readonly providerSvc = inject(ProviderService);
   private readonly reviewSvc   = inject(ReviewService);
   private readonly http = inject(HttpClient);
@@ -204,5 +206,18 @@ export class ProviderHomeComponent implements OnInit, OnDestroy {
   getFirstName(): string {
     const name = this.profile()?.full_name || '';
     return name.split(' ')[0];
+  }
+
+  handleAvatarError(event: Event): void {
+    const image = event.target as HTMLImageElement | null;
+    if (!image) return;
+
+    if (image.dataset['fallbackApplied'] === 'true') {
+      image.style.display = 'none';
+      return;
+    }
+
+    image.dataset['fallbackApplied'] = 'true';
+    image.src = this.defaultAvatar;
   }
 }

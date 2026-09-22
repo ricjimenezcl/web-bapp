@@ -43,6 +43,22 @@ export class ClientTabsComponent implements OnInit, OnDestroy {
     this.closeSidebar(); // Close sidebar after navigation
   }
 
+  getAvatarSrc(): string {
+    const profile = this.currentProfile();
+    return profile?.avatar || profile?.avatar_url || profile?.picture || '/assets/images/default-avatar.png';
+  }
+
+  handleAvatarError(event: Event): void {
+    const image = event.target as HTMLImageElement | null;
+    if (!image) return;
+    if (image.dataset['fallbackApplied'] === 'true' || image.src.endsWith('/assets/images/default-avatar.png')) {
+      image.style.display = 'none';
+      return;
+    }
+    image.dataset['fallbackApplied'] = 'true';
+    image.src = '/assets/images/default-avatar.png';
+  }
+
   ngOnInit(): void {
     this.ws.connect();
     this.notif.loadNotifications();

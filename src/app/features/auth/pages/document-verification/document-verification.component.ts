@@ -5,9 +5,10 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../environments/environment';
 import { AuthService } from '../../../../core/services/auth.service';
 import { StorageService } from '../../../../core/services/storage.service';
-import { DocumentUploadService } from '../../../../core/services/document-upload.service';
+import { DocumentUploadService, normalizeRunToDigits } from '../../../../core/services/document-upload.service';
 import { Subject, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { normalizeChileanRUTForBackend } from '../../../../shared/utils/form-formatters';
 
 export interface DocumentCaptureRectInput {
   canvasWidth: number;
@@ -51,12 +52,18 @@ export function calculateDocumentCaptureRect({
   const width = Math.max(1, Math.min(sourceWidth, videoWidth - left));
   const height = Math.max(1, Math.min(sourceHeight, videoHeight - top));
 
-  return {
+  const exactRect = {
     left: Math.round(Math.min(left, canvasWidth - 1)),
     top: Math.round(Math.min(top, canvasHeight - 1)),
     width: Math.round(Math.min(width, canvasWidth - Math.min(left, canvasWidth - 1))),
     height: Math.round(Math.min(height, canvasHeight - Math.min(top, canvasHeight - 1))),
   };
+
+  if (guideRect.width > 0 && guideRect.height > 0) {
+    return exactRect;
+  }
+
+  return exactRect;
 }
 
 interface VerificationState {
@@ -126,6 +133,8 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
   ovalOffsetX = signal(0);
   ovalOffsetY = signal(0);
   ovalScale = signal(1); // Para adaptar el tamaño si es necesario
+  selfieOvalWidth = signal(240);
+  selfieOvalHeight = signal(340);
   initialFaceX: number | null = null;
   headTurnDetected = false;
   lastFaceArea = 0; // Guardar área anterior para suavizado
@@ -174,6 +183,9 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
   selfieFallbackTried = false;
 
   ngOnInit(): void {
+    this.updateSelfieOvalSize();
+    window.addEventListener('resize', this.updateSelfieOvalSize.bind(this));
+
     const user = this.storage.user();
     
     // Solo redirigir automáticamente si ya es ACTIVE y NO es proveedor (o si es proveedor ya aprobado)
@@ -203,6 +215,7 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    window.removeEventListener('resize', this.updateSelfieOvalSize.bind(this));
     this.stopCamera();
     this.destroy$.next();
     this.destroy$.complete();
@@ -218,10 +231,7 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
   private canCaptureBackDocument(): boolean {
     return !!(
       this.state.selfieDocumentId &&
-      this.state.idDocumentFrontId &&
-      this.state.selfieFacePreview &&
-      this.state.idFrontFacePreview &&
-      !this.state.faceDetectionFailed
+      this.state.idDocumentFrontId
     );
   }
 
@@ -232,7 +242,7 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
     }
 
     if (type === 'documentBack' && !this.canCaptureBackDocument()) {
-      this.error.set('Primero debes validar la selfie y el frente de la cédula para poder continuar con el reverso.');
+      this.error.set('Primero debes subir la selfie y el frente de la cédula para poder continuar con el reverso.');
       return;
     }
 
@@ -349,6 +359,47 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
     }
   }
 
+  private updateSelfieOvalSize(): void {
+    const viewportWidth = Math.max(window.innerWidth || 390, 320);
+    const viewportHeight = Math.max(window.innerHeight || 667, 480);
+
+    const mobileMaxWidth = Math.min(viewportWidth - 36, 180);
+    const mobileMaxHeight = Math.min(viewportHeight * 0.34, 220);
+
+    if (viewportWidth <= 390) {
+      const width = Math.max(140, mobileMaxWidth);
+      const height = Math.max(180, Math.min(mobileMaxHeight, width * 1.28));
+      this.selfieOvalWidth.set(width);
+      this.selfieOvalHeight.set(height);
+      return;
+    }
+
+    if (viewportWidth <= 768) {
+      const width = Math.min(viewportWidth - 48, 220);
+      const height = Math.min(viewportHeight * 0.42, 300);
+      this.selfieOvalWidth.set(width);
+      this.selfieOvalHeight.set(height);
+      return;
+    }
+
+    this.selfieOvalWidth.set(260);
+    this.selfieOvalHeight.set(360);
+  }
+
+  private getSelfieOvalBounds(canvasWidth: number, canvasHeight: number) {
+    const viewportWidth = Math.max(window.innerWidth || canvasWidth, 320);
+    const baseWidth = viewportWidth <= 390 ? 180 : viewportWidth <= 768 ? 220 : 260;
+    const width = Math.min(canvasWidth * 0.62, baseWidth * 1.15);
+    const height = width * 1.36;
+
+    return {
+      width: Math.max(170, width),
+      height: Math.max(220, height),
+      centerX: canvasWidth / 2 + this.ovalOffsetX(),
+      centerY: canvasHeight / 2 + this.ovalOffsetY(),
+    };
+  }
+
   private performDetectionCycle() {
     const video = this.videoElement?.nativeElement;
     const canvas = this.canvasElement?.nativeElement;
@@ -373,18 +424,16 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
       const face = this.findFaceRegionImproved(ctx, canvas.width, canvas.height);
 
       if (face && face.confidence > 0.4) {
-        // Calcular posición del óvalo en canvas
-        const ovalCenterX = canvas.width / 2 + this.ovalOffsetX();
-        const ovalCenterY = canvas.height / 2 + this.ovalOffsetY();
-        
+        const oval = this.getSelfieOvalBounds(canvas.width, canvas.height);
+
         // Verificar si el rostro está dentro del óvalo
         const isWithinOval = this.isPointWithinOval(
           face.centerX,
           face.centerY,
-          ovalCenterX,
-          ovalCenterY,
-          256 * this.ovalScale(), // ancho del óvalo (w-64)
-          384 * this.ovalScale()  // alto del óvalo (h-96)
+          oval.centerX,
+          oval.centerY,
+          oval.width * this.ovalScale(),
+          oval.height * this.ovalScale()
         );
         
         if (isWithinOval) {
@@ -976,14 +1025,15 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
    */
   private cropToSelfieOvalRegion(canvas: HTMLCanvasElement): HTMLCanvasElement {
     const scale = this.ovalScale();
-    const ovalWidth = 256 * scale;
-    const ovalHeight = 384 * scale;
+    const oval = this.getSelfieOvalBounds(canvas.width, canvas.height);
+    const ovalWidth = oval.width * scale;
+    const ovalHeight = oval.height * scale;
     const horizontalPadding = ovalWidth * 0.18;
     const topPadding = ovalHeight * 0.24;
     const bottomPadding = ovalHeight * 0.30;
 
-    const centerX = canvas.width / 2 + this.ovalOffsetX();
-    const centerY = canvas.height / 2 + this.ovalOffsetY();
+    const centerX = oval.centerX;
+    const centerY = oval.centerY;
 
     const left = Math.max(0, centerX - ovalWidth / 2 - horizontalPadding);
     const top = Math.max(0, centerY - ovalHeight / 2 - topPadding);
@@ -1217,10 +1267,7 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
       }
       console.log(`✅ Documento ${side === 'front' ? 'frontal' : 'posterior'} subido con éxito:`, result.id);
 
-      // La preview facial debe crearse con selfie + frente antes de permitir reverso.
-      if (this.state.selfieDocumentId && this.state.idDocumentFrontId) {
-        await this.loadFacePreview();
-      }
+      // Se evita la vista intermedia de preview facial. La validación comienza cuando ya están las 3 imágenes.
     } catch (err: any) {
       console.error('ID document upload failed:', err);
 
@@ -1240,9 +1287,6 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
             this.state.idDocumentBackId = refreshed.id;
           }
           console.log(`✅ Documento ${side === 'front' ? 'frontal' : 'posterior'} subido tras refresh de token:`, refreshed.id);
-          if (side === 'front' && this.state.selfieDocumentId && this.state.idDocumentFrontId) {
-            await this.loadFacePreview();
-          }
           return;
         }
       }
@@ -1299,18 +1343,25 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
         // FIX ERROR 431: Add Data URL prefix to base64 strings
         this.state.selfieFacePreview = result.selfie_preview 
           ? `data:image/jpeg;base64,${result.selfie_preview}` 
-          : null;
+          : result.selfie_preview_url || null;
         this.state.idFrontFacePreview = result.id_preview 
           ? `data:image/jpeg;base64,${result.id_preview}` 
-          : null;
+          : result.id_preview_url || null;
 
-        const facesDetected = result.success && 
-          this.state.selfieFacePreview && 
-          this.state.idFrontFacePreview;
-        
-        if (facesDetected) {
-          console.log('✅ Face preview loaded successfully');
-          this.step.set('preview');
+        const hasPreviewData = !!(this.state.selfieFacePreview && this.state.idFrontFacePreview);
+        const selfieDetected = result.selfie_detected === true || !!result.selfie_preview || !!result.selfie_preview_url;
+        const idDetected = result.id_detected === true || !!result.id_preview || !!result.id_preview_url;
+        const successFlag = typeof result.success === 'boolean' ? result.success : true;
+        const facesDetected = (successFlag || selfieDetected || idDetected) && (hasPreviewData || selfieDetected || idDetected);
+
+        if (facesDetected || hasPreviewData) {
+          console.log('✅ Face preview loaded successfully', {
+            successFlag,
+            selfieDetected,
+            idDetected,
+            hasPreviewData,
+            previewKeys: Object.keys(result || {}),
+          });
         } else {
           const errorMsg = result.error || '';
           if (!this.isAwsError(errorMsg)) {
@@ -1346,8 +1397,8 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
 
   private mapFacePreviewError(msg: string, result: any): string {
     const lower = msg.toLowerCase();
-    const noSelfie = !result?.selfie_preview;
-    const noDoc = !result?.id_preview;
+    const noSelfie = !(result?.selfie_preview || result?.selfie_preview_url || result?.selfie_detected);
+    const noDoc = !(result?.id_preview || result?.id_preview_url || result?.id_detected);
 
     if (noSelfie && noDoc) {
       return 'No se detectó un rostro ni en la selfie ni en el documento. Vuelve a capturarlos con buena iluminación.';
@@ -1368,6 +1419,43 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
       return `No se pudieron detectar rostros correctamente: ${msg}`;
     }
     return 'No se pudieron detectar rostros en las imágenes. Verifica que ambos rostros se vean claramente.';
+  }
+
+  private async validateProviderRunMatchesDocument(): Promise<boolean> {
+    try {
+      const providerProfile = await firstValueFrom(this.http.get<any>(`${this.api}/providers/me`));
+      const registeredRun = providerProfile?.run;
+
+      if (!registeredRun) {
+        this.error.set('No se encontró el RUN registrado del proveedor para validar la cédula.');
+        return false;
+      }
+
+      const documentRun = this.state.frontRunDigits ?? (
+        this.docFrontFile ? await this.uploadService.extractRunFromFrontImage(this.docFrontFile) : null
+      );
+
+      if (!documentRun) {
+        this.error.set('No se pudo leer el RUN de la cédula para comparar con el registro del proveedor.');
+        return false;
+      }
+
+      const registeredDigits = normalizeRunToDigits(normalizeChileanRUTForBackend(registeredRun));
+      const documentDigits = normalizeRunToDigits(documentRun);
+
+      if (registeredDigits !== documentDigits) {
+        const formattedRegisteredRun = normalizeChileanRUTForBackend(registeredRun);
+        this.state.idCardValidationError = `El RUN de la cédula (${documentDigits || 'N/A'}) no coincide con el RUN registrado del proveedor (${formattedRegisteredRun || 'N/A'}).`;
+        this.error.set(this.state.idCardValidationError);
+        return false;
+      }
+
+      return true;
+    } catch (err) {
+      console.error('Error validando RUN del proveedor vs cédula:', err);
+      this.error.set('No se pudo validar que el RUN de la cédula coincida con el registro del proveedor.');
+      return false;
+    }
   }
 
   private mapRejectionReason(result: any): string {
@@ -1417,7 +1505,7 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
   }
 
   canStartValidation(): boolean {
-    return !!this.selfieFile && !!this.docFrontFile && !!this.docBackFile && !this.loading() && !this.state.uploading;
+    return !!this.selfieFile && !!this.docFrontFile && !!this.docBackFile && !this.loading();
   }
 
   private getMissingPhotoError(): string | null {
@@ -1449,6 +1537,7 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
 
     this.loading.set(true);
     this.error.set('');
+    this.step.set('verifying');
 
     console.log('[OCR][verification] Iniciando validación de cédula desde submit()', {
       hasSelfie: !!selfieFile,
@@ -1487,10 +1576,8 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
 
     this.loading.set(false);
 
-    // If face preview loaded successfully, advance to preview step
-    if (this.state.selfieFacePreview && this.state.idFrontFacePreview) {
-      this.step.set('preview');
-    }
+    // La validación continúa sin mostrar la vista intermedia de comparación facial.
+    await this.initiateVerification();
   }
 
   /**
@@ -1515,8 +1602,22 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
       }
     }
 
-    if (this.state.faceDetectionFailed) {
-      this.error.set(this.state.facePreviewError || 'Corrige las imágenes antes de verificar.');
+    if (!this.state.idCardValidated && this.docFrontFile && this.docBackFile) {
+      const idValidation = await this.uploadService.validateChileanIdPair(this.docFrontFile, this.docBackFile);
+      console.log('[OCR][verification] Revalidación antes de inicio:', idValidation);
+      if (!idValidation.valid) {
+        this.state.idCardValidated = false;
+        this.state.idCardValidationError = idValidation.error || 'La cédula no pasó la validación OCR.';
+        this.error.set(this.state.idCardValidationError);
+        return;
+      }
+
+      this.state.idCardValidated = true;
+      this.state.idCardValidationError = null;
+    }
+
+    const runMatchesRegistered = await this.validateProviderRunMatchesDocument();
+    if (!runMatchesRegistered) {
       return;
     }
 
@@ -1561,7 +1662,7 @@ export class DocumentVerificationComponent implements OnInit, OnDestroy {
     } catch (err: any) {
       console.error('Verification initiation failed:', err);
       this.error.set('Error al iniciar verificación. Intenta nuevamente.');
-      this.step.set('preview');
+      this.step.set('upload');
     } finally {
       this.loading.set(false);
     }

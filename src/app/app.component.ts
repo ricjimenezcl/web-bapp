@@ -257,7 +257,8 @@ export class AppComponent implements OnInit {
 
   goToLogin(): void {
     this.session.reset();
-    this.router.navigate(['/auth/login']);
+    this.storage.clearSession();
+    this.router.navigate(['/auth/login'], { replaceUrl: true });
   }
 
   @HostListener('window:pagehide')

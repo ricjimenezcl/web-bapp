@@ -300,9 +300,14 @@ export class LoginComponent implements OnInit, OnDestroy {
     });
   }
 
+  private normalizeSocialRole(role: UserRole | string | undefined): UserRole {
+    const normalized = String(role ?? 'CLIENT').toUpperCase();
+    return normalized === 'PROVIDER' ? 'PROVIDER' : 'CLIENT';
+  }
+
   private handleSocialLoginSuccess(res: any, wasRegistering: boolean): void {
     const isNewUser = res.is_new_user === true;
-    const requestedRole = this.registerRole().toUpperCase();
+    const requestedRole = this.normalizeSocialRole(this.socialRequestedRole || this.registerRole().toUpperCase());
     const isProviderPath = wasRegistering && requestedRole === 'PROVIDER';
     const isClientPath = wasRegistering && requestedRole === 'CLIENT';
 
@@ -844,7 +849,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     const pending = { provider, token, email, wasRegistering };
 
     if (wasRegistering) {
-      this.continueSocialLogin(pending, this.socialRequestedRole);
+      const role = this.normalizeSocialRole(this.socialRequestedRole || this.registerRole().toUpperCase());
+      this.continueSocialLogin(pending, role);
       return;
     }
 
@@ -878,9 +884,10 @@ export class LoginComponent implements OnInit, OnDestroy {
     pending: { provider: 'google' | 'facebook'; token: string; email: string; wasRegistering: boolean },
     role: UserRole,
   ): void {
+    const normalizedRole = this.normalizeSocialRole(role);
     const request$ = pending.provider === 'google'
-      ? this.auth.loginWithGoogle(pending.token, role)
-      : this.auth.loginWithFacebook(pending.token, role, pending.email);
+      ? this.auth.loginWithGoogle(pending.token, normalizedRole)
+      : this.auth.loginWithFacebook(pending.token, normalizedRole, pending.email);
 
     request$.subscribe({
       next: (res) => {

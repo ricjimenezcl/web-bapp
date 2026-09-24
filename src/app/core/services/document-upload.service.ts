@@ -11,6 +11,19 @@ interface ImageValidationResult {
   warnings?: string[];
 }
 
+export interface DocumentImageQualityResult {
+  valid: boolean;
+  score: number;
+  reason?: string;
+  stats?: {
+    avgBrightness: number;
+    darkRatio: number;
+    contrast: number;
+    edgeDensity: number;
+    textPixels: number;
+  };
+}
+
 export interface ChileanIdValidationResult {
   valid: boolean;
   error?: string;
@@ -18,6 +31,186 @@ export interface ChileanIdValidationResult {
   backRun?: string;
   frontText?: string;
   backText?: string;
+}
+
+export function normalizeRunToDigits(run: string): string {
+  const raw = (run ?? '').toUpperCase().replace(/[^0-9K]/g, '');
+  const digitsOnly = raw.replace(/\D/g, '');
+  return digitsOnly.length > 8 ? digitsOnly.slice(0, 8) : digitsOnly;
+}
+
+export function findMatchingRunInBackRows(backText: string, expectedDigits?: string): string | null {
+  const lines = (backText ?? '')
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(Boolean);
+
+  const lowerRows = lines.slice(-3);
+  const expected = expectedDigits ? normalizeRunToDigits(expectedDigits) : null;
+
+  if (!expected) {
+    return null;
+  }
+
+  const backTextFlat = lowerRows.join('\n');
+  if (backTextFlat.includes(expected)) {
+    return expected;
+  }
+
+  const patterns = [
+    /(?:RUN|RUT)[^0-9K]{0,12}([0-9]{1,2}(?:[.\s]?[0-9]{3}){2}[-.]?[0-9K])/gi,
+    /(?:RUN|RUT)[^0-9K]{0,12}([0-9]{7,8}[Kk]?)/gi,
+    /([0-9]{1,2}(?:[.\s]?[0-9]{3}){2}[-.]?[0-9K])/g,
+    /([0-9]{7,8}[Kk]?)/g,
+  ];
+
+  const candidates = new Set<string>();
+  for (const pattern of patterns) {
+    for (const match of backTextFlat.matchAll(pattern)) {
+      const candidate = normalizeRunToDigits(match[1] ?? match[0]);
+      if (candidate.length >= 7 && candidate.length <= 8) {
+        candidates.add(candidate);
+      }
+    }
+  }
+
+  const ordered = [...candidates].sort((a, b) => {
+    const diffA = a.includes(expected) || expected.includes(a) ? 0 : 1;
+    const diffB = b.includes(expected) || expected.includes(b) ? 0 : 1;
+    return diffA - diffB;
+  });
+
+  return ordered.find(candidate => candidate.includes(expected) || expected.includes(candidate)) ?? null;
+}
+
+export function hasRequiredFrontIdFields(frontText: string): string[] {
+  const raw = (frontText ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
+  const compact = raw.replace(/[^A-Z0-9]/g, '');
+  const spaced = raw.replace(/[^A-Z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+
+  const hasRunPattern = /\d{1,2}[\s.]*\d{3}[\s.]*\d{3}[\s.-]*\d/.test(spaced)
+    || /\d{1,2}[\s.]*\d{3}[\s.]*\d{3}[\s.-]*\d/.test(compact)
+    || /(?:RUN|RON|RUT)[\s._-]*\d{1,2}[\s.]*\d{3}[\s.]*\d{3}[\s.-]*\d/i.test(spaced)
+    || /(?:RUN|RON|RUT)[\s._-]*\d{1,2}[\s.]*\d{3}[\s.]*\d{3}[\s.-]*\d/i.test(compact)
+    || /\d{7,8}[K]/.test(compact);
+
+  const hasRegistroPattern = /SERVICIO\s*(?:DE)?\s*REGISTRO|REGISTRO\s*(?:CIVIL|GIVEL|IDENTIFICACION)|SERVICIODEREGISTRO|CIVIL|GIVEL|IDENTIFICACION/i.test(spaced)
+    || /SERVICIO\s*(?:DE)?\s*REGISTRO|REGISTRO\s*(?:CIVIL|GIVEL|IDENTIFICACION)|SERVICIODEREGISTRO|CIVIL|GIVEL|IDENTIFICACION/i.test(compact)
+    || /SERVICIO.*REGISTRO/i.test(compact)
+    || /REGISTRO.*(?:CIVIL|GIVEL|IDENTIFICACION)/i.test(compact)
+    || /GIVEL.*IDENTIFICACION/i.test(compact)
+    || /SERVICIODEREGISTROGIVEL/i.test(compact);
+
+  const hasChilePhrase = /REPUBLICA\s*DE\s*CHILE|REPUBLICADECHILE|CHILE/.test(spaced) || /REPUBLICA\s*DE\s*CHILE|REPUBLICADECHILE|CHILE/.test(compact);
+  const hasCedulaPhrase = /CEDULA\s*(?:DE)?\s*IDENTIDAD|CEDULAIDENTIDAD|CEDULA\s*DE|IDENTIDAD/.test(spaced) || /CEDULA\s*(?:DE)?\s*IDENTIDAD|CEDULAIDENTIDAD|CEDULA\s*DE|IDENTIDAD/.test(compact);
+  const hasServicePhrase = /SERVICIO\s*(?:DE)?\s*REGISTRO\s*(?:CIVIL|GIVEL|IDENTIFICACION)|REGISTRO\s*(?:CIVIL|GIVEL|IDENTIFICACION)|SERVICIODEREGISTRO(?:CIVIL|GIVEL|IDENTIFICACION)|SER.*REGISTRO.*(?:CIVIL|GIVEL|IDENTIFICACION)|REGISTRO.*(?:CIVIL|GIVEL|IDENTIFICACION)|GIVEL.*IDENTIFICACION|SERVICIODEREGISTROGIVEL|SERVICIODEREGISTROGIVEL/i.test(spaced)
+    || /SERVICIO\s*(?:DE)?\s*REGISTRO\s*(?:CIVIL|GIVEL|IDENTIFICACION)|REGISTRO\s*(?:CIVIL|GIVEL|IDENTIFICACION)|SERVICIODEREGISTRO(?:CIVIL|GIVEL|IDENTIFICACION)|SER.*REGISTRO.*(?:CIVIL|GIVEL|IDENTIFICACION)|REGISTRO.*(?:CIVIL|GIVEL|IDENTIFICACION)|GIVEL.*IDENTIFICACION|SERVICIODEREGISTROGIVEL|SERVICIODEREGISTROGIVEL/i.test(compact);
+
+  const missing: string[] = [];
+
+  if (!hasChilePhrase) missing.push('REPUBLICA DE CHILE');
+  if (!hasCedulaPhrase) missing.push('CEDULA DE IDENTIDAD');
+  if (!hasRunPattern) missing.push('RUN');
+  if (!hasServicePhrase && !hasRegistroPattern) missing.push('SERVICIO DE REGISTRO CIVIL');
+
+  return missing;
+}
+
+export function analyzeDocumentImageQuality(
+  pixelData: Uint8ClampedArray | Uint8Array,
+  width: number,
+  height: number
+): DocumentImageQualityResult {
+  if (!width || !height || !pixelData || pixelData.length < width * height * 4) {
+    return { valid: false, score: 0, reason: 'La calidad de la imagen no tiene datos válidos para evaluar.' };
+  }
+
+  let brightnessSum = 0;
+  let darkPixels = 0;
+  let brightPixels = 0;
+  let textPixels = 0;
+  let contrastSum = 0;
+  let sampledPixels = 0;
+
+  for (let i = 0; i < pixelData.length; i += 16) {
+    const r = pixelData[i];
+    const g = pixelData[i + 1];
+    const b = pixelData[i + 2];
+    const brightness = (r + g + b) / 3;
+
+    brightnessSum += brightness;
+    sampledPixels++;
+
+    if (brightness < 160) {
+      darkPixels++;
+    }
+
+    if (brightness > 225) {
+      brightPixels++;
+    }
+
+    const localContrast = Math.abs(r - g) + Math.abs(g - b) + Math.abs(b - r);
+    contrastSum += localContrast;
+
+    const isUniformDark = r === g && g === b && brightness < 185;
+    const isTextLike = brightness < 185 && (r < 180 || g < 180 || b < 180) && (localContrast > 10 || isUniformDark);
+    if (isTextLike) {
+      textPixels++;
+    }
+  }
+
+  const avgBrightness = brightnessSum / Math.max(1, sampledPixels);
+  const darkRatio = darkPixels / Math.max(1, sampledPixels);
+  const brightRatio = brightPixels / Math.max(1, sampledPixels);
+  const contrast = contrastSum / Math.max(1, sampledPixels);
+  const textRatio = textPixels / Math.max(1, sampledPixels);
+
+  const brightnessScore = 1 - Math.min(1, Math.abs(avgBrightness - 170) / 140);
+  const darkScore = Math.min(1, darkRatio / 0.14);
+  const textScore = Math.min(1, textRatio / 0.035);
+  const exposureScore = 1 - Math.min(1, brightRatio / 0.9);
+  const contrastScore = Math.min(1, contrast / 80);
+
+  const score =
+    brightnessScore * 0.3 +
+    darkScore * 0.25 +
+    textScore * 0.25 +
+    exposureScore * 0.1 +
+    contrastScore * 0.1;
+
+  const valid =
+    avgBrightness >= 35 &&
+    avgBrightness <= 250 &&
+    darkRatio >= 0.015 &&
+    brightRatio <= 0.97 &&
+    textRatio >= 0.006 &&
+    score >= 0.34;
+
+  let reason: string | undefined;
+  if (!valid) {
+    if (avgBrightness > 245 || brightRatio > 0.95) {
+      reason = 'La calidad de la imagen está demasiado clara o sobreexpuesta.';
+    } else if (avgBrightness < 40) {
+      reason = 'La calidad de la imagen está demasiado oscura para leer la cédula.';
+    } else if (textRatio < 0.006) {
+      reason = 'La calidad de la imagen no tiene contenido legible suficiente para una cédula.';
+    } else {
+      reason = 'La calidad de la imagen no es suficiente para validar la cédula.';
+    }
+  }
+
+  return {
+    valid,
+    score: Number(score.toFixed(3)),
+    reason,
+    stats: {
+      avgBrightness: Number(avgBrightness.toFixed(2)),
+      darkRatio: Number(darkRatio.toFixed(4)),
+      contrast: Number(contrast.toFixed(2)),
+      edgeDensity: Number((darkRatio + textRatio).toFixed(4)),
+      textPixels: Math.round(textPixels),
+    },
+  };
 }
 
 @Injectable({
@@ -161,10 +354,13 @@ export class DocumentUploadService {
         };
       }
 
-      const [frontTextRaw, backTextRaw] = await Promise.all([
-        this.extractTextFromImage(frontFile),
-        this.extractTextFromImage(backFile),
+      const [textractFrontText, textractBackText] = await Promise.all([
+        this.extractFrontTextWithTextract(frontFile),
+        this.extractBackTextWithTextract(backFile),
       ]);
+
+      const frontTextRaw = textractFrontText ?? await this.extractTextFromImage(frontFile);
+      const backTextRaw = textractBackText ?? await this.extractTextFromImage(backFile);
 
       console.log('[OCR][document-upload] OCR terminó para ambos lados');
 
@@ -176,9 +372,7 @@ export class DocumentUploadService {
       console.log('[OCR][document-upload] Normalized front OCR:', frontText);
       console.log('[OCR][document-upload] Normalized back OCR:', backText);
 
-      const missingFields = DocumentUploadService.FRONT_REQUIRED_FIELDS.filter(
-        field => !frontText.includes(field)
-      );
+      const missingFields = hasRequiredFrontIdFields(frontText);
 
       if (missingFields.length > 0) {
         return {
@@ -190,7 +384,9 @@ export class DocumentUploadService {
       }
 
       const frontRunFull = this.extractRunFromFront(frontText);
+      const frontRunDigits = frontRunFull ? this.getRunDigits(frontRunFull) : '';
       console.log('[OCR][document-upload] frontRunFull:', frontRunFull);
+      console.log('[OCR][document-upload] frontRunDigits:', frontRunDigits);
 
       if (!frontRunFull) {
         return {
@@ -201,12 +397,18 @@ export class DocumentUploadService {
         };
       }
 
-      const frontRunDigits = this.getRunDigits(frontRunFull);
       const backRunCandidates = this.extractRunCandidates(backText);
       console.log('[OCR][document-upload] backRunCandidates:', backRunCandidates);
 
-      const backRun = this.findMatchingRunInText(backText, frontRunDigits);
-      console.log('[OCR][document-upload] backRun selected:', backRun);
+      const backRunFromLowerRows = findMatchingRunInBackRows(backText, frontRunDigits);
+      const backRun = backRunFromLowerRows ?? this.findMatchingRunInText(backText, frontRunDigits);
+      this.logBackRunMatch(backText, frontRunDigits, backRun);
+      console.log('[OCR][document-upload] backRun selected:', {
+        originalRun: frontRunFull,
+        formattedRun: frontRunDigits,
+        matchedRun: backRun,
+        backRunFromLowerRows,
+      });
 
       if (!backRun) {
         return {
@@ -275,33 +477,17 @@ export class DocumentUploadService {
       canvas.height = sampleHeight;
       ctx.drawImage(image, 0, 0, sampleWidth, sampleHeight);
 
-      const data = ctx.getImageData(0, 0, sampleWidth, sampleHeight).data;
-      let darkPixels = 0;
-      let brightnessSum = 0;
-      let sampledPixels = 0;
+      const quality = analyzeDocumentImageQuality(
+        ctx.getImageData(0, 0, sampleWidth, sampleHeight).data,
+        sampleWidth,
+        sampleHeight
+      );
 
-      for (let i = 0; i < data.length; i += 16) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-        const brightness = (r + g + b) / 3;
-        brightnessSum += brightness;
-        sampledPixels++;
-
-        if (brightness < 180) {
-          darkPixels++;
-        }
-      }
-
-      const avgBrightness = brightnessSum / Math.max(1, sampledPixels);
-      const darkRatio = darkPixels / Math.max(1, sampledPixels);
-
-      if (avgBrightness > 250 && darkRatio < 0.015) {
-        return { valid: false, reason: `La imagen ${side === 'front' ? 'frontal' : 'posterior'} está demasiado clara o no parece una cédula.` };
-      }
-
-      if (darkRatio < 0.001) {
-        return { valid: false, reason: `La imagen ${side === 'front' ? 'frontal' : 'posterior'} no contiene suficiente contenido para ser una cédula.` };
+      if (!quality.valid) {
+        return {
+          valid: false,
+          reason: `La imagen ${side === 'front' ? 'frontal' : 'posterior'} no tiene la calidad suficiente para una cédula. ${quality.reason ?? 'Revisa la iluminación, enfoque y encuadre.'}`,
+        };
       }
 
       return { valid: true };
@@ -394,6 +580,75 @@ export class DocumentUploadService {
       return null;
     } catch (error) {
       console.warn('[OCR][document-upload] No se pudo extraer RUN del frente:', error);
+      return null;
+    }
+  }
+
+  private async extractFrontTextWithTextract(file: File): Promise<string | null> {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('document_type', 'IDENTITY_DOCUMENT');
+      formData.append('side', 'front');
+
+      console.log('[OCR][textract] Intentando extracción vía backend AWS Textract');
+      const response: any = await firstValueFrom(
+        this.http.post(`${this.API_URL}/extract-run`, formData)
+      );
+
+      const textFromResponse =
+        response?.text ||
+        response?.frontText ||
+        response?.data?.text ||
+        response?.data?.frontText ||
+        response?.result?.text ||
+        response?.result?.frontText;
+
+      if (typeof textFromResponse === 'string' && textFromResponse.trim()) {
+        return textFromResponse;
+      }
+
+      return null;
+    } catch (error: any) {
+      const status = error?.status ?? 'unknown';
+      console.warn('[OCR][textract] AWS Textract no disponible en backend, usando OCR local:', {
+        status,
+        message: error?.message || 'No disponible'
+      });
+      return null;
+    }
+  }
+
+  private async extractBackTextWithTextract(file: File): Promise<string | null> {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('document_type', 'IDENTITY_DOCUMENT');
+      formData.append('side', 'back');
+
+      const response: any = await firstValueFrom(
+        this.http.post(`${this.API_URL}/extract-run`, formData)
+      );
+
+      const textFromResponse =
+        response?.text ||
+        response?.backText ||
+        response?.data?.text ||
+        response?.data?.backText ||
+        response?.result?.text ||
+        response?.result?.backText;
+
+      if (typeof textFromResponse === 'string' && textFromResponse.trim()) {
+        return textFromResponse;
+      }
+
+      return null;
+    } catch (error: any) {
+      const status = error?.status ?? 'unknown';
+      console.warn('[OCR][textract] AWS Textract no disponible para reverso, usando OCR local:', {
+        status,
+        message: error?.message || 'No disponible'
+      });
       return null;
     }
   }
@@ -570,18 +825,41 @@ export class DocumentUploadService {
   }
 
   private normalizeRun(run: string): string {
-    return run.toUpperCase().replace(/[^0-9K]/g, '');
+    return normalizeRunToDigits(run);
   }
 
   private getRunDigits(run: string): string {
-    const normalized = this.normalizeRun(run);
-    const digitsOnly = normalized.replace(/\D/g, '');
+    return normalizeRunToDigits(run);
+  }
 
-    if (!digitsOnly) {
-      return normalized;
+  private logBackRunMatch(backText: string, expectedDigits: string, matchedRun: string | null): void {
+    const lines = (backText ?? '')
+      .split(/\r?\n/)
+      .map(line => line.trim())
+      .filter(Boolean);
+
+    const lowerRows = lines.slice(-3);
+    let foundRowIndex: number | null = null;
+    let foundRowText: string | null = null;
+
+    for (let index = 0; index < lowerRows.length; index++) {
+      const line = lowerRows[index];
+      const normalized = normalizeRunToDigits(line);
+      if (normalized && (normalized === expectedDigits || normalized.includes(expectedDigits))) {
+        foundRowIndex = lines.length - lowerRows.length + index;
+        foundRowText = line;
+        break;
+      }
     }
 
-    return digitsOnly.length > 8 ? digitsOnly.slice(0, 8) : digitsOnly;
+    console.log('[OCR][document-upload] RUN en reverso:', {
+      originalRun: expectedDigits,
+      formattedRun: expectedDigits,
+      foundRowIndex,
+      foundRowText,
+      matchedRun,
+      lowerRows,
+    });
   }
 
   private findMatchingRunInText(text: string, expectedDigits?: string): string | null {
@@ -608,6 +886,15 @@ export class DocumentUploadService {
 
       if (plainDigits.includes(expectedDigits)) {
         return expectedDigits;
+      }
+
+      const normalizedText = this.normalizeOcrText(text);
+      const backRunRegex = /([0-9]{7,8}[Kk]?)/g;
+      const directBackMatch = [...normalizedText.matchAll(backRunRegex)]
+        .map(match => this.getRunDigits(match[1]))
+        .find(candidate => candidate.includes(expectedDigits) || expectedDigits.includes(candidate));
+      if (directBackMatch) {
+        return directBackMatch;
       }
     }
 

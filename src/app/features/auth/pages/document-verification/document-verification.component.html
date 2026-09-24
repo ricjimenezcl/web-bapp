@@ -4,7 +4,14 @@
       <video #videoElement autoplay playsinline class="w-full h-full transition-all duration-150 bg-black" [ngClass]="{ 'object-cover': activeCapture() === 'selfie', 'object-contain': activeCapture() === 'documentFront' || activeCapture() === 'documentBack' }" [style.transform]="cameraMode() === 'user' ? 'scaleX(-1)' : 'none'" [style.clipPath]="activeCapture() === 'documentFront' || activeCapture() === 'documentBack' ? 'inset(0 round 24px)' : 'none'"></video>
 
       <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div *ngIf="activeCapture() === 'selfie'" class="w-64 h-96 border-4 rounded-[100%] shadow-[0_0_0_9999px_rgba(0,0,0,0.6)] transition-all duration-300" [style.transform]="'translate(' + ovalOffsetX() + 'px, ' + ovalOffsetY() + 'px) scale(' + ovalScale() + ')'" [class.border-green-500]="faceQualityGood()" [class.border-yellow-500]="faceDetected() && !faceQualityGood()" [class.border-white]="!faceDetected()">
+        <div *ngIf="activeCapture() === 'selfie'"
+             class="border-4 rounded-[100%] shadow-[0_0_0_9999px_rgba(0,0,0,0.6)] transition-all duration-300"
+             [style.width.px]="selfieOvalWidth()"
+             [style.height.px]="selfieOvalHeight()"
+             [style.transform]="'translate(' + ovalOffsetX() + 'px, ' + ovalOffsetY() + 'px) scale(' + ovalScale() + ')'"
+             [class.border-green-500]="faceQualityGood()"
+             [class.border-yellow-500]="faceDetected() && !faceQualityGood()"
+             [class.border-white]="!faceDetected()">
           <div *ngIf="faceQualityGood()" class="absolute -bottom-12 left-0 right-0 text-center">
             <span class="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full animate-bounce">✓ Rostro válido detectado</span>
           </div>
@@ -212,17 +219,17 @@
             <button
               type="button"
               (click)="startCamera('documentBack')"
-              [disabled]="!(state.selfieFacePreview && state.idFrontFacePreview && !state.faceDetectionFailed)"
-              [class.opacity-50]="!(state.selfieFacePreview && state.idFrontFacePreview && !state.faceDetectionFailed)"
-              [class.cursor-not-allowed]="!(state.selfieFacePreview && state.idFrontFacePreview && !state.faceDetectionFailed)"
+              [disabled]="!(state.selfieDocumentId && state.idDocumentFrontId)"
+              [class.opacity-50]="!(state.selfieDocumentId && state.idDocumentFrontId)"
+              [class.cursor-not-allowed]="!(state.selfieDocumentId && state.idDocumentFrontId)"
               [ngClass]="{
-                'hover:border-primary': state.selfieFacePreview && state.idFrontFacePreview && !state.faceDetectionFailed,
-                'hover:bg-primary/5': state.selfieFacePreview && state.idFrontFacePreview && !state.faceDetectionFailed
+                'hover:border-primary': state.selfieDocumentId && state.idDocumentFrontId,
+                'hover:bg-primary/5': state.selfieDocumentId && state.idDocumentFrontId
               }"
               class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-border rounded-xl transition-colors">
               <svg class="w-6 h-6 text-text-tertiary mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
               <span class="text-xs text-text-secondary">
-                {{ (state.selfieFacePreview && state.idFrontFacePreview && !state.faceDetectionFailed) ? 'Capturar Reverso' : 'Primero valida la preview' }}
+                {{ (state.selfieDocumentId && state.idDocumentFrontId) ? 'Capturar Reverso' : 'Primero sube selfie y frente' }}
               </span>
             </button>
           </ng-template>
@@ -266,51 +273,17 @@
       <div *ngIf="state.facePreviewError" class="alert alert-warning mb-4"><span>{{ state.facePreviewError }}</span></div>
       <p *ngIf="state.facePreviewError" class="text-xs text-warning mb-4">Corrige las imágenes y vuelve a subir antes de verificar.</p>
 
-      <button class="btn btn-primary btn-block" type="button" (click)="submit()" [disabled]="!canStartValidation() || loading() || state.uploading">
-        <span *ngIf="loading() || state.uploading" class="spinner"></span>
-        <span>{{ (loading() || state.uploading) ? 'Subiendo...' : 'Subir y validar' }}</span>
+      <button class="btn btn-primary btn-block" type="button" (click)="submit()" [disabled]="!canStartValidation() || loading()">
+        <span *ngIf="loading()" class="spinner"></span>
+        <span>{{ loading() ? 'Validación en curso...' : 'Subir y validar' }}</span>
       </button>
-    </div>
-
-    <div *ngIf="step() === 'preview'" class="card card-body">
-      <h3 class="font-semibold text-text-primary mb-4">👤 Preview de rostros detectados</h3>
-
-      <div *ngIf="state.loadingPreview" class="flex justify-center py-8"><span class="spinner"></span></div>
-
-      <ng-container *ngIf="!state.loadingPreview && (state.selfieFacePreview || state.selfieUrl) && (state.idFrontFacePreview || state.idDocumentFrontUrl)">
-        <div class="grid grid-cols-2 gap-4 mb-6">
-          <div class="text-center">
-            <p class="text-sm font-medium text-text-secondary mb-2">Selfie</p>
-            <img [src]="state.selfieFacePreview || state.selfieUrl" alt="Rostro en selfie" class="w-full h-40 object-contain border-2 border-primary/30 rounded-xl bg-surface-card" />
-          </div>
-          <div class="text-center">
-            <p class="text-sm font-medium text-text-secondary mb-2">Documento</p>
-            <img [src]="state.idFrontFacePreview || state.idDocumentFrontUrl" alt="Rostro en documento" class="w-full h-40 object-contain border-2 border-primary/30 rounded-xl bg-surface-card" />
-          </div>
-        </div>
-
-        <div class="bg-success/5 border border-success/20 rounded-lg p-3 mb-4">
-          <p class="text-sm text-text-secondary">✅ Rostros detectados correctamente. Haz clic en "Iniciar verificación" para comparar automáticamente.</p>
-        </div>
-
-        <div class="flex gap-2">
-          <button class="btn btn-secondary flex-1" type="button" (click)="step.set('upload')">Subir reverso</button>
-          <button class="btn btn-primary flex-1" type="button" (click)="initiateVerification()" [disabled]="loading() || !state.idDocumentBackId">
-            <span *ngIf="loading()" class="spinner"></span>
-            <span>{{ state.idDocumentBackId ? 'Iniciar verificación' : 'Falta reverso' }}</span>
-          </button>
-        </div>
-      </ng-container>
-
-      <div *ngIf="!state.loadingPreview && state.facePreviewError" class="alert alert-warning mb-4"><span>{{ state.facePreviewError }}</span></div>
-      <button *ngIf="!state.loadingPreview && state.facePreviewError" class="btn btn-secondary btn-block" type="button" (click)="retryVerification()">Reintentar con otras imágenes</button>
     </div>
 
     <div *ngIf="step() === 'verifying'" class="card card-body text-center">
       <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center"><span class="spinner"></span></div>
-      <h3 class="text-xl font-semibold text-text-primary">Verificando identidad...</h3>
-      <p class="text-text-secondary mt-2 text-sm">Estamos comparando los rostros con inteligencia artificial. Esto puede tomar unos segundos.</p>
-      <div class="mt-4 text-xs text-text-tertiary">Estado: {{ state.verificationStatus }}</div>
+      <h3 class="text-xl font-semibold text-text-primary">Validación en curso</h3>
+      <p class="text-text-secondary mt-2 text-sm">Estamos validando tus documentos y comparando la identidad con inteligencia artificial. Esto puede tomar unos segundos.</p>
+      <div class="mt-4 text-xs text-text-tertiary">Estado: {{ state.verificationStatus || 'Procesando' }}</div>
     </div>
 
     <div *ngIf="step() === 'approved'" class="card card-body text-center">

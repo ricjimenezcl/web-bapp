@@ -17,6 +17,7 @@ import { DocumentUploadService } from '../../../../shared/services/document-uplo
 import { ContentFilterService } from '../../../../shared/services/content-filter.service';
 import { offensiveContentAsyncValidator } from '../../../../shared/validators/content-filter.validators';
 import { environment } from '../../../../../environments/environment';
+import { ServiceEntitlementService, ServiceLimitEvaluation, ServiceLimitProductType } from '../../../../core/services/service-entitlement.service';
 
 const DAY_NAMES = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 const MAX_PORTFOLIO_IMAGES = 5;
@@ -25,18 +26,6 @@ interface PortfolioImage {
   file: File;
   preview: string;
   url?: string;
-}
-
-type ServiceLimitProductType = 'PROVIDER_SERVICE_30' | 'PROVIDER_PREMIUM_MONTHLY' | 'PROVIDER_PREMIUM_ANNUAL';
-
-interface ServiceLimitEvaluation {
-  canCreate: boolean;
-  activeServices: number;
-  maxServices: number;
-  hasBasePlan: boolean;
-  hasPremiumPlan: boolean;
-  suggestedProductType: ServiceLimitProductType;
-  gateMessage: string;
 }
 
 @Component({
@@ -58,6 +47,7 @@ export class AddServiceComponent implements OnInit, OnDestroy {
   private modal        = inject(ModalService);
   private documentUploadSvc = inject(DocumentUploadService);
   private contentFilterService = inject(ContentFilterService);
+  private serviceEntitlement = inject(ServiceEntitlementService);
   private destroy$ = new Subject<void>();
 
   readonly dayNames = DAY_NAMES;
@@ -312,13 +302,20 @@ export class AddServiceComponent implements OnInit, OnDestroy {
           .map((wh: any, i: number) => ({ ...wh, day_of_week: i }))
           .filter((wh: any) => wh.is_active && wh.start_time && wh.end_time);
 
-        const finish = () => {
+        const finish = async () => {
+          // El servicio recién creado consumió un cupo gratuito si el proveedor no tenía plan pagado
+          // al momento de crearlo; se persiste para que no se recupere al eliminar servicios.
+          if (this.lastLimitEvaluation && !this.lastLimitEvaluation.hasBasePlan && !this.lastLimitEvaluation.hasPremiumPlan) {
+            this.serviceEntitlement.recordServiceCreated(this.auth.currentUser()?.id ?? null);
+          }
+
           this.loading.set(false);
           this.error.set('');
           this.success.set(true);
           window.scrollTo({ top: 0, behavior: 'smooth' });
-          setTimeout(() => this.success.set(false), 2500);
-          setTimeout(() => this.router.navigate(['/provider/tabs/profile']), 2200);
+          await this.modal.success('El servicio se agregó correctamente.', '¡Servicio agregado!');
+          this.success.set(false);
+          this.router.navigate(['/provider/tabs/my-services']);
         };
 
         if (activeHours.length === 0 || !providerId || !serviceProviderId) {
@@ -353,6 +350,8 @@ export class AddServiceComponent implements OnInit, OnDestroy {
     });
   }
 
+  private lastLimitEvaluation: ServiceLimitEvaluation | null = null;
+
   private async evaluateServiceLimitGate(): Promise<void> {
     try {
       const [services, transactions] = await Promise.all([
@@ -360,7 +359,9 @@ export class AddServiceComponent implements OnInit, OnDestroy {
         firstValueFrom(this.http.get<any[]>(`${environment.apiUrl}/transactions/me`).pipe(catchError(() => of([]))))
       ]);
 
-      const evaluation = this.evaluateServiceEntitlement(services ?? [], transactions ?? []);
+      const userId = this.auth.currentUser()?.id ?? null;
+      const evaluation = this.serviceEntitlement.evaluate(userId, services ?? [], transactions ?? []);
+      this.lastLimitEvaluation = evaluation;
       this.showPaymentGate.set(!evaluation.canCreate);
       this.paymentGateMessage.set(evaluation.gateMessage);
       this.paymentGateProductType.set(evaluation.suggestedProductType);
@@ -368,89 +369,6 @@ export class AddServiceComponent implements OnInit, OnDestroy {
       // Si falla el pre-check, el backend sigue siendo la fuente de verdad (402).
       this.showPaymentGate.set(false);
     }
-  }
-
-  private evaluateServiceEntitlement(services: any[], transactions: any[]): ServiceLimitEvaluation {
-    const now = Date.now();
-    const activeServices = (services ?? []).filter((s: any) => !!s?.is_available).length;
-
-    const activePlanTypes = (transactions ?? [])
-      .filter((tx: any) => this.isActiveTransaction(tx, now))
-      .map((tx: any) => this.readProductType(tx));
-
-    const hasPremiumPlan = activePlanTypes.some((pt: string) =>
-      pt.includes('PROVIDER_PREMIUM_MONTHLY') ||
-      pt.includes('PROVIDER_PREMIUM_ANNUAL') ||
-      (pt.includes('PROVIDER_PREMIUM') && (pt.includes('YEAR') || pt.includes('ANNUAL')))
-    );
-
-    const hasBasePlan = activePlanTypes.some((pt: string) =>
-      pt.includes('PROVIDER_SERVICE_30') || pt.includes('PROVIDER_SERVICE_YEAR') || pt.includes('PROVIDER_SERVICE_ANNUAL')
-    );
-
-    const maxServices = hasPremiumPlan ? 7 : hasBasePlan ? 3 : 2;
-    const canCreate = activeServices < maxServices;
-
-    if (canCreate) {
-      return {
-        canCreate,
-        activeServices,
-        maxServices,
-        hasBasePlan,
-        hasPremiumPlan,
-        suggestedProductType: hasPremiumPlan ? 'PROVIDER_PREMIUM_ANNUAL' : 'PROVIDER_SERVICE_30',
-        gateMessage: '',
-      };
-    }
-
-    if (!hasBasePlan && activeServices >= 2) {
-      return {
-        canCreate,
-        activeServices,
-        maxServices,
-        hasBasePlan,
-        hasPremiumPlan,
-        suggestedProductType: 'PROVIDER_SERVICE_30',
-        gateMessage: 'Ya alcanzaste los 2 servicios del plan gratuito. Activa un plan mensual o anual para publicar tu tercer servicio.',
-      };
-    }
-
-    if (!hasPremiumPlan && activeServices >= 3) {
-      return {
-        canCreate,
-        activeServices,
-        maxServices,
-        hasBasePlan,
-        hasPremiumPlan,
-        suggestedProductType: 'PROVIDER_PREMIUM_ANNUAL',
-        gateMessage: 'Tu plan actual permite hasta 3 servicios. Para publicar más, activa Premium mensual o Premium anual (hasta 7 servicios activos).',
-      };
-    }
-
-    return {
-      canCreate,
-      activeServices,
-      maxServices,
-      hasBasePlan,
-      hasPremiumPlan,
-      suggestedProductType: 'PROVIDER_PREMIUM_ANNUAL',
-      gateMessage: 'Ya alcanzaste el máximo de 7 servicios activos para planes Premium.',
-    };
-  }
-
-  private isActiveTransaction(tx: any, nowMs: number): boolean {
-    const status = String(tx?.status ?? '').toLowerCase();
-    if (!(status === 'completed' || status === 'authorized')) return false;
-    const expiresAt = tx?.expires_at;
-    if (!expiresAt) return true;
-    const exp = new Date(expiresAt).getTime();
-    return Number.isFinite(exp) && exp > nowMs;
-  }
-
-  private readProductType(tx: any): string {
-    return String(
-      tx?.product_type ?? tx?.product?.sku ?? tx?.product?.product_type ?? tx?.sku ?? ''
-    ).toUpperCase();
   }
 
   private buildWorkingHoursControls(): FormGroup[] {

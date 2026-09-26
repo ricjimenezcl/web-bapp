@@ -94,24 +94,15 @@ export function hasRequiredFrontIdFields(frontText: string): string[] {
     || /(?:RUN|RON|RUT)[\s._-]*\d{1,2}[\s.]*\d{3}[\s.]*\d{3}[\s.-]*\d/i.test(compact)
     || /\d{7,8}[K]/.test(compact);
 
-  const hasRegistroPattern = /SERVICIO\s*(?:DE)?\s*REGISTRO|REGISTRO\s*(?:CIVIL|GIVEL|IDENTIFICACION)|SERVICIODEREGISTRO|CIVIL|GIVEL|IDENTIFICACION/i.test(spaced)
-    || /SERVICIO\s*(?:DE)?\s*REGISTRO|REGISTRO\s*(?:CIVIL|GIVEL|IDENTIFICACION)|SERVICIODEREGISTRO|CIVIL|GIVEL|IDENTIFICACION/i.test(compact)
-    || /SERVICIO.*REGISTRO/i.test(compact)
-    || /REGISTRO.*(?:CIVIL|GIVEL|IDENTIFICACION)/i.test(compact)
-    || /GIVEL.*IDENTIFICACION/i.test(compact)
-    || /SERVICIODEREGISTROGIVEL/i.test(compact);
-
   const hasChilePhrase = /REPUBLICA\s*DE\s*CHILE|REPUBLICADECHILE|CHILE/.test(spaced) || /REPUBLICA\s*DE\s*CHILE|REPUBLICADECHILE|CHILE/.test(compact);
-  const hasCedulaPhrase = /CEDULA\s*(?:DE)?\s*IDENTIDAD|CEDULAIDENTIDAD|CEDULA\s*DE|IDENTIDAD/.test(spaced) || /CEDULA\s*(?:DE)?\s*IDENTIDAD|CEDULAIDENTIDAD|CEDULA\s*DE|IDENTIDAD/.test(compact);
-  const hasServicePhrase = /SERVICIO\s*(?:DE)?\s*REGISTRO\s*(?:CIVIL|GIVEL|IDENTIFICACION)|REGISTRO\s*(?:CIVIL|GIVEL|IDENTIFICACION)|SERVICIODEREGISTRO(?:CIVIL|GIVEL|IDENTIFICACION)|SER.*REGISTRO.*(?:CIVIL|GIVEL|IDENTIFICACION)|REGISTRO.*(?:CIVIL|GIVEL|IDENTIFICACION)|GIVEL.*IDENTIFICACION|SERVICIODEREGISTROGIVEL|SERVICIODEREGISTROGIVEL/i.test(spaced)
-    || /SERVICIO\s*(?:DE)?\s*REGISTRO\s*(?:CIVIL|GIVEL|IDENTIFICACION)|REGISTRO\s*(?:CIVIL|GIVEL|IDENTIFICACION)|SERVICIODEREGISTRO(?:CIVIL|GIVEL|IDENTIFICACION)|SER.*REGISTRO.*(?:CIVIL|GIVEL|IDENTIFICACION)|REGISTRO.*(?:CIVIL|GIVEL|IDENTIFICACION)|GIVEL.*IDENTIFICACION|SERVICIODEREGISTROGIVEL|SERVICIODEREGISTROGIVEL/i.test(compact);
 
   const missing: string[] = [];
 
   if (!hasChilePhrase) missing.push('REPUBLICA DE CHILE');
-  if (!hasCedulaPhrase) missing.push('CEDULA DE IDENTIDAD');
   if (!hasRunPattern) missing.push('RUN');
-  if (!hasServicePhrase && !hasRegistroPattern) missing.push('SERVICIO DE REGISTRO CIVIL');
+  // 'CEDULA DE IDENTIDAD' y 'SERVICIO DE REGISTRO CIVIL' no bloquean: el encabezado se OCRea de forma
+  // muy inconsistente (letra estilizada/pequeña) y suele leerse como ruido aunque la cédula sea válida.
+  // REPUBLICA DE CHILE + un RUN con formato válido ya son evidencia suficiente.
 
   return missing;
 }
@@ -230,9 +221,7 @@ export class DocumentUploadService {
 
   private static readonly FRONT_REQUIRED_FIELDS = [
     'REPUBLICA DE CHILE',
-    'CEDULA DE IDENTIDAD',
     'RUN',
-    'SERVICIO DE REGISTRO CIVIL',
   ];
 
   /**
@@ -987,11 +976,12 @@ export class DocumentUploadService {
   private extractRunFromFront(frontText: string): string | null {
     const lowerText = frontText.toLowerCase();
 
+    // Los separadores excluyen \n para no capturar dígitos de líneas distintas (p.ej. fechas + siguiente campo).
     const nearPhotoPatterns = [
-      /(?:run|rut)[^\n]{0,30}?([0-9]{1,2}[\s.]*[0-9]{3}[\s.]*[0-9]{3}[\s.-]*[0-9k])/i,
+      /(?:run|rut)[^\n]{0,30}?([0-9]{1,2}[ .]*[0-9]{3}[ .]*[0-9]{3}[ .-]*[0-9k])/i,
       /(?:run|rut)[^\n]{0,30}?([0-9]{7,8}[k]?)/i,
       /(?:\bnumero\s*documento\b|\bnumero\b)[^\n]{0,20}?([0-9]{7,8}[k]?)/i,
-      /([0-9]{1,2}[\s.]*[0-9]{3}[\s.]*[0-9]{3}[\s.-]*[0-9k])(?=\s*(?:\n|$))/i,
+      /([0-9]{1,2}[ .]*[0-9]{3}[ .]*[0-9]{3}[ .-]*[0-9k])(?=\s*(?:\n|$))/i,
       /([0-9]{7,8}[k]?)(?=\s*(?:\n|$))/i,
     ];
 
@@ -1008,7 +998,7 @@ export class DocumentUploadService {
 
     if (relevantIndex >= 0) {
       const tail = frontText.slice(relevantIndex, relevantIndex + 250);
-      const tailCandidate = tail.match(/([0-9]{1,2}[\s.]*[0-9]{3}[\s.]*[0-9]{3}[\s.-]*[0-9k]?|[0-9]{7,8}[k]?)/i);
+      const tailCandidate = tail.match(/([0-9]{1,2}[ .]*[0-9]{3}[ .]*[0-9]{3}[ .-]*[0-9k]?|[0-9]{7,8}[k]?)/i);
       if (tailCandidate?.[1]) {
         return this.normalizeRun(tailCandidate[1]);
       }

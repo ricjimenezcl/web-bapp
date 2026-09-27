@@ -112,7 +112,7 @@
             </svg>
             <div class="method-info">
               <span class="method-name">Mercado Pago</span>
-              <span class="method-desc">Próximamente</span>
+              <span class="method-desc">Tarjetas de crédito, débito y saldo en cuenta</span>
             </div>
           </button>
 
@@ -143,7 +143,7 @@
             <svg fill="currentColor" viewBox="0 0 24 24">
               <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            Mercado Pago estará disponible en una próxima versión.
+            Al hacer clic en "Continuar" serás redirigido al checkout seguro de Mercado Pago.
           </div>
         } @else {
           <div class="mp-info">
@@ -161,6 +161,11 @@
                 d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
             {{ error() }}
+            @if (mpPending()) {
+              <button type="button" class="mp-recheck-btn" (click)="recheckMercadoPagoStatus()">
+                Verificar de nuevo
+              </button>
+            }
           </div>
         }
 

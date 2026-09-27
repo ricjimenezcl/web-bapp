@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
@@ -228,6 +228,13 @@ export class ClientProfileComponent implements OnInit {
       this.platformLanguage.setLanguage(value);
     }
   }
+
+  /** true si el cliente autenticado tiene un plan premium activo */
+  readonly hasPremium = computed(() => {
+    const currentUser = this.auth.currentUser();
+    const profile = this.auth.currentProfile();
+    return Boolean(currentUser?.has_premium || profile?.has_premium);
+  });
 
   // ── External ───────────────────────────────────────────────────────
   goToPayment(productType: ProductType = 'CLIENT_UNLOCK_30'): void {

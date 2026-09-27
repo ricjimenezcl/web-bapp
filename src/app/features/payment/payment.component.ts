@@ -24,6 +24,20 @@ const PROVIDER_PRODUCT_TYPES: ProductType[] = [
   'PROVIDER_PREMIUM_ANNUAL',
 ];
 
+// SKUs de catálogo (Product.sku en backend) habilitados para pagar con
+// Mercado Pago. Solo los productos con un Product real en BD pueden usarse
+// aquí (POST /payments/mercadopago/create exige Product existente).
+const MERCADOPAGO_SKU_BY_PRODUCT_TYPE: Partial<Record<ProductType, string>> = {
+  CLIENT_UNLOCK_7: 'premium_access_7days',
+  CLIENT_UNLOCK_30: 'client_unlock_30days',
+  PROVIDER_SERVICE_30: 'service_publication_30days',
+  PROVIDER_SERVICE_YEAR: 'provider_service_1year',
+  PROVIDER_LEADS_7: 'provider_leads_unlock_7days',
+  PROVIDER_LEADS_30: 'provider_leads_unlock_30days',
+  PROVIDER_PREMIUM_MONTHLY: 'provider_premium_monthly',
+  PROVIDER_PREMIUM_ANNUAL: 'provider_premium_annual',
+};
+
 interface PlanUi {
   productType: ProductType;
   title: string;
@@ -130,6 +144,8 @@ export class PaymentComponent implements OnInit {
   success = signal(false);
   error = signal('');
   returnTo = signal<string | null>(null);
+  /** Estado especial para el retorno de Mercado Pago, que se confirma por webhook y no por la return_url. */
+  mpPending = signal(false);
 
   readonly activePlan = computed(() => PLAN_CATALOG[this.selectedProductType()]);
 
@@ -147,6 +163,7 @@ export class PaymentComponent implements OnInit {
       // status=success|cancelled y buy_order (nunca expone token_ws en la URL).
       const status = params.get('status');
       const buyOrder = params.get('buy_order');
+      const provider = params.get('provider');
 
       // Fallback legacy por si queda algún enlace/caché apuntando al flujo
       // anterior (token_ws directo en query).
@@ -164,6 +181,23 @@ export class PaymentComponent implements OnInit {
 
       if (!rolePlanTypes.has(this.selectedProductType()) && rolePlans.length > 0) {
         this.selectedProductType.set(rolePlans[0].productType);
+      }
+
+      // Retorno desde Mercado Pago: la activación real ocurre por webhook en
+      // el backend, NUNCA por esta URL. Solo refrescamos el estado real del
+      // usuario para reflejarlo (ver handleMercadoPagoReturn).
+      if (provider === 'mercadopago') {
+        if (status === 'approved') {
+          this.handleMercadoPagoReturn();
+          return;
+        }
+        if (status === 'pending') {
+          this.mpPending.set(true);
+          this.error.set('Estamos esperando la confirmación de Mercado Pago. No se ha activado ningún cobro adicional; esto puede tardar unos segundos.');
+          return;
+        }
+        this.error.set('El pago con Mercado Pago fue rechazado o cancelado. Puedes intentarlo nuevamente.');
+        return;
       }
 
       // Flujo normal de retorno Webpay (pago autorizado) vía bridge backend
@@ -221,19 +255,36 @@ export class PaymentComponent implements OnInit {
 
   pay(): void {
     const method = this.selectedMethod();
+    const plan = this.activePlan();
 
-    if (method !== 'transbank') {
-      this.error.set(
-        method === 'mercadopago'
-          ? 'Mercado Pago estará disponible próximamente. Mientras tanto puedes pagar con Transbank.'
-          : 'Transferencia bancaria estará disponible próximamente. Mientras tanto puedes pagar con Transbank.'
-      );
+    if (method === 'transferencia') {
+      this.error.set('Transferencia bancaria estará disponible próximamente. Mientras tanto puedes pagar con Transbank o Mercado Pago.');
       return;
     }
 
-    const plan = this.activePlan();
     this.processing.set(true);
     this.error.set('');
+
+    if (method === 'mercadopago') {
+      const sku = MERCADOPAGO_SKU_BY_PRODUCT_TYPE[plan.productType];
+      if (!sku) {
+        this.processing.set(false);
+        this.error.set('Mercado Pago no está disponible todavía para este producto. Puedes pagar con Transbank.');
+        return;
+      }
+
+      this.paymentSvc.createMercadoPagoPreference(sku).subscribe({
+        next: (res) => {
+          this.processing.set(false);
+          window.location.href = res.init_point;
+        },
+        error: (err) => {
+          this.processing.set(false);
+          this.error.set(err?.error?.detail ?? 'No se pudo iniciar el pago con Mercado Pago.');
+        }
+      });
+      return;
+    }
 
     this.paymentSvc.createTransaction({
       product_type: plan.productType,
@@ -254,11 +305,47 @@ export class PaymentComponent implements OnInit {
   getPayButtonText(): string {
     if (this.processing()) return 'Procesando...';
 
+    const amount = this.activePlan().price.toLocaleString('es-CL');
+
     if (this.selectedMethod() === 'transbank') {
-      return `Continuar con Transbank $${this.activePlan().price.toLocaleString('es-CL')} CLP`;
+      return `Continuar con Transbank $${amount} CLP`;
+    }
+
+    if (this.selectedMethod() === 'mercadopago') {
+      return `Continuar con Mercado Pago $${amount} CLP`;
     }
 
     return 'Método no disponible todavía';
+  }
+
+  /**
+   * Retorno desde el checkout de Mercado Pago (`back_urls.success`). La
+   * activación real del beneficio ocurre en el webhook del backend
+   * (`/payments/mercadopago/webhook`), no en esta URL de retorno. Aquí solo
+   * refrescamos el estado real del usuario (`GET /users/me`) y mostramos
+   * éxito SOLO si el backend confirma que el beneficio ya quedó activo;
+   * si el webhook aún no llegó, mostramos un estado de "pendiente" con
+   * opción de reintentar la verificación, sin asumir el pago como aprobado.
+   */
+  private async handleMercadoPagoReturn(): Promise<void> {
+    this.committing.set(true);
+    this.error.set('');
+
+    await this.syncPostPaymentState();
+
+    this.committing.set(false);
+
+    if (this.storage.user()?.has_premium) {
+      this.mpPending.set(false);
+      this.success.set(true);
+    } else {
+      this.mpPending.set(true);
+      this.error.set('Tu pago fue aprobado por Mercado Pago. Estamos confirmando la activación de tu acceso; puede tardar unos segundos.');
+    }
+  }
+
+  recheckMercadoPagoStatus(): void {
+    this.handleMercadoPagoReturn();
   }
 
   private commit(params: { token?: string; buy_order?: string }): void {

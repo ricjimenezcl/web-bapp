@@ -50,6 +50,15 @@ export interface TransactionStatusResponse {
   transbank?: Record<string, unknown>;
 }
 
+export interface CreateMercadoPagoPreferenceResponse {
+  success: boolean;
+  preference_id: string;
+  init_point: string;
+  sandbox_init_point?: string;
+  transaction_id: number;
+  product_sku: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class PaymentService {
   private readonly http = inject(HttpClient);
@@ -65,5 +74,13 @@ export class PaymentService {
 
   getTransactionStatus(buyOrder: string): Observable<TransactionStatusResponse> {
     return this.http.get<TransactionStatusResponse>(`${this.api}/payments/transbank/status/${buyOrder}`);
+  }
+
+  createMercadoPagoPreference(productSku: string): Observable<CreateMercadoPagoPreferenceResponse> {
+    return this.http.post<CreateMercadoPagoPreferenceResponse>(
+      `${this.api}/payments/mercadopago/create`,
+      null,
+      { params: { product_sku: productSku } }
+    );
   }
 }

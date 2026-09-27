@@ -42,6 +42,9 @@ import { TPipe } from '../../pipes/t.pipe';
         <h2>{{ 'privacy.section8.title' | t }}</h2>
         <p>{{ 'privacy.section8.prefix' | t }} <a href="mailto:privacidad@bappsearch.com">privacidad&#64;bappsearch.com</a>. {{ 'privacy.section8.suffix' | t }}</p>
 
+        <h2 id="eliminar-datos">{{ 'privacy.dataDeletion.title' | t }}</h2>
+        <p>{{ 'privacy.dataDeletion.prefix' | t }} <a href="mailto:soporte@bappsearch.com">soporte&#64;bappsearch.com</a> {{ 'privacy.dataDeletion.suffix' | t }}</p>
+
         <h2>{{ 'privacy.section9.title' | t }}</h2>
         <p>{{ 'privacy.section9.body' | t }}</p>
 

@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, OnDestroy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, OnDestroy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, switchMap, of, forkJoin, takeUntil, catchError, firstValueFrom } from 'rxjs';
@@ -9,6 +9,7 @@ import { ReviewService } from '../../../../core/services/review.service';
 import { GeoapifyService, AddressSuggestion } from '../../../../core/services/geoapify.service';
 import { SearchStateService } from '../../../../core/services/search-state.service';
 import { ContactLimitService } from '../../../../core/services/contact-limit.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import { ProviderProfile, ServiceProvider, ProviderWorkingHours } from '../../../../core/models/provider.model';
 import { Review } from '../../../../core/models/review.model';
 import { ModalService } from '../../../../core/services/modal.service';
@@ -43,6 +44,7 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
   private readonly reviewSvc   = inject(ReviewService);
   private readonly geoapify    = inject(GeoapifyService);
   readonly contactLimit        = inject(ContactLimitService);
+  private readonly auth        = inject(AuthService);
   private readonly modal       = inject(ModalService);
   private readonly reportSvc   = inject(ReportService);
   private readonly contentFilterService = inject(ContentFilterService);
@@ -144,6 +146,31 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
   get providerAddress(): string {
     // Primero intenta obtener del perfil raíz, luego del primer servicio (donde viene en /providers/{id}/detailed)
     return this.provider()?.address ?? this.services()[0]?.address ?? 'No disponible';
+  }
+
+  /** true si el cliente autenticado tiene un plan premium activo */
+  readonly hasPremium = computed(() => {
+    const currentUser = this.auth.currentUser();
+    const profile = this.auth.currentProfile();
+    return Boolean(currentUser?.has_premium || profile?.has_premium);
+  });
+
+  /** Número de teléfono del proveedor listo para link de WhatsApp (wa.me) */
+  get providerWhatsappLink(): string | null {
+    const digits = (this.providerPhone || '').replace(/\D/g, '');
+    if (!digits) return null;
+    // wa.me requiere código de país; si el número viene sin +56, se antepone (Chile)
+    const withCountryCode = digits.startsWith('56') ? digits : `56${digits.replace(/^0+/, '')}`;
+    return `https://wa.me/${withCountryCode}`;
+  }
+
+  goToPremium(): void {
+    this.router.navigate(['/payment'], {
+      state: {
+        product_type: 'CLIENT_UNLOCK_30',
+        returnTo: this.router.url
+      }
+    });
   }
 
   get providerDescription(): string {

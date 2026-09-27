@@ -281,8 +281,8 @@ export class AddServiceComponent implements OnInit, OnDestroy {
     // ═══════════════════════════════════════════════════════════════
 
     const confirmed = await this.modal.confirm(
-      '¿Deseas confirmar el alta de este servicio?',
-      'Confirmar alta de servicio',
+      '¿Deseas confirmar nuevo servicio?',
+      'Confirmar nuevo servicio',
       'Confirmar'
     );
 

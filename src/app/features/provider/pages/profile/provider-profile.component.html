@@ -216,6 +216,11 @@
             <button type="button" class="btn-primary" (click)="showView('payments')">Ver pagos</button>
           </div>
           <p>Revisa tus movimientos, pagos y facturación desde aquí.</p>
+          @if (!activePlan) {
+            <button type="button" class="btn-primary" (click)="goToPayment('PROVIDER_PREMIUM_MONTHLY')">
+              Activar Premium mensual
+            </button>
+          }
         </div>
 
         @if (provider()?.bio) {

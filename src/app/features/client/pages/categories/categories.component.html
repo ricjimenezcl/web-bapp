@@ -569,6 +569,8 @@
 ══════════════════════════════════════════════════════════════════ -->
 @if (showMapPicker()) {
   <app-map-picker
+    [initialLat]="mapPickerInitialLat"
+    [initialLng]="mapPickerInitialLng"
     (locationSelected)="onLocationSelected($event)"
     (closed)="onMapPickerClose()">
   </app-map-picker>

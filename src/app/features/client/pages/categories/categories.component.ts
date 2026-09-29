@@ -266,10 +266,38 @@ export class CategoriesComponent implements OnInit {
     this.locationSvc.clearSelectedLocation();
   }
 
+  /** Coordenadas iniciales del map picker — se centran en la ubicación real del cliente */
+  mapPickerInitialLat = -33.4489;
+  mapPickerInitialLng = -70.6693;
+
   openMapPicker(): void {
     console.log('🗺️ Abriendo map picker');
-    this.showMapPicker.set(true);
     this.showLocationSearch = false; // Cerrar el dropdown de búsqueda si está abierto
+
+    // Prioridad: ubicación seleccionada manualmente > GPS del cliente > default Santiago Centro
+    const selected = this.locationSvc.getSelectedLocation();
+    if (selected) {
+      this.mapPickerInitialLat = selected.lat;
+      this.mapPickerInitialLng = selected.lon;
+      this.showMapPicker.set(true);
+      return;
+    }
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          this.mapPickerInitialLat = pos.coords.latitude;
+          this.mapPickerInitialLng = pos.coords.longitude;
+          this.showMapPicker.set(true);
+        },
+        () => {
+          // Sin permiso/soporte de geolocalización: abrir con el default
+          this.showMapPicker.set(true);
+        }
+      );
+    } else {
+      this.showMapPicker.set(true);
+    }
   }
 
   onLocationSelected(suggestion: LocationSuggestion): void {

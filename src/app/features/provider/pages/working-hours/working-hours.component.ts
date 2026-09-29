@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ProviderService } from '../../../../core/services/provider.service';
 import { ProviderWorkingHours, DAY_NAMES } from '../../../../core/models/provider.model';
+import { ModalService } from '../../../../core/services/modal.service';
 
 @Component({
   selector: 'app-working-hours',
@@ -60,6 +61,7 @@ import { ProviderWorkingHours, DAY_NAMES } from '../../../../core/models/provide
 })
 export class WorkingHoursComponent implements OnInit {
   private providerSvc = inject(ProviderService);
+  private readonly modal = inject(ModalService);
   workingHours = signal<ProviderWorkingHours[]>([]);
   loading = signal(true);
   saving  = signal(false);
@@ -98,15 +100,41 @@ export class WorkingHoursComponent implements OnInit {
     );
   }
 
-  save(): void {
+  async save(): Promise<void> {
+    const confirmed = await this.modal.confirm(
+      '¿Deseas guardar los horarios de trabajo?',
+      'Confirmar horarios',
+      'Guardar'
+    );
+    if (!confirmed) return;
+
     this.saving.set(true);
     const active = this.workingHours().filter(d => d.is_active);
     let saved = 0;
-    if (active.length === 0) { this.saving.set(false); this.success.set(true); return; }
+    if (active.length === 0) {
+      this.saving.set(false);
+      this.success.set(true);
+      await this.modal.success('Los horarios se guardaron correctamente.', 'Horarios guardados');
+      return;
+    }
     active.forEach(day => {
       this.providerSvc.saveWorkingHours(day).subscribe({
-        next: () => { saved++; if (saved === active.length) { this.saving.set(false); this.success.set(true); setTimeout(() => this.success.set(false), 3000); } },
-        error: () => { saved++; if (saved === active.length) { this.saving.set(false); } }
+        next: async () => {
+          saved++;
+          if (saved === active.length) {
+            this.saving.set(false);
+            this.success.set(true);
+            setTimeout(() => this.success.set(false), 3000);
+            await this.modal.success('Los horarios se guardaron correctamente.', 'Horarios guardados');
+          }
+        },
+        error: async () => {
+          saved++;
+          if (saved === active.length) {
+            this.saving.set(false);
+            await this.modal.error('No se pudieron guardar algunos horarios. Intenta nuevamente.');
+          }
+        }
       });
     });
   }

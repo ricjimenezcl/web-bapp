@@ -8,6 +8,7 @@ import { ContentFilterService } from '../../../../shared/services/content-filter
 import { CustomValidators } from '../../../../shared/validators/custom-validators';
 import { offensiveContentAsyncValidator } from '../../../../shared/validators/content-filter.validators';
 import { formatChileanPhone } from '../../../../shared/utils/form-formatters';
+import { ModalService } from '../../../../core/services/modal.service';
 
 @Component({
   selector: 'app-edit-profile',
@@ -22,6 +23,7 @@ export class EditProfileComponent implements OnInit {
   readonly auth            = inject(AuthService);
   private readonly router  = inject(Router);
   private readonly contentFilterService = inject(ContentFilterService);
+  private readonly modal   = inject(ModalService);
 
   loading      = signal(false);
   error        = signal('');
@@ -82,15 +84,28 @@ export class EditProfileComponent implements OnInit {
     reader.readAsDataURL(file);
   }
 
-  submit(): void {
+  async submit(): Promise<void> {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
     if (this.form.pending) { this.form.markAllAsTouched(); return; }
+
+    const confirmed = await this.modal.confirm(
+      '¿Deseas guardar los cambios en tu perfil?',
+      'Confirmar cambios',
+      'Guardar'
+    );
+    if (!confirmed) return;
+
     this.loading.set(true);
     this.error.set('');
 
     const save = () => {
       this.profile.updateMe(this.form.value as any).subscribe({
-        next: () => { this.loading.set(false); this.success.set(true); setTimeout(() => this.success.set(false), 3000); },
+        next: async () => {
+          this.loading.set(false);
+          this.success.set(true);
+          setTimeout(() => this.success.set(false), 3000);
+          await this.modal.success('Tu perfil se actualizó correctamente.', 'Perfil actualizado');
+        },
         error: (err) => { this.loading.set(false); this.error.set(err?.error?.detail ?? 'Error al actualizar.'); }
       });
     };

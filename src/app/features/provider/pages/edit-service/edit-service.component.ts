@@ -287,13 +287,14 @@ export class EditServiceComponent implements OnInit, OnDestroy {
           .map((wh: any, i: number) => ({ ...wh, day_of_week: i }))
           .filter((wh: any) => wh.is_active && wh.start_time && wh.end_time);
 
-        const finish = () => {
+        const finish = async () => {
           this.saving.set(false);
           this.error.set('');
           this.success.set(true);
           window.scrollTo({ top: 0, behavior: 'smooth' });
-          setTimeout(() => this.success.set(false), 2500);
-          setTimeout(() => this.router.navigate(['/provider/tabs/my-services']), 2200);
+          await this.modal.success('El servicio se actualizó correctamente.', '¡Servicio actualizado!');
+          this.success.set(false);
+          this.router.navigate(['/provider/tabs/my-services']);
         };
 
         if (activeHours.length === 0 || !this.providerId || !this.serviceId) {

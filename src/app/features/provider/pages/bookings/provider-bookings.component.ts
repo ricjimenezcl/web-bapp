@@ -53,13 +53,20 @@ export class ProviderBookingsComponent implements OnInit, OnDestroy {
     });
   }
 
-  confirm(id: number): void {
+  async confirm(id: number): Promise<void> {
+    const confirmed = await this.modal.confirm(
+      '¿Deseas confirmar esta reserva?',
+      'Confirmar reserva',
+      'Confirmar'
+    );
+    if (!confirmed) return;
+
     this.bookingSvc.confirmBooking(id).subscribe({
       next: (u) => {
         this.bookings.update(l => l.map(b => String(b.id) === String(id) ? u : b));
-        void this.modal.info('Reserva confirmada exitosamente.');
+        void this.modal.success('Reserva confirmada exitosamente.');
       },
-      error: () => void this.modal.info('No se pudo confirmar la reserva. Inténtalo nuevamente.')
+      error: () => void this.modal.error('No se pudo confirmar la reserva. Inténtalo nuevamente.')
     });
   }
 
@@ -79,19 +86,26 @@ export class ProviderBookingsComponent implements OnInit, OnDestroy {
     this.bookingSvc.rejectBooking(id, reason ?? undefined).subscribe({
       next: (u) => {
         this.bookings.update(l => l.map(b => String(b.id) === String(id) ? u : b));
-        void this.modal.info('Reserva rechazada.');
+        void this.modal.success('Reserva rechazada.');
       },
-      error: () => void this.modal.info('No se pudo rechazar la reserva. Inténtalo nuevamente.')
+      error: () => void this.modal.error('No se pudo rechazar la reserva. Inténtalo nuevamente.')
     });
   }
 
-  complete(id: number): void {
+  async complete(id: number): Promise<void> {
+    const confirmed = await this.modal.confirm(
+      '¿Deseas marcar esta reserva como completada?',
+      'Completar reserva',
+      'Completar'
+    );
+    if (!confirmed) return;
+
     this.bookingSvc.completeBooking(id).subscribe({
       next: (u) => {
         this.bookings.update(l => l.map(b => String(b.id) === String(id) ? u : b));
-        void this.modal.info('Reserva marcada como completada.');
+        void this.modal.success('Reserva marcada como completada.');
       },
-      error: () => void this.modal.info('No se pudo completar la reserva. Inténtalo nuevamente.')
+      error: () => void this.modal.error('No se pudo completar la reserva. Inténtalo nuevamente.')
     });
   }
 

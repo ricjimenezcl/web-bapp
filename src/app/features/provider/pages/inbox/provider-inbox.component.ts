@@ -7,6 +7,7 @@ import { ConversationUI } from '../../../../core/models/chat.model';
 import { ChatViewComponent } from '../../../../features/chat/chat-view.component';
 import { PlatformI18nService } from '../../../../core/services/platform-i18n.service';
 import { TPipe } from '../../../../shared/pipes/t.pipe';
+import { ModalService } from '../../../../core/services/modal.service';
 
 @Component({
   selector: 'app-provider-inbox',
@@ -19,6 +20,7 @@ export class ProviderInboxComponent implements OnInit {
   private readonly chatSvc = inject(ChatService);
   private readonly route   = inject(ActivatedRoute);
   private readonly i18n    = inject(PlatformI18nService);
+  private readonly modal   = inject(ModalService);
   conversations = signal<ConversationUI[]>([]);
   loading = signal(true);
   selectedConvId = signal<number | null>(null);
@@ -36,14 +38,20 @@ export class ProviderInboxComponent implements OnInit {
   selectChat(id: number): void { this.selectedConvId.set(id); }
   closeChat(): void { this.selectedConvId.set(null); }
 
-  deleteConversation(id: number, event: Event): void {
+  async deleteConversation(id: number, event: Event): Promise<void> {
     event.stopPropagation();
-    if (!confirm(this.i18n.t('chat.deleteConversationConfirm'))) return;
+    const confirmed = await this.modal.confirm(
+      this.i18n.t('chat.deleteConversationConfirm'),
+      this.i18n.t('chat.deleteConversation'),
+      'Eliminar'
+    );
+    if (!confirmed) return;
     this.chatSvc.deleteConversation(id).subscribe({
-      next: () => {
+      next: async () => {
         this.chatSvc.removeConversationLocally(id);
         this.conversations.update(list => list.filter(c => c.id !== id));
         if (this.selectedConvId() === id) this.selectedConvId.set(null);
+        await this.modal.success('La conversación se eliminó correctamente.', 'Conversación eliminada');
       },
       error: () => {}
     });

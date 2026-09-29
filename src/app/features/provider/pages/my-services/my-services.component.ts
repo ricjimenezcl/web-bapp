@@ -72,7 +72,13 @@ export class MyServicesComponent implements OnInit {
     const confirmed = await this.modal.confirm(message, 'Confirmar eliminación', 'Eliminar');
     if (!confirmed) return;
     this.providerSvc.deleteService(id, service?.provider_id).subscribe({
-      next: () => this.services.update(list => list.filter(s => s.id !== id))
+      next: async () => {
+        this.services.update(list => list.filter(s => s.id !== id));
+        await this.modal.success('El servicio se eliminó correctamente.', 'Servicio eliminado');
+      },
+      error: async () => {
+        await this.modal.error('No se pudo eliminar el servicio. Intenta nuevamente.');
+      }
     });
   }
 

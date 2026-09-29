@@ -7,6 +7,7 @@ import { ChatViewComponent } from '../../../../features/chat/chat-view.component
 import { DatePipe } from '@angular/common';
 import { PlatformI18nService } from '../../../../core/services/platform-i18n.service';
 import { TPipe } from '../../../../shared/pipes/t.pipe';
+import { ModalService } from '../../../../core/services/modal.service';
 
 @Component({
   selector: 'app-client-chats',
@@ -18,6 +19,7 @@ import { TPipe } from '../../../../shared/pipes/t.pipe';
 export class ClientChatsComponent implements OnInit {
   private chatSvc = inject(ChatService);
   private i18n = inject(PlatformI18nService);
+  private modal = inject(ModalService);
   conversations = signal<ConversationUI[]>([]);
   loading = signal(true);
   selectedConvId = signal<number | null>(null);
@@ -65,14 +67,20 @@ export class ClientChatsComponent implements OnInit {
     this.selectedConvId.set(null);
   }
 
-  deleteConversation(id: number, event: Event): void {
+  async deleteConversation(id: number, event: Event): Promise<void> {
     event.stopPropagation();
-    if (!confirm(this.i18n.t('chat.deleteConversationConfirm'))) return;
+    const confirmed = await this.modal.confirm(
+      this.i18n.t('chat.deleteConversationConfirm'),
+      this.i18n.t('chat.deleteConversation'),
+      'Eliminar'
+    );
+    if (!confirmed) return;
     this.chatSvc.deleteConversation(id).subscribe({
-      next: () => {
+      next: async () => {
         this.chatSvc.removeConversationLocally(id);
         this.conversations.update(list => list.filter(c => c.id !== id));
         if (this.selectedConvId() === id) this.selectedConvId.set(null);
+        await this.modal.success('La conversación se eliminó correctamente.', 'Conversación eliminada');
       },
       error: () => {}
     });

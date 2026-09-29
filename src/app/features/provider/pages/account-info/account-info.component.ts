@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ProfileService } from '../../../../core/services/profile.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { ModalService } from '../../../../core/services/modal.service';
 
 @Component({
   selector: 'app-account-info',
@@ -220,6 +221,7 @@ export class AccountInfoComponent {
   readonly auth = inject(AuthService);
   private readonly profileSvc = inject(ProfileService);
   private readonly fb = inject(FormBuilder);
+  private readonly modal = inject(ModalService);
 
   loading = signal(false);
   error   = signal('');
@@ -241,12 +243,25 @@ export class AccountInfoComponent {
     this.showNewPassword = !this.showNewPassword;
   }
 
-  changePassword(): void {
+  async changePassword(): Promise<void> {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
+
+    const confirmed = await this.modal.confirm(
+      '¿Deseas cambiar tu contraseña?',
+      'Confirmar cambio de contraseña',
+      'Cambiar'
+    );
+    if (!confirmed) return;
+
     this.loading.set(true);
     const { old_password, new_password } = this.form.value;
     this.profileSvc.changePassword(old_password!, new_password!).subscribe({
-      next: () => { this.loading.set(false); this.success.set(true); this.form.reset(); },
+      next: async () => {
+        this.loading.set(false);
+        this.success.set(true);
+        this.form.reset();
+        await this.modal.success('Tu contraseña se actualizó correctamente.', 'Contraseña actualizada');
+      },
       error: (err) => { this.loading.set(false); this.error.set(err?.error?.detail ?? 'Error al cambiar contraseña.'); }
     });
   }

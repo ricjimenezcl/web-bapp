@@ -10,6 +10,7 @@ import { ChatMessage, ConversationDetailResponse, UserBasicResponse } from '../.
 import { ContentFilterService } from '../../shared/services/content-filter.service';
 import { offensiveContentAsyncValidator } from '../../shared/validators/content-filter.validators';
 import { TPipe } from '../../shared/pipes/t.pipe';
+import { ModalService } from '../../core/services/modal.service';
 
 @Component({
   selector: 'app-chat-view',
@@ -32,6 +33,7 @@ export class ChatViewComponent implements OnInit, OnDestroy, AfterViewChecked, O
   private readonly fb       = inject(FormBuilder);
   private readonly contentFilterService = inject(ContentFilterService);
   private readonly i18n = inject(PlatformI18nService);
+  private readonly modal = inject(ModalService);
 
   messages          = signal<ChatMessage[]>([]);
   conversationInfo  = signal<ConversationDetailResponse | null>(null);
@@ -222,9 +224,15 @@ export class ChatViewComponent implements OnInit, OnDestroy, AfterViewChecked, O
     this.activeMenuMsgId.set(null);
   }
 
-  deleteMessage(msg: ChatMessage): void {
+  async deleteMessage(msg: ChatMessage): Promise<void> {
     if (!this.isMyMessage(msg)) return;
     this.activeMenuMsgId.set(null);
+    const confirmed = await this.modal.confirm(
+      '¿Eliminar este mensaje? Esta acción no se puede deshacer.',
+      this.i18n.t('chat.deleteMessage'),
+      'Eliminar'
+    );
+    if (!confirmed) return;
     this.deletingMsgId.set(msg.id);
     this.chatSvc.deleteMessage(this.conversationId, msg.id).subscribe({
       next: () => {

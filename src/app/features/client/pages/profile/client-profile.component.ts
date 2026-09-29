@@ -158,18 +158,27 @@ export class ClientProfileComponent implements OnInit {
     reader.readAsDataURL(file);
   }
 
-  submitProfile(): void {
+  async submitProfile(): Promise<void> {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
     if (this.form.pending) { this.form.markAllAsTouched(); return; }
+
+    const confirmed = await this.modal.confirm(
+      '¿Deseas guardar los cambios en tu perfil?',
+      'Confirmar cambios',
+      'Guardar'
+    );
+    if (!confirmed) return;
+
     this.editLoading.set(true);
     this.editError.set('');
 
     const save = () => {
       this.profile.updateMe(this.form.value as any).subscribe({
-        next: () => {
+        next: async () => {
           this.editLoading.set(false);
           this.editSuccess.set(true);
           setTimeout(() => this.editSuccess.set(false), 3000);
+          await this.modal.success('Tu perfil se actualizó correctamente.', 'Perfil actualizado');
         },
         error: (err) => {
           this.editLoading.set(false);
@@ -201,20 +210,29 @@ export class ClientProfileComponent implements OnInit {
     this.showConfirmPassword = !this.showConfirmPassword;
   }
 
-  changePassword(): void {
+  async changePassword(): Promise<void> {
     if (this.pwForm.invalid) { this.pwForm.markAllAsTouched(); return; }
     const { old_password, new_password } = this.pwForm.value;
     if (new_password !== this.pwForm.get('confirm_password')?.value) {
       this.pwError.set(this.i18n.t('settings.password.error.mismatch')); return;
     }
+
+    const confirmed = await this.modal.confirm(
+      '¿Deseas cambiar tu contraseña? Deberás iniciar sesión nuevamente.',
+      'Confirmar cambio de contraseña',
+      'Cambiar'
+    );
+    if (!confirmed) return;
+
     this.pwLoading.set(true);
     this.pwError.set('');
     this.profile.changePassword(old_password!, new_password!).subscribe({
-      next: () => {
+      next: async () => {
         this.pwLoading.set(false);
         this.pwSuccess.set(true);
         this.pwForm.reset();
-        setTimeout(() => this.auth.logout(), 2000);
+        await this.modal.success('Tu contraseña se cambió correctamente. Inicia sesión nuevamente.', 'Contraseña actualizada');
+        this.auth.logout();
       },
       error: (err) => {
         this.pwLoading.set(false);

@@ -7,6 +7,7 @@ import { ProfileService } from '../../../../core/services/profile.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { PlatformLanguage, PlatformLanguageService } from '../../../../core/services/platform-language.service';
 import { TPipe } from '../../../../shared/pipes/t.pipe';
+import { ModalService } from '../../../../core/services/modal.service';
 
 @Component({
   selector: 'app-settings',
@@ -21,6 +22,7 @@ export class SettingsComponent {
   private auth       = inject(AuthService);
   private router     = inject(Router);
   private readonly platformLanguage = inject(PlatformLanguageService);
+  private readonly modal = inject(ModalService);
 
   readonly languages: Array<{ value: PlatformLanguage; labelKey: string }> = [
     { value: 'es', labelKey: 'lang.es' },
@@ -55,7 +57,7 @@ export class SettingsComponent {
     this.showConfirmPassword = !this.showConfirmPassword;
   }
 
-  changePassword(): void {
+  async changePassword(): Promise<void> {
     if (this.pwForm.invalid) { this.pwForm.markAllAsTouched(); return; }
     const { old_password, new_password } = this.pwForm.value;
 
@@ -63,14 +65,22 @@ export class SettingsComponent {
       this.pwError.set('Las contraseñas no coinciden.'); return;
     }
 
+    const confirmed = await this.modal.confirm(
+      '¿Deseas cambiar tu contraseña? Deberás iniciar sesión nuevamente.',
+      'Confirmar cambio de contraseña',
+      'Cambiar'
+    );
+    if (!confirmed) return;
+
     this.pwLoading.set(true);
     this.pwError.set('');
     this.profileSvc.changePassword(old_password!, new_password!).subscribe({
-      next: () => {
+      next: async () => {
         this.pwLoading.set(false);
         this.pwSuccess.set(true);
         this.pwForm.reset();
-        setTimeout(() => { this.auth.logout(); }, 2000);
+        await this.modal.success('Tu contraseña se cambió correctamente. Inicia sesión nuevamente.', 'Contraseña actualizada');
+        this.auth.logout();
       },
       error: (err) => {
         this.pwLoading.set(false);

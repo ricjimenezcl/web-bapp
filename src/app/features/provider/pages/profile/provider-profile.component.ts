@@ -14,6 +14,7 @@ import { ContentFilterService } from '../../../../shared/services/content-filter
 import { offensiveContentAsyncValidator } from '../../../../shared/validators/content-filter.validators';
 import { TPipe } from '../../../../shared/pipes/t.pipe';
 import { PlatformI18nService } from '../../../../core/services/platform-i18n.service';
+import { ModalService } from '../../../../core/services/modal.service';
 
 interface ServiceTransaction {
   id: number;
@@ -51,6 +52,7 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
   private readonly fb          = inject(FormBuilder);
   private readonly contentFilterService = inject(ContentFilterService);
   private readonly i18n        = inject(PlatformI18nService);
+  private readonly modal       = inject(ModalService);
   private sub?: Subscription;
 
   provider    = signal<ProviderProfile | null>(null);
@@ -104,12 +106,25 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
     this.pwSuccess.set(false);
   }
 
-  changePassword(): void {
+  async changePassword(): Promise<void> {
     if (this.pwForm.invalid) { this.pwForm.markAllAsTouched(); return; }
+
+    const confirmed = await this.modal.confirm(
+      '¿Deseas cambiar tu contraseña?',
+      'Confirmar cambio de contraseña',
+      'Cambiar'
+    );
+    if (!confirmed) return;
+
     this.pwLoading.set(true);
     const { old_password, new_password } = this.pwForm.value;
     this.profileSvc.changePassword(old_password!, new_password!).subscribe({
-      next: () => { this.pwLoading.set(false); this.pwSuccess.set(true); this.pwForm.reset(); },
+      next: async () => {
+        this.pwLoading.set(false);
+        this.pwSuccess.set(true);
+        this.pwForm.reset();
+        await this.modal.success('Tu contraseña se actualizó correctamente.', 'Contraseña actualizada');
+      },
       error: (err: any) => { this.pwLoading.set(false); this.pwError.set(err?.error?.detail ?? this.i18n.t('profile.errorChangePassword')); }
     });
   }
@@ -234,7 +249,7 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
     reader.readAsDataURL(file);
   }
 
-  save(): void {
+  async save(): Promise<void> {
     if (this.form.pending) {
       this.form.markAllAsTouched();
       return;
@@ -243,6 +258,14 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
       this.form.markAllAsTouched();
       return;
     }
+
+    const confirmed = await this.modal.confirm(
+      '¿Deseas guardar los cambios en tu perfil?',
+      'Confirmar cambios',
+      'Guardar'
+    );
+    if (!confirmed) return;
+
     this.saveLoading.set(true);
     const save = () => {
       const payload = {
@@ -250,7 +273,14 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
         phone: normalizeChileanPhoneForBackend((this.form.value.phone ?? '') as string)
       } as any;
       this.providerSvc.updateProfile(payload).subscribe({
-        next: (p) => { this.provider.set(p); this.saveLoading.set(false); this.success.set(true); this.activeView.set('overview'); setTimeout(() => this.success.set(false), 3000); },
+        next: async (p) => {
+          this.provider.set(p);
+          this.saveLoading.set(false);
+          this.success.set(true);
+          this.activeView.set('overview');
+          setTimeout(() => this.success.set(false), 3000);
+          await this.modal.success('Tu perfil se actualizó correctamente.', 'Perfil actualizado');
+        },
         error: (err) => { this.saveLoading.set(false); this.error.set(err?.error?.detail ?? this.i18n.t('profile.errorSaving')); }
       });
     };

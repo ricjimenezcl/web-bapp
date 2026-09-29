@@ -405,7 +405,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   // ── Data estática ────────────────────────────────────────────────
   howItWorksSteps = [
-    { id: 1, title: 'Busca y Filtra', description: 'Explora más de 19 categorías y encuentra profesionales cerca de ti con el mapa en tiempo real.' },
+    { id: 1, title: 'Busca y Filtra', description: 'Explora más de 10 categorías y encuentra profesionales cerca de ti con el mapa en tiempo real.' },
     { id: 2, title: 'Chatea', description: 'Habla directo con el proveedor, comparte fotos y acuerda todos los detalles antes de reservar.' },
     { id: 3, title: 'Agenda y Paga', description: 'Elige tu horario y paga de forma segura. Tu transacción está 100% protegida con MercadoPago.' },
     { id: 4, title: 'Califica', description: 'Al terminar, evalúa tu experiencia. Así ayudas a otros usuarios y mantienes la calidad alta.' },
@@ -427,7 +427,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     { value: '10k+', label: 'Usuarios Activos' },
     { value: '500+', label: 'Profesionales' },
     { value: '4.9/5', label: 'Calificación' },
-    { value: '19', label: 'Categorías' },
+    { value: '10', label: 'Categorías' },
     { value: '250+', label: 'Servicios' }
   ];
   statsLoopCards = [...this.statsCards, ...this.statsCards];
@@ -443,7 +443,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     { 
       id: '02', 
       title: 'Selecciona la Categoría', 
-      description: 'Elige entre más de 19 categorías para iniciar la búsqueda en tu zona o en el área que necesites.',
+      description: 'Elige entre más de 10 categorías para iniciar la búsqueda en tu zona o en el área que necesites.',
       screenImage: 'https://res.cloudinary.com/dghwotofx/image/upload/v1779930675/busqueda_art_ablhec.png',
       color: '#A7F3D0' // mint
     },

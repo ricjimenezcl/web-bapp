@@ -61,27 +61,29 @@
           </div>
 
           <!-- Headline slider -->
-          <h1 class="hero-headline text-4xl sm:text-5xl lg:text-6xl font-black text-text-primary leading-[1.05] tracking-tight"
-              aria-live="polite">
-            <span class="hero-slide" [class.hero-slide--active]="heroSlide() === 0" [class.hero-slide--exit]="heroSlide() === 1">
-              Consigue clientes<br>
-              <span class="text-primary-500">justo donde te buscan: en tu barrio y en tu zona</span>
-            </span>
-            <span class="hero-slide" [class.hero-slide--active]="heroSlide() === 1" [class.hero-slide--exit]="heroSlide() === 0">
-              Publica hasta 2<br>
-              <span class="text-primary-500">servicios gratis<br>para siempre</span>
-            </span>
-          </h1>
-          <!-- Slide dots -->
-          <div class="flex items-center gap-2 -mt-2">
-            @for (i of [0, 1]; track i) {
-              <button type="button"
-                      (click)="setHeroSlide(i)"
-                      class="hero-dot"
-                      [class.hero-dot--active]="heroSlide() === i"
-                      [attr.aria-label]="'Slide ' + (i + 1)">
-              </button>
-            }
+          <div class="hero-headline-card">
+            <h1 class="hero-headline text-text-primary tracking-tight"
+                aria-live="polite">
+              <span class="hero-slide" [class.hero-slide--active]="heroSlide() === 0" [class.hero-slide--exit]="heroSlide() === 1">
+                Consigue clientes<br>
+                <span class="text-primary-500">justo donde te buscan: en tu barrio y en tu zona</span>
+              </span>
+              <span class="hero-slide" [class.hero-slide--active]="heroSlide() === 1" [class.hero-slide--exit]="heroSlide() === 0">
+                Publica hasta 2<br>
+                <span class="text-primary-500">servicios gratis para siempre</span>
+              </span>
+            </h1>
+            <!-- Slide dots -->
+            <div class="flex items-center gap-2 mt-4">
+              @for (i of [0, 1]; track i) {
+                <button type="button"
+                        (click)="setHeroSlide(i)"
+                        class="hero-dot"
+                        [class.hero-dot--active]="heroSlide() === i"
+                        [attr.aria-label]="'Slide ' + (i + 1)">
+                </button>
+              }
+            </div>
           </div>
 
           <!-- Subheadline -->

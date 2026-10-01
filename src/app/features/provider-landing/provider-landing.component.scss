@@ -484,9 +484,43 @@
 // HERO HEADLINE SLIDER
 // ═══════════════════════════════════════════════════════════════════════════
 
+.hero-headline-card {
+  position: relative;
+  border-radius: 24px;
+  padding: clamp(1.1rem, 2.2vw, 1.5rem) clamp(1.4rem, 3vw, 2rem) clamp(1.1rem, 2.2vw, 1.5rem) clamp(0.5rem, 1.4vw, 0.85rem);
+  border: 1px solid rgba(255, 249, 196, 0.22);
+  background:
+    radial-gradient(circle at 15% 15%, rgba(255, 249, 196, 0.14) 0%, transparent 45%),
+    radial-gradient(circle at 85% 85%, rgba(56, 189, 248, 0.1) 0%, transparent 40%),
+    linear-gradient(135deg, rgba(18, 18, 20, 0.96) 0%, rgba(9, 12, 20, 0.98) 100%);
+  background-clip: padding-box;
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 249, 196, 0.08) inset;
+  overflow: hidden;
+  isolation: isolate;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0.45rem;
+    left: 0.7rem;
+    right: 0.7rem;
+    height: 1.5px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(255, 249, 196, 0), rgba(255, 249, 196, 0.8), rgba(56, 189, 248, 0.8), rgba(255, 249, 196, 0));
+  }
+}
+
 .hero-headline {
   position: relative;
   min-height: 3.6em;
+  font-size: clamp(0.82rem, 3vw, 1.56rem);
+  line-height: 1.45;
+  font-weight: 800;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 .hero-slide {
@@ -512,6 +546,29 @@
     opacity: 0;
     transform: translateY(-16px);
   }
+}
+
+@media (max-width: 768px) {
+  .hero-headline-card { padding: 1.2rem clamp(1.1rem, 3vw, 1.3rem) 1.2rem clamp(0.45rem, 2vw, 0.65rem); }
+
+  .hero-headline {
+    text-align: center;
+    font-size: clamp(0.95rem, 3.8vw, 1.15rem);
+    line-height: 1.5;
+  }
+}
+
+@media (max-width: 430px) {
+  .hero-headline { font-size: clamp(0.85rem, 3.75vw, 0.98rem); }
+}
+
+@media (max-width: 480px) {
+  .hero-headline { font-size: clamp(0.875rem, 4vw, 1rem); }
+}
+
+@media (max-width: 375px) {
+  .hero-headline-card { padding: 0.9rem 0.85rem 0.9rem 0.45rem; }
+  .hero-headline { font-size: 0.855rem; }
 }
 
 .hero-dot {

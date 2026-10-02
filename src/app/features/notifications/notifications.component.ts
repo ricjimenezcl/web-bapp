@@ -47,6 +47,7 @@ export class NotificationsComponent implements OnInit {
       booking_reminder_24h: '⏰',
       booking_completed: '🎉', booking_review_request: '⭐', review_received: '⭐',
       service_approved: '🏆', payment_received: '💰', chat_message: '💬',
+      plan_activated: '🎉', plan_expiring_soon: '⏳', plan_expired: '⚠️',
     };
     return icons[type] ?? '🔔';
   }

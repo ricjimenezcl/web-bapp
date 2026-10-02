@@ -113,28 +113,57 @@
 
         <div class="premium-banner">
           <div class="premium-info">
-            <h3 class="premium-plan-title">
-              <svg class="prem-icon" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 14.59L5.41 12 6.83 10.58 10 13.75l7.17-7.17 1.42 1.42L10 16.59z"/>
-              </svg>
-              {{ 'profile.currentPlanFree' | t }}
-            </h3>
-            <div class="perks-grid">
-              <div class="perk">
-                <svg class="perk-icon" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.59L5.41 12 6.83 10.58 10 13.75l7.17-7.17 1.42 1.42L10 16.59z"/>
+            @if (activePlan) {
+              <h3 class="premium-plan-title">
+                <svg class="prem-icon" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 14.59L5.41 12 6.83 10.58 10 13.75l7.17-7.17 1.42 1.42L10 16.59z"/>
                 </svg>
-                {{ 'profile.unlimitedSearches' | t }}
+                Plan activo: {{ activePlan.product?.name ?? 'Plan Premium' }}
+              </h3>
+              <div class="perks-grid">
+                @if (activePlan.activated_at) {
+                  <div class="perk">
+                    <svg class="perk-icon" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.59L5.41 12 6.83 10.58 10 13.75l7.17-7.17 1.42 1.42L10 16.59z"/>
+                    </svg>
+                    Inicio: {{ activePlan.activated_at | date:'dd/MM/yyyy' }}
+                  </div>
+                }
+                @if (activePlan.expires_at) {
+                  <div class="perk">
+                    <svg class="perk-icon" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.59L5.41 12 6.83 10.58 10 13.75l7.17-7.17 1.42 1.42L10 16.59z"/>
+                    </svg>
+                    Vence: {{ activePlan.expires_at | date:'dd/MM/yyyy' }} &mdash; {{ remainingDays(activePlan.expires_at) }} días restantes
+                  </div>
+                }
               </div>
-              <div class="perk">
-                <svg class="perk-icon" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.59L5.41 12 6.83 10.58 10 13.75l7.17-7.17 1.42 1.42L10 16.59z"/>
+            } @else {
+              <h3 class="premium-plan-title">
+                <svg class="prem-icon" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 14.59L5.41 12 6.83 10.58 10 13.75l7.17-7.17 1.42 1.42L10 16.59z"/>
                 </svg>
-                {{ 'profile.unlimitedFavorites' | t }}
+                {{ 'profile.currentPlanFree' | t }}
+              </h3>
+              <div class="perks-grid">
+                <div class="perk">
+                  <svg class="perk-icon" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.59L5.41 12 6.83 10.58 10 13.75l7.17-7.17 1.42 1.42L10 16.59z"/>
+                  </svg>
+                  {{ 'profile.unlimitedSearches' | t }}
+                </div>
+                <div class="perk">
+                  <svg class="perk-icon" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.59L5.41 12 6.83 10.58 10 13.75l7.17-7.17 1.42 1.42L10 16.59z"/>
+                  </svg>
+                  {{ 'profile.unlimitedFavorites' | t }}
+                </div>
               </div>
-            </div>
+            }
           </div>
-          <button class="btn-primary" type="button" (click)="openPremiumModal()">{{ 'profile.upgradeToPremium' | t }}</button>
+          @if (!activePlan) {
+            <button class="btn-primary" type="button" (click)="openPremiumModal()">{{ 'profile.upgradeToPremium' | t }}</button>
+          }
         </div>
 
         <div class="stats-grid">

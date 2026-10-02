@@ -276,6 +276,10 @@ export class PaymentComponent implements OnInit {
       this.paymentSvc.createMercadoPagoPreference(sku).subscribe({
         next: (res) => {
           this.processing.set(false);
+          // Marcar que se espera un retorno de Mercado Pago para que la SPA
+          // no invalide la sesión de la pestaña al navegar fuera del dominio
+          // (mismo fix ya aplicado para Webpay, ver redirectToWebpay()).
+          this.storage.markPaymentRedirectPending();
           window.location.href = res.init_point;
         },
         error: (err) => {

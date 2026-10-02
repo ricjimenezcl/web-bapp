@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ProfileService } from '../../../../core/services/profile.service';
 import { UserProfile } from '../../../../core/models/user.model';
@@ -15,8 +16,21 @@ import { ModalService } from '../../../../core/services/modal.service';
 import { PlatformLanguage, PlatformLanguageService } from '../../../../core/services/platform-language.service';
 import { PlatformI18nService } from '../../../../core/services/platform-i18n.service';
 import { TPipe } from '../../../../shared/pipes/t.pipe';
+import { environment } from '../../../../../environments/environment';
 
 export type DashView = 'overview' | 'edit' | 'config' | 'help' | 'payments';
+
+interface ClientPlanTransaction {
+  id: number;
+  status: string;
+  activated_at: string | null;
+  expires_at: string | null;
+  created_at: string;
+  product: {
+    name: string;
+    duration_days: number;
+  } | null;
+}
 
 @Component({
   selector: 'app-client-profile',
@@ -32,6 +46,7 @@ export class ClientProfileComponent implements OnInit {
   private readonly route   = inject(ActivatedRoute);
   private readonly fb      = inject(FormBuilder);
   private readonly modal   = inject(ModalService);
+  private readonly http    = inject(HttpClient);
   private readonly contentFilterService = inject(ContentFilterService);
   private readonly platformLanguage = inject(PlatformLanguageService);
   private readonly i18n = inject(PlatformI18nService);
@@ -39,6 +54,9 @@ export class ClientProfileComponent implements OnInit {
   // ── Profile ────────────────────────────────────────────────────────
   user    = signal<UserProfile | null>(null);
   loading = signal(true);
+
+  // ── Plan activo ────────────────────────────────────────────────────
+  transactions = signal<ClientPlanTransaction[]>([]);
 
   // ── Active view ────────────────────────────────────────────────────
   activeView = signal<DashView>('overview');
@@ -114,6 +132,28 @@ export class ClientProfileComponent implements OnInit {
       next: (p) => { this.user.set(p); this.loading.set(false); this._patchForm(p); },
       error: ()  => this.loading.set(false),
     });
+
+    this.loadTransactions();
+  }
+
+  private loadTransactions(): void {
+    this.http.get<ClientPlanTransaction[]>(`${environment.apiUrl}/transactions/me`).subscribe({
+      next: (txs) => this.transactions.set(txs),
+      error: () => this.transactions.set([]),
+    });
+  }
+
+  /** Plan activo: última transacción completed con expires_at en el futuro */
+  get activePlan(): ClientPlanTransaction | null {
+    const now = new Date();
+    return this.transactions().find(
+      t => t.status === 'completed' && t.expires_at && new Date(t.expires_at) > now
+    ) ?? null;
+  }
+
+  /** Días restantes hasta vencimiento */
+  remainingDays(expiresAt: string): number {
+    return Math.max(0, Math.ceil((new Date(expiresAt).getTime() - Date.now()) / 86_400_000));
   }
 
   // ── View switching ─────────────────────────────────────────────────

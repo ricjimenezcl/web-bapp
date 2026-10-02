@@ -246,8 +246,8 @@
               </div>
             </div>
           } @else {
-            <button type="button" class="btn-primary" (click)="goToPayment('PROVIDER_PREMIUM_MONTHLY')">
-              Activar Premium mensual
+            <button type="button" class="btn-primary" (click)="goToPayment('PROVIDER_PLAN_MONTHLY')">
+              Activar plan mensual
             </button>
           }
         </div>
@@ -632,8 +632,8 @@
             </svg>
             <h3>Sin servicios contratados</h3>
             <p>Aún no has contratado ningún plan en BAPP.</p>
-            <button type="button" class="btn-primary" (click)="goToPayment('PROVIDER_PREMIUM_MONTHLY')">
-              Activar Premium mensual
+            <button type="button" class="btn-primary" (click)="goToPayment('PROVIDER_PLAN_MONTHLY')">
+              Activar plan mensual
             </button>
           </div>
         } @else {
@@ -682,6 +682,18 @@
               <span class="sum-lbl">Pendientes</span>
             </div>
           </div>
+
+          @if (pendingTx() > 0) {
+            <div class="sync-pending-actions">
+              <button
+                type="button"
+                class="btn-link-sync"
+                [disabled]="syncingPendingPayments()"
+                (click)="syncPendingPayments()">
+                {{ syncingPendingPayments() ? 'Verificando con Mercado Pago…' : 'Verificar pagos pendientes' }}
+              </button>
+            </div>
+          }
 
           <div class="transactions-list">
             @for (tx of transactions(); track tx.id) {

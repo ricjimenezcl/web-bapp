@@ -15,6 +15,7 @@ import { offensiveContentAsyncValidator } from '../../../../shared/validators/co
 import { TPipe } from '../../../../shared/pipes/t.pipe';
 import { PlatformI18nService } from '../../../../core/services/platform-i18n.service';
 import { ModalService } from '../../../../core/services/modal.service';
+import { PaymentService } from '../../../../core/services/payment.service';
 
 interface ServiceTransaction {
   id: number;
@@ -32,7 +33,7 @@ interface ServiceTransaction {
   } | null;
 }
 
-type ProviderProductType = 'PROVIDER_PREMIUM_MONTHLY' | 'PROVIDER_SERVICE_30' | 'PROVIDER_SERVICE_YEAR';
+type ProviderProductType = 'PROVIDER_PLAN_MONTHLY' | 'PROVIDER_PLAN_7D' | 'PROVIDER_PLAN_ANNUAL';
 
 @Component({
   selector: 'app-provider-profile',
@@ -53,6 +54,7 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
   private readonly contentFilterService = inject(ContentFilterService);
   private readonly i18n        = inject(PlatformI18nService);
   private readonly modal       = inject(ModalService);
+  private readonly paymentSvc  = inject(PaymentService);
   private sub?: Subscription;
 
   provider    = signal<ProviderProfile | null>(null);
@@ -66,6 +68,7 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
 
   transactions        = signal<ServiceTransaction[]>([]);
   transactionsLoading = signal(true);
+  syncingPendingPayments = signal(false);
 
   // Computed signals para estadísticas de transacciones
   completedTx = computed(() => this.transactions().filter(t => t.status === 'completed').length);
@@ -184,6 +187,24 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
     this.http.get<ServiceTransaction[]>(`${environment.apiUrl}/transactions/me`).subscribe({
       next: (txs) => { this.transactions.set(txs); this.transactionsLoading.set(false); },
       error: () => this.transactionsLoading.set(false)
+    });
+  }
+
+  /**
+   * Reconciliación manual: pide al backend revisar en Mercado Pago el estado
+   * real de los pagos PENDING del proveedor y activar el beneficio si ya
+   * fueron aprobados. Respaldo para cuando el webhook no alcanzó a procesar
+   * la notificación (p.ej. reconciliación por preference_id fallida).
+   */
+  syncPendingPayments(): void {
+    if (this.syncingPendingPayments()) return;
+    this.syncingPendingPayments.set(true);
+    this.paymentSvc.syncMercadoPagoPending().subscribe({
+      next: () => {
+        this.syncingPendingPayments.set(false);
+        this.loadTransactions();
+      },
+      error: () => this.syncingPendingPayments.set(false)
     });
   }
 
@@ -317,7 +338,7 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
   goToVerifyIdentity(): void {
     this.router.navigate(['/auth/verify-identity']);
   }
-  goToPayment(productType: ProviderProductType = 'PROVIDER_PREMIUM_MONTHLY'): void {
+  goToPayment(productType: ProviderProductType = 'PROVIDER_PLAN_MONTHLY'): void {
     this.router.navigate(['/payment'], {
       state: {
         product_type: productType,

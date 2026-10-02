@@ -66,7 +66,7 @@ export class AddServiceComponent implements OnInit, OnDestroy {
   success           = signal(false);
   showPaymentGate   = signal(false);
   paymentGateMessage = signal('Ya tienes 2 servicios en el plan gratuito. Para agregar más servicios necesitas activar un plan.');
-  paymentGateProductType = signal<ServiceLimitProductType>('PROVIDER_SERVICE_30');
+  paymentGateProductType = signal<ServiceLimitProductType>('PROVIDER_PLAN_MONTHLY');
   showIdentityGate  = signal(false);
   identityCheckDone = signal(false);
   validationStatus  = signal<string>('not_submitted');
@@ -339,7 +339,7 @@ export class AddServiceComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.loading.set(false);
         if (err?.status === 402) {
-          this.paymentGateProductType.set('PROVIDER_SERVICE_30');
+          this.paymentGateProductType.set('PROVIDER_PLAN_MONTHLY');
           this.paymentGateMessage.set('No tienes un plan activo para publicar un servicio adicional. Activa un plan para continuar.');
           this.showPaymentGate.set(true);
         } else {

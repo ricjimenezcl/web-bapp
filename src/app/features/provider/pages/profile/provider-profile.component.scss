@@ -768,6 +768,23 @@
 }
 .sum-lbl { font-size: 11px; color: var(--bw-text-s, #94A3B8); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
 
+.sync-pending-actions {
+  display: flex;
+  justify-content: center;
+  margin: -12px 0 20px;
+}
+.btn-link-sync {
+  background: none;
+  border: none;
+  color: var(--bw-accent, #FDE68A);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 4px 8px;
+  &:disabled { opacity: 0.6; cursor: wait; text-decoration: none; }
+}
+
 /* ══ TRANSACTIONS LIST ══════════════════════════════════════════ */
 .transactions-list { display: flex; flex-direction: column; gap: 10px; }
 .transaction-item {

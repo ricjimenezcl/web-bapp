@@ -116,19 +116,6 @@
             </div>
           </button>
 
-          <button class="method-item" [class.method-item--active]="selectedMethod() === 'transferencia'"
-                  type="button" (click)="selectMethod('transferencia')">
-            <div class="method-radio" [class.method-radio--active]="selectedMethod() === 'transferencia'"></div>
-            <svg class="method-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z"/>
-            </svg>
-            <div class="method-info">
-              <span class="method-name">Transferencia bancaria</span>
-              <span class="method-desc">Próximamente</span>
-            </div>
-          </button>
-
         </div>
 
         @if (selectedMethod() === 'transbank') {
@@ -144,13 +131,6 @@
               <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
             Al hacer clic en "Continuar" serás redirigido al checkout seguro de Mercado Pago.
-          </div>
-        } @else {
-          <div class="mp-info">
-            <svg fill="currentColor" viewBox="0 0 24 24">
-              <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            Transferencia bancaria estará disponible en una próxima versión.
           </div>
         }
 

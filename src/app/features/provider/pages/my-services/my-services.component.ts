@@ -107,7 +107,7 @@ export class MyServicesComponent implements OnInit {
   goToExtraServicePlan(): void {
     this.router.navigate(['/payment'], {
       state: {
-        product_type: 'PROVIDER_SERVICE_30',
+        product_type: 'PROVIDER_PLAN_MONTHLY',
         returnTo: '/provider/tabs/my-services'
       }
     });

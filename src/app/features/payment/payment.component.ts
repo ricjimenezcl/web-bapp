@@ -8,7 +8,7 @@ import { StorageService } from '../../core/services/storage.service';
 import { environment } from '../../../environments/environment';
 import { catchError, firstValueFrom, of } from 'rxjs';
 
-export type PayMethod = 'transbank' | 'mercadopago' | 'transferencia';
+export type PayMethod = 'transbank' | 'mercadopago';
 
 const CLIENT_PRODUCT_TYPES: ProductType[] = [
   'CLIENT_UNLOCK_7',
@@ -16,12 +16,9 @@ const CLIENT_PRODUCT_TYPES: ProductType[] = [
 ];
 
 const PROVIDER_PRODUCT_TYPES: ProductType[] = [
-  'PROVIDER_SERVICE_30',
-  'PROVIDER_SERVICE_YEAR',
-  'PROVIDER_LEADS_7',
-  'PROVIDER_LEADS_30',
-  'PROVIDER_PREMIUM_MONTHLY',
-  'PROVIDER_PREMIUM_ANNUAL',
+  'PROVIDER_PLAN_7D',
+  'PROVIDER_PLAN_MONTHLY',
+  'PROVIDER_PLAN_ANNUAL',
 ];
 
 // SKUs de catálogo (Product.sku en backend) habilitados para pagar con
@@ -30,12 +27,9 @@ const PROVIDER_PRODUCT_TYPES: ProductType[] = [
 const MERCADOPAGO_SKU_BY_PRODUCT_TYPE: Partial<Record<ProductType, string>> = {
   CLIENT_UNLOCK_7: 'premium_access_7days',
   CLIENT_UNLOCK_30: 'client_unlock_30days',
-  PROVIDER_SERVICE_30: 'service_publication_30days',
-  PROVIDER_SERVICE_YEAR: 'provider_service_1year',
-  PROVIDER_LEADS_7: 'provider_leads_unlock_7days',
-  PROVIDER_LEADS_30: 'provider_leads_unlock_30days',
-  PROVIDER_PREMIUM_MONTHLY: 'provider_premium_monthly',
-  PROVIDER_PREMIUM_ANNUAL: 'provider_premium_annual',
+  PROVIDER_PLAN_7D: 'provider_plan_7days',
+  PROVIDER_PLAN_MONTHLY: 'provider_plan_monthly',
+  PROVIDER_PLAN_ANNUAL: 'provider_plan_annual',
 };
 
 interface PlanUi {
@@ -64,53 +58,29 @@ const PLAN_CATALOG: Record<ProductType, PlanUi> = {
     period: 'pago único',
     benefits: ['🔓 Acceso extendido 30 días', '📈 Mejor conversión de búsqueda', '✅ Ideal para proyectos largos']
   },
-  PROVIDER_SERVICE_30: {
-    productType: 'PROVIDER_SERVICE_30',
-    title: 'Servicio adicional 30 días',
-    subtitle: 'Publica desde tu 3er servicio',
-    price: 1990,
-    period: 'pago único',
-    benefits: ['➕ Publicación de servicio premium', '📍 Más visibilidad en búsquedas', '🗓️ Vigencia 30 días']
-  },
-  PROVIDER_SERVICE_YEAR: {
-    productType: 'PROVIDER_SERVICE_YEAR',
-    title: 'Servicio adicional 1 año',
-    subtitle: 'Costo anual preferente',
-    price: 17990,
-    period: 'pago único',
-    benefits: ['📆 365 días de publicación', '💰 Mejor costo total', '🚀 Escala tu oferta']
-  },
-  PROVIDER_LEADS_7: {
-    productType: 'PROVIDER_LEADS_7',
-    title: 'Leads 7 días',
-    subtitle: 'Desbloquea clientes interesados',
+  PROVIDER_PLAN_7D: {
+    productType: 'PROVIDER_PLAN_7D',
+    title: 'Plan Proveedor 7 días',
+    subtitle: 'Prueba todos los beneficios por 7 días',
     price: 1490,
     period: 'pago único',
-    benefits: ['👀 Ver clientes reales interesados', '📞 Datos de contacto completos', '⚡ Activación inmediata']
+    benefits: ['👀 Acceso a leads y clientes interesados', '➕ Hasta 7 servicios activos', '⭐ Perfil y ranking premium']
   },
-  PROVIDER_LEADS_30: {
-    productType: 'PROVIDER_LEADS_30',
-    title: 'Leads 30 días',
-    subtitle: 'Pipeline comercial mensual',
-    price: 4990,
-    period: 'pago único',
-    benefits: ['📈 Mayor ventana de conversión', '🔓 Leads completos por 30 días', '💼 Ideal para captación continua']
-  },
-  PROVIDER_PREMIUM_MONTHLY: {
-    productType: 'PROVIDER_PREMIUM_MONTHLY',
-    title: 'Premium Proveedor mensual',
-    subtitle: 'Perfil y herramientas premium',
+  PROVIDER_PLAN_MONTHLY: {
+    productType: 'PROVIDER_PLAN_MONTHLY',
+    title: 'Plan Proveedor mensual',
+    subtitle: 'Todos los beneficios, mes a mes',
     price: 5990,
     period: 'mensual',
-    benefits: ['🔥 Más clientes', '✔ Perfil destacado', '🔓 Accesos premium completos']
+    benefits: ['👀 Acceso a leads y clientes interesados', '➕ Hasta 7 servicios activos', '⭐ Perfil y ranking premium']
   },
-  PROVIDER_PREMIUM_ANNUAL: {
-    productType: 'PROVIDER_PREMIUM_ANNUAL',
-    title: 'Premium Proveedor anual',
-    subtitle: 'Plan anual preferente',
+  PROVIDER_PLAN_ANNUAL: {
+    productType: 'PROVIDER_PLAN_ANNUAL',
+    title: 'Plan Proveedor anual',
+    subtitle: 'Mejor costo total frente al mensual',
     price: 49990,
     period: 'anual',
-    benefits: ['🔥 Más clientes todo el año', '⭐ Perfil destacado y prioridad', '➕ Hasta 7 servicios activos']
+    benefits: ['👀 Acceso a leads y clientes interesados', '➕ Hasta 7 servicios activos', '⭐ Perfil y ranking premium', '💰 Mejor costo total']
   }
 };
 
@@ -257,11 +227,6 @@ export class PaymentComponent implements OnInit {
     const method = this.selectedMethod();
     const plan = this.activePlan();
 
-    if (method === 'transferencia') {
-      this.error.set('Transferencia bancaria estará disponible próximamente. Mientras tanto puedes pagar con Transbank o Mercado Pago.');
-      return;
-    }
-
     this.processing.set(true);
     this.error.set('');
 
@@ -315,11 +280,7 @@ export class PaymentComponent implements OnInit {
       return `Continuar con Transbank $${amount} CLP`;
     }
 
-    if (this.selectedMethod() === 'mercadopago') {
-      return `Continuar con Mercado Pago $${amount} CLP`;
-    }
-
-    return 'Método no disponible todavía';
+    return `Continuar con Mercado Pago $${amount} CLP`;
   }
 
   /**

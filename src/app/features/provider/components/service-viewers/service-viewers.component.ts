@@ -109,7 +109,7 @@ export class ServiceViewersComponent implements OnInit {
   startUnlock(): void {
     this.router.navigate(['/payment'], {
       state: {
-        product_type: 'PROVIDER_LEADS_7',
+        product_type: 'PROVIDER_PLAN_MONTHLY',
         returnTo: '/provider/tabs/home'
       }
     });

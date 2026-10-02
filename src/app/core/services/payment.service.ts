@@ -6,12 +6,9 @@ import { environment } from '../../../environments/environment';
 export type ProductType =
   | 'CLIENT_UNLOCK_7'
   | 'CLIENT_UNLOCK_30'
-  | 'PROVIDER_SERVICE_30'
-  | 'PROVIDER_SERVICE_YEAR'
-  | 'PROVIDER_LEADS_7'
-  | 'PROVIDER_LEADS_30'
-  | 'PROVIDER_PREMIUM_MONTHLY'
-  | 'PROVIDER_PREMIUM_ANNUAL';
+  | 'PROVIDER_PLAN_7D'
+  | 'PROVIDER_PLAN_MONTHLY'
+  | 'PROVIDER_PLAN_ANNUAL';
 
 export interface CreateTransactionRequest {
   product_type: ProductType;
@@ -81,6 +78,18 @@ export class PaymentService {
       `${this.api}/payments/mercadopago/create`,
       null,
       { params: { product_sku: productSku } }
+    );
+  }
+
+  /**
+   * Reconciliación manual: revisa en Mercado Pago el estado real de las
+   * transacciones PENDING del usuario y activa el beneficio si ya fueron
+   * aprobadas (respaldo para cuando el webhook no alcanzó a reconciliarlas).
+   */
+  syncMercadoPagoPending(): Observable<{ status: string; updated: number[] }> {
+    return this.http.post<{ status: string; updated: number[] }>(
+      `${this.api}/payments/mercadopago/sync`,
+      null
     );
   }
 }

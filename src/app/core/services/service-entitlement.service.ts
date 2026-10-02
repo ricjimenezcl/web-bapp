@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-export type ServiceLimitProductType = 'PROVIDER_SERVICE_30' | 'PROVIDER_PREMIUM_MONTHLY' | 'PROVIDER_PREMIUM_ANNUAL';
+export type ServiceLimitProductType = 'PROVIDER_PLAN_7D' | 'PROVIDER_PLAN_MONTHLY' | 'PROVIDER_PLAN_ANNUAL';
 
 export interface ServiceLimitEvaluation {
   canCreate: boolean;
@@ -79,6 +79,9 @@ export class ServiceEntitlementService {
     const hasPremiumPlan = activePlanTypes.some((pt: string) =>
       pt.includes('PROVIDER_PREMIUM_MONTHLY') ||
       pt.includes('PROVIDER_PREMIUM_ANNUAL') ||
+      pt.includes('PROVIDER_PLAN_7D') ||
+      pt.includes('PROVIDER_PLAN_MONTHLY') ||
+      pt.includes('PROVIDER_PLAN_ANNUAL') ||
       (pt.includes('PROVIDER_PREMIUM') && (pt.includes('YEAR') || pt.includes('ANNUAL')))
     );
 
@@ -101,7 +104,7 @@ export class ServiceEntitlementService {
       return {
         ...base,
         canCreate,
-        suggestedProductType: hasPremiumPlan ? 'PROVIDER_PREMIUM_ANNUAL' : 'PROVIDER_SERVICE_30',
+        suggestedProductType: hasPremiumPlan ? 'PROVIDER_PLAN_ANNUAL' : 'PROVIDER_PLAN_MONTHLY',
         gateMessage: '',
       };
     }
@@ -110,8 +113,8 @@ export class ServiceEntitlementService {
       return {
         ...base,
         canCreate,
-        suggestedProductType: 'PROVIDER_SERVICE_30',
-        gateMessage: 'Ya utilizaste tu beneficio de 2 servicios gratuitos (aunque hayas eliminado alguno). Activa un plan mensual o anual para publicar más servicios.',
+        suggestedProductType: 'PROVIDER_PLAN_MONTHLY',
+        gateMessage: 'Ya utilizaste tu beneficio de 2 servicios gratuitos (aunque hayas eliminado alguno). Activa un plan para publicar más servicios.',
       };
     }
 
@@ -119,8 +122,8 @@ export class ServiceEntitlementService {
       return {
         ...base,
         canCreate,
-        suggestedProductType: 'PROVIDER_SERVICE_30',
-        gateMessage: 'Ya alcanzaste los 2 servicios del plan gratuito. Activa un plan mensual o anual para publicar tu tercer servicio.',
+        suggestedProductType: 'PROVIDER_PLAN_MONTHLY',
+        gateMessage: 'Ya alcanzaste los 2 servicios del plan gratuito. Activa un plan para publicar tu tercer servicio.',
       };
     }
 
@@ -128,16 +131,16 @@ export class ServiceEntitlementService {
       return {
         ...base,
         canCreate,
-        suggestedProductType: 'PROVIDER_PREMIUM_ANNUAL',
-        gateMessage: 'Tu plan actual permite hasta 3 servicios. Para publicar más, activa Premium mensual o Premium anual (hasta 7 servicios activos).',
+        suggestedProductType: 'PROVIDER_PLAN_ANNUAL',
+        gateMessage: 'Tu plan actual permite hasta 3 servicios. Activa el plan para publicar hasta 7 servicios activos.',
       };
     }
 
     return {
       ...base,
       canCreate,
-      suggestedProductType: 'PROVIDER_PREMIUM_ANNUAL',
-      gateMessage: 'Ya alcanzaste el máximo de 7 servicios activos para planes Premium.',
+      suggestedProductType: 'PROVIDER_PLAN_ANNUAL',
+      gateMessage: 'Ya alcanzaste el máximo de 7 servicios activos.',
     };
   }
 

@@ -14,13 +14,14 @@ import { AppFooterComponent } from '../../../../shared/components/app-footer/app
 import { CustomValidators } from '../../../../shared/validators/custom-validators';
 import { ContentFilterService } from '../../../../shared/services/content-filter.service';
 import { offensiveContentAsyncValidator } from '../../../../shared/validators/content-filter.validators';
+import { PhoneGuideComponent } from '../../../../shared/components/phone-guide/phone-guide.component';
 import { formatChileanPhone, formatChileanRUT, normalizeChileanPhoneForBackend, normalizeChileanRUTForBackend } from '../../../../shared/utils/form-formatters';
 import { ModalService } from '../../../../core/services/modal.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, Device3dLoginComponent, BappieChatbotComponent, AppFooterComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, Device3dLoginComponent, BappieChatbotComponent, AppFooterComponent, PhoneGuideComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

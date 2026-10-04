@@ -1,0 +1,177 @@
+<section class="guide" aria-roledescription="carrusel" aria-label="Guía de la plataforma">
+  <!-- ============ DISPOSITIVO ============ -->
+  <div class="phone" (mouseenter)="hoverPause()" (mouseleave)="hoverResume()">
+    <div class="phone__notch"></div>
+
+    <div class="phone__display">
+      <div class="status" aria-hidden="true">
+        <span>9:41</span>
+        <span class="status__battery"></span>
+      </div>
+
+      <!-- Este contenedor es el que se anima al cambiar de pantalla -->
+      <div #screen class="screen">
+        @switch (step()) {
+          <!-- 0 · Bienvenida -->
+          @case (0) {
+            <div class="s-welcome">
+              <div class="logo is-hidden" data-anim data-float>T</div>
+              <h3 class="title is-hidden" data-anim>Hola, te damos la bienvenida</h3>
+              <p class="text is-hidden" data-anim>Encuentra lo que necesitas en un solo lugar.</p>
+              <button type="button" tabindex="-1" class="btn btn--primary is-hidden" data-anim>Comenzar</button>
+            </div>
+          }
+
+          <!-- 1 · Registro -->
+          @case (1) {
+            <div class="s-form">
+              <h3 class="title is-hidden" data-anim>Crea tu cuenta</h3>
+
+              <div class="field is-hidden" data-anim>
+                <span class="field__label">Nombre</span>
+                <div class="field__box"><span data-type="Camila Rojas"></span></div>
+              </div>
+
+              <div class="field is-hidden" data-anim>
+                <span class="field__label">Correo</span>
+                <div class="field__box"><span data-type="camila@correo.cl"></span></div>
+              </div>
+
+              <div class="field is-hidden" data-anim>
+                <span class="field__label">Contraseña</span>
+                <div class="field__box field__box--password">••••••••</div>
+              </div>
+
+              <div class="cta">
+                <button type="button" tabindex="-1" class="btn btn--primary is-hidden" data-anim data-cta>Registrarme</button>
+                <span class="cta__tap" data-tap></span>
+              </div>
+            </div>
+          }
+
+          <!-- 2 · Verificación -->
+          @case (2) {
+            <div class="s-verify">
+              <h3 class="title is-hidden" data-anim>Verifica tu correo</h3>
+              <p class="text is-hidden" data-anim>Enviamos un código a camila&#64;correo.cl</p>
+
+              <div class="digits">
+                @for (d of code; track $index) {
+                  <span class="digit is-hidden" data-digit>{{ d }}</span>
+                }
+              </div>
+
+              <div class="badge is-hidden" data-badge>Cuenta verificada</div>
+            </div>
+          }
+
+          <!-- 3 · Intereses -->
+          @case (3) {
+            <div class="s-chips">
+              <h3 class="title is-hidden" data-anim>¿Qué buscas?</h3>
+              <p class="text text--tight is-hidden" data-anim>Elige una o más categorías.</p>
+
+              <div class="chips">
+                @for (c of chips; track c.label) {
+                  <span class="chip is-hidden" data-anim [attr.data-chip-on]="c.on ? '' : null">{{ c.label }}</span>
+                }
+              </div>
+
+              <button type="button" tabindex="-1" class="btn btn--dark btn--bottom is-hidden" data-anim>Continuar</button>
+            </div>
+          }
+
+          <!-- 4 · Explorar -->
+          @case (4) {
+            <div class="s-explore">
+              <div class="search is-hidden" data-anim>Buscar en la plataforma</div>
+
+              @for (r of results; track <a href="https://urldefense.com/v3/__http://r.name__;!!C3eXzRIY6Mw!ISuHUp4kXeH4FnEj6YybC8zZOj632Jh6OdtRZOhyHtpQXqd4QSKGV5n5W1Xg8RlErSiaQvOWnIDM0l9ut84bxga5Xbo$">r.name [r.name]</a>) {
+                <div class="result is-hidden" data-anim>
+                  <div class="result__head">
+                    <span class="avatar">{{ r.name[0] }}</span>
+                    <div>
+                      <p class="result__name">{{ <a href="https://urldefense.com/v3/__http://r.name__;!!C3eXzRIY6Mw!ISuHUp4kXeH4FnEj6YybC8zZOj632Jh6OdtRZOhyHtpQXqd4QSKGV5n5W1Xg8RlErSiaQvOWnIDM0l9ut84bxga5Xbo$">r.name [r.name]</a> }}</p>
+                      <p class="result__role">{{ r.role }}</p>
+                    </div>
+                  </div>
+                  <div class="match">
+                    <div class="match__track">
+                      <div class="match__fill" data-bar [attr.data-w]="r.match"></div>
+                    </div>
+                    <span class="match__value">{{ r.match }}%</span>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- 5 · Navegación -->
+          @case (5) {
+            <div class="s-panel">
+              <h3 class="title is-hidden" data-anim>Tu panel</h3>
+
+              <div class="stats">
+                <div class="stat stat--primary is-hidden" data-anim>
+                  <p class="stat__value">12</p>
+                  <p class="stat__label">Guardados</p>
+                </div>
+                <div class="stat is-hidden" data-anim>
+                  <p class="stat__value">3</p>
+                  <p class="stat__label">Mensajes nuevos</p>
+                </div>
+              </div>
+
+              <div class="note is-hidden" data-anim>Toca una pestaña para moverte por la plataforma.</div>
+
+              <nav class="tabbar" aria-hidden="true">
+                <span class="tabbar__pill" data-pill></span>
+                @for (t of tabs; track t) {
+                  <span class="tabbar__item">{{ t }}</span>
+                }
+              </nav>
+            </div>
+          }
+        }
+      </div>
+
+      <div class="home-bar"></div>
+    </div>
+  </div>
+
+  <!-- ============ TEXTO Y CONTROLES ============ -->
+  <div class="info">
+    <div aria-live="polite">
+      <p class="info__step">Paso {{ step() + 1 }} de {{ steps.length }}</p>
+      <h2 class="info__title">{{ steps[step()].title }}</h2>
+      <p class="info__text">{{ steps[step()].description }}</p>
+    </div>
+
+    <div class="dots">
+      @for (s of steps; track $index) {
+        <button
+          type="button"
+          class="dot"
+          [class.dot--active]="step() === $index"
+          [attr.aria-label]="'Ir al paso ' + ($index + 1) + ': ' + s.title"
+          [attr.aria-current]="step() === $index ? 'step' : null"
+          (click)="go($index)"
+        >
+          @if (step() === $index) {
+            <span class="dot__fill" data-progress></span>
+          }
+        </button>
+      }
+    </div>
+
+    <div class="controls">
+      <button type="button" class="ctl" [disabled]="step() === 0" (click)="go(step() - 1)">Anterior</button>
+      <button type="button" class="ctl" [attr.aria-pressed]="playing()" (click)="toggle()">
+        {{ playing() ? 'Pausar' : 'Reproducir' }}
+      </button>
+      <button type="button" class="ctl ctl--primary" [disabled]="step() === steps.length - 1" (click)="go(step() + 1)">
+        Siguiente
+      </button>
+    </div>
+  </div>
+</section>

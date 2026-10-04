@@ -12,6 +12,7 @@ import { ContentFilterService } from '../../shared/services/content-filter.servi
 import { CustomValidators } from '../../shared/validators/custom-validators';
 import { offensiveContentAsyncValidator } from '../../shared/validators/content-filter.validators';
 import { formatChileanPhone, formatChileanRUT, normalizeChileanRUTForBackend } from '../../shared/utils/form-formatters';
+import { ModalService } from '../../core/services/modal.service';
 
 interface Category {
   name: string;
@@ -71,6 +72,7 @@ export class ProviderLandingComponent implements OnInit, OnDestroy {
   private readonly auth = inject(AuthService);
   private readonly socialAuth = inject(SocialAuthService);
   private readonly contentFilterService = inject(ContentFilterService);
+  private readonly modal = inject(ModalService);
   private readonly ngZone = inject(NgZone);
 
   scrolled = signal(false);
@@ -467,35 +469,24 @@ export class ProviderLandingComponent implements OnInit, OnDestroy {
     this.auth.registerProvider(payload).subscribe({
       next: () => {
         this.loadingRegister.set(false);
-        this.successRegister.set('Cuenta creada con éxito. Iniciaremos sesión para continuar.');
-        let settled = false;
-        const fallbackToLogin = () => {
-          if (settled) return;
-          settled = true;
-          this.closeRegisterModal();
-          this.router.navigate(['/auth/login'], { queryParams: { tab: 'login' } });
-        };
-
-        const timeoutId = setTimeout(() => {
-          fallbackToLogin();
-        }, 10_000);
-
-        this.auth.login({ username: normalizedEmail, password: password!, role: 'PROVIDER' }).subscribe({
-          next: (res) => {
-            if (settled) return;
-            settled = true;
-            clearTimeout(timeoutId);
-            this.closeRegisterModal();
-            this.auth.navigateAfterLogin(res.role, res.status);
-          },
-          error: () => {
-            clearTimeout(timeoutId);
-            fallbackToLogin();
-          },
+        this.closeRegisterModal();
+        void this.modal.success(
+          'Te enviamos un correo electrónico para validar tu cuenta. Revisa tu bandeja de entrada (y spam) y confirma tu correo antes de iniciar sesión.',
+          'Verifica tu correo'
+        ).then(() => {
+          void this.router.navigate(['/auth/login'], { queryParams: { tab: 'login' } });
         });
       },
       error: (err: any) => {
         this.loadingRegister.set(false);
+        const detail = err?.error?.detail;
+        if (detail && typeof detail === 'object' && detail.code === 'EMAIL_ALREADY_REGISTERED_UNVERIFIED') {
+          void this.modal.warning(
+            detail.message || 'Ya existe una cuenta con este correo, pero aún no ha sido validada. Te enviamos un nuevo correo de verificación.',
+            'Cuenta pendiente de verificación'
+          );
+          return;
+        }
         this.errorRegister.set(this.getApiErrorMessage(err, 'Error al crear la cuenta. Inténtalo de nuevo.'));
       },
     });

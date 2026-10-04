@@ -5,6 +5,7 @@ import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { CustomValidators } from '../../../../shared/validators/custom-validators';
 import { formatChileanPhone, formatChileanRUT, normalizeChileanPhoneForBackend, normalizeChileanRUTForBackend } from '../../../../shared/utils/form-formatters';
+import { ModalService } from '../../../../core/services/modal.service';
 
 function passwordMatch(ctrl: AbstractControl): ValidationErrors | null {
   const p = ctrl.get('password'), c = ctrl.get('confirmPassword');
@@ -23,6 +24,7 @@ export class RegisterProviderComponent {
   private fb   = inject(FormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
+  private modal = inject(ModalService);
 
   loading  = signal(false);
   error    = signal('');
@@ -61,6 +63,14 @@ export class RegisterProviderComponent {
       },
       error: (err) => {
         this.loading.set(false);
+        const detail = err?.error?.detail;
+        if (detail && typeof detail === 'object' && detail.code === 'EMAIL_ALREADY_REGISTERED_UNVERIFIED') {
+          void this.modal.warning(
+            detail.message || 'Ya existe una cuenta con este correo, pero aún no ha sido validada. Te enviamos un nuevo correo de verificación.',
+            'Cuenta pendiente de verificación'
+          );
+          return;
+        }
         this.error.set(this.getApiErrorMessage(err, 'Error al registrarse. Inténtalo de nuevo.'));
       }
     });

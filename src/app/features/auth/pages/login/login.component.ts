@@ -15,6 +15,7 @@ import { CustomValidators } from '../../../../shared/validators/custom-validator
 import { ContentFilterService } from '../../../../shared/services/content-filter.service';
 import { offensiveContentAsyncValidator } from '../../../../shared/validators/content-filter.validators';
 import { formatChileanPhone, formatChileanRUT, normalizeChileanPhoneForBackend, normalizeChileanRUTForBackend } from '../../../../shared/utils/form-formatters';
+import { ModalService } from '../../../../core/services/modal.service';
 
 @Component({
   selector: 'app-login',
@@ -33,6 +34,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   private readonly renderer = inject(Renderer2);
   private readonly categorySvc = inject(CategoryService);
   private readonly contentFilterService = inject(ContentFilterService);
+  private readonly modal = inject(ModalService);
   private readonly ngZone = inject(NgZone);
   private carouselInterval: ReturnType<typeof setInterval> | null = null;
   private scrollObserver?: IntersectionObserver;
@@ -662,12 +664,23 @@ export class LoginComponent implements OnInit, OnDestroy {
     register$.subscribe({
       next: () => {
         this.loading.set(false);
-        this.success.set('Cuenta creada con éxito. Revisa tu correo y valida tu cuenta desde el enlace para poder iniciar sesión.');
         this.activeTab.set('login');
         this.form.patchValue({ email: normalizedEmail });
+        void this.modal.success(
+          'Te enviamos un correo electrónico para validar tu cuenta. Revisa tu bandeja de entrada (y spam) y confirma tu correo antes de iniciar sesión.',
+          'Verifica tu correo'
+        );
       },
       error: (err: any) => {
         this.loading.set(false);
+        const detail = err?.error?.detail;
+        if (detail && typeof detail === 'object' && detail.code === 'EMAIL_ALREADY_REGISTERED_UNVERIFIED') {
+          void this.modal.warning(
+            detail.message || 'Ya existe una cuenta con este correo, pero aún no ha sido validada. Te enviamos un nuevo correo de verificación.',
+            'Cuenta pendiente de verificación'
+          );
+          return;
+        }
         const msg = this.getApiErrorMessage(err, 'Error al crear la cuenta. Inténtalo de nuevo.');
         this.error.set(msg);
       }

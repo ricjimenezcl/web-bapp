@@ -57,6 +57,10 @@ export const routes: Routes = [
     canActivate: [authGuard, clientGuard, profileCompletionGuard],
     children: [
       {
+        path: 'home',
+        loadComponent: () => import('./features/client/pages/home/client-home.component').then(m => m.ClientHomeComponent)
+      },
+      {
         path: 'tabs',
         loadComponent: () => import('./features/client/pages/tabs/client-tabs.component').then(m => m.ClientTabsComponent),
         children: [
@@ -103,7 +107,7 @@ export const routes: Routes = [
         path: 'chat/:id',
         loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent)
       },
-      { path: '', redirectTo: 'tabs', pathMatch: 'full' },
+      { path: '', redirectTo: 'home', pathMatch: 'full' },
     ]
   },
 

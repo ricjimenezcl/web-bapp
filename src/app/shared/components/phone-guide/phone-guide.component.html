@@ -1,50 +1,141 @@
 <section class="guide" aria-roledescription="carrusel" aria-label="Guía de la plataforma">
   <!-- ============ DISPOSITIVO ============ -->
   <div class="phone" (mouseenter)="hoverPause()" (mouseleave)="hoverResume()">
-    <div class="phone__notch"></div>
+    <div class="vol-buttons"></div>
+    <div class="power-button"></div>
+    <div class="notch">
+      <div class="speaker-grill"></div>
+      <div class="front-camera"></div>
+    </div>
 
-    <div class="phone__display">
+    <div class="screen">
       <div class="status" aria-hidden="true">
         <span>9:41</span>
         <span class="status__battery"></span>
       </div>
 
       <!-- Este contenedor es el que se anima al cambiar de pantalla -->
-      <div #screen class="screen">
+      <div #screen class="screen__content">
         @switch (step()) {
-          <!-- 0 · Bienvenida -->
+          <!-- 0 · Login mockup -->
           @case (0) {
-            <div class="s-welcome">
-              <div class="logo is-hidden" data-anim data-float>T</div>
-              <h3 class="title is-hidden" data-anim>Hola, te damos la bienvenida</h3>
-              <p class="text is-hidden" data-anim>Encuentra lo que necesitas en un solo lugar.</p>
-              <button type="button" tabindex="-1" class="btn btn--primary is-hidden" data-anim>Comenzar</button>
+            <div class="login-mockup">
+              <div class="brand-lockup" aria-label="BappSearch">
+                <img
+                  class="brand-logo"
+                  src="https://res.cloudinary.com/dghwotofx/image/upload/v1774563936/logo_gsgyrf.png"
+                  alt="Logo de BappSearch"
+                />
+                <img
+                  class="brand-title-img"
+                  src="https://res.cloudinary.com/dghwotofx/image/upload/v1774563936/titulo_bycrju.png"
+                  alt="BappSearch"
+                />
+              </div>
+
+              <div class="fake-login-card">
+                <h4 class="fake-login-title">Iniciar Sesión</h4>
+
+                <div class="fake-tabs">
+                  <button type="button" class="fake-tab is-active">Entrar</button>
+                  <button type="button" class="fake-tab">Registrar</button>
+                </div>
+
+                <div class="fake-field-group">
+                  <label>Correo electrónico</label>
+                  <div class="fake-input fake-input--mail">
+                    <span class="fake-icon">✉</span>
+                    <span>tu&#64;email.com</span>
+                  </div>
+                </div>
+
+                <div class="fake-field-group">
+                  <label>Contraseña</label>
+                  <div class="fake-input fake-input--lock">
+                    <span class="fake-icon">◒</span>
+                    <span>••••••••</span>
+                    <span class="fake-eye">◌</span>
+                  </div>
+                </div>
+
+                <button type="button" class="fake-forgot">¿Olvidaste tu contraseña?</button>
+
+                <button type="button" class="fake-submit">Iniciar Sesión</button>
+
+                <div class="fake-divider"><span>o continúa con</span></div>
+
+                <div class="fake-socials">
+                  <button type="button" class="fake-social fake-social--google">
+                    <svg class="google-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path fill="#EA4335" d="M12 10.2v3.9h5.4c-.2 1.3-.9 2.4-1.9 3.2l3 2.3c1.8-1.6 2.8-4 2.8-6.9 0-.7-.1-1.3-.2-1.9H12z"/>
+                      <path fill="#34A853" d="M12 22c2.7 0 4.9-.9 6.6-2.4l-3-2.3c-.9.6-2 1-3.6 1-2.8 0-5.1-1.9-5.9-4.4H.8v2.7A10 10 0 0 0 12 22z"/>
+                      <path fill="#FBBC05" d="M6.1 17.9c-.6-1.2-.9-2.5-.9-4 0-1.5.3-2.8.9-4L2.8 7.3A9.8 9.8 0 0 0 1.1 12a10 10 0 0 0 9 6.2c2.5 0 4.6-.8 6.2-2.2l-3-2.3c-.8.6-1.8 1-3.2 1-2.2 0-4.1-1.5-4.7-3.6z"/>
+                      <path fill="#4285F4" d="M12 8.2c1.2 0 2.3.4 3.1 1.2l2.3-2.3A8.3 8.3 0 0 0 12 3.5a10 10 0 0 0-8.8 5.7l3.4 2.6c.8-2.4 3.1-4.1 5.4-4.1z"/>
+                    </svg>
+                    <span class="social-user">Sigue con Google</span>
+                  </button>
+                  <button type="button" class="fake-social fake-social--facebook">
+                    <span class="social-badge social-badge--blue">f</span>
+                    <span>Facebook</span>
+                  </button>
+                </div>
+              </div>
             </div>
           }
 
-          <!-- 1 · Registro -->
+          <!-- 1 · Categorías principales -->
           @case (1) {
-            <div class="s-form">
-              <h3 class="title is-hidden" data-anim>Crea tu cuenta</h3>
+            <div class="s-categories">
+              <header class="category-header" data-anim>
+                <div class="category-header__text">
+                  <p class="category-header__eyebrow">¿Qué necesitas hoy?</p>
+                  <h3 class="category-header__title">Buscar servicio</h3>
+                </div>
+                <button type="button" class="category-header__shop" aria-label="Ir a tienda">
+                  <span>🛍</span>
+                </button>
+              </header>
 
-              <div class="field is-hidden" data-anim>
-                <span class="field__label">Nombre</span>
-                <div class="field__box"><span data-type="Camila Rojas"></span></div>
+              <button type="button" class="category-location" data-anim>
+                <span class="category-location__icon">📍</span>
+                <span>Tu ubicación actual</span>
+                <span class="category-location__chevron">⌄</span>
+              </button>
+
+              <button type="button" class="category-map" data-anim>
+                <span class="category-map__icon">📍</span>
+                <span>Elegir ubicación en el mapa</span>
+              </button>
+
+              <div class="category-search" data-anim>
+                <span class="category-search__icon">⌕</span>
+                <span>Buscar servicio o profesional...</span>
               </div>
 
-              <div class="field is-hidden" data-anim>
-                <span class="field__label">Correo</span>
-                <div class="field__box"><span data-type="camila@correo.cl"></span></div>
+              <div class="category-prompt" data-anim>
+                <span class="category-prompt__icon">✋</span>
+                <div>
+                  <strong>Toca una categoría</strong>
+                  <small>Para ver los servicios disponibles</small>
+                </div>
               </div>
 
-              <div class="field is-hidden" data-anim>
-                <span class="field__label">Contraseña</span>
-                <div class="field__box field__box--password">••••••••</div>
-              </div>
+              <section class="category-section" data-anim>
+                <h4 class="category-section__title">Categorías principales</h4>
 
-              <div class="cta">
-                <button type="button" tabindex="-1" class="btn btn--primary is-hidden" data-anim data-cta>Registrarme</button>
-                <span class="cta__tap" data-tap></span>
+                <div class="category-grid">
+                  @for (tile of categoryTiles; track tile.label) {
+                    <button type="button" class="category-tile" data-anim>
+                      <span class="category-tile__icon">{{ tile.icon }}</span>
+                      <span class="category-tile__label">{{ tile.label }}</span>
+                    </button>
+                  }
+                </div>
+              </section>
+
+              <div class="category-actions" data-anim>
+                <button type="button" class="category-action category-action--ghost">✕ Cancelar</button>
+                <button type="button" class="category-action category-action--primary">⌕ Buscar</button>
               </div>
             </div>
           }
@@ -86,12 +177,12 @@
             <div class="s-explore">
               <div class="search is-hidden" data-anim>Buscar en la plataforma</div>
 
-              @for (r of results; track <a href="https://urldefense.com/v3/__http://r.name__;!!C3eXzRIY6Mw!ISuHUp4kXeH4FnEj6YybC8zZOj632Jh6OdtRZOhyHtpQXqd4QSKGV5n5W1Xg8RlErSiaQvOWnIDM0l9ut84bxga5Xbo$">r.name [r.name]</a>) {
+              @for (r of results; track r.name) {
                 <div class="result is-hidden" data-anim>
                   <div class="result__head">
                     <span class="avatar">{{ r.name[0] }}</span>
                     <div>
-                      <p class="result__name">{{ <a href="https://urldefense.com/v3/__http://r.name__;!!C3eXzRIY6Mw!ISuHUp4kXeH4FnEj6YybC8zZOj632Jh6OdtRZOhyHtpQXqd4QSKGV5n5W1Xg8RlErSiaQvOWnIDM0l9ut84bxga5Xbo$">r.name [r.name]</a> }}</p>
+                      <p class="result__name">{{ r.name }}</p>
                       <p class="result__role">{{ r.role }}</p>
                     </div>
                   </div>

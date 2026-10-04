@@ -13,19 +13,29 @@ import {
 import { animate, stagger } from 'animejs';
 
 type Anim = ReturnType<typeof animate>;
+type GuideVariant = 'client' | 'provider';
 
 interface Step {
   title: string;
   description: string;
 }
 
-const STEPS: Step[] = [
-  { title: 'Te damos la bienvenida', description: 'Un recorrido corto para que sepas por dónde empezar.' },
-  { title: 'Crea tu cuenta', description: 'Ingresa tu nombre, tu correo y una contraseña. Toma menos de un minuto.' },
-  { title: 'Verifica tu correo', description: 'Escribe el código de 4 dígitos que te enviamos para activar tu cuenta.' },
-  { title: 'Cuéntanos qué buscas', description: 'Elige tus categorías favoritas y personalizamos lo que verás.' },
-  { title: 'Explora resultados', description: 'Busca y compara. Cada resultado muestra qué tanto coincide contigo.' },
-  { title: 'Navega con la barra inferior', description: 'Inicio, búsqueda, mensajes y perfil siempre están a un toque.' },
+const CLIENT_STEPS: Step[] = [
+  { title: 'Crea tu cuenta', description: 'Regístrate en segundos con tu email o redes sociales. Completa tu información básica y accede a la red.' },
+  { title: 'Selecciona la Categoría', description: 'Elige entre más de 10 categorías para iniciar la búsqueda en tu zona o en el área que necesites.' },
+  { title: 'Busca en el Mapa', description: 'Visualiza la ubicación de los servicios disponibles en el mapa interactivo de tu zona exacta.' },
+  { title: 'Revisa los Servicios', description: 'Selecciona servicios por distancia o calificación. Revisa su portafolio de manera transparente.' },
+  { title: 'Chatea y Agenda', description: 'Conversa en tiempo real y coordina tu cita directamente con el servicio.' },
+  { title: 'Califica y Reseña', description: 'Al finalizar el trabajo, califica el servicio. Tu opinión ayuda a mantener la comunidad segura.' },
+];
+
+const PROVIDER_STEPS: Step[] = [
+  { title: 'Regístrate como proveedor', description: 'Crea un perfil comercial atractivo y define tus servicios y tu cobertura en segundos.' },
+  { title: 'Valida tu identidad', description: 'Sube tu documentación y genera confianza con un perfil verificado ante los clientes.' },
+  { title: 'Configura tus servicios', description: 'Define tus especialidades, horarios y fotos para destacar en el mapa y en búsquedas.' },
+  { title: 'Aparece en el mapa', description: 'Hazte visible para clientes cercanos y conviértete en una opción destacada del sector.' },
+  { title: 'Recibe solicitudes', description: 'Gestiona mensajes y agendamientos de forma rápida para cerrar más trabajos con clientes.' },
+  { title: 'Ejecuta y crece', description: 'Realiza tu trabajo, recibe reseñas y construye tu reputación dentro de la comunidad.' },
 ];
 
 @Component({
@@ -36,18 +46,34 @@ const STEPS: Step[] = [
   styleUrl: './phone-guide.component.scss'
 })
 export class PhoneGuideComponent implements OnDestroy {
+  /** Variante del flujo mostrada en la guía. */
+  readonly variant = input<GuideVariant>('client');
   /** Avanza solo entre pantallas. Se desactiva si el usuario prefiere menos movimiento. */
   readonly autoplay = input(true);
   /** Milisegundos que dura cada pantalla en modo automático. */
   readonly intervalMs = input(5500);
 
-  readonly steps = STEPS;
+  get steps(): Step[] {
+    return this.variant() === 'provider' ? PROVIDER_STEPS : CLIENT_STEPS;
+  }
+
   readonly step = signal(0);
   readonly playing = signal(false);
 
   // Datos de ejemplo: cámbialos por los de tu plataforma
   readonly code = ['4', '2', '7', '1'];
   readonly tabs = ['Inicio', 'Buscar', 'Mensajes', 'Perfil'];
+  readonly categoryTiles = [
+    { label: 'Alimentación', icon: '🍴' },
+    { label: 'Belleza y Cuidado Personal', icon: '✦' },
+    { label: 'Costura y Confección', icon: '👕' },
+    { label: 'Hogar y Construcción', icon: '🔨' },
+    { label: 'Mascotas', icon: '🐾' },
+    { label: 'Reparaciones Generales', icon: '🛠' },
+    { label: 'Servicios Automotrices', icon: '🚗' },
+    { label: 'Servicios del Hogar', icon: '🏠' },
+    { label: 'Servicios varios', icon: '▦' },
+  ];
   readonly chips = [
     { label: 'Hogar', on: true },
     { label: 'Salud', on: false },
@@ -90,7 +116,7 @@ export class PhoneGuideComponent implements OnDestroy {
   /* ---------- navegación ---------- */
 
   async go(target: number): Promise<void> {
-    if (this.busy || target === this.step() || target < 0 || target >= STEPS.length) return;
+    if (this.busy || target === this.step() || target < 0 || target >= this.steps.length) return;
     this.busy = true;
     this.progress?.pause();
     this.clearAnims();
@@ -151,7 +177,7 @@ export class PhoneGuideComponent implements OnDestroy {
       width: ['0%', '100%'],
       duration: this.intervalMs(),
       ease: 'linear',
-      onComplete: () => this.go((this.step() + 1) % STEPS.length),
+      onComplete: () => this.go((this.step() + 1) % this.steps.length),
     });
   }
 

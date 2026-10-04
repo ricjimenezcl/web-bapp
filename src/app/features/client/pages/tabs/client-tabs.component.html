@@ -41,6 +41,12 @@
           <span class="text-sm font-medium">{{ 'nav.newSearch' | t }}</span>
         </button>
 
+        <!-- Inicio -->
+        <a routerLink="/client/home" routerLinkActive="text-primary bg-primary/10"
+           class="hidden lg:flex items-center gap-1.5 px-3 h-10 rounded-full text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors">
+          <ion-icon name="home-outline" class="text-lg"></ion-icon>
+          <span>Inicio</span>
+        </a>
         <!-- Mapa (desktop) -->
         <a routerLink="service-search" routerLinkActive="text-primary bg-primary/10"
            class="hidden lg:flex items-center gap-1.5 px-3 h-10 rounded-full text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors">
@@ -146,6 +152,11 @@
 
     <!-- Links -->
     <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto" [attr.aria-label]="'nav.mobileMenu' | t">
+      <a routerLink="/client/home" routerLinkActive="active"
+         (click)="closeSidebar()" class="sidebar-link">
+        <ion-icon name="home-outline" class="text-xl"></ion-icon>
+        <span>Inicio</span>
+      </a>
       <a routerLink="service-search" routerLinkActive="active"
          (click)="closeSidebar()" class="sidebar-link">
         <ion-icon name="rocket-outline" class="text-xl"></ion-icon>

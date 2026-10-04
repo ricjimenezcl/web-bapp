@@ -428,7 +428,7 @@ export class CategoriesComponent implements OnInit {
     );
 
     if (confirmed) {
-      await this.router.navigate(['/client/tabs/profile']);
+      await this.router.navigate(['/client/home']);
     }
   }
 

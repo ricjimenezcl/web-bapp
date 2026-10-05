@@ -2177,95 +2177,251 @@
 
 // ── PROVIDER FLOW STYLES ─────────────────────────────
 
-// 0 · Provider Register
+// 0 · Provider Register - Detailed Card from device-3d-login
 .s-provider-register {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.4rem 0.5rem 0.45rem;
+  gap: 0;
+  padding: 0;
   overflow-y: auto;
   max-height: 100%;
+  background: #0d0d0d;
 }
 
-.register-header {
+// Card principal
+.pr-card {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 6px;
+  padding: 10px 10px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0.5rem;
+  max-height: calc(100% - 1rem);
+  overflow-y: auto;
+}
+
+.pr-title {
+  color: #f4f4f5;
+  font-size: 0.9rem;
+  font-weight: 800;
   text-align: center;
-  padding: 0.3rem 0;
+  margin: 0 0 8px;
 }
 
-.register-title {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.register-subtitle {
-  margin: 0.2rem 0 0 0;
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.register-form {
+// Tabs
+.pr-tabs {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 8px;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-
-.form-label {
+.pr-tab {
+  flex: 1;
+  text-align: center;
+  color: #71717a;
   font-size: 0.7rem;
+  font-weight: 600;
+  padding-bottom: 5px;
+  cursor: pointer;
+}
+
+.pr-tab-active {
+  color: #f4f4f5;
+  border-bottom: 2px solid #f4f4f5;
+  padding-bottom: 4px;
+}
+
+// Tipo de cuenta
+.pr-type-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  margin-bottom: 7px;
+}
+
+.pr-type-btn {
+  height: 24px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: transparent;
+  color: #a1a1aa;
+  font-size: 0.65rem;
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pr-type-btn-active {
+  border-color: #d7c785;
+  color: #d7c785;
+  background: linear-gradient(135deg, rgba(215, 199, 133, 0.1) 0%, rgba(184, 158, 93, 0.05) 100%);
+}
+
+// Campos
+.pr-field {
+  margin-bottom: 8px;
+}
+
+.pr-field-label {
+  color: #a1a1aa;
+  font-size: 0.55rem;
+  font-weight: 600;
+  margin-bottom: 3px;
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  color: rgba(255, 255, 255, 0.7);
 }
 
-.form-input {
-  padding: 0.5rem 0.6rem;
+.pr-input {
+  width: 100%;
+  min-height: 28px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.75rem;
-  font-family: inherit;
-  outline: none;
-
-  &::placeholder {
-    color: rgba(255, 255, 255, 0.3);
-  }
-
-  &:disabled {
-    color: rgba(255, 255, 255, 0.5);
-    cursor: not-allowed;
-  }
-}
-
-.register-actions {
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.65rem;
+  padding: 0 8px;
   display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  padding-top: 0.4rem;
+  align-items: center;
+  box-sizing: border-box;
+  font-family: inherit;
 }
 
-.btn-register {
-  padding: 0.6rem;
-  background: linear-gradient(135deg, #d7c785, #b89e5d);
-  border: none;
-  border-radius: 10px;
-  color: #1f1b12;
-  font-size: 0.8rem;
+.pr-input-pw {
+  justify-content: space-between;
+  padding-right: 6px;
+  overflow: hidden;
+}
+
+.pr-input-placeholder {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.pr-eye-icon {
+  width: 10px;
+  height: 10px;
+  color: rgba(255, 255, 255, 0.4);
+  flex-shrink: 0;
+  margin-left: 4px;
+  cursor: pointer;
+}
+
+// Checkbox
+.pr-checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 6px 0 8px;
+}
+
+.pr-checkbox-box {
+  width: 10px;
+  height: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 2px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  cursor: pointer;
+}
+
+.pr-checkbox-text {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.6rem;
+  line-height: 1.4;
+}
+
+.pr-link {
+  color: #d7c785;
   font-weight: 700;
+  cursor: pointer;
+}
+
+// CTA
+.pr-cta {
+  width: 100%;
+  min-height: 32px;
+  background: linear-gradient(135deg, #d7c785, #b89e5d);
+  color: #1f1b12;
+  font-size: 0.75rem;
+  font-weight: 800;
+  border: none;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
   cursor: pointer;
   transition: all 0.2s;
 
   &:active {
     transform: scale(0.97);
   }
+}
+
+// Divider
+.pr-divider {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.pr-divider-line {
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.pr-divider-text {
+  color: #71717a;
+  font-size: 0.6rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+// Social
+.pr-social-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.pr-social-btn {
+  min-height: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #f4f4f5;
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.pr-social-fb {
+  background: #1877F2;
+  border-color: transparent;
+}
+
+.pr-social-icon {
+  width: 12px;
+  height: 12px;
 }
 
 // 1 · Identity Verify

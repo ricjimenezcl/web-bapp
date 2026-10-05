@@ -34,10 +34,25 @@
 
 .scene-hologram {
     perspective: 1200px;
-    width: 100%; height: clamp(320px, 55vh, 600px);
-    display: flex; align-items: center; justify-content: center;
+    width: 100%; 
+    height: clamp(280px, 60vh, 650px);
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
     position: relative;
     z-index: 50;
+}
+
+@media (max-width: 768px) {
+  .scene-hologram {
+    height: clamp(280px, 65vh, 500px);
+  }
+}
+
+@media (max-width: 480px) {
+  .scene-hologram {
+    height: clamp(260px, 70vh, 420px);
+  }
 }
 
 .scale-wrapper {
@@ -1219,6 +1234,20 @@ html {
   transition: transform 0.3s ease;
 }
 
+@media (max-width: 768px) {
+  .phone-mockup {
+    width: 240px;
+    height: 496px;
+  }
+}
+
+@media (max-width: 480px) {
+  .phone-mockup {
+    width: 210px;
+    height: 432px;
+  }
+}
+
 .phone-buttons {
   position: absolute; 
   top: 0; 
@@ -1700,12 +1729,13 @@ html {
 
   .panels-wrapper {
     position: relative; 
-    width: 100%; 
+    width: 100%;
+    max-width: 90%;
     height: auto;
     display: grid; 
-    grid-template-columns: 1fr; 
+    grid-template-columns: 1fr 1fr; 
     gap: 30px;
-    margin-bottom: 6px;
+    margin: 0 auto 6px auto;
     pointer-events: auto; 
     transform-style: flat;
   }
@@ -1716,7 +1746,8 @@ html {
     left: 0 !important; 
     right: 0 !important; 
     bottom: 0 !important; 
-    width: 100%; 
+    width: 100%;
+    padding: 16px;
     transform: none !important; 
 
     .panel-title-row { 
@@ -1727,6 +1758,27 @@ html {
     p { 
       text-align: left !important; 
     }
+  }
+}
+
+@media (max-width: 768px) {
+  .panels-wrapper {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    max-width: 95%;
+  }
+}
+
+@media (max-width: 480px) {
+  .panels-wrapper {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    max-width: 100%;
+    padding: 0 12px;
+  }
+
+  .info-panel {
+    padding: 12px;
   }
 }
 

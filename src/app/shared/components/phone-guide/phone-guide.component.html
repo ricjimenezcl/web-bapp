@@ -16,8 +16,9 @@
 
       <!-- Este contenedor es el que se anima al cambiar de pantalla -->
       <div #screen class="screen__content">
-        @switch (step()) {
-          <!-- 0 · Login mockup -->
+        @if (variant() === 'client') {
+          @switch (step()) {
+            <!-- CLIENT FLOW: 0 · Login mockup -->
           @case (0) {
             <div class="login-mockup">
               <div class="brand-lockup" aria-label="BappSearch">
@@ -484,6 +485,274 @@
                 <div class="rating-feedback">¡Excelente!</div>
               </div>
             </div>
+          }
+        }
+        } @else {
+          @switch (step()) {
+            <!-- PROVIDER FLOW: 0 · Registro como proveedor -->
+            @case (0) {
+              <div class="s-provider-register">
+                <div class="register-header is-hidden" data-anim>
+                  <h2 class="register-title">Crea tu perfil</h2>
+                  <p class="register-subtitle">como proveedor</p>
+                </div>
+
+                <form class="register-form is-hidden" data-anim>
+                  <div class="form-group">
+                    <label class="form-label">Nombre completo</label>
+                    <input type="text" placeholder="Juan Martínez" class="form-input" disabled />
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">Email comercial</label>
+                    <input type="email" placeholder="juan@servicio.com" class="form-input" disabled />
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">Teléfono</label>
+                    <input type="tel" placeholder="+56 9 XXXX XXXX" class="form-input" disabled />
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">Ciudad principal</label>
+                    <input type="text" placeholder="Santiago" class="form-input" disabled />
+                  </div>
+                </form>
+
+                <div class="register-actions is-hidden" data-anim>
+                  <button type="button" class="btn-register">Continuar →</button>
+                </div>
+              </div>
+            }
+
+            <!-- PROVIDER FLOW: 1 · Valida tu identidad -->
+            @case (1) {
+              <div class="s-identity-verify">
+                <div class="verify-header is-hidden" data-anim>
+                  <h3 class="verify-title">Verifica tu identidad</h3>
+                  <p class="verify-description">Sube tu documento para ganar confianza</p>
+                </div>
+
+                <div class="verify-step-indicator is-hidden" data-anim>
+                  <div class="step-badge">1 de 3</div>
+                </div>
+
+                <div class="verify-document is-hidden" data-anim>
+                  <div class="doc-upload">
+                    <span class="doc-icon">📄</span>
+                    <div class="doc-text">
+                      <p class="doc-title">Sube tu cédula</p>
+                      <p class="doc-desc">Frente y dorso</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="verify-checklist is-hidden" data-anim>
+                  <div class="check-item">
+                    <span class="check-mark">✓</span>
+                    <span>Documento legible</span>
+                  </div>
+                  <div class="check-item">
+                    <span class="check-mark">✓</span>
+                    <span>Nombre coincide</span>
+                  </div>
+                  <div class="check-item">
+                    <span class="check-mark">✓</span>
+                    <span>Documento vigente</span>
+                  </div>
+                </div>
+
+                <div class="verify-actions is-hidden" data-anim>
+                  <button type="button" class="btn-verify">Subir documento →</button>
+                </div>
+              </div>
+            }
+
+            <!-- PROVIDER FLOW: 2 · Configura tus servicios -->
+            @case (2) {
+              <div class="s-configure-services">
+                <div class="config-header is-hidden" data-anim>
+                  <h3 class="config-title">Configura tus servicios</h3>
+                </div>
+
+                <div class="service-form is-hidden" data-anim>
+                  <div class="form-group">
+                    <label class="form-label">Categoría principal</label>
+                    <div class="form-select">Belleza y Estética ▼</div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">Especialidad</label>
+                    <input type="text" placeholder="Coloración y Mechas" class="form-input" disabled />
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">Precio por hora</label>
+                    <div class="price-input">
+                      <span class="currency">$</span>
+                      <input type="number" placeholder="45000" class="form-input" disabled />
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">Horario de atención</label>
+                    <input type="text" placeholder="Lun-Vie: 09:00 - 18:00" class="form-input" disabled />
+                  </div>
+                </div>
+
+                <div class="photo-gallery is-hidden" data-anim>
+                  <p class="form-label">Fotos de tu trabajo</p>
+                  <div class="photo-grid">
+                    <div class="photo-slot">📸</div>
+                    <div class="photo-slot">📸</div>
+                    <div class="photo-slot">➕</div>
+                  </div>
+                </div>
+
+                <div class="config-actions is-hidden" data-anim>
+                  <button type="button" class="btn-configure">Guardar →</button>
+                </div>
+              </div>
+            }
+
+            <!-- PROVIDER FLOW: 3 · Aparece en el mapa -->
+            @case (3) {
+              <div class="s-provider-map">
+                <div class="prov-map-header is-hidden" data-anim>
+                  <h3 class="prov-map-title">Apareceré en el mapa</h3>
+                  <p class="prov-map-desc">Clientes te verán aquí</p>
+                </div>
+
+                <div class="prov-map-container is-hidden" data-anim>
+                  <div class="prov-map-bg" style="background-image: url('https://res.cloudinary.com/dghwotofx/image/upload/v1789862345/fondo_cwqh4i.png');"></div>
+                  
+                  <img 
+                    src="https://res.cloudinary.com/dghwotofx/image/upload/v1782705912/ubi_prov_1_o7rzel.svg"
+                    alt="Tu ubicación"
+                    class="prov-marker"
+                    style="top: 50%; left: 50%;"
+                  />
+
+                  <div class="prov-map-legend is-hidden" data-anim>
+                    <div class="legend-item">
+                      <span class="legend-dot">📍</span>
+                      <span>Tu ubicación</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="prov-map-info is-hidden" data-anim>
+                  <div class="info-box">
+                    <p class="info-text">Te mostraremos a clientes dentro de tu cobertura</p>
+                    <div class="coverage-badge">3 km de radio</div>
+                  </div>
+                </div>
+
+                <div class="prov-map-actions is-hidden" data-anim>
+                  <button type="button" class="btn-map-confirm">Activar visibilidad →</button>
+                </div>
+              </div>
+            }
+
+            <!-- PROVIDER FLOW: 4 · Recibe solicitudes -->
+            @case (4) {
+              <div class="s-requests">
+                <div class="requests-header is-hidden" data-anim>
+                  <h3 class="requests-title">Solicitudes</h3>
+                  <span class="requests-badge">5</span>
+                </div>
+
+                <div class="requests-list">
+                  <div class="request-card is-hidden" data-anim>
+                    <div class="request-user">
+                      <div class="user-avatar">👩</div>
+                      <div class="user-info">
+                        <div class="user-name">María López</div>
+                        <div class="user-status">Nueva solicitud</div>
+                      </div>
+                    </div>
+                    <div class="request-content">
+                      <p class="request-service">Coloración y Mechas</p>
+                      <p class="request-time">⏰ Hoy a las 14:00</p>
+                      <p class="request-location">📍 2.5 km de distancia</p>
+                    </div>
+                    <div class="request-actions">
+                      <button type="button" tabindex="-1" class="btn-action btn-decline">Rechazar</button>
+                      <button type="button" tabindex="-1" class="btn-action btn-accept">Aceptar</button>
+                    </div>
+                  </div>
+
+                  <div class="request-card is-hidden" data-anim>
+                    <div class="request-user">
+                      <div class="user-avatar">👨</div>
+                      <div class="user-info">
+                        <div class="user-name">Carlos Rodríguez</div>
+                        <div class="user-status">Mensaje de cliente</div>
+                      </div>
+                    </div>
+                    <div class="request-content">
+                      <p class="request-service">Reparación de tuberías</p>
+                      <p class="request-time">⏰ Mañana a las 10:00</p>
+                      <p class="request-location">📍 1.8 km de distancia</p>
+                    </div>
+                    <div class="request-actions">
+                      <button type="button" tabindex="-1" class="btn-action btn-message">💬 Responder</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="requests-empty-state is-hidden" data-anim>
+                  <p class="empty-text">Nuevas solicitudes pronto</p>
+                </div>
+              </div>
+            }
+
+            <!-- PROVIDER FLOW: 5 · Ejecuta y crece -->
+            @case (5) {
+              <div class="s-grow">
+                <div class="grow-header is-hidden" data-anim>
+                  <h3 class="grow-title">Mi desempeño</h3>
+                  <div class="grow-period">Este mes</div>
+                </div>
+
+                <div class="grow-stats is-hidden" data-anim>
+                  <div class="stat-card">
+                    <div class="stat-card-icon">📋</div>
+                    <div class="stat-card-value">12</div>
+                    <div class="stat-card-label">Trabajos completados</div>
+                  </div>
+                  <div class="stat-card">
+                    <div class="stat-card-icon">⭐</div>
+                    <div class="stat-card-value">4.8</div>
+                    <div class="stat-card-label">Calificación promedio</div>
+                  </div>
+                </div>
+
+                <div class="reviews-section is-hidden" data-anim>
+                  <h4 class="section-label">Reseñas recientes</h4>
+                  
+                  <div class="review-item">
+                    <div class="review-header">
+                      <div class="review-user">👩 Patricia</div>
+                      <div class="review-stars">⭐⭐⭐⭐⭐</div>
+                    </div>
+                    <p class="review-text">"Excelente trabajo, muy profesional y puntual"</p>
+                  </div>
+
+                  <div class="review-item">
+                    <div class="review-header">
+                      <div class="review-user">👨 Roberto</div>
+                      <div class="review-stars">⭐⭐⭐⭐</div>
+                    </div>
+                    <p class="review-text">"Buen servicio, volvería a contratar"</p>
+                  </div>
+                </div>
+
+                <div class="grow-actions is-hidden" data-anim>
+                  <button type="button" class="btn-grow-action">Ver más detalles →</button>
+                </div>
+              </div>
+            }
           }
         }
       </div>

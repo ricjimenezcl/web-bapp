@@ -3301,6 +3301,7 @@
 
 /* ═══════════════════════════════════════════════════════════════════════════
    RESPONSIVE DESIGN — Complete Mobile & Tablet Optimization
+   Includes all internal elements (texts, buttons, inputs, badges, etc.)
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* ── Tablets Large (1024px) ── */
@@ -3370,6 +3371,209 @@
     justify-content: center;
     gap: clamp(0.5rem, 1.5vw, 0.75rem);
   }
+
+  /* Internal elements scaling */
+  .screen__content {
+    padding: 0.55rem 0.52rem 0.65rem;
+  }
+
+  .status {
+    padding: 0.7rem 0.45rem 0.7rem;
+    font-size: 0.72rem;
+  }
+
+  .title {
+    font-size: clamp(1.3rem, 2.2vw, 1.75rem);
+  }
+
+  .text {
+    font-size: 0.85rem;
+  }
+
+  .btn {
+    font-size: 0.78rem;
+    padding: 0.65rem 0.95rem;
+  }
+
+  .logo {
+    width: 62px;
+    height: 62px;
+    font-size: 1.9rem;
+  }
+
+  .brand-logo {
+    width: 44px;
+    height: 44px;
+  }
+
+  .brand-title-img {
+    width: min(100%, 168px);
+  }
+
+  /* Provider registration */
+  .pr-title {
+    font-size: 0.85rem;
+    padding: 11px 9px 7px;
+  }
+
+  .pr-tab {
+    font-size: 0.68rem;
+  }
+
+  .pr-type-btn {
+    font-size: 0.62rem;
+    height: 23px;
+  }
+
+  .pr-field-label {
+    font-size: 0.52rem;
+  }
+
+  .pr-input {
+    font-size: 0.62rem;
+    padding: 0 7px;
+    min-height: 27px;
+  }
+
+  .pr-eye-icon {
+    width: 9px;
+    height: 9px;
+  }
+
+  .pr-checkbox-text {
+    font-size: 0.58rem;
+  }
+
+  .pr-cta {
+    font-size: 0.72rem;
+    min-height: 30px;
+  }
+
+  .pr-social-btn {
+    min-height: 27px;
+    font-size: 0.62rem;
+  }
+
+  .pr-social-icon {
+    width: 11px;
+    height: 11px;
+  }
+
+  /* Identity verify */
+  .verify-title {
+    font-size: 0.92rem;
+  }
+
+  .verify-description {
+    font-size: 0.68rem;
+  }
+
+  .step-badge {
+    font-size: 0.68rem;
+    padding: 0.32rem 0.55rem;
+  }
+
+  .doc-icon {
+    font-size: 2.4rem;
+  }
+
+  .doc-title {
+    font-size: 0.77rem;
+  }
+
+  .doc-desc {
+    font-size: 0.62rem;
+  }
+
+  .check-item {
+    font-size: 0.72rem;
+  }
+
+  .btn-verify {
+    font-size: 0.77rem;
+    padding: 0.58rem;
+  }
+
+  /* Configure services */
+  .config-title {
+    font-size: 0.92rem;
+  }
+
+  .form-select,
+  .form-input {
+    font-size: 0.72rem;
+  }
+
+  .price-input {
+    padding: 0.48rem 0.55rem;
+  }
+
+  /* Map premium */
+  .map-premium-header-title {
+    font-size: 0.92rem;
+  }
+
+  .map-premium-filter-badge,
+  .map-premium-search-btn {
+    width: 34px;
+    height: 34px;
+
+    svg {
+      width: 13px;
+      height: 13px;
+    }
+  }
+
+  .map-premium-filter-badge {
+    font-size: 0.68rem;
+  }
+
+  .map-premium-search-group {
+    padding: 3px 5px;
+
+    svg {
+      width: 11px;
+      height: 11px;
+    }
+
+    input {
+      font-size: 0.62rem;
+    }
+  }
+
+  .map-premium-dist-badge {
+    font-size: 0.62rem;
+    padding: 2px 7px;
+
+    svg {
+      width: 9px;
+      height: 9px;
+    }
+  }
+
+  .map-premium-chip {
+    padding: 5px 9px;
+    font-size: 0.62rem;
+
+    svg {
+      width: 11px;
+      height: 11px;
+    }
+  }
+
+  .info-text {
+    font-size: 0.68rem;
+    margin-bottom: 3px;
+  }
+
+  .coverage-badge {
+    font-size: 0.72rem;
+  }
+
+  .btn-map-confirm {
+    padding: 9px;
+    font-size: 0.72rem;
+  }
 }
 
 /* ── Tablets Small (640px) ── */
@@ -3405,6 +3609,310 @@
 
   .info__text {
     font-size: clamp(0.8rem, 1.8vw, 0.95rem);
+  }
+
+  /* Internal elements more aggressive scaling */
+  .title {
+    font-size: clamp(1.2rem, 2vw, 1.65rem);
+  }
+
+  .text {
+    font-size: 0.8rem;
+  }
+
+  .btn {
+    font-size: 0.75rem;
+    padding: 0.6rem 0.9rem;
+  }
+
+  .logo {
+    width: 58px;
+    height: 58px;
+    font-size: 1.8rem;
+    margin: 1.8rem auto 0.9rem;
+  }
+
+  .brand-logo {
+    width: 40px;
+    height: 40px;
+  }
+
+  .brand-title-img {
+    width: min(100%, 158px);
+  }
+
+  .fake-login-card {
+    width: min(100%, 210px);
+    padding: 0.35rem 0.42rem 0.24rem;
+  }
+
+  .fake-login-title {
+    font-size: 0.76rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .fake-tabs {
+    gap: 0.2rem;
+    margin-bottom: 0.45rem;
+  }
+
+  .fake-tab {
+    font-size: 0.65rem;
+  }
+
+  .fake-field-group {
+    margin-bottom: 0.42rem;
+  }
+
+  .fake-input {
+    font-size: 0.62rem;
+  }
+
+  .fake-icon {
+    font-size: 0.9rem;
+  }
+
+  /* Provider registration */
+  .pr-title {
+    font-size: 0.82rem;
+    padding: 10px 9px 7px;
+    margin: 0;
+  }
+
+  .pr-tabs {
+    margin: 0 9px 7px;
+  }
+
+  .pr-tab {
+    font-size: 0.65rem;
+  }
+
+  .pr-type-btn {
+    font-size: 0.6rem;
+    height: 22px;
+  }
+
+  .pr-type-row {
+    gap: 4px;
+    margin: 0 9px 6px;
+  }
+
+  .pr-field {
+    margin: 0 9px 7px;
+  }
+
+  .pr-field-label {
+    font-size: 0.5rem;
+    margin-bottom: 2px;
+  }
+
+  .pr-input {
+    font-size: 0.6rem;
+    padding: 0 7px;
+    min-height: 26px;
+    border-radius: 5px;
+  }
+
+  .pr-checkbox-row {
+    margin: 5px 9px 7px;
+    gap: 5px;
+  }
+
+  .pr-checkbox-box {
+    width: 9px;
+    height: 9px;
+  }
+
+  .pr-checkbox-text {
+    font-size: 0.55rem;
+  }
+
+  .pr-cta {
+    font-size: 0.7rem;
+    min-height: 29px;
+    margin: 7px 9px;
+  }
+
+  .pr-divider {
+    margin: 7px 9px;
+    gap: 5px;
+  }
+
+  .pr-divider-text {
+    font-size: 0.58rem;
+  }
+
+  .pr-social-row {
+    margin: 0 9px 9px;
+    gap: 5px;
+  }
+
+  .pr-social-btn {
+    min-height: 26px;
+    font-size: 0.6rem;
+    gap: 3px;
+  }
+
+  .pr-social-icon {
+    width: 10px;
+    height: 10px;
+  }
+
+  /* Identity verify */
+  .s-identity-verify {
+    padding: 0.38rem 0.48rem 0.42rem;
+  }
+
+  .verify-title {
+    font-size: 0.88rem;
+  }
+
+  .verify-description {
+    font-size: 0.65rem;
+  }
+
+  .step-badge {
+    font-size: 0.65rem;
+    padding: 0.3rem 0.52rem;
+  }
+
+  .doc-upload {
+    padding: 0.9rem;
+    gap: 0.45rem;
+  }
+
+  .doc-icon {
+    font-size: 2.2rem;
+  }
+
+  .doc-title {
+    font-size: 0.75rem;
+  }
+
+  .doc-desc {
+    font-size: 0.6rem;
+  }
+
+  .check-item {
+    font-size: 0.7rem;
+  }
+
+  .btn-verify {
+    font-size: 0.75rem;
+    padding: 0.55rem;
+  }
+
+  /* Configure services */
+  .s-configure-services {
+    padding: 0.38rem 0.48rem 0.42rem;
+  }
+
+  .config-title {
+    font-size: 0.88rem;
+  }
+
+  .form-select,
+  .form-input {
+    font-size: 0.7rem;
+    padding: 0.45rem 0.55rem;
+  }
+
+  .price-input {
+    padding: 0.45rem 0.55rem;
+  }
+
+  /* Map premium */
+  .map-premium-header-title {
+    font-size: 0.88rem;
+  }
+
+  .map-premium-filter-badge,
+  .map-premium-search-btn {
+    width: 32px;
+    height: 32px;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  .map-premium-filter-badge {
+    font-size: 0.65rem;
+  }
+
+  .map-premium-search-bar {
+    padding: 5px 7px;
+    gap: 5px;
+  }
+
+  .map-premium-search-group {
+    padding: 3px 5px;
+
+    svg {
+      width: 10px;
+      height: 10px;
+    }
+
+    input {
+      font-size: 0.6rem;
+    }
+  }
+
+  .map-premium-dist-badge {
+    font-size: 0.6rem;
+    padding: 2px 6px;
+
+    svg {
+      width: 8px;
+      height: 8px;
+    }
+  }
+
+  .map-premium-chip {
+    padding: 4px 8px;
+    font-size: 0.6rem;
+
+    svg {
+      width: 10px;
+      height: 10px;
+    }
+  }
+
+  .map-premium-top-ui {
+    gap: 7px;
+    padding: 9px;
+  }
+
+  .info-box {
+    padding: 9px;
+  }
+
+  .info-text {
+    font-size: 0.65rem;
+    margin-bottom: 3px;
+  }
+
+  .coverage-badge {
+    font-size: 0.7rem;
+  }
+
+  .btn-map-confirm {
+    padding: 8px;
+    font-size: 0.7rem;
+    border-radius: 7px;
+  }
+
+  .prov-map-info {
+    bottom: 55px;
+    left: 8px;
+    right: 8px;
+  }
+
+  .prov-map-actions {
+    bottom: 8px;
+    left: 8px;
+    right: 8px;
   }
 }
 
@@ -3476,6 +3984,277 @@
   .dots__item--active {
     width: 16px;
   }
+
+  /* Internal elements aggressive scaling */
+  .title {
+    font-size: clamp(1rem, 1.8vw, 1.5rem);
+  }
+
+  .text {
+    font-size: 0.75rem;
+  }
+
+  .btn {
+    font-size: 0.7rem;
+    padding: 0.55rem 0.8rem;
+  }
+
+  .logo {
+    width: 54px;
+    height: 54px;
+    font-size: 1.7rem;
+    margin: 1.6rem auto 0.8rem;
+  }
+
+  .brand-logo {
+    width: 38px;
+    height: 38px;
+  }
+
+  .brand-title-img {
+    width: min(100%, 148px);
+  }
+
+  .fake-login-card {
+    width: min(100%, 200px);
+    padding: 0.32rem 0.4rem 0.22rem;
+  }
+
+  .fake-login-title {
+    font-size: 0.72rem;
+    margin-bottom: 0.38rem;
+  }
+
+  .fake-tabs {
+    gap: 0.18rem;
+    margin-bottom: 0.42rem;
+  }
+
+  .fake-tab {
+    font-size: 0.62rem;
+  }
+
+  .fake-field-group {
+    margin-bottom: 0.38rem;
+  }
+
+  .fake-input {
+    font-size: 0.58rem;
+  }
+
+  /* Provider registration */
+  .pr-title {
+    font-size: 0.78rem;
+    padding: 9px 8px 6px;
+  }
+
+  .pr-tabs {
+    margin: 0 8px 6px;
+  }
+
+  .pr-tab {
+    font-size: 0.62rem;
+  }
+
+  .pr-type-btn {
+    font-size: 0.58rem;
+    height: 21px;
+  }
+
+  .pr-type-row {
+    gap: 4px;
+    margin: 0 8px 6px;
+  }
+
+  .pr-field {
+    margin: 0 8px 6px;
+  }
+
+  .pr-field-label {
+    font-size: 0.48rem;
+  }
+
+  .pr-input {
+    font-size: 0.58rem;
+    padding: 0 6px;
+    min-height: 25px;
+  }
+
+  .pr-checkbox-row {
+    margin: 4px 8px 6px;
+    gap: 4px;
+  }
+
+  .pr-checkbox-box {
+    width: 8px;
+    height: 8px;
+  }
+
+  .pr-checkbox-text {
+    font-size: 0.52rem;
+  }
+
+  .pr-cta {
+    font-size: 0.68rem;
+    min-height: 28px;
+    margin: 6px 8px;
+  }
+
+  .pr-divider {
+    margin: 6px 8px;
+  }
+
+  .pr-divider-text {
+    font-size: 0.55rem;
+  }
+
+  .pr-social-row {
+    margin: 0 8px 8px;
+  }
+
+  .pr-social-btn {
+    min-height: 25px;
+    font-size: 0.58rem;
+  }
+
+  .pr-social-icon {
+    width: 9px;
+    height: 9px;
+  }
+
+  /* Identity verify */
+  .s-identity-verify {
+    padding: 0.35rem 0.45rem 0.4rem;
+    gap: 0.45rem;
+  }
+
+  .verify-title {
+    font-size: 0.84rem;
+  }
+
+  .verify-description {
+    font-size: 0.62rem;
+  }
+
+  .step-badge {
+    font-size: 0.62rem;
+    padding: 0.28rem 0.48rem;
+  }
+
+  .doc-upload {
+    padding: 0.8rem;
+  }
+
+  .doc-icon {
+    font-size: 2rem;
+  }
+
+  .doc-title {
+    font-size: 0.72rem;
+  }
+
+  .doc-desc {
+    font-size: 0.58rem;
+  }
+
+  .check-item {
+    font-size: 0.67rem;
+  }
+
+  .btn-verify {
+    font-size: 0.72rem;
+    padding: 0.52rem;
+  }
+
+  /* Configure services */
+  .s-configure-services {
+    padding: 0.35rem 0.45rem 0.4rem;
+  }
+
+  .config-title {
+    font-size: 0.84rem;
+  }
+
+  .form-select,
+  .form-input {
+    font-size: 0.68rem;
+    padding: 0.42rem 0.52rem;
+  }
+
+  /* Map premium */
+  .map-premium-header-title {
+    font-size: 0.84rem;
+  }
+
+  .map-premium-filter-badge,
+  .map-premium-search-btn {
+    width: 30px;
+    height: 30px;
+
+    svg {
+      width: 11px;
+      height: 11px;
+    }
+  }
+
+  .map-premium-filter-badge {
+    font-size: 0.62rem;
+  }
+
+  .map-premium-search-bar {
+    padding: 4px 6px;
+  }
+
+  .map-premium-search-group {
+    padding: 2px 4px;
+
+    svg {
+      width: 9px;
+      height: 9px;
+    }
+
+    input {
+      font-size: 0.58rem;
+    }
+  }
+
+  .map-premium-dist-badge {
+    font-size: 0.58rem;
+    padding: 1px 5px;
+
+    svg {
+      width: 7px;
+      height: 7px;
+    }
+  }
+
+  .map-premium-chip {
+    padding: 3px 7px;
+    font-size: 0.58rem;
+
+    svg {
+      width: 9px;
+      height: 9px;
+    }
+  }
+
+  .map-premium-top-ui {
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .info-text {
+    font-size: 0.62rem;
+  }
+
+  .coverage-badge {
+    font-size: 0.67rem;
+  }
+
+  .btn-map-confirm {
+    padding: 7px;
+    font-size: 0.68rem;
+  }
 }
 
 /* ── Mobile Medium (430px) - iPhone 12/13 regular ── */
@@ -3518,6 +4297,150 @@
 
   .subtitle {
     font-size: 0.8rem;
+  }
+
+  /* Extreme internal scaling */
+  .text {
+    font-size: 0.7rem;
+  }
+
+  .btn {
+    font-size: 0.65rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .logo {
+    width: 50px;
+    height: 50px;
+    font-size: 1.6rem;
+    margin: 1.4rem auto 0.7rem;
+  }
+
+  .brand-logo {
+    width: 35px;
+    height: 35px;
+  }
+
+  .brand-title-img {
+    width: min(100%, 138px);
+  }
+
+  .fake-login-card {
+    width: min(100%, 185px);
+    padding: 0.3rem 0.38rem 0.2rem;
+  }
+
+  .fake-login-title {
+    font-size: 0.68rem;
+  }
+
+  .fake-tab {
+    font-size: 0.58rem;
+  }
+
+  .pr-title {
+    font-size: 0.74rem;
+    padding: 8px 7px 5px;
+  }
+
+  .pr-tabs {
+    margin: 0 7px 5px;
+  }
+
+  .pr-tab {
+    font-size: 0.58rem;
+  }
+
+  .pr-type-btn {
+    font-size: 0.55rem;
+    height: 20px;
+  }
+
+  .pr-type-row {
+    gap: 3px;
+    margin: 0 7px 5px;
+  }
+
+  .pr-field {
+    margin: 0 7px 5px;
+  }
+
+  .pr-input {
+    font-size: 0.55rem;
+    padding: 0 5px;
+    min-height: 24px;
+  }
+
+  .pr-checkbox-text {
+    font-size: 0.5rem;
+  }
+
+  .pr-cta {
+    font-size: 0.65rem;
+    min-height: 27px;
+    margin: 5px 7px;
+  }
+
+  .pr-social-btn {
+    min-height: 24px;
+    font-size: 0.55rem;
+  }
+
+  .verify-title {
+    font-size: 0.8rem;
+  }
+
+  .verify-description {
+    font-size: 0.58rem;
+  }
+
+  .doc-icon {
+    font-size: 1.8rem;
+  }
+
+  .doc-title {
+    font-size: 0.68rem;
+  }
+
+  .doc-desc {
+    font-size: 0.55rem;
+  }
+
+  .map-premium-header-title {
+    font-size: 0.8rem;
+  }
+
+  .map-premium-filter-badge,
+  .map-premium-search-btn {
+    width: 28px;
+    height: 28px;
+
+    svg {
+      width: 10px;
+      height: 10px;
+    }
+  }
+
+  .map-premium-dist-badge {
+    font-size: 0.55rem;
+  }
+
+  .map-premium-chip {
+    padding: 3px 6px;
+    font-size: 0.55rem;
+  }
+
+  .info-text {
+    font-size: 0.58rem;
+  }
+
+  .coverage-badge {
+    font-size: 0.64rem;
+  }
+
+  .btn-map-confirm {
+    padding: 6px;
+    font-size: 0.65rem;
   }
 }
 
@@ -3578,24 +4501,293 @@
     font-size: 0.75rem;
   }
 
-  /* Form elements optimization */
-  .pr-field,
-  .pr-tabs,
-  .pr-type-row {
+  /* Maximum internal scaling */
+  .text {
+    font-size: 0.65rem;
+  }
+
+  .btn {
+    font-size: 0.6rem;
+    padding: 0.45rem 0.7rem;
+    border-radius: 12px;
+  }
+
+  .logo {
+    width: 46px;
+    height: 46px;
+    font-size: 1.5rem;
+    margin: 1.2rem auto 0.6rem;
+  }
+
+  .brand-logo {
+    width: 32px;
+    height: 32px;
+  }
+
+  .brand-title-img {
+    width: min(100%, 126px);
+  }
+
+  .fake-login-card {
+    width: min(100%, 172px);
+    padding: 0.28rem 0.35rem 0.18rem;
+  }
+
+  .fake-login-title {
+    font-size: 0.64rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .fake-tabs {
+    gap: 0.15rem;
+  }
+
+  .fake-tab {
+    font-size: 0.55rem;
+    padding: 0.38rem 0.25rem;
+  }
+
+  .fake-input {
+    font-size: 0.54rem;
+  }
+
+  .fake-icon {
+    font-size: 0.8rem;
+  }
+
+  .pr-title {
     font-size: 0.7rem;
-    margin: 0 6px;
+    padding: 7px 6px 5px;
+    margin: 0;
+  }
+
+  .pr-tabs {
+    margin: 0 6px 5px;
+  }
+
+  .pr-tab {
+    font-size: 0.54rem;
+  }
+
+  .pr-type-btn {
+    font-size: 0.52rem;
+    height: 19px;
+  }
+
+  .pr-type-row {
+    gap: 3px;
+    margin: 0 6px 5px;
+  }
+
+  .pr-field {
+    margin: 0 6px 5px;
+  }
+
+  .pr-field-label {
+    font-size: 0.45rem;
   }
 
   .pr-input {
-    padding: 0.35rem 0.4rem;
-    font-size: 0.65rem;
+    font-size: 0.52rem;
+    padding: 0 5px;
+    min-height: 23px;
+    border-radius: 4px;
+  }
+
+  .pr-checkbox-row {
+    margin: 3px 6px 5px;
+    gap: 3px;
+  }
+
+  .pr-checkbox-box {
+    width: 7px;
+    height: 7px;
+  }
+
+  .pr-checkbox-text {
+    font-size: 0.48rem;
+    line-height: 1.3;
   }
 
   .pr-cta {
-    width: calc(100% - 12px);
-    margin: 0.5rem 6px;
-    padding: 0.5rem 0.8rem;
-    font-size: 0.65rem;
+    font-size: 0.62rem;
+    min-height: 26px;
+    margin: 4px 6px;
+    border-radius: 999px;
+  }
+
+  .pr-divider {
+    margin: 4px 6px;
+  }
+
+  .pr-divider-text {
+    font-size: 0.52rem;
+  }
+
+  .pr-social-row {
+    margin: 0 6px 7px;
+    gap: 4px;
+  }
+
+  .pr-social-btn {
+    min-height: 23px;
+    font-size: 0.52rem;
+    gap: 3px;
+  }
+
+  .pr-social-icon {
+    width: 8px;
+    height: 8px;
+  }
+
+  .s-identity-verify {
+    padding: 0.32rem 0.4rem 0.38rem;
+    gap: 0.42rem;
+  }
+
+  .verify-title {
+    font-size: 0.76rem;
+  }
+
+  .verify-description {
+    font-size: 0.55rem;
+  }
+
+  .step-badge {
+    font-size: 0.58rem;
+    padding: 0.25rem 0.45rem;
+  }
+
+  .doc-upload {
+    padding: 0.7rem;
+  }
+
+  .doc-icon {
+    font-size: 1.6rem;
+  }
+
+  .doc-title {
+    font-size: 0.64rem;
+  }
+
+  .doc-desc {
+    font-size: 0.52rem;
+  }
+
+  .check-item {
+    font-size: 0.62rem;
+  }
+
+  .btn-verify {
+    font-size: 0.68rem;
+    padding: 0.48rem;
+  }
+
+  .s-configure-services {
+    padding: 0.32rem 0.4rem 0.38rem;
+  }
+
+  .config-title {
+    font-size: 0.76rem;
+  }
+
+  .form-select,
+  .form-input {
+    font-size: 0.62rem;
+    padding: 0.38rem 0.48rem;
+  }
+
+  .map-premium-header-title {
+    font-size: 0.76rem;
+  }
+
+  .map-premium-filter-badge,
+  .map-premium-search-btn {
+    width: 26px;
+    height: 26px;
+
+    svg {
+      width: 9px;
+      height: 9px;
+    }
+  }
+
+  .map-premium-filter-badge {
+    font-size: 0.58rem;
+  }
+
+  .map-premium-search-bar {
+    padding: 3px 5px;
+    gap: 4px;
+  }
+
+  .map-premium-search-group {
+    padding: 2px 3px;
+
+    svg {
+      width: 8px;
+      height: 8px;
+    }
+
+    input {
+      font-size: 0.52rem;
+    }
+  }
+
+  .map-premium-dist-badge {
+    font-size: 0.52rem;
+    padding: 1px 4px;
+
+    svg {
+      width: 6px;
+      height: 6px;
+    }
+  }
+
+  .map-premium-chip {
+    padding: 2px 5px;
+    font-size: 0.52rem;
+
+    svg {
+      width: 8px;
+      height: 8px;
+    }
+  }
+
+  .map-premium-top-ui {
+    gap: 5px;
+    padding: 7px;
+  }
+
+  .info-box {
+    padding: 8px;
+  }
+
+  .info-text {
+    font-size: 0.54rem;
+    margin-bottom: 2px;
+  }
+
+  .coverage-badge {
+    font-size: 0.6rem;
+  }
+
+  .btn-map-confirm {
+    padding: 5px;
+    font-size: 0.62rem;
+    border-radius: 6px;
+  }
+
+  .prov-map-info {
+    bottom: 50px;
+    left: 6px;
+    right: 6px;
+  }
+
+  .prov-map-actions {
+    bottom: 6px;
+    left: 6px;
+    right: 6px;
   }
 }
 
@@ -3653,5 +4845,85 @@
     width: 5px;
     height: 5px;
     margin: 0 2px;
+  }
+
+  /* Minimal internal scaling */
+  .title {
+    font-size: 1rem;
+  }
+
+  .text {
+    font-size: 0.6rem;
+  }
+
+  .btn {
+    font-size: 0.55rem;
+    padding: 0.4rem 0.6rem;
+  }
+
+  .logo {
+    width: 42px;
+    height: 42px;
+    font-size: 1.4rem;
+    margin: 1rem auto 0.5rem;
+  }
+
+  .pr-title {
+    font-size: 0.65rem;
+    padding: 6px 5px 4px;
+  }
+
+  .pr-tab {
+    font-size: 0.5rem;
+  }
+
+  .pr-type-btn {
+    font-size: 0.48rem;
+    height: 18px;
+  }
+
+  .pr-input {
+    font-size: 0.48rem;
+    padding: 0 4px;
+    min-height: 22px;
+  }
+
+  .pr-cta {
+    font-size: 0.58rem;
+    min-height: 25px;
+  }
+
+  .pr-social-btn {
+    min-height: 22px;
+    font-size: 0.48rem;
+  }
+
+  .verify-title {
+    font-size: 0.7rem;
+  }
+
+  .doc-icon {
+    font-size: 1.4rem;
+  }
+
+  .map-premium-filter-badge,
+  .map-premium-search-btn {
+    width: 24px;
+    height: 24px;
+
+    svg {
+      width: 8px;
+      height: 8px;
+    }
+  }
+
+  .map-premium-chip {
+    padding: 2px 4px;
+    font-size: 0.48rem;
+  }
+
+  .btn-map-confirm {
+    padding: 4px;
+    font-size: 0.58rem;
   }
 }

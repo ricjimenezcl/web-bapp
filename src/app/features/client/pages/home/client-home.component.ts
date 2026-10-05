@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { Subject, takeUntil } from 'rxjs';
 
 interface StatItem {
   label: string;
@@ -29,6 +31,37 @@ interface BookingItem {
   state: 'Confirmada' | 'Pendiente' | 'Finalizada';
 }
 
+interface UserProfile {
+  id: string;
+  full_name: string;
+  email: string;
+}
+
+interface Booking {
+  id: string;
+  service_name: string;
+  provider_name: string;
+  scheduled_at: string;
+  status: string;
+  total_price: number;
+}
+
+interface Notification {
+  id: string;
+  sender_name: string;
+  content: string;
+  created_at: string;
+  is_read: boolean;
+}
+
+interface Transaction {
+  id: string;
+  product_name: string;
+  status: string;
+  activated_at: string;
+  expires_at: string;
+}
+
 @Component({
   selector: 'app-client-home',
   standalone: true,
@@ -40,13 +73,13 @@ interface BookingItem {
           <p class="eyebrow">Panel del cliente</p>
           <h1>Mi dashboard</h1>
         </div>
-        <button type="button" class="primary-action" routerLink="/client/categories">
+        <button type="button" class="primary-action" routerLink="/client/tabs/categories">
           Nueva búsqueda
         </button>
       </header>
 
       <section class="stats-grid" aria-label="Resumen del cliente">
-        <article class="stat-card stat-card--gold" *ngFor="let item of stats">
+        <article class="stat-card stat-card--gold" *ngFor="let item of stats()">
           <span class="stat-card__label">{{ item.label }}</span>
           <strong class="stat-card__value">{{ item.value }}</strong>
           <small class="stat-card__detail">{{ item.detail }}</small>
@@ -57,11 +90,11 @@ interface BookingItem {
         <article class="panel panel--wide">
           <div class="panel__header">
             <h2>Búsquedas recientes</h2>
-            <a routerLink="/client/categories">Ver todas</a>
+            <a routerLink="/client/tabs/categories">Ver todas</a>
           </div>
 
           <ul class="list">
-            <li class="list__item" *ngFor="let item of searches">
+            <li class="list__item" *ngFor="let item of searches()">
               <div class="list__main">
                 <span class="list__badge">{{ item.label.slice(0, 1) }}</span>
                 <div>
@@ -81,7 +114,7 @@ interface BookingItem {
           </div>
 
           <ul class="list compact">
-            <li class="list__item" *ngFor="let item of messages">
+            <li class="list__item" *ngFor="let item of messages()">
               <div class="list__main">
                 <span class="list__avatar">{{ item.name.slice(0, 1) }}</span>
                 <div>
@@ -106,10 +139,12 @@ interface BookingItem {
           </div>
 
           <ul class="list compact">
-            <li class="list__item booking" *ngFor="let item of bookings">
-              <div>
-                <strong>{{ item.title }}</strong>
-                <small>{{ item.client }}</small>
+            <li class="list__item booking" *ngFor="let item of bookings()">
+              <div class="list__main">
+                <div>
+                  <strong>{{ item.title }}</strong>
+                  <small>{{ item.client }}</small>
+                </div>
               </div>
               <div class="booking__meta">
                 <span>{{ item.date }}</span>
@@ -122,20 +157,24 @@ interface BookingItem {
         <article class="panel plan-panel">
           <div class="panel__header">
             <h2>Plan</h2>
-            <span>Activo</span>
+            <span>{{ activePlan()?.status || 'Sin plan' }}</span>
           </div>
 
           <div class="plan-box">
             <div class="plan-box__header">
-              <span class="plan-badge">BappSearch Pro</span>
-              <strong>$19.900</strong>
+              <span class="plan-badge">{{ activePlan()?.name || 'Plan Gratuito' }}</span>
             </div>
-            <ul>
-              <li>12 búsquedas activas por semana</li>
-              <li>Atención prioritaria</li>
-              <li>Sin límites por categoría</li>
+            <ul *ngIf="activePlan()">
+              <li>Plan activo desde {{ activePlan()?.startDate }}</li>
+              <li>Vence el {{ activePlan()?.endDate }}</li>
             </ul>
-            <button type="button" class="secondary-action">Gestionar plan</button>
+            <ul *ngIf="!activePlan()">
+              <li>Acceso básico sin límites</li>
+              <li>Atención estándar</li>
+            </ul>
+            <button type="button" class="secondary-action" routerLink="/payment">
+              {{ activePlan() ? 'Cambiar plan' : 'Activar premium' }}
+            </button>
           </div>
         </article>
       </section>
@@ -484,29 +523,171 @@ interface BookingItem {
     `
   ]
 })
-export class ClientHomeComponent {
-  readonly stats: StatItem[] = [
-    { label: 'Búsquedas', value: '24', detail: 'este mes', accent: 'gold' },
-    { label: 'Mensajes', value: '11', detail: 'nuevos', accent: 'blue' },
-    { label: 'Reservas', value: '6', detail: 'programadas', accent: 'green' },
-    { label: 'Plan', value: 'Pro', detail: 'activo', accent: 'gold' },
-  ];
+export class ClientHomeComponent implements OnInit, OnDestroy {
+  private readonly http = inject(HttpClient);
+  private readonly destroy$ = new Subject<void>();
 
-  readonly searches: SearchItem[] = [
-    { label: 'Plomería', time: 'Hace 2h', status: '2 proveedores disponibles' },
-    { label: 'Electricista', time: 'Ayer', status: '2 mensajes sin responder' },
-    { label: 'Limpieza', time: 'Hace 3 días', status: '1 reserva confirmada' },
-  ];
+  // Signals para datos
+  readonly stats = signal<StatItem[]>([]);
+  readonly searches = signal<SearchItem[]>([]);
+  readonly messages = signal<MessageItem[]>([]);
+  readonly bookings = signal<BookingItem[]>([]);
+  readonly activePlan = signal<any>(null);
+  readonly isLoading = signal(false);
 
-  readonly messages: MessageItem[] = [
-    { name: 'María', preview: '¿Puede venir hoy a las 18:00?', time: '5 min', unread: 2 },
-    { name: 'Javier', preview: 'Te envié la cotización final', time: '1 h', unread: 1 },
-    { name: 'Luz', preview: 'Gracias por elegirnos', time: 'Hoy', unread: 0 },
-  ];
+  ngOnInit(): void {
+    this.loadDashboardData();
+  }
 
-  readonly bookings: BookingItem[] = [
-    { title: 'Plomería de emergencia', client: 'Pedro Ruiz', date: 'Mañana · 18:00', state: 'Confirmada' },
-    { title: 'Limpieza profunda', client: 'Ana Soto', date: 'Jue · 10:30', state: 'Pendiente' },
-    { title: 'Reparación de grifería', client: 'Daniel Pérez', date: 'Vie · 16:00', state: 'Finalizada' },
-  ];
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private loadDashboardData(): void {
+    this.isLoading.set(true);
+
+    // Cargar datos de usuario y transacciones
+    this.loadUserStats();
+    this.loadBookings();
+    this.loadMessages();
+    this.loadPlanInfo();
+
+    // Simulamos un timeout para terminar loading
+    setTimeout(() => {
+      this.isLoading.set(false);
+    }, 1000);
+  }
+
+  private loadUserStats(): void {
+    this.http
+      .get<any>('/users/me')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (user) => {
+          const searchCount = 5;
+          const messageCount = 3;
+          const bookingCount = 1;
+          const planActive = user.has_premium ? 'Pro' : 'Gratuito';
+
+          this.stats.set([
+            { label: 'Búsquedas', value: `${searchCount}`, detail: 'este mes', accent: 'gold' },
+            { label: 'Mensajes', value: `${messageCount}`, detail: 'sin leer', accent: 'blue' },
+            { label: 'Reservas', value: `${bookingCount}`, detail: 'programadas', accent: 'green' },
+            { label: 'Plan', value: planActive, detail: user.has_premium ? 'activo' : 'gratuito', accent: 'gold' },
+          ]);
+        },
+        error: (err) => console.error('Error loading user stats:', err)
+      });
+  }
+
+  private loadBookings(): void {
+    this.http
+      .get<any[]>('/bookings', { params: { limit: '3' } })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (bookings) => {
+          const bookingItems: BookingItem[] = (bookings || []).slice(0, 3).map((b) => ({
+            title: b.service_name || 'Servicio',
+            client: b.provider_name || 'Proveedor',
+            date: this.formatDate(b.scheduled_at),
+            state: this.mapBookingStatus(b.status) as 'Confirmada' | 'Pendiente' | 'Finalizada',
+          }));
+
+          this.bookings.set(bookingItems);
+        },
+        error: (err) => {
+          console.error('Error loading bookings:', err);
+          this.bookings.set([]);
+        }
+      });
+  }
+
+  private loadMessages(): void {
+    this.http
+      .get<any[]>('/notifications', { params: { limit: '3' } })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (notifications) => {
+          const messageItems: MessageItem[] = (notifications || []).slice(0, 3).map((n) => ({
+            name: n.sender_name || 'Usuario',
+            preview: n.content?.substring(0, 40) || 'Nuevo mensaje',
+            time: this.formatTimeAgo(n.created_at),
+            unread: n.is_read ? 0 : 1,
+          }));
+
+          this.messages.set(messageItems);
+        },
+        error: (err) => {
+          console.error('Error loading messages:', err);
+          this.messages.set([]);
+        }
+      });
+  }
+
+  private loadPlanInfo(): void {
+    this.http
+      .get<any[]>('/transactions/me')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (transactions) => {
+          const activeTx = (transactions || []).find(
+            (t) => t.status === 'completed' && new Date(t.expires_at) > new Date()
+          );
+
+          if (activeTx) {
+            this.activePlan.set({
+              name: activeTx.product_name || 'Plan Premium',
+              status: 'Activo',
+              startDate: this.formatDate(activeTx.activated_at),
+              endDate: this.formatDate(activeTx.expires_at),
+            });
+          } else {
+            this.activePlan.set(null);
+          }
+        },
+        error: (err) => {
+          console.error('Error loading plan info:', err);
+          this.activePlan.set(null);
+        }
+      });
+  }
+
+  private formatDate(dateString: string | undefined): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  private formatTimeAgo(dateString: string | undefined): string {
+    if (!dateString) return 'Hace poco';
+
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'Ahora';
+    if (diffMins < 60) return `Hace ${diffMins}m`;
+    if (diffHours < 24) return `Hace ${diffHours}h`;
+    if (diffDays < 7) return `Hace ${diffDays}d`;
+
+    return date.toLocaleDateString('es-ES');
+  }
+
+  private mapBookingStatus(status: string): string {
+    const statusMap: Record<string, string> = {
+      'APPROVED': 'Confirmada',
+      'CONFIRMED': 'Confirmada',
+      'PENDING': 'Pendiente',
+      'COMPLETED': 'Finalizada',
+      'FINISHED': 'Finalizada',
+      'CANCELLED': 'Cancelada'
+    };
+    return statusMap[status?.toUpperCase()] || 'Pendiente';
+  }
+
+
 }

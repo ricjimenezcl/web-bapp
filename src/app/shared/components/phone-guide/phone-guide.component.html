@@ -96,16 +96,6 @@
                 </button>
               </header>
 
-              <button type="button" class="category-location" data-anim>
-                <span class="category-location__icon">📍</span>
-                <span>Tu ubicación actual</span>
-                <span class="category-location__chevron">⌄</span>
-              </button>
-
-              <button type="button" class="category-map" data-anim>
-                <span class="category-map__icon">📍</span>
-                <span>Elegir ubicación en el mapa</span>
-              </button>
 
               <div class="category-search" data-anim>
                 <span class="category-search__icon">⌕</span>
@@ -125,7 +115,7 @@
 
                 <div class="category-grid">
                   @for (tile of categoryTiles; track tile.label) {
-                    <button type="button" class="category-tile" data-anim>
+                    <button type="button" data-anim>
                       <span class="category-tile__icon">{{ tile.icon }}</span>
                       <span class="category-tile__label">{{ tile.label }}</span>
                     </button>
@@ -142,85 +132,357 @@
 
           <!-- 2 · Verificación -->
           @case (2) {
-            <div class="s-verify">
-              <h3 class="title is-hidden" data-anim>Verifica tu correo</h3>
-              <p class="text is-hidden" data-anim>Enviamos un código a camila&#64;correo.cl</p>
-
-              <div class="digits">
-                @for (d of code; track $index) {
-                  <span class="digit is-hidden" data-digit>{{ d }}</span>
-                }
-              </div>
-
-              <div class="badge is-hidden" data-badge>Cuenta verificada</div>
-            </div>
-          }
-
-          <!-- 3 · Intereses -->
-          @case (3) {
-            <div class="s-chips">
-              <h3 class="title is-hidden" data-anim>¿Qué buscas?</h3>
-              <p class="text text--tight is-hidden" data-anim>Elige una o más categorías.</p>
-
-              <div class="chips">
-                @for (c of chips; track c.label) {
-                  <span class="chip is-hidden" data-anim [attr.data-chip-on]="c.on ? '' : null">{{ c.label }}</span>
-                }
-              </div>
-
-              <button type="button" tabindex="-1" class="btn btn--dark btn--bottom is-hidden" data-anim>Continuar</button>
-            </div>
-          }
-
-          <!-- 4 · Explorar -->
-          @case (4) {
-            <div class="s-explore">
-              <div class="search is-hidden" data-anim>Buscar en la plataforma</div>
-
-              @for (r of results; track r.name) {
-                <div class="result is-hidden" data-anim>
-                  <div class="result__head">
-                    <span class="avatar">{{ r.name[0] }}</span>
-                    <div>
-                      <p class="result__name">{{ r.name }}</p>
-                      <p class="result__role">{{ r.role }}</p>
-                    </div>
-                  </div>
-                  <div class="match">
-                    <div class="match__track">
-                      <div class="match__fill" data-bar [attr.data-w]="r.match"></div>
-                    </div>
-                    <span class="match__value">{{ r.match }}%</span>
+            <div class="s-map-search">
+              <!-- Header -->
+              <div class="map-header is-hidden" data-anim>
+                <div class="map-header-top">
+                  <h3 class="map-title">Proveedores</h3>
+                  <div class="map-header-actions">
+                    <span class="filter-badge">
+                      ⚙️ 3
+                    </span>
+                    <button type="button" tabindex="-1" class="profile-btn">
+                      👤
+                    </button>
                   </div>
                 </div>
-              }
+
+                <!-- View Toggle -->
+                <div class="map-view-toggle is-hidden" data-anim>
+                  <button type="button" tabindex="-1" class="toggle-btn active">
+                    🗺️ Mapa
+                  </button>
+                  <button type="button" tabindex="-1" class="toggle-btn">
+                    ☰ Proveedores
+                  </button>
+                </div>
+
+                <!-- Filter Buttons -->
+                <div class="map-filters is-hidden" data-anim>
+                  <button type="button" tabindex="-1" class="filter-btn active">Más Cercanos</button>
+                  <button type="button" tabindex="-1" class="filter-btn">Mejor Calificados</button>
+                </div>
+
+                <!-- Map Theme -->
+                <div class="map-theme is-hidden" data-anim>
+                  <button type="button" tabindex="-1" class="theme-btn">Calles</button>
+                  <button type="button" tabindex="-1" class="theme-btn">Claro</button>
+                  <button type="button" tabindex="-1" class="theme-btn active">Oscuro</button>
+                </div>
+              </div>
+
+              <!-- Map Container -->
+              <div class="map-container is-hidden" data-anim>
+                <div class="map-bg" style="background-image: url('https://res.cloudinary.com/dghwotofx/image/upload/v1789862345/fondo_cwqh4i.png');"></div>
+
+
+                <!-- Map Markers (decorativo) -->
+                <div class="map-markers">
+                  <img 
+                    src="https://res.cloudinary.com/dghwotofx/image/upload/v1789871024/pin_ubicacion_j7u7ov.svg"
+                    alt="Ubicación usuario"
+                    class="marker marker-provider"
+                    style="top: 40%; left: 40%;"
+                  />
+                  <img 
+                    src="https://res.cloudinary.com/dghwotofx/image/upload/v1782705912/ubi_prov_1_o7rzel.svg"
+                    alt="Ubicación proveedor"
+                    class="marker marker-service"
+                    style="top: 58%; left: 62%;"
+                  />
+                </div>
+
+
+               
+                <!-- Bottom Navigation -->
+                <div class="map-navbar is-hidden" data-anim>
+                  <button type="button" tabindex="-1" class="nav-item active">
+                    🏠
+                  </button>
+                  <button type="button" tabindex="-1" class="nav-item">
+                    ☰
+                  </button>
+                  <button type="button" tabindex="-1" class="nav-item">
+                    📅
+                  </button>
+                  <button type="button" tabindex="-1" class="nav-item">
+                    🔍
+                  </button>
+                  <button type="button" tabindex="-1" class="nav-item">
+                    💬
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- 3 · Revisa los Servicios -->
+          @case (3) {
+            <div class="s-provider-detail">
+              <!-- Header: Avatar, Nombre, Rating -->
+              <div class="provider-header is-hidden" data-anim>
+                <button type="button" tabindex="-1" class="back-btn">←</button>
+                <div class="provider-avatar">
+                  <span class="avatar-char">J</span>
+                </div>
+              </div>
+
+              <div class="provider-info is-hidden" data-anim>
+                <h3 class="provider-name">Juan Martínez</h3>
+                <div class="provider-meta">
+                  ⭐ <span class="rating">4.8</span>
+                  <span class="divider">·</span>
+                  <span class="distance">2.3 km</span>
+                </div>
+              </div>
+
+              <!-- Stats Bar -->
+              <div class="provider-stats is-hidden" data-anim>
+                <div class="stat-item">
+                  <div class="stat-value">24</div>
+                  <div class="stat-label">Reseñas</div>
+                </div>
+                <div class="stat-item stat-sep">
+                  <div class="stat-value">4.8</div>
+                  <div class="stat-label">Rating</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">$45</div>
+                  <div class="stat-label">Por hora</div>
+                </div>
+              </div>
+
+              <!-- Tab Pills -->
+              <div class="provider-tabs is-hidden" data-anim>
+                <button type="button" tabindex="-1" class="tab-pill active">Perfil</button>
+                <button type="button" tabindex="-1" class="tab-pill">Reseñas</button>
+                <button type="button" tabindex="-1" class="tab-pill">Contacto</button>
+              </div>
+
+              <!-- Content Section -->
+              <div class="provider-content is-hidden" data-anim>
+                <div class="content-section">
+                  <h4 class="section-title">Sobre el proveedor</h4>
+                  <p class="section-text">Profesional en servicios generales con más de 5 años de experiencia. Especializado en reparaciones y mantenimiento.</p>
+                </div>
+
+                <div class="content-section">
+                  <h4 class="section-title">Portafolio</h4>
+                  <div class="portfolio-grid">
+                    <div class="portfolio-item">📸</div>
+                    <div class="portfolio-item">📸</div>
+                    <div class="portfolio-item">📸</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="provider-actions is-hidden" data-anim>
+                <button type="button" tabindex="-1" class="action-btn btn-secondary">💬 Mensaje</button>
+                <button type="button" tabindex="-1" class="action-btn btn-primary">📅 Reservar</button>
+              </div>
+            </div>
+          }
+
+          <!-- 4 · Chatea y Agenda -->
+          @case (4) {
+            <div class="s-booking-modal">
+              <!-- Header con avatar -->
+              <div class="booking-header is-hidden" data-anim>
+                <button type="button" tabindex="-1" class="close-btn">✕</button>
+                <div class="booking-avatar">
+                  <span class="avatar-initial">J</span>
+                  <span class="online-indicator"></span>
+                </div>
+              </div>
+
+              <!-- Título -->
+              <div class="booking-title-section is-hidden" data-anim>
+                <h3 class="booking-title">Reservar Servicio</h3>
+              </div>
+
+              <!-- Resumen proveedor -->
+              <div class="booking-summary is-hidden" data-anim>
+                <div class="summary-icon">🏢</div>
+                <div class="summary-info">
+                  <div class="summary-name">barber</div>
+                  <div class="summary-rate">$45/hora</div>
+                </div>
+              </div>
+
+              <!-- Sección Fecha -->
+              <div class="booking-section is-hidden" data-anim>
+                <div class="booking-label">📅 Fecha</div>
+                <div class="date-picker">
+                  <button type="button" tabindex="-1" class="date-btn">
+                    <span class="date-day">LUN</span>
+                    <span class="date-num">5</span>
+                    <span class="date-month">Oct</span>
+                  </button>
+                  <button type="button" tabindex="-1" class="date-btn">
+                    <span class="date-day">MAR</span>
+                    <span class="date-num">6</span>
+                    <span class="date-month">Oct</span>
+                  </button>
+                  <button type="button" tabindex="-1" class="date-btn active">
+                    <span class="date-day">MIÉ</span>
+                    <span class="date-num">7</span>
+                    <span class="date-month">Oct</span>
+                  </button>
+                  <button type="button" tabindex="-1" class="date-btn">
+                    <span class="date-day">JUE</span>
+                    <span class="date-num">8</span>
+                    <span class="date-month">Oct</span>
+                  </button>
+                  <button type="button" tabindex="-1" class="date-btn">
+                    <span class="date-day">VIE</span>
+                    <span class="date-num">9</span>
+                    <span class="date-month">Oct</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Sección Hora -->
+              <div class="booking-section is-hidden" data-anim>
+                <div class="booking-label">⏰ Hora disponible</div>
+                <div class="time-slots">
+                  <button type="button" tabindex="-1" class="time-slot">09:00</button>
+                  <button type="button" tabindex="-1" class="time-slot">10:00</button>
+                  <button type="button" tabindex="-1" class="time-slot">11:00</button>
+                  <button type="button" tabindex="-1" class="time-slot">12:00</button>
+                  <button type="button" tabindex="-1" class="time-slot">13:00</button>
+                  <button type="button" tabindex="-1" class="time-slot">14:00</button>
+                  <button type="button" tabindex="-1" class="time-slot">15:00</button>
+                  <button type="button" tabindex="-1" class="time-slot">16:00</button>
+                </div>
+              </div>
+
+              <!-- Sección Ubicación -->
+              <div class="booking-section is-hidden" data-anim>
+                <div class="booking-label">📍 Ubicación del servicio</div>
+                <div class="location-input">
+                  <span class="location-icon">📍</span>
+                  <input type="text" placeholder="Ingresa tu dirección" class="booking-input" />
+                </div>
+              </div>
+
+              <!-- Sección Notas -->
+              <div class="booking-section is-hidden" data-anim>
+                <div class="booking-label">📝 Notas (opcional)</div>
+                <textarea class="booking-textarea" placeholder="Describe brevemente lo que necesitas..."></textarea>
+              </div>
+
+              <!-- Botón Confirmar -->
+              <div class="booking-actions is-hidden" data-anim>
+                <button type="button" tabindex="-1" class="btn-confirm">✓ Confirmar Reserva</button>
+              </div>
             </div>
           }
 
           <!-- 5 · Navegación -->
           @case (5) {
-            <div class="s-panel">
-              <h3 class="title is-hidden" data-anim>Tu panel</h3>
-
-              <div class="stats">
-                <div class="stat stat--primary is-hidden" data-anim>
-                  <p class="stat__value">12</p>
-                  <p class="stat__label">Guardados</p>
-                </div>
-                <div class="stat is-hidden" data-anim>
-                  <p class="stat__value">3</p>
-                  <p class="stat__label">Mensajes nuevos</p>
+            <div class="s-bookings">
+              <!-- Header -->
+              <div class="bookings-header is-hidden" data-anim>
+                <h3 class="bookings-title">Mis reservas</h3>
+                <div class="bookings-controls">
+                  <button type="button" tabindex="-1" class="bookings-control-btn">🔍</button>
+                  <button type="button" tabindex="-1" class="bookings-control-btn">
+                    <span class="control-badge">3</span>
+                  </button>
                 </div>
               </div>
 
-              <div class="note is-hidden" data-anim>Toca una pestaña para moverte por la plataforma.</div>
+              <!-- Tabs -->
+              <div class="bookings-tabs is-hidden" data-anim>
+                <button type="button" class="tab-btn">Próximas</button>
+                <button type="button" class="tab-btn tab-btn--active">Pendientes</button>
+                <button type="button" class="tab-btn">Canceladas</button>
+              </div>
 
-              <nav class="tabbar" aria-hidden="true">
-                <span class="tabbar__pill" data-pill></span>
-                @for (t of tabs; track t) {
-                  <span class="tabbar__item">{{ t }}</span>
-                }
-              </nav>
+              <!-- Booking Cards Container -->
+              <div class="bookings-list">
+                <!-- Booking Card 1 -->
+                <div class="booking-card is-hidden" data-anim>
+                  <div class="booking-card__header">
+                    <span class="booking-icon">🔧</span>
+                    <div class="booking-header-info">
+                      <div class="booking-service">Coloración y mechas</div>
+                      <div class="booking-status">COMPLETADA</div>
+                    </div>
+                  </div>
+                  <div class="booking-details">
+                    <div class="detail-item">
+                      <span class="detail-radio">○</span>
+                      <span>Mi ubicación actual</span>
+                    </div>
+                    <div class="detail-item">
+                      <span class="detail-radio">○</span>
+                      <span>10/06/2026 - 09:00:00</span>
+                    </div>
+                    <div class="detail-item">
+                      <span class="detail-radio">○</span>
+                      <span>$0</span>
+                    </div>
+                    <div class="detail-item">
+                      <span class="detail-radio">○</span>
+                      <span>Hola</span>
+                    </div>
+                  </div>
+                  <button type="button" tabindex="-1" class="btn-rate">⭐ Calificar servicio</button>
+                </div>
+
+                <!-- Booking Card 2 -->
+                <div class="booking-card is-hidden" data-anim>
+                  <div class="booking-card__header">
+                    <span class="booking-icon">🔧</span>
+                    <div class="booking-header-info">
+                      <div class="booking-service">Coloración y mechas</div>
+                      <div class="booking-status">COMPLETADA</div>
+                    </div>
+                  </div>
+                  <div class="booking-details">
+                    <div class="detail-item">
+                      <span class="detail-radio">○</span>
+                      <span>Mi ubicación actual</span>
+                    </div>
+                    <div class="detail-item">
+                      <span class="detail-radio">○</span>
+                      <span>10/06/2026 - 09:00:00</span>
+                    </div>
+                    <div class="detail-item">
+                      <span class="detail-radio">○</span>
+                      <span>$0</span>
+                    </div>
+                    <div class="detail-item">
+                      <span class="detail-radio">○</span>
+                      <span>Hola</span>
+                    </div>
+                  </div>
+                  <button type="button" tabindex="-1" class="btn-rate">⭐ Calificar servicio</button>
+                </div>
+              </div>
+
+              <!-- Rating Modal -->
+              <div class="rating-modal is-hidden" data-anim>
+                <div class="rating-modal__header">
+                  <span class="rating-icon">⭐</span>
+                  <div>
+                    <div class="rating-title">Califica el servicio</div>
+                    <div class="rating-subtitle">Tu opinión ayuda a otros usuarios</div>
+                  </div>
+                  <button type="button" tabindex="-1" class="rating-close">✕</button>
+                </div>
+                <div class="rating-question">¿Cómo calificarías el servicio?</div>
+                <div class="rating-stars">
+                  <button type="button" tabindex="-1" class="star">⭐</button>
+                  <button type="button" tabindex="-1" class="star">⭐</button>
+                  <button type="button" tabindex="-1" class="star">⭐</button>
+                  <button type="button" tabindex="-1" class="star">⭐</button>
+                  <button type="button" tabindex="-1" class="star">⭐</button>
+                </div>
+                <div class="rating-feedback">¡Excelente!</div>
+              </div>
             </div>
           }
         }

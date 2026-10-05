@@ -2192,13 +2192,13 @@
 .pr-card {
   flex: 1;
   background: rgba(0, 0, 0, 0.5);
-  border-radius: 6px;
-  padding: 10px 10px 16px;
+  border-radius: 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 0;
-  margin: 0.5rem;
-  max-height: calc(100% - 1rem);
+  width: 100%;
+  height: 100%;
   overflow-y: auto;
   padding-right: 0.2rem;
 
@@ -2221,14 +2221,15 @@
   font-size: 0.9rem;
   font-weight: 800;
   text-align: center;
-  margin: 0 0 8px;
+  margin: 0;
+  padding: 12px 10px 8px;
 }
 
 // Tabs
 .pr-tabs {
   display: flex;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  margin-bottom: 8px;
+  margin: 0 10px 8px;
 }
 
 .pr-tab {
@@ -2252,7 +2253,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 5px;
-  margin-bottom: 7px;
+  margin: 0 10px 7px;
 }
 
 .pr-type-btn {
@@ -2278,7 +2279,7 @@
 
 // Campos
 .pr-field {
-  margin-bottom: 8px;
+  margin: 0 10px 8px;
 }
 
 .pr-field-label {
@@ -2333,7 +2334,7 @@
   display: flex;
   align-items: flex-start;
   gap: 6px;
-  margin: 6px 0 8px;
+  margin: 6px 10px 8px;
 }
 
 .pr-checkbox-box {
@@ -2360,7 +2361,7 @@
 
 // CTA
 .pr-cta {
-  width: 100%;
+  width: calc(100% - 20px);
   min-height: 32px;
   background: linear-gradient(135deg, #d7c785, #b89e5d);
   color: #1f1b12;
@@ -2371,7 +2372,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 8px;
+  margin: 8px 10px;
   cursor: pointer;
   transition: all 0.2s;
 
@@ -2385,7 +2386,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 8px;
+  margin: 8px 10px;
 }
 
 .pr-divider-line {
@@ -2406,6 +2407,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 6px;
+  margin: 0 10px 10px;
 }
 
 .pr-social-btn {

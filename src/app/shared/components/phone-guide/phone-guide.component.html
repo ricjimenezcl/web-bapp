@@ -723,10 +723,7 @@
                   </div>
                 </div>
 
-                <!-- Botón de acción -->
-                <div class="prov-map-actions is-hidden" data-anim>
-                  <button type="button" class="btn-map-confirm" tabindex="-1">Activar visibilidad →</button>
-                </div>
+         
               </div>
             }
 
@@ -863,11 +860,11 @@
     </div>
 
     <div class="controls">
-      <button type="button" class="ctl" [disabled]="step() === 0" (click)="go(step() - 1)">Anterior</button>
-      <button type="button" class="ctl" [attr.aria-pressed]="playing()" (click)="toggle()">
+      <button class="btn-crypgo btn-primary-crypgo bg-crypgo-primary border border-crypgo-primary rounded-lg text-16 font-medium hover:bg-transparent hover:text-crypgo-primary text-crypgo-darkmode py-2 px-6 transition-all duration-300 inline-block" [disabled]="step() === 0" (click)="go(step() - 1)">Anterior</button>
+      <button class="btn-crypgo btn-primary-crypgo bg-crypgo-primary border border-crypgo-primary rounded-lg text-16 font-medium hover:bg-transparent hover:text-crypgo-primary text-crypgo-darkmode py-2 px-6 transition-all duration-300 inline-block" [attr.aria-pressed]="playing()" (click)="toggle()">
         {{ playing() ? 'Pausar' : 'Reproducir' }}
       </button>
-      <button type="button" class="ctl ctl--primary" [disabled]="step() === steps.length - 1" (click)="go(step() + 1)">
+      <button class="btn-crypgo btn-primary-crypgo bg-crypgo-primary border border-crypgo-primary rounded-lg text-16 font-medium hover:bg-transparent hover:text-crypgo-primary text-crypgo-darkmode py-2 px-6 transition-all duration-300 inline-block" [disabled]="step() === steps.length - 1" (click)="go(step() + 1)">
         Siguiente
       </button>
     </div>

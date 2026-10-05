@@ -294,49 +294,7 @@
 </section>
 
 
-<section class="py-20 bg-crypgo-deepSlate relative overflow-hidden" id="phone-guides">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-    <div class="text-center mb-12 reveal reveal--up">
-      <p class="text-crypgo-primary text-lg mb-4">Guías por perfil</p>
-      <h2 class="text-44 md:text-54 font-bold text-white mb-4">Selecciona tu experiencia</h2>
-      <p class="text-gray-400 text-lg max-w-2xl mx-auto">
-        Mira la guía que corresponde a tu perfil y descubre cómo funciona BappSearch.
-      </p>
-    </div>
 
-    <div class="flex justify-center mb-12 reveal reveal--up reveal-d1">
-      <div class="toggle-track">
-        <div class="toggle-pill" [style.transform]="guideTab() === 'client' ? 'translateX(0%)' : 'translateX(100%)'"></div>
-        <button type="button" class="toggle-btn"
-                [class.text-white]="guideTab() === 'client'"
-                [class.text-gray-500]="guideTab() !== 'client'"
-                (click)="setGuideTab('client')">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-          </svg>
-          Soy Cliente
-        </button>
-        <button type="button" class="toggle-btn"
-                [class.text-white]="guideTab() === 'provider'"
-                [class.text-gray-500]="guideTab() !== 'provider'"
-                (click)="setGuideTab('provider')">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-          </svg>
-          Soy Proveedor
-        </button>
-      </div>
-    </div>
-
-    <div class="reveal reveal--up reveal-d2">
-      @if (guideTab() === 'client') {
-        <app-phone-guide variant="client"></app-phone-guide>
-      } @else {
-        <app-phone-guide variant="provider"></app-phone-guide>
-      }
-    </div>
-  </div>
-</section>
 
 <!-- 3D INTERACTIVE ARCHITECTURE SECTION -->
 <section class="py-20 bg-crypgo-darkmode relative overflow-hidden min-h-screen flex items-center justify-center z-10" style="perspective: 1200px;">
@@ -472,7 +430,52 @@
 
 
 <!-- HOW IT WORKS SECTION -->
+
 <section class="py-20 bg-crypgo-deepSlate relative overflow-hidden" id="how-it-works">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center mb-12">
+      <p class="text-crypgo-primary text-lg mb-4 reveal reveal--up">Guías Interactivas</p>
+      <h2 class="text-44 md:text-54 font-bold text-white mb-4 reveal reveal--up reveal-d1">¿Cómo Funciona?</h2>
+      <p class="text-gray-400 text-lg max-w-2xl mx-auto reveal reveal--up reveal-d2">
+        Descubre cómo usar BappSearch según tu perfil
+      </p>
+    </div>
+
+    <div class="flex justify-center mb-12 reveal reveal--up reveal-d1">
+      <div class="toggle-track">
+        <div class="toggle-pill" [style.transform]="guideTab() === 'client' ? 'translateX(0%)' : 'translateX(100%)'"></div>
+        <button type="button" class="toggle-btn"
+                [class.text-white]="guideTab() === 'client'"
+                [class.text-gray-500]="guideTab() !== 'client'"
+                (click)="setGuideTab('client')">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+          </svg>
+          Soy Cliente
+        </button>
+        <button type="button" class="toggle-btn"
+                [class.text-white]="guideTab() === 'provider'"
+                [class.text-gray-500]="guideTab() !== 'provider'"
+                (click)="setGuideTab('provider')">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+          Soy Proveedor
+        </button>
+      </div>
+    </div>
+
+    <div class="reveal reveal--up reveal-d2">
+      @if (guideTab() === 'client') {
+        <app-phone-guide variant="client"></app-phone-guide>
+      } @else {
+        <app-phone-guide variant="provider"></app-phone-guide>
+      }
+    </div>
+  </div>
+</section>
+ 
+<!-- <section class="py-20 bg-crypgo-deepSlate relative overflow-hidden" id="how-it-works">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
     <div class="text-center mb-12">
       <p class="text-crypgo-primary text-lg mb-4 reveal reveal--up">Guías Interactivas</p>
@@ -482,7 +485,7 @@
       </p>
     </div>
 
-    <!-- Toggle Modernos (Pills) -->
+  
     <div class="flex justify-center mb-16 reveal reveal--up reveal-d3">
       <div class="toggle-track">
         <div class="toggle-pill" [style.transform]="guideTab() === 'client' ? 'translateX(0%)' : 'translateX(100%)'"></div>
@@ -507,7 +510,7 @@
       </div>
     </div>
 
-    <!-- Acordeón Interactivo -->
+  
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="accordion-wrapper reveal reveal--up reveal-d4">
         @if (guideTab() === 'client') {
@@ -518,12 +521,12 @@
                     [attr.aria-label]="'Ver paso ' + step.id + ': ' + step.title"
                     [attr.aria-expanded]="activeAccordion() === idx">
               
-              <!-- Vista Comprimida -->
+     
               <div class="acc-collapsed">
                 <span class="vertical-text">{{ step.title }}</span>
               </div>
 
-              <!-- Vista Expandida -->
+         
               <div class="acc-expanded">
                 <div class="acc-text-content">
                   <div class="step-number-big" [style.color]="step.color">{{ step.id }}</div>
@@ -567,12 +570,11 @@
                     [attr.aria-label]="'Ver paso ' + step.id + ': ' + step.title"
                     [attr.aria-expanded]="activeAccordion() === idx">
               
-              <!-- Vista Comprimida -->
+         
               <div class="acc-collapsed">
                 <span class="vertical-text">{{ step.title }}</span>
               </div>
 
-              <!-- Vista Expandida -->
               <div class="acc-expanded">
                 <div class="acc-text-content">
                   <div class="step-number-big" [style.color]="step.color">{{ step.id }}</div>
@@ -611,10 +613,10 @@
     </div>
   </div>
   
-  <!-- Gradient Orb Secondary -->
+
   <div class="gradient-orb gradient-orb-secondary absolute w-[600px] h-[600px] top-1/2 -right-32 -z-1 opacity-30"></div>
   <div class="gradient-orb gradient-orb-primary absolute w-[500px] h-[500px] bottom-0 -left-32 -z-1 opacity-20"></div>
-</section>
+</section> -->
 
 <!-- SERVICES SECTION -->
 <section class="py-20 bg-crypgo-darkmode relative overflow-hidden" id="services">

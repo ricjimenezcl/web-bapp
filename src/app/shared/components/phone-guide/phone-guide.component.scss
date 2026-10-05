@@ -4,19 +4,8 @@
 }
 
 .guide {
-  --bg-0: #06111d;
-  --bg-1: rgba(49, 84, 255, 0.18);
-  --bg-2: rgba(255, 255, 255, 0.04);
-  --panel: rgba(11, 19, 31, 0.74);
-  --panel-strong: rgba(10, 15, 25, 0.92);
-  --line: rgba(255, 255, 255, 0.14);
-  --text: #f6f9ff;
-  --muted: #b8c4d9;
-  --soft: #e9eefb;
-  --blue: #2d5bff;
-  --blue-2: #6ca8ff;
-  --green: #34d399;
-  --shadow: 0 30px 80px rgba(9, 19, 35, 0.55);
+
+
 
   display: grid;
   grid-template-columns: minmax(290px, 440px) minmax(260px, 1fr);
@@ -25,14 +14,8 @@
   max-width: 1200px;
   margin: clamp(2rem, 6vw, 4rem) auto;
   padding: clamp(1.5rem, 3vw, 2.5rem);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 34px;
-  background:
-    radial-gradient(circle at top left, rgba(69, 120, 255, 0.25), transparent 35%),
-    radial-gradient(circle at bottom right, rgba(31, 232, 199, 0.22), transparent 30%),
-    rgba(5, 11, 22, 0.72);
-  box-shadow: var(--shadow);
-  overflow: hidden;
+
+
 }
 
 .phone {
@@ -2924,6 +2907,19 @@
   padding: 0.4rem 0.5rem 0.45rem;
   overflow-y: auto;
   max-height: 100%;
+
+    &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+  }
 }
 
 .requests-header {

@@ -33,7 +33,7 @@ const PROVIDER_STEPS: Step[] = [
   { title: 'Regístrate como proveedor', description: 'Crea un perfil comercial atractivo y define tus servicios y tu cobertura en segundos.' },
   { title: 'Valida tu identidad', description: 'Sube tu documentación y genera confianza con un perfil verificado ante los clientes.' },
   { title: 'Configura tus servicios', description: 'Selecciona tus especialidades, sube fotos de trabajos anteriores y establece tu disponibilidad.' },
-  { title: 'Aparece en el mapa', description: 'Hazte visible para clientes cercanos y conviértete en una opción destacada del sector.' },
+  { title: 'Aparece en el mapa', description: 'Hazte visible en el radar de los clientes que buscan servicios exactamente en tu sector.' },
   { title: 'Recibe solicitudes', description: 'Gestiona mensajes y agendamientos de forma rápida para cerrar más trabajos con clientes.' },
   { title: 'Ejecuta y crece', description: 'Realiza tu trabajo, recibe reseñas y construye tu reputación dentro de la comunidad.' },
 ];

@@ -2200,6 +2200,20 @@
   margin: 0.5rem;
   max-height: calc(100% - 1rem);
   overflow-y: auto;
+  padding-right: 0.2rem;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+  }
 }
 
 .pr-title {

@@ -986,3 +986,47 @@ dialog.services-modal-backdrop::backdrop {
     gap: 1rem;
   }
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RESPONSIVE IMPROVEMENTS - Hero Section Mockup
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Make mockup visible on tablets (md breakpoint: 768px+)
+@media (min-width: 768px) and (max-width: 1023px) {
+  // Show mockup container on tablets
+  .relative.hidden.lg\:flex {
+    display: flex !important;
+  }
+
+  // Reduce phone-mockup size on tablets
+  .phone-mockup {
+    width: 220px;
+    height: 453px;
+    transform: translateZ(0) rotateY(-3deg) rotateX(1deg);
+  }
+
+  // Adjust grid for better space distribution
+  .grid.lg\:grid-cols-2 {
+    gap: 1.5rem;
+  }
+}
+
+// Optimize for smaller tablets (md breakpoint: around 640px-767px)
+@media (min-width: 640px) and (max-width: 767px) {
+  // Show mockup container
+  .relative.hidden.lg\:flex {
+    display: flex !important;
+  }
+
+  // Further reduce mockup size for smaller tablets
+  .phone-mockup {
+    width: 190px;
+    height: 391px;
+    transform: translateZ(0) rotateY(-2deg) rotateX(1deg);
+  }
+
+  // Tighter gap on smaller tablets
+  .grid.lg\:grid-cols-2 {
+    gap: 1rem;
+  }
+}

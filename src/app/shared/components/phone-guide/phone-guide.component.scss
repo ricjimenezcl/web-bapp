@@ -3333,6 +3333,40 @@
   .dots {
     justify-content: center;
   }
+
+  /* Dots navigation scaling */
+  .dots {
+    gap: 0.65rem;
+  }
+
+  .dot {
+    width: 14px;
+    height: 14px;
+  }
+
+  .dot__fill {
+    inset: 1.5px;
+  }
+
+  /* Client flow screens */
+  .login-mockup {
+    padding: 0.04rem 0.38rem 0.06rem;
+  }
+
+  .fake-login-card {
+    padding: 0.35rem 0.42rem 0.24rem;
+    width: min(100%, 210px);
+  }
+
+  .fake-input {
+    min-height: 32px;
+    font-size: 0.68rem;
+    padding: 0 0.54rem;
+  }
+
+  .category-header__title {
+    font-size: 0.88rem;
+  }
 }
 
 /* ── Tablets Medium (768px) ── */
@@ -3372,6 +3406,16 @@
     gap: clamp(0.5rem, 1.5vw, 0.75rem);
   }
 
+  /* Dots navigation scaling */
+  .dots {
+    gap: 0.6rem;
+  }
+
+  .dot {
+    width: 13px;
+    height: 13px;
+  }
+
   /* Internal elements scaling */
   .screen__content {
     padding: 0.55rem 0.52rem 0.65rem;
@@ -3408,6 +3452,151 @@
 
   .brand-title-img {
     width: min(100%, 168px);
+  }
+
+  /* Client flow - Login */
+  .login-mockup {
+    gap: 0.18rem;
+    padding: 0.04rem 0.38rem 0.06rem;
+  }
+
+  .fake-login-card {
+    width: min(100%, 210px);
+    padding: 0.35rem 0.42rem 0.24rem;
+  }
+
+  .fake-login-title {
+    font-size: 0.78rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .fake-tabs {
+    gap: 0.2rem;
+    margin-bottom: 0.43rem;
+  }
+
+  .fake-tab {
+    font-size: 0.66rem;
+  }
+
+  .fake-field-group {
+    margin-bottom: 0.4rem;
+  }
+
+  .fake-field-group label {
+    font-size: 0.63rem;
+  }
+
+  .fake-input {
+    font-size: 0.68rem;
+    padding: 0 0.54rem;
+    min-height: 31px;
+  }
+
+  .fake-icon {
+    width: 13px;
+    font-size: 0.78rem;
+  }
+
+  .fake-forgot {
+    font-size: 0.66rem;
+    margin-bottom: 0.44rem;
+  }
+
+  .fake-submit {
+    font-size: 0.76rem;
+    padding: 0.48rem 0.65rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .fake-social {
+    min-height: 30px;
+    font-size: 0.66rem;
+    padding: 0.35rem 0.44rem;
+    gap: 0.4rem;
+  }
+
+  .social-user {
+    font-size: 0.64rem;
+  }
+
+  /* Client flow - Categories */
+  .category-header__title {
+    font-size: 0.86rem;
+  }
+
+  .category-search {
+    font-size: 0.72rem;
+  }
+
+  .category-prompt {
+    font-size: 0.7rem;
+  }
+
+  .category-section__title {
+    font-size: 0.78rem;
+  }
+
+  .category-tile__icon {
+    font-size: 2rem;
+  }
+
+  .category-tile__label {
+    font-size: 0.58rem;
+  }
+
+  /* Client flow - Map */
+  .map-title {
+    font-size: 0.9rem;
+  }
+
+  .filter-badge {
+    font-size: 0.7rem;
+  }
+
+  .toggle-btn,
+  .filter-btn,
+  .theme-btn {
+    font-size: 0.66rem;
+  }
+
+  /* Client flow - Provider detail */
+  .provider-name {
+    font-size: 0.9rem;
+  }
+
+  .provider-meta {
+    font-size: 0.7rem;
+  }
+
+  .stat-value {
+    font-size: 0.88rem;
+  }
+
+  .stat-label {
+    font-size: 0.62rem;
+  }
+
+  .tab-pill {
+    font-size: 0.7rem;
+  }
+
+  /* Client flow - Booking */
+  .booking-title {
+    font-size: 0.9rem;
+  }
+
+  .booking-label {
+    font-size: 0.76rem;
+  }
+
+  .date-btn {
+    font-size: 0.6rem;
+    padding: 0.4rem 0.35rem;
+  }
+
+  .time-slot {
+    font-size: 0.66rem;
   }
 
   /* Provider registration */
@@ -3611,6 +3800,16 @@
     font-size: clamp(0.8rem, 1.8vw, 0.95rem);
   }
 
+  /* Dots scaling */
+  .dots {
+    gap: 0.55rem;
+  }
+
+  .dot {
+    width: 12px;
+    height: 12px;
+  }
+
   /* Internal elements more aggressive scaling */
   .title {
     font-size: clamp(1.2rem, 2vw, 1.65rem);
@@ -3670,6 +3869,27 @@
 
   .fake-icon {
     font-size: 0.9rem;
+  }
+
+  /* Client flow - Categories */
+  .category-header__title {
+    font-size: 0.82rem;
+  }
+
+  .category-search {
+    font-size: 0.68rem;
+  }
+
+  .category-section__title {
+    font-size: 0.74rem;
+  }
+
+  .category-tile__icon {
+    font-size: 1.8rem;
+  }
+
+  .category-tile__label {
+    font-size: 0.55rem;
   }
 
   /* Provider registration */
@@ -3971,6 +4191,20 @@
     gap: 0.4rem;
   }
 
+  /* Dots scaling - aggressive */
+  .dots {
+    gap: 0.5rem;
+  }
+
+  .dot {
+    width: 11px;
+    height: 11px;
+  }
+
+  .dot__fill {
+    inset: 1px;
+  }
+
   .ctl {
     padding: 0.4rem 0.8rem;
     font-size: 0.65rem;
@@ -4038,8 +4272,33 @@
     margin-bottom: 0.38rem;
   }
 
+  .fake-field-group label {
+    font-size: 0.6rem;
+  }
+
   .fake-input {
     font-size: 0.58rem;
+  }
+
+  /* Client flow - Categories */
+  .category-header__title {
+    font-size: 0.78rem;
+  }
+
+  .category-search {
+    font-size: 0.65rem;
+  }
+
+  .category-section__title {
+    font-size: 0.7rem;
+  }
+
+  .category-tile__icon {
+    font-size: 1.6rem;
+  }
+
+  .category-tile__label {
+    font-size: 0.52rem;
   }
 
   /* Provider registration */
@@ -4286,6 +4545,20 @@
     font-size: 0.75rem;
   }
 
+  /* Dots scaling */
+  .dots {
+    gap: 0.45rem;
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+  }
+
+  .dot__fill {
+    inset: 0.5px;
+  }
+
   .ctl {
     padding: 0.35rem 0.7rem;
     font-size: 0.6rem;
@@ -4486,6 +4759,20 @@
   .info__text {
     font-size: 0.7rem;
     line-height: 1.3;
+  }
+
+  /* Dots scaling */
+  .dots {
+    gap: 0.42rem;
+  }
+
+  .dot {
+    width: 9px;
+    height: 9px;
+  }
+
+  .dot__fill {
+    inset: 0.5px;
   }
 
   .ctl {
@@ -4830,6 +5117,20 @@
 
   .info__text {
     font-size: 0.65rem;
+  }
+
+  /* Dots scaling */
+  .dots {
+    gap: 0.38rem;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+  }
+
+  .dot__fill {
+    inset: 0.5px;
   }
 
   .controls {

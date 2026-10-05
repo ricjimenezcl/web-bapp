@@ -2435,6 +2435,19 @@
   padding: 0.4rem 0.5rem 0.45rem;
   overflow-y: auto;
   max-height: 100%;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+  }
 }
 
 .verify-header {
@@ -2649,41 +2662,14 @@
   }
 }
 
-// 3 · Provider on Map
+// 3 · Provider on Map - Premium Map UI
 .s-provider-map {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.4rem 0.5rem 0.45rem;
-  overflow-y: auto;
-  max-height: 100%;
-}
-
-.prov-map-header {
-  text-align: center;
-  padding: 0.3rem 0;
-}
-
-.prov-map-title {
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.prov-map-desc {
-  margin: 0.2rem 0 0 0;
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.prov-map-container {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;
-  border-radius: 12px;
+  height: 100%;
   overflow: hidden;
-  background: #0d0d0d;
 }
 
 .prov-map-bg {
@@ -2691,77 +2677,242 @@
   inset: 0;
   background-size: cover;
   background-position: center;
+  z-index: 0;
 }
 
 .prov-marker {
   position: absolute;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   transform: translate(-50%, -50%);
   z-index: 2;
 }
 
-.prov-map-legend {
+// Map Premium Top UI
+.map-premium-top-ui {
   position: absolute;
-  bottom: 0.5rem;
-  left: 0.5rem;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+}
+
+.map-premium-header-row {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0.6rem;
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 8px;
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.8);
+  justify-content: space-between;
 }
 
-.legend-dot {
-  font-size: 1rem;
-}
-
-.prov-map-info {
-  padding: 0.4rem 0;
-}
-
-.info-box {
-  padding: 0.5rem;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  text-align: center;
-}
-
-.info-text {
-  margin: 0 0 0.3rem 0;
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.coverage-badge {
-  font-size: 0.75rem;
-  font-weight: 700;
+.map-premium-header-title {
   color: #d7c785;
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin: 0;
 }
 
-.prov-map-actions {
+.map-premium-header-actions {
   display: flex;
-  padding-top: 0.4rem;
+  align-items: center;
+  gap: 8px;
 }
 
-.btn-map-confirm {
-  flex: 1;
-  padding: 0.6rem;
-  background: linear-gradient(135deg, #d7c785, #b89e5d);
-  border: none;
-  border-radius: 10px;
-  color: #1f1b12;
-  font-size: 0.8rem;
+.map-premium-filter-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 36px;
+  height: 36px;
+  background: rgba(215, 199, 133, 0.15);
+  border: 1px solid rgba(215, 199, 133, 0.3);
+  border-radius: 50%;
+  color: #d7c785;
+  font-size: 0.7rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
 
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+
   &:active {
-    transform: scale(0.97);
+    background: rgba(215, 199, 133, 0.25);
+  }
+}
+
+.map-premium-search-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  color: #f4f4f5;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  &:active {
+    background: rgba(255, 255, 255, 0.15);
+  }
+}
+
+.map-premium-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 8px;
+  padding: 6px 8px;
+  backdrop-filter: blur(8px);
+}
+
+.map-premium-search-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 4px 6px;
+
+  svg {
+    width: 12px;
+    height: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    flex-shrink: 0;
+  }
+
+  input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.65rem;
+    outline: none;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+  }
+}
+
+.map-premium-dist-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(215, 199, 133, 0.15);
+  border: 1px solid rgba(215, 199, 133, 0.3);
+  border-radius: 999px;
+  padding: 3px 8px;
+  color: #d7c785;
+  font-size: 0.65rem;
+  font-weight: 700;
+  white-space: nowrap;
+
+  svg {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+.map-premium-chips-row {
+  display: flex;
+  gap: 6px;
+}
+
+.map-premium-chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  backdrop-filter: blur(4px);
+
+  svg {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+.map-premium-chip-yellow {
+  background: rgba(215, 199, 133, 0.2);
+  border: 1px solid rgba(215, 199, 133, 0.4);
+  color: #d7c785;
+}
+
+.map-premium-chip-green {
+  background: rgba(52, 168, 83, 0.2);
+  border: 1px solid rgba(52, 168, 83, 0.4);
+  color: #34a853;
+}
+
+// Bottom Info
+.prov-map-info {
+  position: absolute;
+  bottom: 60px;
+  left: 10px;
+  right: 10px;
+  z-index: 5;
+}
+
+.info-box {
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  padding: 10px;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.info-text {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.7rem;
+  margin: 0 0 4px 0;
+}
+
+.coverage-badge {
+  color: #d7c785;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+// Bottom Actions
+.prov-map-actions {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
+  z-index: 5;
+}
+
+.btn-map-confirm {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(135deg, #d7c785, #b89e5d);
+  border: none;
+  border-radius: 8px;
+  color: #1f1b12;
+  font-size: 0.75rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:active {
+    transform: scale(0.95);
   }
 }
 

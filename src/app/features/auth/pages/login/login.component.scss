@@ -3200,6 +3200,11 @@ html {
 
 /* ── 768 px: tablet portrait / móvil grande ── */
 @media (max-width: 768px) {
+  // Reduce grid gap significantly on tablets and mobile
+  .grid.gap-8 {
+    gap: 1rem;
+  }
+
   .hero-ideas-carousel { --hero-carousel-radius: 18px; min-height: 280px; }
   .hero-ideas-track    { min-height: 280px; }
 
@@ -3234,12 +3239,32 @@ html {
 
 /* ── 430 px: móviles grandes (iPhone Pro Max, Galaxy Plus) ── */
 @media (max-width: 430px) {
+  // Ensure no horizontal overflow on mobile
+  #main-banner {
+    overflow-x: clip;
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+  }
+
+  #main-banner > div {
+    overflow-x: hidden;
+  }
+
   #main-banner,
   #main-banner .container,
   #main-banner .grid {
     width: 100%;
     min-width: 0;
-    overflow-x: visible;
+    overflow-x: hidden;
+  }
+
+  // Aggressively reduce grid gap for small phones
+  .grid.gap-8 {
+    gap: 0.25rem;
   }
 
   .hero-ideas-carousel,
@@ -3295,8 +3320,13 @@ html {
 
 /* ── 480 px: teléfonos medianos ── */
 @media (max-width: 480px) {
-  .hero-ideas-carousel { --hero-carousel-radius: 14px; min-height: 300px; }
-  .hero-ideas-track    { min-height: 300px; }
+  // Reduce grid gap more aggressively
+  .grid.gap-8 {
+    gap: 0.5rem;
+  }
+
+  .hero-ideas-carousel { --hero-carousel-radius: 14px; min-height: 280px; }
+  .hero-ideas-track    { min-height: 280px; }
 
   .hero-idea-slide { padding: 1rem 0.9rem 2.4rem; gap: 0.6rem; }
   .hero-idea-slide h3 { font-size: clamp(0.875rem, 4vw, 1rem); }
@@ -3306,16 +3336,44 @@ html {
 
 /* ── 375 px: teléfonos compactos (iPhone SE, Galaxy S mini, Xiaomi) ── */
 @media (max-width: 375px) {
-  .hero-ideas-carousel { min-height: 320px; }
-  .hero-ideas-track    { min-height: 320px; }
+  // Extreme optimization for very small screens
+  #main-banner {
+    overflow: hidden;
+  }
 
-  .hero-idea-slide { padding: 0.9rem 0.85rem 2.2rem; gap: 0.5rem; }
-  .hero-idea-slide h3 { font-size: 0.855rem; }
+  .grid.gap-8 {
+    gap: 0;
+  }
+
+  .hero-ideas-carousel {
+    min-height: 280px;
+    --hero-carousel-radius: 12px;
+  }
+
+  .hero-ideas-track {
+    min-height: 280px;
+  }
+
+  .hero-idea-slide {
+    padding: 0.8rem 0.7rem 2rem;
+    gap: 0.4rem;
+  }
+
+  .hero-idea-slide h3 {
+    font-size: clamp(0.8rem, 3.5vw, 0.85rem);
+    line-height: 1.4;
+  }
+
   .hero-idea-cta {
-    font-size: 0.67rem;
-    padding: 0.38rem 0.75rem;
+    font-size: 0.65rem;
+    padding: 0.35rem 0.65rem;
     white-space: normal;
     text-align: center;
+  }
+
+  .hero-idea-chip {
+    font-size: 0.6rem;
+    padding: 0.2rem 0.45rem;
   }
 
   .hero-store-badges {

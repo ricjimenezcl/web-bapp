@@ -2555,6 +2555,19 @@
   padding: 0.4rem 0.5rem 0.45rem;
   overflow-y: auto;
   max-height: 100%;
+
+   &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+  }
 }
 
 .config-header {
@@ -3212,7 +3225,7 @@
 
 .info__step {
   margin: 0 0 0.5rem;
-  color: #8ab0ff;
+  color: #FFEC6E;
   font-size: 0.74rem;
   font-weight: 800;
   letter-spacing: 0.14em;
@@ -3222,7 +3235,7 @@
 .info__title {
   margin: 0 0 0.5rem;
   color: var(--text);
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(0.82rem, 3vw, 1.56rem);
   line-height: 1.05;
   font-weight: 900;
 }
@@ -3254,15 +3267,15 @@
 }
 
 .dot--active {
-  background: rgba(88, 147, 255, 0.26);
-  border-color: rgba(122, 165, 255, 0.54);
+  background: rgba(247, 255, 88, 0.26);
+  border-color: rgba(248, 255, 122, 0.54);
 }
 
 .dot__fill {
   position: absolute;
   inset: 2px;
   border-radius: inherit;
-  background: linear-gradient(135deg, #2d5bff, #7ca7ff);
+  background: linear-gradient(135deg, #ffdf2d, #f2ff7c);
 }
 
 .controls {

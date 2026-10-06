@@ -99,6 +99,19 @@
 
 .modal-content {
   animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+  }
 }
 
 // ── Compactar formulario modal en mobile ────────────────────

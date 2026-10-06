@@ -536,6 +536,19 @@
   padding: 22px;
   z-index: 1210;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+  }
 }
 
 .premium-modal-header {

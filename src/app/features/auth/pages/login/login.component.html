@@ -36,7 +36,7 @@
           Iniciar Sesión
         </button>
         <button 
-          (click)="showAuthModal('register', 'client')"
+          (click)="showAuthModal('register')"
           class="bg-crypgo-primary text-crypgo-darkmode hover:bg-transparent hover:text-crypgo-primary border border-crypgo-primary px-4 py-2 rounded-lg transition-all text-sm xl:text-base whitespace-nowrap">
           Registrarse
         </button>
@@ -67,7 +67,7 @@
         <button (click)="showAuthModal('login'); toggleMobileMenu()" class="bg-transparent text-crypgo-primary border border-crypgo-primary px-4 py-2 rounded-lg">
           Iniciar Sesión
         </button>
-        <button (click)="showAuthModal('register', 'client'); toggleMobileMenu()" class="bg-crypgo-primary text-crypgo-darkmode px-4 py-2 rounded-lg">
+        <button (click)="showAuthModal('register'); toggleMobileMenu()" class="bg-crypgo-primary text-crypgo-darkmode px-4 py-2 rounded-lg">
           Registrarse
         </button>
       </nav>
@@ -434,8 +434,8 @@
 <section class="py-20 bg-crypgo-deepSlate relative overflow-hidden" id="how-it-works">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div class="text-center mb-12">
-      <p class="text-crypgo-primary text-lg mb-4 reveal reveal--up">Guías Interactivas</p>
-      <h2 class="text-44 md:text-54 font-bold text-white mb-4 reveal reveal--up reveal-d1">¿Cómo Funciona?</h2>
+      <p class="text-crypgo-primary mb-4 reveal reveal--up" style="font-size: clamp(0.82rem, 3vw, 1.56rem);">Guías Interactivas</p>
+      <h2 class="text-34 md:text-44 font-bold text-white mb-4 reveal reveal--up reveal-d1">¿Cómo Funciona?</h2>
       <p class="text-gray-400 text-lg max-w-2xl mx-auto reveal reveal--up reveal-d2">
         Descubre cómo usar BappSearch según tu perfil
       </p>
@@ -622,8 +622,8 @@
 <section class="py-20 bg-crypgo-darkmode relative overflow-hidden" id="services">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
     <div class="text-center mb-16">
-      <p class="text-crypgo-primary text-lg mb-4 reveal reveal--up">Categorías Populares</p>
-      <h2 class="text-44 md:text-54 font-bold text-white mb-6 reveal reveal--up reveal-d1">Servicios Disponibles</h2>
+      <p class="text-crypgo-primary mb-4 reveal reveal--up" style="font-size: clamp(0.82rem, 3vw, 1.56rem);">Categorías Populares</p>
+       <h2 class="text-34 md:text-44 font-bold text-white mb-4 reveal reveal--up reveal-d1">Servicios Disponibles</h2>
 
       <!-- Botón acceso rápido invitado -->
       <div class="flex justify-center mt-2 reveal reveal--up reveal-d2">
@@ -706,7 +706,7 @@
         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
       </svg>
     </div>
-    <h2 class="reveal reveal--up reveal-d1">Lo que Dicen de Nosotros</h2>
+    <h2 class="text-34 md:text-44 font-bold text-white mb-4 reveal reveal--up reveal-d1">Lo que Dicen de Nosotros</h2>
     <p class="reveal reveal--up reveal-d2">Servicios que superan expectativas. Historias reales de nuestra red.</p>
   </div>
 
@@ -772,8 +772,8 @@
 <section class="py-20 bg-crypgo-darkmode relative overflow-hidden" id="contact">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
     <div class="text-center mb-16">
-      <p class="text-crypgo-primary text-lg mb-4 reveal reveal--up">Contáctanos</p>
-      <h2 class="text-44 md:text-54 font-bold text-white mb-4 reveal reveal--up reveal-d1">¿Tienes Preguntas?</h2>
+      <p class="text-crypgo-primary mb-4 reveal reveal--up" style="font-size: clamp(0.82rem, 3vw, 1.56rem);">Contáctanos</p>
+       <h2 class="text-34 md:text-44 font-bold text-white mb-4 reveal reveal--up reveal-d1">¿Tienes Preguntas?</h2>
       <p class="text-gray-400 text-lg max-w-2xl mx-auto reveal reveal--up reveal-d2">
         Estamos aquí para ayudarte. Envíanos un mensaje y te responderemos pronto
       </p>
@@ -895,7 +895,7 @@
 <section class="py-20 bg-crypgo-darkmode relative overflow-hidden">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
     <div class="text-center max-w-3xl mx-auto">
-      <h2 class="text-44 md:text-54 font-bold text-white mb-6 reveal reveal--up">
+      <h2 class="text-34 md:text-44 font-bold text-white mb-6 reveal reveal--up">
         ¿Listo para <span class="text-crypgo-primary">Comenzar</span>?
       </h2>
       <p class="text-gray-400 text-lg mb-10 reveal reveal--up reveal-d1">
@@ -1188,34 +1188,30 @@
       }
 
       <!-- Register Form -->
-      @if (activeTab() === 'register') {
-        <form [formGroup]="registerForm" (ngSubmit)="submitRegister()" class="space-y-3 sm:space-y-4 text-left">
-          <div>
-            <label class="text-white text-sm block mb-2">Tipo de cuenta</label>
+      @if (activeTab() === 'register' && showRegisterProfileChoice()) {
+        <div class="space-y-4 text-left">
+          <div class="rounded-xl border border-crypgo-primary/30 bg-crypgo-primary/10 p-4 text-left">
+            <p class="text-sm text-white/80 mb-3">Antes de continuar, elige el perfil que quieres crear.</p>
             <div class="grid grid-cols-2 gap-2">
               <button
                 type="button"
-                (click)="setRegisterRole('client')"
-                class="py-2 rounded-lg border transition-colors"
-                [class.bg-crypgo-primary]="registerRole() === 'client'"
-                [class.text-crypgo-darkmode]="registerRole() === 'client'"
-                [class.border-crypgo-primary]="registerRole() === 'client'"
-                [class.border-crypgo-dark_border]="registerRole() !== 'client'"
-                [class.text-white]="registerRole() !== 'client'">
+                (click)="selectRegisterProfile('client')"
+                class="rounded-lg border border-crypgo-primary/40 bg-transparent px-3 py-3 text-sm font-semibold text-crypgo-primary hover:bg-crypgo-primary hover:text-crypgo-darkmode transition-colors">
                 Cliente
               </button>
               <button
                 type="button"
-                (click)="setRegisterRole('provider')"
-                class="py-2 rounded-lg border transition-colors"
-                [class.bg-crypgo-primary]="registerRole() === 'provider'"
-                [class.text-crypgo-darkmode]="registerRole() === 'provider'"
-                [class.border-crypgo-primary]="registerRole() === 'provider'"
-                [class.border-crypgo-dark_border]="registerRole() !== 'provider'"
-                [class.text-white]="registerRole() !== 'provider'">
+                (click)="selectRegisterProfile('provider')"
+                class="rounded-lg border border-crypgo-primary/40 bg-transparent px-3 py-3 text-sm font-semibold text-crypgo-primary hover:bg-crypgo-primary hover:text-crypgo-darkmode transition-colors">
                 Proveedor
               </button>
             </div>
+          </div>
+        </div>
+      } @else if (activeTab() === 'register') {
+        <form [formGroup]="registerForm" (ngSubmit)="submitRegister()" class="space-y-3 sm:space-y-4 text-left">
+          <div class="rounded-xl border border-crypgo-primary/30 bg-crypgo-primary/10 p-3 text-left mb-2">
+            <p class="text-sm text-white/80">Creando perfil de <span class="font-semibold text-crypgo-primary">{{ registerRole() === 'provider' ? 'Proveedor' : 'Cliente' }}</span></p>
           </div>
 
           <div>

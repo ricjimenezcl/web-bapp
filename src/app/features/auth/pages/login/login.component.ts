@@ -59,6 +59,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   showModalPass        = signal(false);
   showModalConfirmPass = signal(false);
   registerRole         = signal<'client' | 'provider'>('client');
+  showRegisterProfileChoice = signal(false);
   loginRolePrompt      = signal(false);
   loginRoleOptions     = signal<UserRole[]>([]);
   socialRolePrompt     = signal(false);
@@ -998,8 +999,16 @@ export class LoginComponent implements OnInit, OnDestroy {
   // ── Métodos landing page ─────────────────────────────────────────
   showAuthModal(tab: 'login' | 'register', role?: 'client' | 'provider'): void {
     this.activeTab.set(tab);
-    if (tab === 'register' && role) {
-      this.registerRole.set(role);
+    if (tab === 'register') {
+      if (role) {
+        this.registerRole.set(role);
+        this.showRegisterProfileChoice.set(false);
+      } else {
+        this.registerRole.set('client');
+        this.showRegisterProfileChoice.set(true);
+      }
+    } else {
+      this.showRegisterProfileChoice.set(false);
     }
     this.showModal.set(true);
     this.error.set('');
@@ -1014,6 +1023,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   closeModal(): void {
     this.showModal.set(false);
+    this.showRegisterProfileChoice.set(false);
     this.closeFacebookEmailPrompt();
     this.success.set('');
     document.body.classList.remove('modal-open');
@@ -1032,11 +1042,20 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.pendingSocialLogin = null;
     if (tab === 'register') {
       this.registerRole.set('client');
+      this.showRegisterProfileChoice.set(true);
+    } else {
+      this.showRegisterProfileChoice.set(false);
     }
+  }
+
+  selectRegisterProfile(role: 'client' | 'provider'): void {
+    this.registerRole.set(role);
+    this.showRegisterProfileChoice.set(false);
   }
 
   setRegisterRole(role: 'client' | 'provider'): void {
     this.registerRole.set(role);
+    this.showRegisterProfileChoice.set(false);
   }
 
   toggleMobileMenu(): void {

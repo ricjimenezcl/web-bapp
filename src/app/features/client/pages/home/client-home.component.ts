@@ -3,6 +3,7 @@ import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Subject, takeUntil } from 'rxjs';
+import { environment } from '../../../../../environments/environment';
 
 interface StatItem {
   label: string;
@@ -525,6 +526,7 @@ interface Transaction {
 })
 export class ClientHomeComponent implements OnInit, OnDestroy {
   private readonly http = inject(HttpClient);
+  private readonly api = environment.apiUrl;
   private readonly destroy$ = new Subject<void>();
 
   // Signals para datos
@@ -561,7 +563,7 @@ export class ClientHomeComponent implements OnInit, OnDestroy {
 
   private loadUserStats(): void {
     this.http
-      .get<any>('/users/me')
+      .get<any>(`${this.api}/users/me`)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (user) => {
@@ -583,7 +585,7 @@ export class ClientHomeComponent implements OnInit, OnDestroy {
 
   private loadBookings(): void {
     this.http
-      .get<any[]>('/bookings', { params: { limit: '3' } })
+      .get<any[]>(`${this.api}/bookings`, { params: { limit: '3' } })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (bookings) => {
@@ -605,7 +607,7 @@ export class ClientHomeComponent implements OnInit, OnDestroy {
 
   private loadMessages(): void {
     this.http
-      .get<any[]>('/notifications', { params: { limit: '3' } })
+      .get<any[]>(`${this.api}/notifications`, { params: { limit: '3' } })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (notifications) => {
@@ -627,7 +629,7 @@ export class ClientHomeComponent implements OnInit, OnDestroy {
 
   private loadPlanInfo(): void {
     this.http
-      .get<any[]>('/transactions/me')
+      .get<any[]>(`${this.api}/transactions/me`)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (transactions) => {

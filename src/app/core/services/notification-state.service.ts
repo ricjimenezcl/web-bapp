@@ -21,6 +21,19 @@ export class NotificationStateService {
   // Carga notificaciones desde el backend al iniciar sesión
   private readonly ENABLE_HTTP_NOTIFICATIONS = true;
 
+  private normalizeNotificationList(payload: any): any[] {
+    if (Array.isArray(payload)) {
+      return payload;
+    }
+    if (!payload || typeof payload !== 'object') {
+      return [];
+    }
+
+    const record = payload as Record<string, unknown>;
+    const candidate = record['notifications'] ?? record['items'] ?? record['results'] ?? record['data'] ?? record['payload'];
+    return Array.isArray(candidate) ? candidate : [];
+  }
+
   loadNotifications(): void {
     if (!this.ENABLE_HTTP_NOTIFICATIONS) {
       return;
@@ -36,7 +49,8 @@ export class NotificationStateService {
       catchError(() => of([]))
     ).subscribe({
       next: (list) => {
-        const mapped: AppNotification[] = (list ?? []).map(n => ({
+        const normalized = this.normalizeNotificationList(list);
+        const mapped: AppNotification[] = normalized.map(n => ({
           ...n,
           notification_type: n.notification_type ?? n.type,
         }));

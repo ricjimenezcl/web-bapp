@@ -42,4 +42,28 @@ describe('ClientHomeComponent', () => {
     expect(planReq.request.method).toBe('GET');
     planReq.flush([]);
   });
+
+  it('debe soportar respuestas con la lista de notificaciones dentro de un objeto', () => {
+    fixture.detectChanges();
+
+    httpMock.expectOne(`${environment.apiUrl}/users/me`).flush({ has_premium: false });
+    httpMock.expectOne(`${environment.apiUrl}/bookings?limit=3`).flush([]);
+
+    const messagesReq = httpMock.expectOne(`${environment.apiUrl}/notifications?limit=3`);
+    expect(() => {
+      messagesReq.flush({
+        notifications: [{
+          sender_name: 'Ana',
+          content: 'Hola',
+          created_at: new Date().toISOString(),
+          is_read: false,
+        }],
+        total: 1,
+        unread_count: 1,
+      });
+    }).not.toThrow();
+
+    httpMock.expectOne(`${environment.apiUrl}/transactions/me`).flush([]);
+    expect(fixture.componentInstance.messages().length).toBe(1);
+  });
 });

@@ -583,13 +583,32 @@ export class ClientHomeComponent implements OnInit, OnDestroy {
       });
   }
 
+  private normalizeListResponse<T>(payload: T[] | Record<string, unknown> | null | undefined): T[] {
+    if (Array.isArray(payload)) {
+      return payload;
+    }
+
+    if (!payload || typeof payload !== 'object') {
+      return [];
+    }
+
+    const record = payload as Record<string, unknown>;
+    const candidate = record['notifications']
+      ?? record['items']
+      ?? record['results']
+      ?? record['data']
+      ?? record['payload'];
+
+    return Array.isArray(candidate) ? candidate as T[] : [];
+  }
+
   private loadBookings(): void {
     this.http
       .get<any[]>(`${this.api}/bookings`, { params: { limit: '3' } })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (bookings) => {
-          const bookingItems: BookingItem[] = (bookings || []).slice(0, 3).map((b) => ({
+          const bookingItems: BookingItem[] = this.normalizeListResponse(bookings).slice(0, 3).map((b) => ({
             title: b.service_name || 'Servicio',
             client: b.provider_name || 'Proveedor',
             date: this.formatDate(b.scheduled_at),
@@ -611,7 +630,7 @@ export class ClientHomeComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (notifications) => {
-          const messageItems: MessageItem[] = (notifications || []).slice(0, 3).map((n) => ({
+          const messageItems: MessageItem[] = this.normalizeListResponse(notifications).slice(0, 3).map((n) => ({
             name: n.sender_name || 'Usuario',
             preview: n.content?.substring(0, 40) || 'Nuevo mensaje',
             time: this.formatTimeAgo(n.created_at),
@@ -633,7 +652,8 @@ export class ClientHomeComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (transactions) => {
-          const activeTx = (transactions || []).find(
+          const normalizedTransactions = this.normalizeListResponse(transactions);
+          const activeTx = normalizedTransactions.find(
             (t) => t.status === 'completed' && new Date(t.expires_at) > new Date()
           );
 

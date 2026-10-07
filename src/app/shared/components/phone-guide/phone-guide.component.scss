@@ -28,6 +28,7 @@
 .phone {
   width: clamp(220px, 38vw, 280px);
   height: clamp(430px, 66vw, 580px);
+  aspect-ratio: 0.54;
   background: #000;
   border-radius: 46px;
   position: relative;
@@ -3257,8 +3258,8 @@
 
 .dot {
   position: relative;
-  width: 15px;
-  height: 15px;
+  width: clamp(9px, 1.1vw, 15px);
+  height: clamp(9px, 1.1vw, 15px);
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.16);
   background: rgba(255, 255, 255, 0.06);
@@ -4162,8 +4163,9 @@
 
   .phone {
     order: 1;
-    width: min(100vw - 20px, 240px);
-    height: clamp(350px, 85vw, 450px);
+    width: min(72vw, 240px);
+    height: auto;
+    aspect-ratio: 0.52;
     margin-inline: auto;
   }
 
@@ -4206,12 +4208,12 @@
 
   /* Dots scaling - aggressive */
   .dots {
-    gap: 0.5rem;
+    gap: clamp(0.3rem, 1vw, 0.5rem);
   }
 
   .dot {
-    width: 11px;
-    height: 11px;
+    width: clamp(7px, 2vw, 11px);
+    height: clamp(7px, 2vw, 11px);
   }
 
   .dot__fill {

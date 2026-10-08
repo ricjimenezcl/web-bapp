@@ -173,3 +173,36 @@
 
 .badge { position: absolute; top: 15px; right: 15px; z-index: 10; width: 18px; height: 18px; background: var(--bapp-red); border-radius: 50%; border: 2px solid var(--bg-obsidian); animation: pulseAlert 2s infinite; }
 @keyframes pulseAlert { 0% { box-shadow: 0 0 0 0 rgba(190, 32, 46, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(190, 32, 46, 0); } 100% { box-shadow: 0 0 0 0 rgba(190, 32, 46, 0); } }
+
+/* ══ RESPONSIVE ═════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+    #bappie-widget-container { bottom: 16px; right: 12px; }
+
+    #bappie-trigger { width: 76px; height: 76px; }
+    .trigger-svg { width: 60px; height: 60px; }
+
+    .bappie-tooltip {
+        display: none; // evita que el tooltip ancho desborde la pantalla angosta
+    }
+
+    #bappie-chat-window {
+        width: calc(100vw - 24px);
+        max-width: 380px;
+        height: 72dvh;
+        max-height: 72dvh;
+        margin-bottom: 8px;
+    }
+
+    .chat-header { height: 96px; }
+    .bappie-avatar { width: 72px; margin-top: 14px; }
+
+    .msg { max-width: 90%; font-size: 12px; }
+    .btn-chip { max-width: min(78vw, 220px); }
+}
+
+@media (max-width: 360px) {
+    #bappie-widget-container { bottom: 12px; right: 8px; }
+    #bappie-chat-window { width: calc(100vw - 16px); }
+    #bappie-trigger { width: 64px; height: 64px; }
+    .trigger-svg { width: 50px; height: 50px; }
+}

@@ -1,56 +1,44 @@
-<div class="ph-host">
+<div class="provider-home">
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       FRAME PRINCIPAL
-  ═══════════════════════════════════════════════════════════════ -->
-  <div class="ph-frame app-frame">
-
-    <!-- ══ HERO HEADER: cover + avatar + nombre ══════════════════ -->
-    <div class="ph-profile-header">
-
-      <div class="ph-cover"></div>
-
-      <!-- Badge verificaci\xf3n sobre el cover -->
-      @if (!loading() && validationStatus() !== 'approved') {
-        <div class="ph-cover-badge">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-          </svg>
-          Identidad pendiente
-        </div>
-      }
-
-      <!-- Avatar -->
-      <div class="ph-avatar-wrap">
+  <!-- ══ HEADER: identidad + CTA (estilo page-header de client-home) ══ -->
+  <header class="page-header">
+    <div class="page-header__identity">
+      <div class="avatar-wrap">
         @if (profile()?.avatar || profile()?.avatar_url || profile()?.picture) {
-          <img class="ph-avatar-img"
+          <img class="avatar-img"
                [src]="profile()?.avatar || profile()?.avatar_url || profile()?.picture || defaultAvatar"
                [alt]="profile()?.full_name || 'Proveedor'"
                (error)="handleAvatarError($event)" />
         } @else {
-          <div class="ph-avatar-fallback">
+          <div class="avatar-fallback">
             <svg fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
             </svg>
           </div>
         }
+        @if (!loading() && validationStatus() !== 'approved') {
+          <span class="avatar-flag" title="Identidad pendiente">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            </svg>
+          </span>
+        }
       </div>
 
-      <!-- Info -->
-      <div class="ph-profile-meta">
-        <span class="ph-greeting-label">{{ greeting() }}</span>
-        <h1 class="ph-provider-name">
+      <div>
+        <p class="eyebrow">{{ greeting() }}</p>
+        <h1>
           {{ profile()?.full_name || 'Mi panel' }}
           @if (validationStatus() === 'approved') {
-            <svg class="ph-verified" fill="currentColor" viewBox="0 0 24 24" title="Identidad verificada">
+            <svg class="verified-badge" fill="currentColor" viewBox="0 0 24 24" title="Identidad verificada">
               <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
             </svg>
           }
         </h1>
-        <div class="ph-tagline-row">
+        <div class="tagline-row">
           @if ((stats()?.active_services ?? 0) > 0) {
-            <span class="ph-tagline-chip">
+            <span class="tagline-chip">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -59,7 +47,7 @@
             </span>
           }
           @if ((stats()?.average_rating ?? 0) > 0) {
-            <span class="ph-tagline-chip ph-tagline-chip--accent">
+            <span class="tagline-chip tagline-chip--accent">
               <svg fill="currentColor" viewBox="0 0 20 20">
                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
               </svg>
@@ -68,258 +56,248 @@
           }
         </div>
       </div>
-
     </div>
 
-    <!-- ══ STATS ROW: 3 KPIs principales ═══════════════════════════ -->
-    @if (!loading()) {
-      <div class="ph-stats-row">
-        <div class="ph-stat-box">
-          <h3>{{ stats()?.pending_bookings ?? 0 }}</h3>
-          <p>Pendientes</p>
-        </div>
-        <div class="ph-stat-box">
-          <h3 class="ph-stat--success">{{ stats()?.completed_bookings ?? 0 }}</h3>
-          <p>Completadas</p>
-        </div>
-        <div class="ph-stat-box">
-          <h3>
-            {{ (stats()?.average_rating ?? 0) | number:'1.1-1' }}
-            @if ((stats()?.average_rating ?? 0) > 0) {
-              <svg fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-              </svg>
-            }
-          </h3>
-          <p>Calificación</p>
-          @if ((stats()?.total_reviews ?? profile()?.total_reviews ?? reviews().length) > 0) {
-            <span class="ph-stat-sub">{{ stats()?.total_reviews ?? profile()?.total_reviews ?? reviews().length }} reseña{{ (stats()?.total_reviews ?? profile()?.total_reviews ?? reviews().length) !== 1 ? 's' : '' }}</span>
-          }
-        </div>
-      </div>
+    @if (validationStatus() !== 'approved') {
+      <button type="button" class="primary-action" routerLink="/auth/verify-identity">
+        Verificar identidad
+      </button>
     } @else {
-      <div class="ph-stats-row ph-stats-row--skeleton">
-        @for (i of [1,2,3]; track i) {
-          <div class="ph-stat-box">
-            <div class="ph-sk ph-sk--val"></div>
-            <div class="ph-sk ph-sk--lbl"></div>
-          </div>
-        }
-      </div>
+      <button type="button" class="primary-action" routerLink="/provider/tabs/my-services">
+        Gestionar servicios
+      </button>
     }
+  </header>
 
-    <!-- ══ BODY ════════════════════════════════════════════════════ -->
-    <div class="ph-body">
+  <!-- ══ STATS GRID: 4 KPIs estilo client-home ══════════════════════ -->
+  @if (!loading()) {
+    <section class="stats-grid" aria-label="Resumen del proveedor">
+      <article class="stat-card stat-card--gold">
+        <span class="stat-card__label">Pendientes</span>
+        <strong class="stat-card__value">{{ stats()?.pending_bookings ?? 0 }}</strong>
+        <small class="stat-card__detail">reservas por confirmar</small>
+      </article>
+      <article class="stat-card stat-card--green">
+        <span class="stat-card__label">Completadas</span>
+        <strong class="stat-card__value">{{ stats()?.completed_bookings ?? 0 }}</strong>
+        <small class="stat-card__detail">servicios realizados</small>
+      </article>
+      <article class="stat-card stat-card--blue">
+        <span class="stat-card__label">Calificación</span>
+        <strong class="stat-card__value">{{ (stats()?.average_rating ?? 0) | number:'1.1-1' }}</strong>
+        <small class="stat-card__detail">{{ stats()?.total_reviews ?? profile()?.total_reviews ?? reviews().length }} reseña{{ (stats()?.total_reviews ?? profile()?.total_reviews ?? reviews().length) !== 1 ? 's' : '' }}</small>
+      </article>
+      <article class="stat-card stat-card--gold">
+        <span class="stat-card__label">Servicios</span>
+        <strong class="stat-card__value">{{ stats()?.active_services ?? 0 }}</strong>
+        <small class="stat-card__detail">activos</small>
+      </article>
+    </section>
+  } @else {
+    <section class="stats-grid">
+      @for (i of [1,2,3,4]; track i) {
+        <article class="stat-card stat-card--skeleton">
+          <div class="sk sk--label"></div>
+          <div class="sk sk--value"></div>
+          <div class="sk sk--detail"></div>
+        </article>
+      }
+    </section>
+  }
 
-      @if (loading()) {
+  @if (loading()) {
 
-        <div class="ph-loading-grid">
-          @for (i of [1,2,3,4]; track i) {
-            <div class="ph-sk-card">
-              <div class="ph-sk ph-sk--icon"></div>
-              <div class="ph-sk ph-sk--title"></div>
-              <div class="ph-sk ph-sk--sub"></div>
-            </div>
+    <section class="panel-grid">
+      @for (i of [1,2]; track i) {
+        <article class="panel">
+          <div class="sk sk--row"></div>
+          <div class="sk sk--row"></div>
+          <div class="sk sk--row"></div>
+        </article>
+      }
+    </section>
+
+  } @else {
+
+    <!-- ══ ACTIVIDAD + ACCESOS (panel-grid estilo client-home) ══════ -->
+    <section class="panel-grid">
+      <article class="panel panel--wide">
+        <div class="panel__header">
+          <h2>Tu actividad</h2>
+          <span>Hoy</span>
+        </div>
+
+        <ul class="list">
+          <li>
+            <button type="button" class="list__item clickable" (click)="openServiceViewers()">
+              <div class="list__main">
+                <span class="list__badge">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                  </svg>
+                </span>
+                <div>
+                  <strong>Clientes interesados</strong>
+                  <small>Personas que vieron tus servicios</small>
+                </div>
+              </div>
+              <span class="list__time">{{ stats()?.service_views ?? 0 }}</span>
+            </button>
+          </li>
+
+          <li>
+            <button type="button" class="list__item clickable" (click)="openReviews()">
+              <div class="list__main">
+                <span class="list__badge">
+                  <svg fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                  </svg>
+                </span>
+                <div>
+                  <strong>Reseñas recibidas</strong>
+                  <small>Ver todas las opiniones</small>
+                </div>
+              </div>
+              <span class="list__time">{{ stats()?.total_reviews ?? profile()?.total_reviews ?? reviews().length }}</span>
+            </button>
+          </li>
+
+          @if ((stats()?.pending_services ?? 0) > 0) {
+            <li class="list__item" routerLink="/provider/tabs/my-services">
+              <div class="list__main">
+                <span class="list__badge">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                  </svg>
+                </span>
+                <div>
+                  <strong>Servicios pendientes</strong>
+                  <small>Requieren activación</small>
+                </div>
+              </div>
+              <em class="state state--pendiente">{{ stats()?.pending_services }}</em>
+            </li>
           }
+        </ul>
+      </article>
+
+      <article class="panel">
+        <div class="panel__header">
+          <h2>Ir a</h2>
         </div>
 
-      } @else {
-
-        <!-- ── BANNER DE VERIFICACIÓN PRIORITARIO ──────────────────────────── -->
-        @if (validationStatus() !== 'approved') {
-          <div class="ph-mega-verification-card" 
-               [class]="'mode-' + (validationStatus() || 'not_submitted')"
-               routerLink="/auth/verify-identity"
-               style="cursor: pointer;">
-            <div class="ph-mvc-header">
-              <div class="ph-mvc-badge">
-                @if (validationStatus() === 'pending') {
-                  <i class="fa-solid fa-clock-rotate-left"></i> Validando
-                } @else if (validationStatus() === 'rejected') {
-                  <i class="fa-solid fa-circle-xmark"></i> Rechazada
-                } @else {
-                  <i class="fa-solid fa-shield-halved"></i> Verificación Requerida
-                }
-              </div>
-            </div>
-
-            <div class="ph-mvc-body">
-              <div class="ph-mvc-icon-area">
-                @if (validationStatus() === 'rejected') {
-                  <img src="https://cdn-icons-png.flaticon.com/512/1008/1008927.png" alt="Rechazado" />
-                } @else if (validationStatus() === 'pending') {
-                  <img src="https://cdn-icons-png.flaticon.com/512/3592/3592850.png" alt="Revisión" />
-                } @else {
-                  <img src="https://cdn-icons-png.flaticon.com/512/1062/1062002.png" alt="Verificar" />
-                }
-              </div>
-              
-              <div class="ph-mvc-text">
-                <h3>{{ 
-                  validationStatus() === 'rejected' ? 'Acción requerida: Revisión Rechazada' :
-                  validationStatus() === 'pending' ? 'Para operar debes validar tu identidad' :
-                  'Verifica tu identidad para operar' 
-                }}</h3>
-                <p>
-                  @if (validationStatus() === 'pending') {
-                    Es <strong>obligatorio</strong> validar tu identidad para poder operar en la plataforma: mientras no lo hagas, <strong>no podrás publicar servicios ni interactuar</strong> con clientes.
-                    <br><a routerLink="/auth/verify-identity" style="color:inherit;text-decoration:underline;font-weight:600;" (click)="$event.stopPropagation()">Ver estado de mi verificación →</a>
-                  } @else if (validationStatus() === 'rejected') {
-                    Tu verificación fue <strong>rechazada</strong>. Haz clic para reintentar.
-                  } @else {
-                    <strong>Verifica tu identidad</strong> para poder publicar servicios, recibir reservas e interactuar con clientes.
-                  }
-                </p>
-              </div>
-              <svg class="ph-pa-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-              </svg>
-            </div>
-          </div>
-        }
-
-        <!-- ── Alerta servicios pendientes ──────────────────────── -->
-        @if ((stats()?.pending_services ?? 0) > 0) {
-          <a class="ph-pending-alert" routerLink="/provider/tabs/my-services">
-            <div class="ph-pa-icon">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-              </svg>
-            </div>
-            <span class="ph-pa-text">
-              Tienes <strong>{{ stats()?.pending_services }}</strong>
-              servicio{{ (stats()?.pending_services ?? 1) !== 1 ? 's' : '' }} pendiente{{ (stats()?.pending_services ?? 1) !== 1 ? 's' : '' }} de activación
-            </span>
-            <svg class="ph-pa-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-            </svg>
-          </a>
-        }
-
-        <!-- ── Secci\xf3n: Tu actividad ─────────────────────────────── -->
-        <div class="ph-section">
-          <span class="ph-section-title">Tu actividad</span>
-          <div class="ph-metrics-grid">
-
-            <button class="ph-metric-card ph-metric-card--clickable" type="button" (click)="openServiceViewers()">
-              <div class="ph-metric-icon ph-metric-icon--purple">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                </svg>
-              </div>
-              <div class="ph-metric-body">
-                <span class="ph-metric-value">{{ stats()?.service_views ?? 0 }}</span>
-                <span class="ph-metric-label">Clientes interesados</span>
-              </div>
-              <span class="ph-metric-badge">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                </svg>
-                Ver
-              </span>
-            </button>
-
-            <div class="ph-metric-card">
-              <div class="ph-metric-icon ph-metric-icon--teal">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-              </div>
-              <div class="ph-metric-body">
-                <span class="ph-metric-value">{{ stats()?.active_services ?? 0 }}</span>
-                <span class="ph-metric-label">Servicios activos</span>
-              </div>
-            </div>
-
-            <button class="ph-metric-card ph-metric-card--clickable ph-metric-card--full" type="button" (click)="openReviews()">
-              <div class="ph-metric-icon ph-metric-icon--amber">
-                <svg fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                </svg>
-              </div>
-              <div class="ph-metric-body">
-                <span class="ph-metric-value">{{ stats()?.total_reviews ?? profile()?.total_reviews ?? reviews().length }}</span>
-                <span class="ph-metric-label">Reseñas recibidas</span>
-              </div>
-              <span class="ph-metric-badge ph-metric-badge--amber">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                </svg>
-                Ver todas
-              </span>
-            </button>
-
-          </div>
-        </div>
-
-        <!-- ── Accesos r\xe1pidos ───────────────────────────────────── -->
-        <div class="ph-section">
-          <span class="ph-section-title">Ir a</span>
-          <div class="ph-quick-actions">
-
-            <a class="ph-qa-item" routerLink="/provider/tabs/bookings">
-              <div class="ph-qa-icon">
+        <ul class="list compact">
+          <li class="list__item" routerLink="/provider/tabs/bookings">
+            <div class="list__main">
+              <span class="list__avatar">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
+              </span>
+              <div>
+                <strong>Mis reservas</strong>
+                <small>{{ stats()?.pending_bookings ?? 0 }} pendiente{{ (stats()?.pending_bookings ?? 1) !== 1 ? 's' : '' }}</small>
               </div>
-              <div class="ph-qa-body">
-                <span class="ph-qa-title">Mis reservas</span>
-                <span class="ph-qa-sub">{{ stats()?.pending_bookings ?? 0 }} pendiente{{ (stats()?.pending_bookings ?? 1) !== 1 ? 's' : '' }}</span>
-              </div>
-              <svg class="ph-qa-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-              </svg>
-            </a>
+            </div>
+          </li>
 
-            <a class="ph-qa-item" routerLink="/provider/tabs/my-services">
-              <div class="ph-qa-icon">
+          <li class="list__item" routerLink="/provider/tabs/my-services">
+            <div class="list__main">
+              <span class="list__avatar">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                 </svg>
+              </span>
+              <div>
+                <strong>Mis servicios</strong>
+                <small>{{ stats()?.active_services ?? 0 }} activo{{ (stats()?.active_services ?? 1) !== 1 ? 's' : '' }}</small>
               </div>
-              <div class="ph-qa-body">
-                <span class="ph-qa-title">Mis servicios</span>
-                <span class="ph-qa-sub">{{ stats()?.active_services ?? 0 }} activo{{ (stats()?.active_services ?? 1) !== 1 ? 's' : '' }}</span>
-              </div>
-              <svg class="ph-qa-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-              </svg>
-            </a>
+            </div>
+          </li>
 
-            <a class="ph-qa-item" routerLink="/provider/tabs/inbox">
-              <div class="ph-qa-icon">
+          <li class="list__item" routerLink="/provider/tabs/inbox">
+            <div class="list__main">
+              <span class="list__avatar">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                 </svg>
+              </span>
+              <div>
+                <strong>Mensajes</strong>
+                <small>Chats con clientes</small>
               </div>
-              <div class="ph-qa-body">
-                <span class="ph-qa-title">Mensajes</span>
-                <span class="ph-qa-sub">Chats con clientes</span>
-              </div>
-              <svg class="ph-qa-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-              </svg>
-            </a>
+            </div>
+          </li>
+        </ul>
+      </article>
+    </section>
 
+    <!-- ══ VERIFICACIÓN (panel-grid--bottom, estilo plan-box) ═══════ -->
+    @if (validationStatus() !== 'approved') {
+      <section class="panel-grid panel-grid--bottom">
+        <article class="panel plan-panel" routerLink="/auth/verify-identity" style="cursor: pointer;">
+          <div class="panel__header">
+            <h2>Verificación de identidad</h2>
+            <span>
+              @if (validationStatus() === 'pending') {
+                Validando
+              } @else if (validationStatus() === 'rejected') {
+                Rechazada
+              } @else {
+                Requerida
+              }
+            </span>
           </div>
-        </div>
 
-      }
-    </div>
+          <div class="plan-box" [class]="'mode-' + (validationStatus() || 'not_submitted')">
+            <div class="plan-box__header">
+              <span class="plan-badge">
+                @if (validationStatus() === 'pending') {
+                  Validando identidad
+                } @else if (validationStatus() === 'rejected') {
+                  Verificación rechazada
+                } @else {
+                  Verificación requerida
+                }
+              </span>
+            </div>
+            <ul>
+              @if (validationStatus() === 'pending') {
+                <li>
+                  Es <strong>obligatorio</strong> validar tu identidad para poder operar en la plataforma: mientras no lo hagas, <strong>no podrás publicar servicios ni interactuar</strong> con clientes.
+                </li>
+              } @else if (validationStatus() === 'rejected') {
+                <li>Tu verificación fue <strong>rechazada</strong>. Haz clic para reintentar.</li>
+              } @else {
+                <li><strong>Verifica tu identidad</strong> para poder publicar servicios, recibir reservas e interactuar con clientes.</li>
+              }
+            </ul>
+            <button type="button" class="secondary-action" routerLink="/auth/verify-identity" (click)="$event.stopPropagation()">
+              @if (validationStatus() === 'pending') {
+                Ver estado
+              } @else if (validationStatus() === 'rejected') {
+                Reintentar verificación
+              } @else {
+                Verificar identidad
+              }
+            </button>
+          </div>
+        </article>
+      </section>
+    }
 
-  </div>
+  }
+
 </div>
 
 <!-- ══ PANEL: Mis reseñas ════════════════════════════════════════ -->
 @if (showReviews()) {
-  <div class="ph-rv-overlay" (click)="showReviews.set(false)"></div>
+  <button type="button" class="ph-rv-overlay" aria-label="Cerrar reseñas" (click)="showReviews.set(false)"></button>
   <aside class="ph-rv-panel">
     <div class="ph-rv-header">
       <div class="ph-rv-header-info">

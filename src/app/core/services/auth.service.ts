@@ -188,8 +188,8 @@ export class AuthService {
       console.log('📍 Navegando a: /provider/tabs');
       this.router.navigate(['/provider/tabs'], { replaceUrl: true });
     } else {
-      console.log('📍 Navegando a: /client/home');
-      this.router.navigate(['/client/home'], { replaceUrl: true });
+      console.log('📍 Navegando a: /client/tabs/home');
+      this.router.navigate(['/client/tabs/home'], { replaceUrl: true });
     }
   }
 

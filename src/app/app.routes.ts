@@ -107,6 +107,9 @@ export const routes: Routes = [
         path: 'chat/:id',
         loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent)
       },
+      // Alias de respaldo: '/client/home' no es una ruta real (vive anidada en 'tabs/home'),
+      // pero queda como red de seguridad ante enlaces/bookmarks viejos que apunten ahí.
+      { path: 'home', redirectTo: 'tabs/home', pathMatch: 'full' },
       { path: '', redirectTo: 'home', pathMatch: 'full' },
     ]
   },

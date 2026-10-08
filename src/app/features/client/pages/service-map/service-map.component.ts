@@ -92,6 +92,8 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
   private map: any = null;
   private markerClusterGroup: any = null;
   private userMarker: any = null;
+  /** Última posición conocida del usuario, para no perderla al ajustar el encuadre a los proveedores */
+  private lastUserLatLng: [number, number] | null = null;
   private L: any = null;
   /** Markers indexados por provider_id (o id) para sincronizar highlight con la lista */
   private providerMarkers = new Map<number, any>();
@@ -268,7 +270,9 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
    */
   private createUserMarker(lat: number, lng: number): void {
     if (!this.L) return;
-    
+
+    this.lastUserLatLng = [lat, lng];
+
     // Crear ícono de ubicación actual con imagen personalizada (PNG para mejor compatibilidad)
     const userIcon = this.L.icon({
       iconUrl: 'https://res.cloudinary.com/dghwotofx/image/upload/v1789871024/pin_ubicacion_j7u7ov.svg',
@@ -389,12 +393,16 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
     if (this._highlightedId != null) this.applyHighlight(this._highlightedId, true);
 
     // Ajustar vista del mapa para mostrar todos los marcadores
+    // ✅ Siempre se incluye la ubicación del usuario en el cálculo del encuadre:
+    // antes el bounds se armaba SOLO con las coordenadas de los proveedores, por lo
+    // que al reencuadrar el mapa el usuario podía quedar descentrado (o incluso fuera
+    // de vista), dejando visualmente a un proveedor en el centro en su lugar.
     if (providers.some(p => p.latitude && p.longitude)) {
-      const bounds = this.L.latLngBounds(
-        providers
-          .filter(p => p.latitude && p.longitude)
-          .map(p => [p.latitude!, p.longitude!])
-      );
+      const points: [number, number][] = providers
+        .filter(p => p.latitude && p.longitude)
+        .map(p => [p.latitude!, p.longitude!] as [number, number]);
+      if (this.lastUserLatLng) points.push(this.lastUserLatLng);
+      const bounds = this.L.latLngBounds(points);
       this.map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
     }
   }

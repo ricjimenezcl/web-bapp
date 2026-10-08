@@ -9,7 +9,7 @@ import { UserRole } from '../../../../core/models/user.model';
 import { CategoryService } from '../../../../core/services/category.service';
 import { MainCategory, ServiceCategory } from '../../../../core/models/provider.model';
 import { Device3dLoginComponent } from '../../../../shared/components/device-3d-login/device-3d-login.component';
-import { BappieChatbotComponent } from '../../../../shared/components/bappie-chatbot/bappie-chatbot.component';
+// import { BappieChatbotComponent } from '../../../../shared/components/bappie-chatbot/bappie-chatbot.component'; // Bappie deshabilitado temporalmente
 import { AppFooterComponent } from '../../../../shared/components/app-footer/app-footer.component';
 import { CustomValidators } from '../../../../shared/validators/custom-validators';
 import { ContentFilterService } from '../../../../shared/services/content-filter.service';
@@ -21,7 +21,7 @@ import { ModalService } from '../../../../core/services/modal.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, Device3dLoginComponent, BappieChatbotComponent, AppFooterComponent, PhoneGuideComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, Device3dLoginComponent, /* BappieChatbotComponent, */ AppFooterComponent, PhoneGuideComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

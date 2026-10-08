@@ -8,6 +8,7 @@ import { takeUntil } from 'rxjs/operators';
 import { ProviderService } from '../../../../core/services/provider.service';
 import { CategoryService } from '../../../../core/services/category.service';
 import { GeoapifyService, AddressSuggestion } from '../../../../core/services/geoapify.service';
+import { LocationSuggestion } from '../../../../core/services/location.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { MainCategory, ServiceCategory, Subcategory } from '../../../../core/models/provider.model';
 import { CustomValidators } from '../../../../shared/validators/custom-validators';
@@ -18,6 +19,7 @@ import { ContentFilterService } from '../../../../shared/services/content-filter
 import { offensiveContentAsyncValidator } from '../../../../shared/validators/content-filter.validators';
 import { environment } from '../../../../../environments/environment';
 import { ServiceEntitlementService, ServiceLimitEvaluation, ServiceLimitProductType } from '../../../../core/services/service-entitlement.service';
+import { MapPickerComponent } from '../../../../shared/components/map-picker/map-picker.component';
 
 const DAY_NAMES = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 const MAX_PORTFOLIO_IMAGES = 5;
@@ -31,7 +33,7 @@ interface PortfolioImage {
 @Component({
   selector: 'app-add-service',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, MapPickerComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './add-service.component.html',
   styleUrl: './add-service.component.scss',
@@ -78,6 +80,11 @@ export class AddServiceComponent implements OnInit, OnDestroy {
   searchingAddress   = signal(false);
   private selectedLat: number | null = null;
   private selectedLng: number | null = null;
+
+  // Ubicación manual (map picker) — misma UX/formato que client/categories
+  showMapPicker = signal(false);
+  mapPickerInitialLat = -33.4489; // Santiago Centro por defecto
+  mapPickerInitialLng = -70.6693;
 
   form = this.fb.group({
     business_name:    this.fb.control('', {
@@ -216,6 +223,84 @@ export class AddServiceComponent implements OnInit, OnDestroy {
     this.showSuggestions.set(false);
   }
 
+  // ══ Ubicación manual vía mapa (igual formato que service-map/map-picker) ══
+  openMapPicker(): void {
+    this.showSuggestions.set(false);
+
+    if (this.selectedLat !== null && this.selectedLng !== null) {
+      this.mapPickerInitialLat = this.selectedLat;
+      this.mapPickerInitialLng = this.selectedLng;
+      this.showMapPicker.set(true);
+      return;
+    }
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          this.mapPickerInitialLat = pos.coords.latitude;
+          this.mapPickerInitialLng = pos.coords.longitude;
+          this.showMapPicker.set(true);
+        },
+        () => {
+          this.showMapPicker.set(true);
+        }
+      );
+    } else {
+      this.showMapPicker.set(true);
+    }
+  }
+
+  onLocationSelected(suggestion: LocationSuggestion): void {
+    this.form.get('address')?.setValue(suggestion.text);
+    this.selectedLat = suggestion.lat;
+    this.selectedLng = suggestion.lon;
+    this.addressSuggestions.set([]);
+    this.showSuggestions.set(false);
+    this.showMapPicker.set(false);
+  }
+
+  onMapPickerClose(): void {
+    this.showMapPicker.set(false);
+  }
+
+  // ══ Espera acotada de validaciones asíncronas en curso (fail-open) ══════
+  private waitForPendingValidators(): Promise<void> {
+    return new Promise((resolve) => {
+      const sub = this.form.statusChanges.subscribe((status) => {
+        if (status !== 'PENDING') {
+          sub.unsubscribe();
+          resolve();
+        }
+      });
+      setTimeout(() => {
+        sub.unsubscribe();
+        resolve();
+      }, 3000);
+    });
+  }
+
+  // ══ Campos/datos faltantes para mostrar en el modal al guardar ══════════
+  private getMissingFieldLabels(): string[] {
+    const missing: string[] = [];
+    const f = this.form.controls;
+
+    if (f['main_category_id'].invalid) missing.push('Categoría principal');
+    if (f['subcategory_id'].invalid) missing.push('Subcategoría');
+    if (f['service_id'].invalid) missing.push('Servicio específico');
+    if (f['business_name'].invalid) missing.push('Nombre del servicio');
+    if (f['business_name'].errors?.['offensiveContent']) missing.push('Nombre del servicio (contenido no permitido)');
+    if (f['description'].errors?.['offensiveContent']) missing.push('Descripción (contenido no permitido)');
+    if (f['phone'].invalid) missing.push('Teléfono de contacto');
+
+    if (f['address'].invalid) {
+      missing.push('Dirección');
+    } else if (this.selectedLat === null || this.selectedLng === null) {
+      missing.push('Ubicación exacta (selecciona una sugerencia o márcala en el mapa)');
+    }
+
+    return missing;
+  }
+
   async submit(): Promise<void> {
     if (!this.identityCheckDone()) {
       this.error.set('Estamos validando tu identidad. Intenta nuevamente en unos segundos.');
@@ -232,12 +317,21 @@ export class AddServiceComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (this.form.pending) { this.form.markAllAsTouched(); return; }
-    if (this.form.invalid) { this.form.markAllAsTouched(); return; }
+    // Las validaciones asíncronas (filtro de contenido) pueden quedar "pending"
+    // indefinidamente si el endpoint tarda/falla; esperamos acotado y seguimos
+    // en modo fail-open en vez de dejar el botón inservible para siempre.
+    if (this.form.pending) {
+      await this.waitForPendingValidators();
+    }
 
-    // lat/lng son requeridos por el backend — el usuario debe seleccionar una sugerencia
-    if (this.selectedLat === null || this.selectedLng === null) {
-      this.error.set('Selecciona una dirección de la lista de sugerencias para obtener las coordenadas.');
+    this.form.markAllAsTouched();
+
+    const missingFields = this.getMissingFieldLabels();
+    if (missingFields.length > 0) {
+      await this.modal.warning(
+        `Antes de guardar, completa: ${missingFields.join(', ')}.`,
+        'Faltan datos por completar'
+      );
       return;
     }
 

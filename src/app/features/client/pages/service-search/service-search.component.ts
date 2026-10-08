@@ -318,7 +318,7 @@ export class ServiceSearchComponent implements OnInit {
     const httpErr = err as HttpErrorResponse | undefined;
     const code = httpErr?.error?.detail?.code;
     if (code === 'DAILY_SEARCH_LIMIT_REACHED' || code === 'FREE_SERVICE_SELECTION_LIMIT') {
-      const categoriesPath = this.isGuestMode() ? '/guest/categories' : '/client/tabs/categories';
+      const categoriesPath = this.isGuestMode() ? '/guest/categories' : '/client/categories';
       this.router.navigate([categoriesPath], {
         queryParams: { premium_reason: code },
         replaceUrl: true,

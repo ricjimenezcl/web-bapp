@@ -520,7 +520,7 @@ export class CategoriesComponent implements OnInit {
   choosePremiumPlan(productType: ProductType): void {
     this.closePremiumModal();
     // returnTo apunta de vuelta a categories para mantener el contexto de selección
-    const targetCategories = this.isGuestMode() ? '/guest/categories' : '/client/tabs/categories';
+    const targetCategories = this.isGuestMode() ? '/guest/categories' : '/client/categories';
     this.router.navigate(['/payment'], {
       state: {
         product_type: productType,

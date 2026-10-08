@@ -74,7 +74,7 @@ interface Transaction {
           <p class="eyebrow">Panel del cliente</p>
           <h1>Mi dashboard</h1>
         </div>
-        <button type="button" class="primary-action" routerLink="/client/tabs/categories">
+        <button type="button" class="primary-action" routerLink="/client/categories">
           Nueva búsqueda
         </button>
       </header>
@@ -91,7 +91,7 @@ interface Transaction {
         <article class="panel panel--wide">
           <div class="panel__header">
             <h2>Búsquedas recientes</h2>
-            <a routerLink="/client/tabs/categories">Ver todas</a>
+            <a routerLink="/client/categories">Ver todas</a>
           </div>
 
           <ul class="list">

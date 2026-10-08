@@ -10,7 +10,7 @@
       <button 
         type="button"
         (click)="cancelSelection()"
-        class=" w-10 h-10 rounded-xl bg-surface-100 hover:bg-surface-200 flex items-center justify-center transition-colors">
+        class=" w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-border flex items-center justify-center transition-colors">
         <ion-icon name="close-outline" class="text-xl text-text-secondary"></ion-icon>
       </button>
     </div>
@@ -30,10 +30,10 @@
       
       <!-- Loading overlay -->
       @if (loading()) {
-        <div class="absolute inset-0 bg-white/90 flex items-center justify-center z-10">
+        <div class="absolute inset-0 bg-surface-page/90 backdrop-blur-sm flex items-center justify-center z-10">
           <div class="flex flex-col items-center gap-2">
             <div class="animate-spin">
-              <ion-icon name="sync-outline" class="text-3xl text-primary-600"></ion-icon>
+              <ion-icon name="sync-outline" class="text-3xl text-primary"></ion-icon>
             </div>
             <span class="text-sm text-text-secondary">{{ 'map.loadingMap' | t }}</span>
           </div>
@@ -43,9 +43,9 @@
       <!-- Error overlay -->
       @if (locationError()) {
         <div class="absolute top-4 left-4 right-4 z-20">
-          <div class="bg-red-50 border border-red-200 rounded-lg px-4 py-3 flex items-start gap-3">
-            <ion-icon name="alert-circle" class="text-xl text-red-600 flex-shrink-0 mt-0.5"></ion-icon>
-            <p class="text-sm text-red-700 flex-1">{{ locationError() }}</p>
+          <div class="bg-red-500/10 border border-red-500/30 backdrop-blur-sm rounded-lg px-4 py-3 flex items-start gap-3">
+            <ion-icon name="alert-circle" class="text-xl text-red-400 flex-shrink-0 mt-0.5"></ion-icon>
+            <p class="text-sm text-red-300 flex-1">{{ locationError() }}</p>
           </div>
         </div>
       }
@@ -53,8 +53,8 @@
       <!-- Address card -->
       <div class="address-card">
         <div class="flex items-start gap-3">
-          <div class="w-10 h-10 rounded-lg bg-primary-50 flex items-center justify-center flex-shrink-0">
-            <ion-icon name="location" class="text-xl text-primary-600"></ion-icon>
+          <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <ion-icon name="location" class="text-xl text-primary"></ion-icon>
           </div>
           <div class="flex-1 min-w-0">
             <p class="text-xs font-medium text-text-tertiary uppercase tracking-wider mb-0.5">{{ 'mapPicker.selectedAddress' | t }}</p>
@@ -65,7 +65,7 @@
 
       <!-- Hint -->
       <div class="map-hint">
-        <ion-icon name="hand-left" class="text-base text-primary-600"></ion-icon>
+        <ion-icon name="hand-left" class="text-base text-primary"></ion-icon>
         <span class="text-xs text-text-secondary">{{ 'mapPicker.dragToMovePin' | t }}</span>
       </div>
     </div>
@@ -75,7 +75,7 @@
       <button 
         type="button"
         (click)="useCurrentLocation()"
-        class="flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-surface-200 rounded-xl text-sm font-medium text-text-primary hover:bg-surface-50 transition-colors flex-1">
+        class="flex items-center justify-center gap-2 px-4 py-3 bg-white/5 border border-border rounded-xl text-sm font-medium text-text-primary hover:bg-white/10 transition-colors flex-1">
         <ion-icon name="navigate-outline" class="text-lg"></ion-icon>
         <span>{{ 'mapPicker.myLocation' | t }}</span>
       </button>
@@ -84,7 +84,7 @@
         type="button"
         (click)="confirmLocation()"
         [disabled]="loading()"
-        class="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 disabled:from-surface-300 disabled:to-surface-300 text-white font-semibold rounded-xl shadow-lg transition-all flex-1 disabled:cursor-not-allowed">
+        class="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-400 to-primary-600 hover:from-primary-300 hover:to-primary-500 disabled:from-surface-200 disabled:to-surface-200 disabled:text-text-disabled text-text-inverse font-semibold rounded-xl shadow-lg transition-all flex-1 disabled:cursor-not-allowed">
         <ion-icon name="checkmark-circle-outline" class="text-lg"></ion-icon>
         <span>{{ 'common.confirm' | t }}</span>
       </button>

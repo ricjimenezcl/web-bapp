@@ -297,6 +297,14 @@
             @if (f['address'].invalid && f['address'].touched) {
               <span class="as-field-error">La dirección es requerida</span>
             }
+            <button type="button" class="as-map-link-btn" (click)="openMapPicker()">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              ¿No encuentras tu dirección? Selecciónala manualmente en el mapa
+            </button>
           </div>
         </div>
 
@@ -419,7 +427,7 @@
           <button type="button" class="as-btn as-btn--secondary" (click)="cancel()" [disabled]="loading()">
             Cancelar
           </button>
-          <button type="submit" class="as-btn as-btn--primary" [disabled]="loading() || form.pending">
+          <button type="submit" class="as-btn as-btn--primary" [disabled]="loading()">
             @if (loading()) {
               <span class="as-spinner"></span>
             }
@@ -433,3 +441,12 @@
 
 </div><!-- /as-frame -->
 </div><!-- /as-host -->
+
+@if (showMapPicker()) {
+  <app-map-picker
+    [initialLat]="mapPickerInitialLat"
+    [initialLng]="mapPickerInitialLng"
+    (locationSelected)="onLocationSelected($event)"
+    (closed)="onMapPickerClose()">
+  </app-map-picker>
+}

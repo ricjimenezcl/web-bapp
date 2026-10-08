@@ -540,6 +540,27 @@
   text-overflow: ellipsis;
 }
 
+.as-map-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  margin-top: 2px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--bw-accent);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.2s, opacity 0.2s;
+
+  svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+  &:hover { opacity: 0.8; }
+}
+
 // ════════════════════════════════════════════════════════════════════
 // HORARIOS
 // ════════════════════════════════════════════════════════════════════

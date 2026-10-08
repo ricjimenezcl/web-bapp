@@ -241,11 +241,18 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
               this.loadNearbyProviders(lat, lng);
             },
             () => {
+              // ✅ Mostrar igualmente el marcador de usuario en el fallback:
+              // antes el ícono simplemente no aparecía si el navegador denegaba/fallaba
+              // la geolocalización, dejando el mapa sin ningún "tú estás aquí".
               this.locationError.set(this.i18n.t('map.errorGeolocationFallback'));
+              this.map.setView([-33.45, -70.67], 14);
+              this.createUserMarker(-33.45, -70.67);
               this.loadNearbyProviders(-33.45, -70.67);
             }
           );
         } else {
+          this.map.setView([-33.45, -70.67], 14);
+          this.createUserMarker(-33.45, -70.67);
           this.loadNearbyProviders(-33.45, -70.67);
         }
       }

@@ -49,13 +49,19 @@ export class NotificationStateService {
       catchError(() => of([]))
     ).subscribe({
       next: (list) => {
-        const normalized = this.normalizeNotificationList(list);
-        const mapped: AppNotification[] = normalized.map(n => ({
-          ...n,
-          notification_type: n.notification_type ?? n.type,
-        }));
-        this._notifications.set(mapped);
-        this._unreadCount.set(mapped.filter(n => !n.is_read).length);
+        try {
+          const normalized = this.normalizeNotificationList(list);
+          const mapped: AppNotification[] = normalized.map(n => ({
+            ...n,
+            notification_type: n?.notification_type ?? n?.type,
+          }));
+          this._notifications.set(mapped);
+          this._unreadCount.set(mapped.filter(n => !n.is_read).length);
+        } catch (parseErr) {
+          console.error('Error parsing notifications:', parseErr);
+          this._notifications.set([]);
+          this._unreadCount.set(0);
+        }
       },
       error: () => {
         this._notifications.set([]);

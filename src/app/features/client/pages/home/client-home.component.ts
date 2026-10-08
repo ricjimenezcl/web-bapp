@@ -567,17 +567,22 @@ export class ClientHomeComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (user) => {
-          const searchCount = 5;
-          const messageCount = 3;
-          const bookingCount = 1;
-          const planActive = user.has_premium ? 'Pro' : 'Gratuito';
+          try {
+            const searchCount = 5;
+            const messageCount = 3;
+            const bookingCount = 1;
+            const hasPremium = !!(user && user.has_premium);
+            const planActive = hasPremium ? 'Pro' : 'Gratuito';
 
-          this.stats.set([
-            { label: 'Búsquedas', value: `${searchCount}`, detail: 'este mes', accent: 'gold' },
-            { label: 'Mensajes', value: `${messageCount}`, detail: 'sin leer', accent: 'blue' },
-            { label: 'Reservas', value: `${bookingCount}`, detail: 'programadas', accent: 'green' },
-            { label: 'Plan', value: planActive, detail: user.has_premium ? 'activo' : 'gratuito', accent: 'gold' },
-          ]);
+            this.stats.set([
+              { label: 'Búsquedas', value: `${searchCount}`, detail: 'este mes', accent: 'gold' },
+              { label: 'Mensajes', value: `${messageCount}`, detail: 'sin leer', accent: 'blue' },
+              { label: 'Reservas', value: `${bookingCount}`, detail: 'programadas', accent: 'green' },
+              { label: 'Plan', value: planActive, detail: hasPremium ? 'activo' : 'gratuito', accent: 'gold' },
+            ]);
+          } catch (parseErr) {
+            console.error('Error parsing user stats:', parseErr);
+          }
         },
         error: (err) => console.error('Error loading user stats:', err)
       });
@@ -608,14 +613,19 @@ export class ClientHomeComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (bookings) => {
-          const bookingItems: BookingItem[] = this.normalizeListResponse(bookings).slice(0, 3).map((b) => ({
-            title: b.service_name || 'Servicio',
-            client: b.provider_name || 'Proveedor',
-            date: this.formatDate(b.scheduled_at),
-            state: this.mapBookingStatus(b.status) as 'Confirmada' | 'Pendiente' | 'Finalizada',
-          }));
+          try {
+            const bookingItems: BookingItem[] = this.normalizeListResponse(bookings).slice(0, 3).map((b) => ({
+              title: b?.service_name || 'Servicio',
+              client: b?.provider_name || 'Proveedor',
+              date: this.formatDate(b?.scheduled_at),
+              state: this.mapBookingStatus(b?.status) as 'Confirmada' | 'Pendiente' | 'Finalizada',
+            }));
 
-          this.bookings.set(bookingItems);
+            this.bookings.set(bookingItems);
+          } catch (parseErr) {
+            console.error('Error parsing bookings:', parseErr);
+            this.bookings.set([]);
+          }
         },
         error: (err) => {
           console.error('Error loading bookings:', err);
@@ -630,14 +640,19 @@ export class ClientHomeComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (notifications) => {
-          const messageItems: MessageItem[] = this.normalizeListResponse(notifications).slice(0, 3).map((n) => ({
-            name: n.sender_name || 'Usuario',
-            preview: n.content?.substring(0, 40) || 'Nuevo mensaje',
-            time: this.formatTimeAgo(n.created_at),
-            unread: n.is_read ? 0 : 1,
-          }));
+          try {
+            const messageItems: MessageItem[] = this.normalizeListResponse(notifications).slice(0, 3).map((n) => ({
+              name: n?.sender_name || 'Usuario',
+              preview: typeof n?.content === 'string' ? n.content.substring(0, 40) : 'Nuevo mensaje',
+              time: this.formatTimeAgo(n?.created_at),
+              unread: n?.is_read ? 0 : 1,
+            }));
 
-          this.messages.set(messageItems);
+            this.messages.set(messageItems);
+          } catch (parseErr) {
+            console.error('Error parsing messages:', parseErr);
+            this.messages.set([]);
+          }
         },
         error: (err) => {
           console.error('Error loading messages:', err);
@@ -652,19 +667,24 @@ export class ClientHomeComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (transactions) => {
-          const normalizedTransactions = this.normalizeListResponse(transactions);
-          const activeTx = normalizedTransactions.find(
-            (t) => t.status === 'completed' && new Date(t.expires_at) > new Date()
-          );
+          try {
+            const normalizedTransactions = this.normalizeListResponse(transactions);
+            const activeTx = normalizedTransactions.find(
+              (t) => t?.status === 'completed' && !!t?.expires_at && new Date(t.expires_at) > new Date()
+            );
 
-          if (activeTx) {
-            this.activePlan.set({
-              name: activeTx.product_name || 'Plan Premium',
-              status: 'Activo',
-              startDate: this.formatDate(activeTx.activated_at),
-              endDate: this.formatDate(activeTx.expires_at),
-            });
-          } else {
+            if (activeTx) {
+              this.activePlan.set({
+                name: activeTx.product_name || 'Plan Premium',
+                status: 'Activo',
+                startDate: this.formatDate(activeTx.activated_at),
+                endDate: this.formatDate(activeTx.expires_at),
+              });
+            } else {
+              this.activePlan.set(null);
+            }
+          } catch (parseErr) {
+            console.error('Error parsing plan info:', parseErr);
             this.activePlan.set(null);
           }
         },

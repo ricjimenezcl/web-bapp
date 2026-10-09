@@ -9,6 +9,7 @@ import { ModalService } from '../../../../core/services/modal.service';
 import { TPipe } from '../../../../shared/pipes/t.pipe';
 import { PlatformI18nService } from '../../../../core/services/platform-i18n.service';
 import { environment } from '../../../../../environments/environment';
+import { DEFAULT_AVATAR_URL } from '../../../../core/constants/default-avatar';
 
 type MapStyle = 'streets' | 'light' | 'dark';
 
@@ -437,7 +438,7 @@ export class ServiceMapComponent implements OnDestroy, AfterViewInit {
     const lockIcon = isLocked ? '🔒 ' : '';
 
     const avatarHtml = provider.avatar
-      ? `<img class="popup-avatar" src="${provider.avatar}" alt="${provider.business_name || provider.full_name}" onerror="if(this.dataset.fallbackApplied==='true'){this.style.display='none';if(this.nextElementSibling){this.nextElementSibling.style.display='flex';}}else{this.dataset.fallbackApplied='true';this.src='/assets/images/default-avatar.png';}" /><div class="popup-avatar popup-avatar--fallback" style="display:none"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></div>`
+      ? `<img class="popup-avatar" src="${provider.avatar}" alt="${provider.business_name || provider.full_name}" onerror="if(this.dataset.fallbackApplied==='true'){this.style.display='none';if(this.nextElementSibling){this.nextElementSibling.style.display='flex';}}else{this.dataset.fallbackApplied='true';this.src='${DEFAULT_AVATAR_URL}';}" /><div class="popup-avatar popup-avatar--fallback" style="display:none"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></div>`
       : `<div class="popup-avatar popup-avatar--fallback"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></div>`;
 
     return `

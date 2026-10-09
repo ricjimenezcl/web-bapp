@@ -10,6 +10,7 @@ import { CategoryService } from '../../../../core/services/category.service';
 import { SearchStateService } from '../../../../core/services/search-state.service';
 import { LocationService } from '../../../../core/services/location.service';
 import { ServiceProvider, MainCategory } from '../../../../core/models/provider.model';
+import { DEFAULT_AVATAR_URL } from '../../../../core/constants/default-avatar';
 
 export type LockedProvider = ServiceProvider & { locked: boolean };
 import { ServiceMapComponent } from '../service-map/service-map.component';
@@ -411,7 +412,7 @@ export class ServiceSearchComponent implements OnInit {
     }
 
     img.dataset['fallbackApplied'] = 'true';
-    img.src = '/assets/images/default-avatar.png';
+    img.src = DEFAULT_AVATAR_URL;
   }
 
   /**

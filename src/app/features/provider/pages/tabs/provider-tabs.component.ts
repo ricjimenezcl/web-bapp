@@ -7,6 +7,7 @@ import { ChatService } from '../../../../core/services/chat.service';
 import { ProviderService } from '../../../../core/services/provider.service';
 import { ProviderProfile } from '../../../../core/models/provider.model';
 import { Subscription } from 'rxjs';
+import { DEFAULT_AVATAR_URL } from '../../../../core/constants/default-avatar';
 import { AppFooterComponent } from '../../../../shared/components/app-footer/app-footer.component';
 import { TPipe } from '../../../../shared/pipes/t.pipe';
 
@@ -40,18 +41,18 @@ export class ProviderTabsComponent implements OnInit, OnDestroy {
 
   getAvatarSrc(): string {
     const data = this.profile();
-    return data?.avatar || data?.avatar_url || data?.picture || '/assets/images/default-avatar.png';
+    return data?.avatar || data?.avatar_url || data?.picture || DEFAULT_AVATAR_URL;
   }
 
   handleAvatarError(event: Event): void {
     const image = event.target as HTMLImageElement | null;
     if (!image) return;
-    if (image.dataset['fallbackApplied'] === 'true' || image.src.endsWith('/assets/images/default-avatar.png')) {
+    if (image.dataset['fallbackApplied'] === 'true' || image.src === DEFAULT_AVATAR_URL) {
       image.style.display = 'none';
       return;
     }
     image.dataset['fallbackApplied'] = 'true';
-    image.src = '/assets/images/default-avatar.png';
+    image.src = DEFAULT_AVATAR_URL;
   }
 
   ngOnInit(): void {

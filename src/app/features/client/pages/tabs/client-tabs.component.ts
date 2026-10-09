@@ -7,6 +7,7 @@ import { ChatService } from '../../../../core/services/chat.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Subscription } from 'rxjs';
 import { TPipe } from '../../../../shared/pipes/t.pipe';
+import { DEFAULT_AVATAR_URL } from '../../../../core/constants/default-avatar';
 
 @Component({
   selector: 'app-client-tabs',
@@ -45,18 +46,18 @@ export class ClientTabsComponent implements OnInit, OnDestroy {
 
   getAvatarSrc(): string {
     const profile = this.currentProfile();
-    return profile?.avatar || profile?.avatar_url || profile?.picture || '/assets/images/default-avatar.png';
+    return profile?.avatar || profile?.avatar_url || profile?.picture || DEFAULT_AVATAR_URL;
   }
 
   handleAvatarError(event: Event): void {
     const image = event.target as HTMLImageElement | null;
     if (!image) return;
-    if (image.dataset['fallbackApplied'] === 'true' || image.src.endsWith('/assets/images/default-avatar.png')) {
+    if (image.dataset['fallbackApplied'] === 'true' || image.src === DEFAULT_AVATAR_URL) {
       image.style.display = 'none';
       return;
     }
     image.dataset['fallbackApplied'] = 'true';
-    image.src = '/assets/images/default-avatar.png';
+    image.src = DEFAULT_AVATAR_URL;
   }
 
   ngOnInit(): void {

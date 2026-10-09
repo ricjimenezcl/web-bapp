@@ -1,21 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Subject, takeUntil } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
+import { BookingService } from '../../../../core/services/booking.service';
+import { NotificationStateService } from '../../../../core/services/notification-state.service';
 
 interface StatItem {
   label: string;
   value: string;
   detail: string;
   accent: 'gold' | 'blue' | 'green';
-}
-
-interface SearchItem {
-  label: string;
-  time: string;
-  status: string;
 }
 
 interface MessageItem {
@@ -30,29 +26,6 @@ interface BookingItem {
   client: string;
   date: string;
   state: 'Confirmada' | 'Pendiente' | 'Finalizada';
-}
-
-interface UserProfile {
-  id: string;
-  full_name: string;
-  email: string;
-}
-
-interface Booking {
-  id: string;
-  service_name: string;
-  provider_name: string;
-  scheduled_at: string;
-  status: string;
-  total_price: number;
-}
-
-interface Notification {
-  id: string;
-  sender_name: string;
-  content: string;
-  created_at: string;
-  is_read: boolean;
 }
 
 interface Transaction {
@@ -90,22 +63,16 @@ interface Transaction {
       <section class="panel-grid">
         <article class="panel panel--wide">
           <div class="panel__header">
-            <h2>Búsquedas recientes</h2>
-            <a routerLink="/client/categories">Ver todas</a>
+            <h2>Actividad de búsqueda</h2>
+            <a routerLink="/client/categories">Buscar ahora</a>
           </div>
 
-          <ul class="list">
-            <li class="list__item" *ngFor="let item of searches()">
-              <div class="list__main">
-                <span class="list__badge">{{ item.label.slice(0, 1) }}</span>
-                <div>
-                  <strong>{{ item.label }}</strong>
-                  <small>{{ item.status }}</small>
-                </div>
-              </div>
-              <span class="list__time">{{ item.time }}</span>
-            </li>
-          </ul>
+          <div class="search-activity-box">
+            <strong class="search-activity-value">{{ searchesToday() }}</strong>
+            <span class="search-activity-label">
+              {{ searchesToday() === 1 ? 'búsqueda realizada hoy' : 'búsquedas realizadas hoy' }}
+            </span>
+          </div>
         </article>
 
         <article class="panel">
@@ -319,6 +286,27 @@ interface Transaction {
         font-weight: 700;
       }
 
+      .search-activity-box {
+        display: flex;
+        align-items: baseline;
+        gap: 0.6rem;
+        padding: 1.2rem 1rem;
+        border-radius: 18px;
+        background: linear-gradient(155deg, rgba(214, 183, 106, 0.12), rgba(47, 66, 131, 0.12));
+        border: 1px solid rgba(214, 183, 106, 0.28);
+      }
+
+      .search-activity-value {
+        font-size: clamp(1.8rem, 3vw, 2.4rem);
+        line-height: 1;
+        color: #f5f7fb;
+      }
+
+      .search-activity-label {
+        color: rgba(229, 234, 245, 0.74);
+        font-size: 0.85rem;
+      }
+
       .list {
         list-style: none;
         margin: 0;
@@ -528,16 +516,36 @@ export class ClientHomeComponent implements OnInit, OnDestroy {
   private readonly http = inject(HttpClient);
   private readonly api = environment.apiUrl;
   private readonly destroy$ = new Subject<void>();
+  private readonly bookingSvc = inject(BookingService);
+  private readonly notifState = inject(NotificationStateService);
 
-  // Signals para datos
-  readonly stats = signal<StatItem[]>([]);
-  readonly searches = signal<SearchItem[]>([]);
-  readonly messages = signal<MessageItem[]>([]);
+  // Signals con datos reales (derivados del backend / actividad real del usuario)
   readonly bookings = signal<BookingItem[]>([]);
+  readonly bookingsUpcomingCount = signal(0);
   readonly activePlan = signal<any>(null);
   readonly isLoading = signal(false);
+  readonly searchesToday = signal(0);
+
+  // "Mensajes" se deriva de NotificationStateService (misma fuente que el badge del navbar)
+  readonly messages = computed<MessageItem[]>(() =>
+    this.notifState.notifications().slice(0, 3).map((n) => ({
+      name: n.title || 'Notificación',
+      preview: (n.content || '').slice(0, 40),
+      time: this.formatTimeAgo(n.created_at),
+      unread: n.is_read ? 0 : 1,
+    }))
+  );
+
+  readonly stats = computed<StatItem[]>(() => [
+    { label: 'Búsquedas', value: `${this.searchesToday()}`, detail: 'hoy', accent: 'gold' },
+    { label: 'Mensajes', value: `${this.notifState.unreadCount()}`, detail: 'sin leer', accent: 'blue' },
+    { label: 'Reservas', value: `${this.bookingsUpcomingCount()}`, detail: 'programadas', accent: 'green' },
+    { label: 'Plan', value: this.activePlan() ? 'Premium' : 'Gratuito', detail: this.activePlan() ? 'activo' : 'gratuito', accent: 'gold' },
+  ]);
 
   ngOnInit(): void {
+    this.loadSearchStats();
+    this.notifState.loadNotifications();
     this.loadDashboardData();
   }
 
@@ -549,10 +557,7 @@ export class ClientHomeComponent implements OnInit, OnDestroy {
   private loadDashboardData(): void {
     this.isLoading.set(true);
 
-    // Cargar datos de usuario y transacciones
-    this.loadUserStats();
     this.loadBookings();
-    this.loadMessages();
     this.loadPlanInfo();
 
     // Simulamos un timeout para terminar loading
@@ -561,30 +566,16 @@ export class ClientHomeComponent implements OnInit, OnDestroy {
     }, 1000);
   }
 
-  private loadUserStats(): void {
+  private loadSearchStats(): void {
     this.http
-      .get<any>(`${this.api}/users/me`)
+      .get<{ searches_today: number; daily_limit: number | null }>(`${this.api}/users/me/search-stats`)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (user) => {
-          try {
-            const searchCount = 5;
-            const messageCount = 3;
-            const bookingCount = 1;
-            const hasPremium = !!(user && user.has_premium);
-            const planActive = hasPremium ? 'Pro' : 'Gratuito';
-
-            this.stats.set([
-              { label: 'Búsquedas', value: `${searchCount}`, detail: 'este mes', accent: 'gold' },
-              { label: 'Mensajes', value: `${messageCount}`, detail: 'sin leer', accent: 'blue' },
-              { label: 'Reservas', value: `${bookingCount}`, detail: 'programadas', accent: 'green' },
-              { label: 'Plan', value: planActive, detail: hasPremium ? 'activo' : 'gratuito', accent: 'gold' },
-            ]);
-          } catch (parseErr) {
-            console.error('Error parsing user stats:', parseErr);
-          }
-        },
-        error: (err) => console.error('Error loading user stats:', err)
+        next: (res) => this.searchesToday.set(res?.searches_today ?? 0),
+        error: (err) => {
+          console.error('Error loading search stats:', err);
+          this.searchesToday.set(0);
+        }
       });
   }
 
@@ -608,55 +599,40 @@ export class ClientHomeComponent implements OnInit, OnDestroy {
   }
 
   private loadBookings(): void {
-    this.http
-      .get<any[]>(`${this.api}/bookings`, { params: { limit: '3' } })
+    this.bookingSvc
+      .getClientBookings()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (bookings) => {
           try {
-            const bookingItems: BookingItem[] = this.normalizeListResponse(bookings).slice(0, 3).map((b) => ({
-              title: b?.service_name || 'Servicio',
-              client: b?.provider_name || 'Proveedor',
-              date: this.formatDate(b?.scheduled_at),
+            const list = bookings || [];
+            const sorted = [...list].sort(
+              (a, b) => new Date(b.scheduled_date).getTime() - new Date(a.scheduled_date).getTime()
+            );
+
+            const bookingItems: BookingItem[] = sorted.slice(0, 3).map((b) => ({
+              title: b?.service_category || 'Servicio',
+              client: b?.provider?.full_name || 'Proveedor',
+              date: this.formatDate(b?.scheduled_date),
               state: this.mapBookingStatus(b?.status) as 'Confirmada' | 'Pendiente' | 'Finalizada',
             }));
 
             this.bookings.set(bookingItems);
+
+            const upcoming = list.filter((b) =>
+              ['PENDING', 'APPROVED', 'CONFIRMED'].includes((b?.status || '').toUpperCase())
+            ).length;
+            this.bookingsUpcomingCount.set(upcoming);
           } catch (parseErr) {
             console.error('Error parsing bookings:', parseErr);
             this.bookings.set([]);
+            this.bookingsUpcomingCount.set(0);
           }
         },
         error: (err) => {
           console.error('Error loading bookings:', err);
           this.bookings.set([]);
-        }
-      });
-  }
-
-  private loadMessages(): void {
-    this.http
-      .get<any[]>(`${this.api}/notifications`, { params: { limit: '3' } })
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (notifications) => {
-          try {
-            const messageItems: MessageItem[] = this.normalizeListResponse(notifications).slice(0, 3).map((n) => ({
-              name: n?.sender_name || 'Usuario',
-              preview: typeof n?.content === 'string' ? n.content.substring(0, 40) : 'Nuevo mensaje',
-              time: this.formatTimeAgo(n?.created_at),
-              unread: n?.is_read ? 0 : 1,
-            }));
-
-            this.messages.set(messageItems);
-          } catch (parseErr) {
-            console.error('Error parsing messages:', parseErr);
-            this.messages.set([]);
-          }
-        },
-        error: (err) => {
-          console.error('Error loading messages:', err);
-          this.messages.set([]);
+          this.bookingsUpcomingCount.set(0);
         }
       });
   }

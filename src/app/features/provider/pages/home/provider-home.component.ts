@@ -1,5 +1,6 @@
 import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DEFAULT_AVATAR_URL } from '../../../../core/constants/default-avatar';
 import { RouterLink, Router, NavigationEnd } from '@angular/router';
 import { Subject, filter, takeUntil } from 'rxjs';
 import { ProviderService } from '../../../../core/services/provider.service';
@@ -18,7 +19,7 @@ import { ServiceViewersComponent } from '../../components/service-viewers/servic
   styleUrl: './provider-home.component.scss',
 })
 export class ProviderHomeComponent implements OnInit, OnDestroy {
-  readonly defaultAvatar = '/assets/images/default-avatar.png';
+  readonly defaultAvatar = DEFAULT_AVATAR_URL;
 
   private readonly providerSvc = inject(ProviderService);
   private readonly reviewSvc   = inject(ReviewService);

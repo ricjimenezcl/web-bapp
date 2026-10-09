@@ -1,5 +1,6 @@
 import { Component, inject, signal, computed, OnInit, OnDestroy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DEFAULT_AVATAR_URL } from '../../../../core/constants/default-avatar';
 import { RouterLink, Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -253,18 +254,18 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
 
   getAvatarSrc(): string {
     const profile = this.provider();
-    return profile?.avatar || profile?.avatar_url || profile?.picture || '/assets/images/default-avatar.png';
+    return profile?.avatar || profile?.avatar_url || profile?.picture || DEFAULT_AVATAR_URL;
   }
 
   handleAvatarError(event: Event): void {
     const image = event.target as HTMLImageElement | null;
     if (!image) return;
-    if (image.dataset['fallbackApplied'] === 'true' || image.src.endsWith('/assets/images/default-avatar.png')) {
+    if (image.dataset['fallbackApplied'] === 'true' || image.src === DEFAULT_AVATAR_URL) {
       image.style.display = 'none';
       return;
     }
     image.dataset['fallbackApplied'] = 'true';
-    image.src = '/assets/images/default-avatar.png';
+    image.src = DEFAULT_AVATAR_URL;
   }
 
   onAvatarChange(event: Event): void {

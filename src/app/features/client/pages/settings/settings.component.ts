@@ -8,6 +8,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { PlatformLanguage, PlatformLanguageService } from '../../../../core/services/platform-language.service';
 import { TPipe } from '../../../../shared/pipes/t.pipe';
 import { ModalService } from '../../../../core/services/modal.service';
+import { DEFAULT_AVATAR_URL } from '../../../../core/constants/default-avatar';
 
 @Component({
   selector: 'app-settings',
@@ -44,6 +45,22 @@ export class SettingsComponent {
     new_password:     ['', [Validators.required, Validators.minLength(8)]],
     confirm_password: ['', Validators.required],
   }, { validators: this._matchPasswords });
+
+  getAvatarSrc(): string {
+    const profile = this.auth.currentProfile();
+    return profile?.avatar || profile?.avatar_url || profile?.picture || DEFAULT_AVATAR_URL;
+  }
+
+  handleAvatarError(event: Event): void {
+    const image = event.target as HTMLImageElement | null;
+    if (!image) return;
+    if (image.dataset['fallbackApplied'] === 'true' || image.src === DEFAULT_AVATAR_URL) {
+      image.style.display = 'none';
+      return;
+    }
+    image.dataset['fallbackApplied'] = 'true';
+    image.src = DEFAULT_AVATAR_URL;
+  }
 
   togglePasswordVisibility(field: 'old' | 'new' | 'confirm'): void {
     if (field === 'old') {

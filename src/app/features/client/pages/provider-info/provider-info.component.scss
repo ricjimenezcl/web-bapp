@@ -299,15 +299,32 @@
 
 @media (max-width: 767px) {
   .pi-tabs-nav .ref-segment-btn {
-    font-size: 10.5px;
-    gap: 4px;
-    padding: 9px 5px;
+    flex-direction: column;
+    font-size: 10px;
+    gap: 3px;
+    padding: 8px 4px;
+    white-space: normal;
+  }
+
+  .pi-tabs-nav .ref-segment-label {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    text-align: center;
+    line-height: 1.15;
   }
 
   .pi-tabs-nav .ref-segment-btn svg {
-    width: 11px;
-    height: 11px;
+    width: 13px;
+    height: 13px;
     flex-shrink: 0;
+  }
+}
+
+@media (max-width: 380px) {
+  .pi-tabs-nav .ref-segment-btn {
+    font-size: 9px;
+    padding: 8px 2px;
   }
 }
 

@@ -16,6 +16,7 @@ import { TPipe } from '../../../../shared/pipes/t.pipe';
 import { PlatformI18nService } from '../../../../core/services/platform-i18n.service';
 import { ModalService } from '../../../../core/services/modal.service';
 import { PaymentService } from '../../../../core/services/payment.service';
+import { parseUtcDate } from '../../../../shared/utils/date-utils';
 
 interface ServiceTransaction {
   id: number;
@@ -210,22 +211,27 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
 
   /** Plan activo: última transacción completed con expires_at en el futuro */
   get activePlan(): ServiceTransaction | null {
-    const now = new Date();
+    const now = Date.now();
     return this.transactions().find(
-      t => t.status === 'completed' && t.expires_at && new Date(t.expires_at) > now
+      t => t.status === 'completed' && t.expires_at && (parseUtcDate(t.expires_at)?.getTime() ?? 0) > now
     ) ?? null;
   }
 
   /** Días restantes hasta vencimiento */
   remainingDays(expiresAt: string): number {
-    return Math.max(0, Math.ceil((new Date(expiresAt).getTime() - Date.now()) / 86_400_000));
+    const expires = parseUtcDate(expiresAt);
+    if (!expires) return 0;
+    return Math.max(0, Math.ceil((expires.getTime() - Date.now()) / 86_400_000));
   }
 
   /** Porcentaje de tiempo consumido (para barra de progreso) */
   usedPercent(tx: ServiceTransaction): number {
     if (!tx.activated_at || !tx.expires_at) return 0;
-    const total = new Date(tx.expires_at).getTime() - new Date(tx.activated_at).getTime();
-    const used  = Date.now() - new Date(tx.activated_at).getTime();
+    const activated = parseUtcDate(tx.activated_at);
+    const expires = parseUtcDate(tx.expires_at);
+    if (!activated || !expires) return 0;
+    const total = expires.getTime() - activated.getTime();
+    const used  = Date.now() - activated.getTime();
     return Math.min(100, Math.round((used / total) * 100));
   }
 

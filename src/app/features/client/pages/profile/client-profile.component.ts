@@ -11,17 +11,20 @@ import { CustomValidators } from '../../../../shared/validators/custom-validator
 import { ContentFilterService } from '../../../../shared/services/content-filter.service';
 import { offensiveContentAsyncValidator } from '../../../../shared/validators/content-filter.validators';
 import { formatChileanPhone } from '../../../../shared/utils/form-formatters';
-import { ProductType } from '../../../../core/services/payment.service';
+import { ProductType, PaymentService } from '../../../../core/services/payment.service';
 import { ModalService } from '../../../../core/services/modal.service';
 import { PlatformLanguage, PlatformLanguageService } from '../../../../core/services/platform-language.service';
 import { PlatformI18nService } from '../../../../core/services/platform-i18n.service';
 import { TPipe } from '../../../../shared/pipes/t.pipe';
 import { environment } from '../../../../../environments/environment';
+import { parseUtcDate } from '../../../../shared/utils/date-utils';
 
 export type DashView = 'overview' | 'edit' | 'config' | 'help' | 'payments';
 
 interface ClientPlanTransaction {
   id: number;
+  amount: number;
+  currency: string;
   status: string;
   activated_at: string | null;
   expires_at: string | null;
@@ -50,6 +53,7 @@ export class ClientProfileComponent implements OnInit {
   private readonly contentFilterService = inject(ContentFilterService);
   private readonly platformLanguage = inject(PlatformLanguageService);
   private readonly i18n = inject(PlatformI18nService);
+  private readonly paymentSvc = inject(PaymentService);
 
   // ── Profile ────────────────────────────────────────────────────────
   user    = signal<UserProfile | null>(null);
@@ -57,6 +61,12 @@ export class ClientProfileComponent implements OnInit {
 
   // ── Plan activo ────────────────────────────────────────────────────
   transactions = signal<ClientPlanTransaction[]>([]);
+  transactionsLoading = signal(true);
+  syncingPendingPayments = signal(false);
+
+  completedTx = computed(() => this.transactions().filter(t => t.status === 'completed').length);
+  pendingTx   = computed(() => this.transactions().filter(t => t.status === 'pending').length);
+  cancelledTx = computed(() => this.transactions().filter(t => ['failed', 'refunded', 'expired'].includes(t.status)).length);
 
   // ── Active view ────────────────────────────────────────────────────
   activeView = signal<DashView>('overview');
@@ -137,23 +147,57 @@ export class ClientProfileComponent implements OnInit {
   }
 
   private loadTransactions(): void {
+    this.transactionsLoading.set(true);
     this.http.get<ClientPlanTransaction[]>(`${environment.apiUrl}/transactions/me`).subscribe({
-      next: (txs) => this.transactions.set(txs),
-      error: () => this.transactions.set([]),
+      next: (txs) => { this.transactions.set(txs); this.transactionsLoading.set(false); },
+      error: () => { this.transactions.set([]); this.transactionsLoading.set(false); },
+    });
+  }
+
+  /**
+   * Reconciliación manual: pide al backend revisar en Mercado Pago el estado
+   * real de los pagos PENDING del cliente y activar el beneficio si ya
+   * fueron aprobados (respaldo para cuando el webhook no alcanzó a procesar
+   * la notificación).
+   */
+  syncPendingPayments(): void {
+    if (this.syncingPendingPayments()) return;
+    this.syncingPendingPayments.set(true);
+    this.paymentSvc.syncMercadoPagoPending().subscribe({
+      next: () => { this.syncingPendingPayments.set(false); this.loadTransactions(); },
+      error: () => this.syncingPendingPayments.set(false),
     });
   }
 
   /** Plan activo: última transacción completed con expires_at en el futuro */
   get activePlan(): ClientPlanTransaction | null {
-    const now = new Date();
+    const now = Date.now();
     return this.transactions().find(
-      t => t.status === 'completed' && t.expires_at && new Date(t.expires_at) > now
+      t => t.status === 'completed' && t.expires_at && (parseUtcDate(t.expires_at)?.getTime() ?? 0) > now
     ) ?? null;
   }
 
   /** Días restantes hasta vencimiento */
   remainingDays(expiresAt: string): number {
-    return Math.max(0, Math.ceil((new Date(expiresAt).getTime() - Date.now()) / 86_400_000));
+    const expires = parseUtcDate(expiresAt);
+    if (!expires) return 0;
+    return Math.max(0, Math.ceil((expires.getTime() - Date.now()) / 86_400_000));
+  }
+
+  statusLabel(status: string): string {
+    const map: Record<string, string> = {
+      completed: 'Activo', pending: 'Pendiente', failed: 'Fallido',
+      refunded: 'Reembolsado', expired: 'Vencido'
+    };
+    return map[status] ?? status;
+  }
+
+  statusClass(status: string): string {
+    const map: Record<string, string> = {
+      completed: 'badge-success', pending: 'badge-warning',
+      failed: 'badge-danger', refunded: 'badge-secondary', expired: 'badge-gray'
+    };
+    return map[status] ?? 'badge-gray';
   }
 
   // ── View switching ─────────────────────────────────────────────────
@@ -304,7 +348,12 @@ export class ClientProfileComponent implements OnInit {
     });
   }
 
-  openPremiumModal(): void { this.showPremiumModal.set(true); }
+  openPremiumModal(): void {
+    // Evita reabrir el flujo de compra si ya hay un plan activo (el backend
+    // igualmente lo bloquearía con 409, pero así no se le ofrece la opción).
+    if (this.hasPremium()) return;
+    this.showPremiumModal.set(true);
+  }
   closePremiumModal(): void { this.showPremiumModal.set(false); }
   choosePremiumPlan(productType: ProductType): void {
     this.closePremiumModal();

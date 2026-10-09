@@ -772,6 +772,83 @@
 
 .empty-icon { width: 48px; height: 48px; color: #94A3B8; opacity: 0.4; margin: 0 auto; display: block; }
 
+.loading-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 0;
+}
+.spinner {
+  width: 40px; height: 40px;
+  border: 3px solid rgba(253, 230, 138, 0.15);
+  border-top-color: #FDE68A;
+  border-radius: 50%;
+  animation: client-profile-spin 0.7s linear infinite;
+}
+@keyframes client-profile-spin { to { transform: rotate(360deg); } }
+
+.sync-pending-actions {
+  display: flex;
+  justify-content: center;
+  margin: -12px 0 20px;
+}
+.btn-link-sync {
+  background: none;
+  border: none;
+  color: #FDE68A;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 4px 8px;
+
+  &:disabled { opacity: 0.6; cursor: wait; text-decoration: none; }
+}
+
+.transactions-list { display: flex; flex-direction: column; gap: 10px; }
+.transaction-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px;
+  background: #000000;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  transition: border-color 0.2s;
+
+  &:hover { border-color: rgba(255, 255, 255, 0.15); }
+}
+.transaction-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(253, 230, 138, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  svg { width: 20px; height: 20px; color: #FDE68A; }
+}
+.transaction-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.transaction-name { font-size: 14px; font-weight: 700; color: #F9FAFB; }
+.transaction-date { font-size: 12px; color: #94A3B8; }
+.transaction-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.transaction-amount { font-size: 15px; font-weight: 800; color: #F9FAFB; }
+.transaction-status {
+  font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px;
+
+  &.badge-success { background: rgba(167, 243, 208, 0.15); color: #A7F3D0; }
+  &.badge-warning { background: rgba(253, 230, 138, 0.15); color: #FDE68A; }
+  &.badge-danger  { background: rgba(252, 165, 165, 0.15); color: #FCA5A5; }
+  &.badge-gray    { background: rgba(148, 163, 184, 0.1);  color: #94A3B8; }
+}
+
 // ══════════════════════════════════════════════════════════════════════
 // VISTA: CONFIGURACIÓN
 // ══════════════════════════════════════════════════════════════════════

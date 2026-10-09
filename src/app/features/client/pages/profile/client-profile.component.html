@@ -218,32 +218,34 @@
 
         <div class="purchase-summary">
           <div class="sum-item">
-            <span class="sum-val">0</span>
+            <span class="sum-val">{{ transactions().length }}</span>
             <span class="sum-lbl">{{ 'profile.totalOrders' | t }}</span>
           </div>
           <div class="sum-item">
-            <span class="sum-val sum-val--success">0</span>
+            <span class="sum-val sum-val--success">{{ completedTx() }}</span>
             <span class="sum-lbl">{{ 'profile.completed' | t }}</span>
           </div>
           <div class="sum-item">
-            <span class="sum-val sum-val--accent">0</span>
+            <span class="sum-val sum-val--accent">{{ pendingTx() }}</span>
             <span class="sum-lbl">{{ 'profile.pending' | t }}</span>
           </div>
           <div class="sum-item sum-item--last">
-            <span class="sum-val sum-val--danger">0</span>
+            <span class="sum-val sum-val--danger">{{ cancelledTx() }}</span>
             <span class="sum-lbl">{{ 'profile.cancelled' | t }}</span>
           </div>
         </div>
 
-        <div class="empty-state">
-          <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-          </svg>
-          <h3>{{ 'profile.noRecentTransactions' | t }}</h3>
-          <p>{{ 'profile.noRecentTransactionsSub' | t }}</p>
-          <button class="btn-secondary" type="button" (click)="openPremiumModal()">{{ 'runtime.exploreServices' | t }}</button>
-        </div>
+        @if (transactions().length === 0) {
+          <div class="empty-state">
+            <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+            </svg>
+            <h3>{{ 'profile.noRecentTransactions' | t }}</h3>
+            <p>{{ 'profile.noRecentTransactionsSub' | t }}</p>
+            <button class="btn-secondary" type="button" (click)="openPremiumModal()">{{ 'runtime.exploreServices' | t }}</button>
+          </div>
+        }
       </div>
     }
 
@@ -469,15 +471,100 @@
           <p>Administra tus pagos y planes activos.</p>
         </div>
 
-        <div class="empty-state">
-          <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-          </svg>
-          <h3>No tienes pagos recientes</h3>
-          <p>Aún no se han registrado pagos en tu cuenta.</p>
-          <button class="btn-primary" type="button" (click)="openPremiumModal()">Ver planes</button>
-        </div>
+        @if (transactionsLoading()) {
+          <div class="loading-center">
+            <div class="spinner"></div>
+          </div>
+        } @else if (transactions().length === 0) {
+          <div class="empty-state">
+            <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+            </svg>
+            <h3>No tienes pagos recientes</h3>
+            <p>Aún no se han registrado pagos en tu cuenta.</p>
+            <button class="btn-primary" type="button" (click)="openPremiumModal()">Ver planes</button>
+          </div>
+        } @else {
+          @if (activePlan) {
+            <div class="premium-banner">
+              <div class="premium-info">
+                <h3 class="premium-plan-title">
+                  <svg class="prem-icon" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 14.59L5.41 12 6.83 10.58 10 13.75l7.17-7.17 1.42 1.42L10 16.59z"/>
+                  </svg>
+                  Plan activo: {{ activePlan.product?.name ?? 'Plan Premium' }}
+                </h3>
+                <div class="perks-grid">
+                  @if (activePlan.activated_at) {
+                    <div class="perk">
+                      <svg class="perk-icon" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.59L5.41 12 6.83 10.58 10 13.75l7.17-7.17 1.42 1.42L10 16.59z"/>
+                      </svg>
+                      Inicio: {{ activePlan.activated_at | date:'dd/MM/yyyy' }}
+                    </div>
+                  }
+                  @if (activePlan.expires_at) {
+                    <div class="perk">
+                      <svg class="perk-icon" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.59L5.41 12 6.83 10.58 10 13.75l7.17-7.17 1.42 1.42L10 16.59z"/>
+                      </svg>
+                      Vence: {{ activePlan.expires_at | date:'dd/MM/yyyy' }} &mdash; {{ remainingDays(activePlan.expires_at) }} días restantes
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+
+          <div class="purchase-summary">
+            <div class="sum-item">
+              <span class="sum-val">{{ transactions().length }}</span>
+              <span class="sum-lbl">{{ 'profile.totalOrders' | t }}</span>
+            </div>
+            <div class="sum-item">
+              <span class="sum-val sum-val--success">{{ completedTx() }}</span>
+              <span class="sum-lbl">{{ 'profile.completed' | t }}</span>
+            </div>
+            <div class="sum-item sum-item--last">
+              <span class="sum-val sum-val--accent">{{ pendingTx() }}</span>
+              <span class="sum-lbl">{{ 'profile.pending' | t }}</span>
+            </div>
+          </div>
+
+          @if (pendingTx() > 0) {
+            <div class="sync-pending-actions">
+              <button
+                type="button"
+                class="btn-link-sync"
+                [disabled]="syncingPendingPayments()"
+                (click)="syncPendingPayments()">
+                {{ syncingPendingPayments() ? 'Verificando con Mercado Pago…' : 'Verificar pagos pendientes' }}
+              </button>
+            </div>
+          }
+
+          <div class="transactions-list">
+            @for (tx of transactions(); track tx.id) {
+              <div class="transaction-item">
+                <div class="transaction-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                  </svg>
+                </div>
+                <div class="transaction-info">
+                  <span class="transaction-name">{{ tx.product?.name ?? 'Plan BAPP' }}</span>
+                  <span class="transaction-date">{{ tx.created_at | date:'dd/MM/yyyy' }}</span>
+                </div>
+                <div class="transaction-right">
+                  <span class="transaction-amount">${{ tx.amount | number:'1.0-0' }}</span>
+                  <span class="transaction-status" [ngClass]="statusClass(tx.status)">{{ statusLabel(tx.status) }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        }
       </div>
     }
 

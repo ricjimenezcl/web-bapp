@@ -310,7 +310,17 @@ export class PaymentComponent implements OnInit {
   }
 
   recheckMercadoPagoStatus(): void {
-    this.handleMercadoPagoReturn();
+    this.committing.set(true);
+    this.error.set('');
+
+    // Reconciliación activa: antes de solo refrescar el perfil, le pedimos
+    // al backend que consulte a Mercado Pago el estado real de las
+    // transacciones PENDING (respaldo para cuando el webhook aún no llegó
+    // o se perdió), y recién después refrescamos /users/me.
+    this.paymentSvc.syncMercadoPagoPending().subscribe({
+      next: () => this.handleMercadoPagoReturn(),
+      error: () => this.handleMercadoPagoReturn(),
+    });
   }
 
   private commit(params: { token?: string; buy_order?: string }): void {

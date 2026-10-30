@@ -496,7 +496,9 @@ export class ProviderInfoComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const serviceCategory = service?.service_category?.name ?? 'GENERAL';
+    const serviceCategory = service?.service_category?.name
+      ?? service?.service_category_name
+      ?? 'GENERAL';
     const duration        = 60;
     const totalPrice      = (service?.hourly_rate ?? 0) * (duration / 60);
 
